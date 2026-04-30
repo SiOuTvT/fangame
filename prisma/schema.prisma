@@ -1,0 +1,244 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(cuid())
+  username      String         @unique
+  email         String         @unique
+  password      String
+  avatar        String         @default("")
+  banner        String         @default("")
+  bio           String         @default("")
+  role          String         @default("USER")
+  faveGameId    String?
+  createdAt     DateTime       @default(now())
+  comments      Comment[]
+  favorites     Favorite[]
+  playStatuses  PlayStatus[]
+  forumPosts    ForumPost[]
+  forumComments ForumComment[]
+  checkIns      CheckIn[]
+  resetTokens   PasswordResetToken[]
+  ratings       GameRating[]
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Game {
+  id            String       @id @default(cuid())
+  title         String
+  originalWork  String       @default("")
+  description   String       @default("")
+  coverImage    String       @default("")
+  screenshots   String       @default("[]")
+  downloadLinks String       @default("[]")
+  status        String       @default("完结")
+  isNsfw        Boolean      @default(false)
+  vndbId        String       @default("")
+  viewCount     Int          @default(0)
+  favoriteCount Int          @default(0)
+  isPublished   Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  tags          GameTag[]
+  comments      Comment[]
+  favorites     Favorite[]
+  playStatuses  PlayStatus[]
+  reports       GameReport[]
+  ratings       GameRating[]
+  creators      GameCreator[]
+  logs          GameLog[]
+}
+
+model Tag {
+  id    String    @id @default(cuid())
+  name  String    @unique
+  color String    @default("#a78bfa")
+  games GameTag[]
+}
+
+model GameTag {
+  gameId String
+  tagId  String
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  @@id([gameId, tagId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  gameId    String
+  userId    String
+  content   String
+  imageUrl  String   @default("")
+  likeCount Int      @default(0)
+  createdAt DateTime @default(now())
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Favorite {
+  id     String @id @default(cuid())
+  userId String
+  gameId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  @@unique([userId, gameId])
+}
+
+model PlayStatus {
+  id     String @id @default(cuid())
+  userId String
+  gameId String
+  status String @default("想玩")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  @@unique([userId, gameId])
+}
+
+model GameReport {
+  id        String   @id @default(cuid())
+  gameId    String
+  ip        String
+  createdAt DateTime @default(now())
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  @@unique([gameId, ip])
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  imageUrl  String   @default("")
+  link      String   @default("")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Music {
+  id        String   @id @default(cuid())
+  title     String
+  filename  String
+  url       String   @default("")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model GameLog {
+  id        String   @id @default(cuid())
+  gameId    String
+  content   String
+  createdAt DateTime @default(now())
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+}
+
+model Creator {
+  id          String        @id @default(cuid())
+  vndbId      String        @default("")
+  name        String
+  nameJa      String        @default("")
+  avatar      String        @default("")
+  bio         String        @default("")
+  gender      String        @default("")
+  twitterUrl  String        @default("")
+  wikipediaUrl String       @default("")
+  createdAt   DateTime      @default(now())
+  games       GameCreator[]
+}
+
+model GameCreator {
+  id        String  @id @default(cuid())
+  gameId    String
+  creatorId String
+  role      String  // scenario / art / chardesign / music / director / songs
+  game      Game    @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  @@unique([gameId, creatorId, role])
+}
+
+model GameRating {
+  id        String   @id @default(cuid())
+  gameId    String
+  userId    String
+  score     Int      // 1-5
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([gameId, userId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CheckIn {
+  id        String   @id @default(cuid())
+  userId    String
+  date      String   // YYYY-MM-DD
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId, date])
+}
+
+model ForumPost {
+  id        String         @id @default(cuid())
+  userId    String
+  title     String
+  content   String
+  imageUrl  String         @default("")
+  likeCount Int            @default(0)
+  isSolved  Boolean        @default(false)
+  createdAt DateTime       @default(now())
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments  ForumComment[]
+}
+
+model ForumComment {
+  id        String    @id @default(cuid())
+  postId    String
+  userId    String
+  content   String
+  imageUrl  String    @default("")
+  likeCount Int       @default(0)
+  createdAt DateTime  @default(now())
+  post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
