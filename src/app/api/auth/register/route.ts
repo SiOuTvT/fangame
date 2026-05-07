@@ -1,29 +1,10 @@
-import { NextRequest, NextResponse } from "next/server"
-import bcrypt from "bcryptjs"
-import { prisma } from "@/lib/prisma"
-import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit"
-import { withRateLimit } from "@/lib/middleware"
-import { rateLimits } from "@/lib/rate-limit"
 import { logger } from "@/lib/logger"
+import { withRateLimit } from "@/lib/middleware"
+import { prisma } from "@/lib/prisma"
+import { rateLimits } from "@/lib/rate-limit"
+import bcrypt from "bcryptjs"
+import { NextRequest, NextResponse } from "next/server"
 
-export async function POST(req: NextRequest) {
-  // 速率限制：每分钟最多5次注册请求
-  const rateLimit = await checkRateLimit(RATE_LIMITS.auth)
-  if (!rateLimit.success) {
-    return NextResponse.json(
-      { error: "请求过于频繁，请稍后再试" },
-      { 
-        status: 429,
-        headers: {
-          "X-RateLimit-Limit": String(rateLimit.limit),
-          "X-RateLimit-Remaining": String(rateLimit.remaining),
-          "X-RateLimit-Reset": String(rateLimit.reset),
-        },
-      }
-    )
-  }
-
-  const { username, email, password } = await req.json()
 async function handleRegister(req: NextRequest) {
   try {
     const { username, email, password } = await req.json()
@@ -58,7 +39,11 @@ async function handleRegister(req: NextRequest) {
       select: { id: true, username: true, email: true },
     })
 
-  return NextResponse.json(user, { status: 201 })
+    return NextResponse.json(user, { status: 201 })
+  } catch (error) {
+    logger.auth.error("Registration error", error)
+    return NextResponse.json({ error: "注册失败，请稍后再试" }, { status: 500 })
+  }
 }
 
 export const POST = (req: NextRequest) =>

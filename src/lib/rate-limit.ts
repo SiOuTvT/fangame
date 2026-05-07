@@ -3,9 +3,17 @@
  * 生产环境建议使用 Redis 实现分布式限流
  */
 
+import { headers } from "next/headers"
+
 interface RateLimitEntry {
   count: number
   resetTime: number
+}
+
+export interface RateLimitConfig {
+  windowMs: number // 时间窗口（毫秒）
+  maxRequests: number // 最大请求数
+  message?: string // 超限时的错误消息
 }
 
 // 内存存储 - 生产环境应替换为 Redis
@@ -21,12 +29,6 @@ setInterval(() => {
     }
   }
 }, 600000)
-
-export interface RateLimitConfig {
-  windowMs: number // 时间窗口（毫秒）
-  maxRequests: number // 最大请求数
-  message?: string // 超限时的错误消息
-}
 
 export function getRateLimit(key: string, config: RateLimitConfig): {
   allowed: boolean
@@ -123,26 +125,6 @@ export const rateLimits = {
   },
 } as const
 
-import { headers } from "next/headers"
-
-interface RateLimitConfig {
-  maxRequests: number  // 最大请求数
-  windowMs: number     // 时间窗口（毫秒）
-}
-
-// 简单的内存存储（生产环境建议使用 Redis）
-const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
-
-// 清理过期记录（每5分钟）
-setInterval(() => {
-  const now = Date.now()
-  for (const [key, value] of rateLimitStore.entries()) {
-    if (value.resetTime < now) {
-      rateLimitStore.delete(key)
-    }
-  }
-}, 5 * 60 * 1000)
-
 export async function checkRateLimit(config: RateLimitConfig): Promise<{
   success: boolean
   limit: number
@@ -156,11 +138,11 @@ export async function checkRateLimit(config: RateLimitConfig): Promise<{
   
   const key = `rate-limit:${ip}`
   const now = Date.now()
-  const record = rateLimitStore.get(key)
+  const record = store.get(key)
 
   if (!record || now > record.resetTime) {
     // 新窗口
-    rateLimitStore.set(key, {
+    store.set(key, {
       count: 1,
       resetTime: now + config.windowMs,
     })
@@ -183,7 +165,7 @@ export async function checkRateLimit(config: RateLimitConfig): Promise<{
     }
   }
 
-  rateLimitStore.set(key, record)
+  store.set(key, record)
   return {
     success: true,
     limit: config.maxRequests,

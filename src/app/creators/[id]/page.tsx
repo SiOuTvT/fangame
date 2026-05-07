@@ -148,7 +148,7 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
   if (!creator) notFound()
 
   const publishedGames = creator.games.filter(g => g.game.isPublished)
-  const uniqueGames = [...new Map(publishedGames.map(g => [g.game.id, g.game])).values()]
+  const uniqueGames = [...new Map(publishedGames.map(g => [g.game.id, g.game])).values()] as typeof publishedGames[number]["game"][]
 
   return (
     <div>
@@ -174,7 +174,7 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
           </div>
 
           <div className="flex flex-wrap gap-2 mb-4">
-            {[...new Set(publishedGames.map(g => g.role))].map(role => (
+            {([...new Set(publishedGames.map(g => g.role))] as string[]).map(role => (
               <span key={role} className="rounded-full bg-zinc-800/80 light:bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08]">
                 {ROLE_LABEL[role] ?? role}
               </span>

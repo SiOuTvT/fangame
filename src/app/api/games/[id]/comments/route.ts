@@ -1,28 +1,13 @@
 import { auth } from "@/lib/auth"
+import { withRateLimit } from "@/lib/middleware"
 import { prisma } from "@/lib/prisma"
-import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit"
+import { rateLimits } from "@/lib/rate-limit"
 import { NextRequest, NextResponse } from "next/server"
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  // 速率限制：每分钟最多10条评论
-  const rateLimit = await checkRateLimit(RATE_LIMITS.comment)
-  if (!rateLimit.success) {
-    return NextResponse.json(
-      { error: "请求过于频繁，请稍后再试" },
-      { 
-        status: 429,
-        headers: {
-          "X-RateLimit-Limit": String(rateLimit.limit),
-          "X-RateLimit-Remaining": String(rateLimit.remaining),
-          "X-RateLimit-Reset": String(rateLimit.reset),
-        },
-      }
-    )
-  }
-
+async function handleComment(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   const session = await auth()
   if (!session?.user?.id) return NextResponse.json({ error: "未登录" }, { status: 401 })
-  const { id: gameId } = await params
+  const { id: gameId } = await context.params
 
   const formData = await req.formData()
   const content = (formData.get("content") as string)?.trim()
@@ -53,19 +38,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       gameId, 
       userId: session.user.id, 
       content: content.trim(),
-      imageUrl: imageUrl || "",  // 修复：使用正确的字段名 imageUrl
+      imageUrl: imageUrl || "",
     },
     include: { user: { select: { id: true, username: true, avatar: true } } },
   })
 
-  return NextResponse.json({ ...comment, createdAt: comment.createdAt.toISOString() }, { 
-    status: 201,
-    headers: {
-      "X-RateLimit-Limit": String(rateLimit.limit),
-      "X-RateLimit-Remaining": String(rateLimit.remaining),
-      "X-RateLimit-Reset": String(rateLimit.reset),
-    },
-  })
+  return NextResponse.json({ ...comment, createdAt: comment.createdAt.toISOString() }, { status: 201 })
 }
 
 export const POST = (req: NextRequest, context: { params: Promise<{ id: string }> }) =>

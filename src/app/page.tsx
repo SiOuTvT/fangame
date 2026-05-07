@@ -2,6 +2,7 @@ import { AnnounceSwiper } from "@/components/announce-swiper"
 import { GameCardSkeleton } from "@/components/game-card"
 import { GameGridClient } from "@/components/game-grid-client"
 import { PlaceholderPreviewBtn, RandomCreatorBtn } from "@/components/random-game-btn"
+import { buildGameSearchFilter } from "@/lib/filters"
 import { prisma } from "@/lib/prisma"
 import Link from "next/link"
 import { Suspense } from "react"
@@ -36,7 +37,7 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
     return <div className="py-20 text-center text-sm text-muted-foreground">暂无游戏资源，管理员快去添加吧~</div>
   }
 
-  const mapped = games.map(g => ({ ...g, tags: g.tags.map(t => t.tag) }))
+  const mapped = games.map((g: any) => ({ ...g, tags: g.tags.map((t: any) => t.tag) }))
 
   return <GameGridClient initialGames={mapped} total={total} tag={tag} q={q} nsfw={nsfw} />
 }
@@ -62,7 +63,7 @@ export default async function HomePage({
     }),
   ])
 
-  const allTags = ["全部", ...tags.map((t) => t.name)]
+  const allTags = ["全部", ...tags.map((t: { name: string }) => t.name)]
 
   return (
     <div className="flex flex-col gap-5">

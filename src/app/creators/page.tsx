@@ -1,6 +1,6 @@
-﻿import Link from "next/link"
+﻿import { prisma } from "@/lib/prisma"
 import Image from "next/image"
-import { prisma } from "@/lib/prisma"
+import Link from "next/link"
 
 export const metadata = { title: "创作者 · 同人游戏站" }
 
@@ -65,7 +65,7 @@ export default async function CreatorsPage({
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
           {creators.map(c => {
-            const roles = [...new Set(c.games.map(g => ROLE_LABEL[g.role] ?? g.role))]
+            const roles = [...new Set(c.games.map(g => ROLE_LABEL[g.role] ?? g.role))] as string[]
             return (
               <Link key={c.id} href={`/creators/${c.id}`}
                 className="group flex flex-col items-center gap-2.5 rounded-2xl bg-zinc-900 p-4 ring-1 ring-white/[0.06] transition-all hover:-translate-y-1 hover:bg-zinc-800 hover:ring-white/10 hover:shadow-[0_8px_24px_rgba(0,0,0,0.4)]">

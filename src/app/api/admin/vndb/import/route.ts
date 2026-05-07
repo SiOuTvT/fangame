@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server"
-import { vndbClient } from "@/lib/vndb"
-import { prisma } from "@/lib/prisma"
 import { getAdminSession } from "@/lib/admin"
+import { prisma } from "@/lib/prisma"
+import { vndbClient } from "@/lib/vndb"
+import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(req: NextRequest) {
   // 需要管理员权限
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const results = []
+    const results: { vndbId: string; status: string; reason?: string; gameId?: string }[] = []
     let successCount = 0
     let failCount = 0
 

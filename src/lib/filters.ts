@@ -1,11 +1,10 @@
-import { Prisma } from "@prisma/client"
 
 /**
  * 根据 NSFW 设置生成游戏查询的 where 条件
  * @param nsfwEnabled 是否启用 NSFW 内容
- * @returns Prisma.GameWhereInput 过滤条件
+ * @returns 过滤条件
  */
-export function getGameNsfwFilter(nsfwEnabled: boolean): Prisma.GameWhereInput {
+export function getGameNsfwFilter(nsfwEnabled: boolean): Record<string, unknown> {
   return nsfwEnabled ? {} : { isNsfw: false }
 }
 
@@ -15,12 +14,12 @@ export function getGameNsfwFilter(nsfwEnabled: boolean): Prisma.GameWhereInput {
  * @returns 是否启用 NSFW
  */
 export function parseNsfwParam(
-  searchParams: { get?: (key: string) => string | null; [key: string]: any } | Record<string, any>,
+  searchParams: { get?: (key: string) => string | null; [key: string]: unknown } | Record<string, unknown>,
   fallback: boolean = false
 ): boolean {
   // 支持 URLSearchParams
   if (searchParams.get && typeof searchParams.get === "function") {
-    const value = searchParams.get("nsfw")
+    const value = (searchParams as { get: (key: string) => string | null }).get("nsfw")
     if (value !== null && value !== undefined) {
       return value === "1" || value === "true"
     }
@@ -42,17 +41,17 @@ export function parseNsfwParam(
 /**
  * 构建游戏搜索的基础 where 条件
  * @param options 搜索选项
- * @returns Prisma.GameWhereInput
+ * @returns where 条件对象
  */
 export function buildGameSearchFilter(options: {
   q?: string
   tag?: string
   nsfw?: boolean
   publishedOnly?: boolean
-}): Prisma.GameWhereInput {
+}): Record<string, unknown> {
   const { q = "", tag = "", nsfw = false, publishedOnly = true } = options
 
-  const where: Prisma.GameWhereInput = {
+  const where: Record<string, unknown> = {
     ...(publishedOnly && { isPublished: true }),
     ...getGameNsfwFilter(nsfw),
   }
