@@ -1,13 +1,9 @@
 ﻿"use client"
 
-import type { OurFileRouter } from "@/lib/uploadthing"
 import { cn } from "@/lib/utils"
 import { Crop, RotateCw, Upload, X, ZoomIn, ZoomOut } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import Cropper from "react-easy-crop"
-import { genUploader } from "uploadthing/client"
-
-const { uploadFiles } = genUploader<OurFileRouter>()
 
 /** 从 canvas 裁剪区域生成 Blob */
 function createImage(url: string): Promise<HTMLImageElement> {
@@ -174,11 +170,15 @@ export function ImageUpload({
           const url = await uploadFunction(croppedFile)
           onChange?.(url)
         } else {
-          const res = await uploadFiles("imageUploader", { files: [croppedFile] })
-          if (res?.[0]?.url) {
-            onChange?.(res[0].url)
+          // 使用自建上传 API
+          const formData = new FormData()
+          formData.append("file", croppedFile)
+          const res = await fetch("/api/upload", { method: "POST", body: formData })
+          const data = await res.json()
+          if (res.ok && data.url) {
+            onChange?.(data.url)
           } else {
-            throw new Error("上传失败：未返回 URL")
+            throw new Error(data.error || "上传失败：未返回 URL")
           }
         }
       } catch (err) {

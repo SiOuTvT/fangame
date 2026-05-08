@@ -1,6 +1,5 @@
 ﻿"use client"
 
-import type { OurFileRouter } from "@/lib/uploadthing"
 import { cn } from "@/lib/utils"
 import Image from "@tiptap/extension-image"
 import Link from "@tiptap/extension-link"
@@ -24,7 +23,6 @@ import {
   Upload
 } from "lucide-react"
 import { useCallback, useRef, useState } from "react"
-import { genUploader } from "uploadthing/client"
 
 interface RichTextEditorProps {
   content?: string
@@ -33,7 +31,6 @@ interface RichTextEditorProps {
   className?: string
 }
 
-const { uploadFiles } = genUploader<OurFileRouter>()
 
 export function RichTextEditor({
   content = "",
@@ -100,9 +97,14 @@ export function RichTextEditor({
 
       setUploading(true)
       try {
-        const res = await uploadFiles("avatar", { files: [file] })
-        if (res?.[0]?.url) {
-          addImage(res[0].url)
+        const formData = new FormData()
+        formData.append("file", file)
+        const res = await fetch("/api/upload", { method: "POST", body: formData })
+        const data = await res.json()
+        if (res.ok && data.url) {
+          addImage(data.url)
+        } else {
+          throw new Error(data.error || "上传失败")
         }
       } catch (error) {
         console.error("图片上传失败:", error)

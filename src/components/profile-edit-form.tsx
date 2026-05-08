@@ -1,14 +1,10 @@
 "use client"
 
 import { ImageUpload } from "@/components/image-upload"
-import type { OurFileRouter } from "@/lib/uploadthing"
 import { ArrowLeft, Eye, EyeOff, FileText, Loader2, Lock, User } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { genUploader } from "uploadthing/client"
-
-const { uploadFiles } = genUploader<OurFileRouter>()
 
 interface Props {
   user: { id: string; username: string; bio: string; avatar: string; banner: string }
@@ -28,14 +24,17 @@ export function ProfileEditForm({ user }: Props) {
   const [error, setError]           = useState("")
   const [success, setSuccess]       = useState("")
 
-  // 头像：使用 UploadThing 上传
+  // 头像：使用自建上传 API
   async function handleAvatarUpload(file: File): Promise<string> {
     if (file.size > 2 * 1024 * 1024) {
       throw new Error("头像图片不能超过 2MB")
     }
-    const res = await uploadFiles("avatar", { files: [file] })
-    if (!res?.[0]?.url) throw new Error("上传失败")
-    return res[0].url
+    const formData = new FormData()
+    formData.append("file", file)
+    const res = await fetch("/api/upload", { method: "POST", body: formData })
+    const data = await res.json()
+    if (!res.ok || !data.url) throw new Error(data.error || "上传失败")
+    return data.url
   }
 
   async function handleSubmit(e: React.FormEvent) {
