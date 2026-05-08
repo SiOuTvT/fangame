@@ -122,7 +122,7 @@ export function GameCard({ game }: { game: GameCardData }) {
           <div className="flex flex-wrap gap-1.5">
             {game.tags.slice(0, 2).map((tag) => (
               <span key={tag.name} className="rounded-full px-2 py-0.5 text-[11px] font-medium"
-                style={{ color: tag.color, background: `${tag.color}18`, outline: `1px solid ${tag.color}40` }}>
+                style={{ color: tag.color, background: `${tag.color}18`, boxShadow: `0 0 0 1px ${tag.color}20` }}>
                 {tag.name}
               </span>
             ))}
@@ -142,11 +142,11 @@ export function GameCard({ game }: { game: GameCardData }) {
       {showPreview && (
         <div
           className={[
-            "pointer-events-none absolute top-0 z-50 w-64 overflow-hidden rounded-2xl border border-border bg-popover/98 shadow-[0_8px_32px_rgba(0,0,0,0.15),0_2px_8px_rgba(0,0,0,0.1)] backdrop-blur-xl modal-enter",
+            "pointer-events-none absolute top-0 z-50 w-64 overflow-hidden rounded-2xl bg-popover/98 backdrop-blur-xl modal-enter",
             previewPos === "right" ? "left-[calc(100%+12px)]" : "right-[calc(100%+12px)]",
           ].join(" ")}
           style={{
-            boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
+            boxShadow: '0 0 0 1px rgba(255,255,255,0.06), 0 8px 32px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
           }}
         >
           {/* 封面 */}
@@ -172,7 +172,7 @@ export function GameCard({ game }: { game: GameCardData }) {
                   <button
                     key={tag.name}
                     className="pointer-events-auto rounded-full px-2.5 py-0.5 text-[12px] font-medium transition-opacity hover:opacity-70"
-                    style={{ color: tag.color, background: `${tag.color}20`, outline: `1px solid ${tag.color}40` }}
+                    style={{ color: tag.color, background: `${tag.color}20`, boxShadow: `0 0 0 1px ${tag.color}20` }}
                     onClick={(e) => { e.preventDefault(); router.push(`/search?tag=${encodeURIComponent(tag.name)}`) }}
                   >
                     {tag.name}
@@ -182,7 +182,7 @@ export function GameCard({ game }: { game: GameCardData }) {
             )}
 
             {/* 数据 */}
-            <div className="flex items-center gap-3 pt-1.5 border-t border-border">
+            <div className="flex items-center gap-3 pt-1.5 divider-subtle">
               <span className="flex items-center gap-1 text-[12px] text-muted-foreground">
                 <Eye className="h-3.5 w-3.5" strokeWidth={2} />{game.viewCount ?? 0}
               </span>

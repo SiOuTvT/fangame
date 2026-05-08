@@ -111,15 +111,15 @@ export function TopNav() {
   return (
     <>
       <header className={cn(
-        "fixed top-0 left-0 right-0 z-50 border-b transition-colors duration-300",
+        "fixed top-0 left-0 right-0 z-50 transition-colors duration-300",
         theme === "dark" 
-          ? "border-white/[0.05] bg-zinc-950/85 backdrop-blur-xl" 
-          : "border-black/[0.05] bg-white/85 backdrop-blur-xl"
+          ? "bg-zinc-950/85 backdrop-blur-xl" 
+          : "bg-white/85 backdrop-blur-xl"
       )}
         style={{
           boxShadow: theme === "dark"
-            ? '0 1px 2px rgba(0,0,0,0.15)'
-            : '0 1px 2px rgba(0,0,0,0.04)',
+            ? '0 0 0 1px rgba(255,255,255,0.04), 0 1px 2px rgba(0,0,0,0.15)'
+            : '0 0 0 1px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.04)',
         }}
       >
         {/* 顶部高光边 */}
@@ -140,13 +140,16 @@ export function TopNav() {
             }
           }}
           className={cn(
-            "fixed top-0 left-0 z-[60] flex h-12 w-12 items-center justify-center border-b border-r transition-all btn-spring lg:top-0 lg:left-0 lg:h-14 lg:w-14",
+            "fixed top-0 left-0 z-[60] flex h-12 w-12 items-center justify-center transition-all btn-spring lg:top-0 lg:left-0 lg:h-14 lg:w-14",
             theme === "dark"
-              ? "border-white/[0.05] bg-zinc-950/85 text-zinc-500 hover:bg-zinc-800/40 hover:text-zinc-400"
-              : "border-black/[0.05] bg-white/85 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-600"
+              ? "bg-zinc-950/85 text-zinc-500 hover:bg-zinc-800/40 hover:text-zinc-400"
+              : "bg-white/85 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-600"
           )}
           style={{
             backdropFilter: 'blur(24px)',
+            boxShadow: theme === "dark"
+              ? '0 0 0 1px rgba(255,255,255,0.04), 1px 0 0 rgba(255,255,255,0.04), 0 1px 0 rgba(255,255,255,0.04)'
+              : '0 0 0 1px rgba(0,0,0,0.04), 1px 0 0 rgba(0,0,0,0.04), 0 1px 0 rgba(0,0,0,0.04)',
           }}
         >
           <MessageSquare className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.2} />
@@ -172,8 +175,8 @@ export function TopNav() {
               <div className={cn(
                 "absolute left-0 top-full mt-2 w-48 overflow-hidden rounded-xl",
                 theme === "dark"
-                  ? "border border-white/[0.06] bg-zinc-900/95 backdrop-blur-xl"
-                  : "border border-black/[0.06] bg-white/95 backdrop-blur-xl"
+                  ? "bg-zinc-900/95 backdrop-blur-xl"
+                  : "bg-white/95 backdrop-blur-xl"
               )}
                 style={{
                   boxShadow: theme === "dark"
@@ -246,8 +249,8 @@ export function TopNav() {
                   <div className={cn(
                     "absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-xl",
                     theme === "dark"
-                      ? "border border-white/[0.06] bg-zinc-900/95 backdrop-blur-xl"
-                      : "border border-black/[0.06] bg-white/95 backdrop-blur-xl"
+                      ? "bg-zinc-900/95 backdrop-blur-xl"
+                      : "bg-white/95 backdrop-blur-xl"
                   )}
                     style={{
                       boxShadow: theme === "dark"
@@ -257,7 +260,7 @@ export function TopNav() {
                   >
                     <div className={cn(
                       "flex items-center gap-3 px-4 py-3",
-                      theme === "dark" ? "border-b border-white/[0.06]" : "border-b border-black/[0.06]"
+                      theme === "dark" ? "border-b border-white/[0.04]" : "border-b border-black/[0.04]"
                     )}>
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-500 to-blue-500 text-xs font-bold text-white">
                         {user.image
@@ -310,7 +313,7 @@ export function TopNav() {
 
                     <div className={cn(
                       "border-t",
-                      theme === "dark" ? "border-white/[0.06]" : "border-black/[0.06]"
+                      theme === "dark" ? "border-white/[0.04]" : "border-black/[0.04]"
                     )} />
 
                     <button onClick={() => { setUserOpen(false); signOut({ callbackUrl: "/" }) }}

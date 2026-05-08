@@ -2,11 +2,62 @@
 
 import type { OurFileRouter } from "@/lib/uploadthing"
 import { cn } from "@/lib/utils"
-import { Upload, X } from "lucide-react"
+import { Crop, RotateCw, Upload, X, ZoomIn, ZoomOut } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
+import Cropper from "react-easy-crop"
 import { genUploader } from "uploadthing/client"
 
 const { uploadFiles } = genUploader<OurFileRouter>()
+
+/** 从 canvas 裁剪区域生成 Blob */
+function createImage(url: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const image = new Image()
+    image.addEventListener("load", () => resolve(image))
+    image.addEventListener("error", (error) => reject(error))
+    image.setAttribute("crossOrigin", "anonymous")
+    image.src = url
+  })
+}
+
+async function getCroppedImg(
+  imageSrc: string,
+  pixelCrop: { x: number; y: number; width: number; height: number },
+  rotation = 0
+): Promise<Blob> {
+  const image = await createImage(imageSrc)
+  const canvas = document.createElement("canvas")
+  const ctx = canvas.getContext("2d")!
+
+  const radians = (rotation * Math.PI) / 180
+  const { width: bBoxWidth, height: bBoxHeight } = rotateSize(image.width, image.height, rotation)
+
+  canvas.width = bBoxWidth
+  canvas.height = bBoxHeight
+
+  ctx.translate(bBoxWidth / 2, bBoxHeight / 2)
+  ctx.rotate(radians)
+  ctx.translate(-image.width / 2, -image.height / 2)
+  ctx.drawImage(image, 0, 0)
+
+  const data = ctx.getImageData(pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height)
+
+  canvas.width = pixelCrop.width
+  canvas.height = pixelCrop.height
+  ctx.putImageData(data, 0, 0)
+
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => resolve(blob!), "image/jpeg", 0.92)
+  })
+}
+
+function rotateSize(width: number, height: number, rotation: number) {
+  const radians = (rotation * Math.PI) / 180
+  return {
+    width: Math.abs(Math.cos(radians) * width) + Math.abs(Math.sin(radians) * height),
+    height: Math.abs(Math.sin(radians) * width) + Math.abs(Math.cos(radians) * height),
+  }
+}
 
 interface ImageUploadProps {
   value?: string
@@ -36,12 +87,29 @@ export function ImageUpload({
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  // 裁剪相关状态
+  const [cropSrc, setCropSrc] = useState<string | null>(null)
+  const [crop, setCrop] = useState({ x: 0, y: 0 })
+  const [zoom, setZoom] = useState(1)
+  const [rotation, setRotation] = useState(0)
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<{
+    x: number; y: number; width: number; height: number
+  } | null>(null)
+  const [isCropping, setIsCropping] = useState(false)
+
   useEffect(() => {
     if (value) setPreview(value)
   }, [value])
 
+  const onCropComplete = useCallback(
+    (_croppedArea: { x: number; y: number; width: number; height: number }, croppedPixels: { x: number; y: number; width: number; height: number }) => {
+      setCroppedAreaPixels(croppedPixels)
+    },
+    []
+  )
+
   const handleFile = useCallback(
-    async (file: File) => {
+    (file: File) => {
       if (!file.type.startsWith("image/")) {
         alert("请选择图片文件")
         return
@@ -51,27 +119,62 @@ export function ImageUpload({
         return
       }
 
-      // 显示本地预览
+      // 如果是头像裁剪模式（onFileSelect），直接回调
+      if (onFileSelect) {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          const url = e.target?.result as string
+          setCropSrc(url)
+          setCrop({ x: 0, y: 0 })
+          setZoom(1)
+          setRotation(0)
+        }
+        reader.readAsDataURL(file)
+        return
+      }
+
+      // 否则进入裁剪流程
       const reader = new FileReader()
       reader.onload = (e) => {
         const url = e.target?.result as string
-        setPreview(url)
+        setCropSrc(url)
+        setCrop({ x: 0, y: 0 })
+        setZoom(1)
+        setRotation(0)
       }
       reader.readAsDataURL(file)
+    },
+    [maxSizeMB, onFileSelect]
+  )
 
-      // 上传或回调
+  const handleCropConfirm = useCallback(async () => {
+    if (!cropSrc || !croppedAreaPixels) return
+    setIsCropping(true)
+    try {
+      const croppedBlob = await getCroppedImg(cropSrc, croppedAreaPixels, rotation)
+      const croppedFile = new File([croppedBlob], "cropped.jpg", { type: "image/jpeg" })
+
+      // 如果是头像裁剪模式
+      if (onFileSelect) {
+        onFileSelect(croppedFile)
+        setPreview(URL.createObjectURL(croppedBlob))
+        setCropSrc(null)
+        setIsCropping(false)
+        return
+      }
+
+      // 显示本地预览
+      setPreview(URL.createObjectURL(croppedBlob))
+
+      // 上传
       setIsUploading(true)
+      setCropSrc(null)
       try {
         if (uploadFunction) {
-          // 使用自定义上传函数
-          const url = await uploadFunction(file)
+          const url = await uploadFunction(croppedFile)
           onChange?.(url)
-        } else if (onFileSelect) {
-          // 外部处理文件选择（如头像裁剪）
-          onFileSelect(file)
         } else {
-          // 使用 UploadThing 上传
-          const res = await uploadFiles("imageUploader", { files: [file] })
+          const res = await uploadFiles("imageUploader", { files: [croppedFile] })
           if (res?.[0]?.url) {
             onChange?.(res[0].url)
           } else {
@@ -84,9 +187,20 @@ export function ImageUpload({
         setPreview(value || null)
       }
       setIsUploading(false)
-    },
-    [maxSizeMB, uploadFunction, onFileSelect, onChange, value]
-  )
+    } catch (err) {
+      console.error("裁剪失败:", err)
+      alert("裁剪失败，请重试")
+    }
+    setIsCropping(false)
+    setCropSrc(null)
+  }, [cropSrc, croppedAreaPixels, rotation, onFileSelect, uploadFunction, onChange, value])
+
+  const handleCropCancel = useCallback(() => {
+    setCropSrc(null)
+    setCrop({ x: 0, y: 0 })
+    setZoom(1)
+    setRotation(0)
+  }, [])
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -121,6 +235,89 @@ export function ImageUpload({
     setPreview(null)
     onChange?.("")
   }, [onChange])
+
+  // 裁剪弹窗
+  if (cropSrc) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div className="relative mx-4 w-full max-w-lg rounded-2xl bg-zinc-900 p-5 ring-1 ring-white/10 shadow-2xl">
+          <h3 className="mb-4 text-sm font-semibold text-zinc-200">裁剪图片</h3>
+
+          {/* 裁剪区域 */}
+          <div className="relative h-72 w-full overflow-hidden rounded-xl bg-zinc-800">
+            <Cropper
+              image={cropSrc}
+              crop={crop}
+              zoom={zoom}
+              rotation={rotation}
+              aspect={aspectRatio}
+              onCropChange={setCrop}
+              onZoomChange={setZoom}
+              onCropComplete={onCropComplete}
+              cropShape={shape === "circle" ? "round" : "rect"}
+            />
+          </div>
+
+          {/* 控制条 */}
+          <div className="mt-4 space-y-3">
+            {/* 缩放 */}
+            <div className="flex items-center gap-3">
+              <ZoomOut className="h-4 w-4 shrink-0 text-zinc-500" />
+              <input
+                type="range"
+                min={1}
+                max={3}
+                step={0.01}
+                value={zoom}
+                onChange={(e) => setZoom(Number(e.target.value))}
+                className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-zinc-700 accent-purple-500"
+              />
+              <ZoomIn className="h-4 w-4 shrink-0 text-zinc-500" />
+            </div>
+
+            {/* 旋转 */}
+            <div className="flex items-center gap-3">
+              <RotateCw className="h-4 w-4 shrink-0 text-zinc-500" />
+              <input
+                type="range"
+                min={0}
+                max={360}
+                step={1}
+                value={rotation}
+                onChange={(e) => setRotation(Number(e.target.value))}
+                className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-zinc-700 accent-purple-500"
+              />
+              <span className="w-8 text-right text-[10px] text-zinc-500">{rotation}°</span>
+            </div>
+          </div>
+
+          {/* 按钮 */}
+          <div className="mt-5 flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={handleCropCancel}
+              className="rounded-xl px-4 py-2 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
+            >
+              取消
+            </button>
+            <button
+              type="button"
+              onClick={handleCropConfirm}
+              disabled={isCropping}
+              className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 px-5 py-2 text-sm font-medium text-white transition-all hover:opacity-90 disabled:opacity-60"
+            >
+              {isCropping ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              ) : (
+                <Crop className="h-4 w-4" />
+              )}
+              {isCropping ? "处理中…" : "确认裁剪"}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   // 有预览图时
   if (preview) {
