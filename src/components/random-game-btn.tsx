@@ -129,7 +129,7 @@ export function RandomCharacterBtn() {
       {/* 角色详情弹窗 */}
       {showDialog && character && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowDialog(false)}>
-          <div className="glass-heavy rounded-2xl max-w-lg w-full mx-4 max-h-[85vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
+          <div className="rounded-2xl max-w-lg w-full mx-4 max-h-[85vh] overflow-y-auto p-6 bg-zinc-900/95 backdrop-blur-xl border border-white/10 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             {/* 头部：图片 + 名字 */}
             <div className="flex gap-4 mb-4">
               {character.image && (
@@ -137,6 +137,10 @@ export function RandomCharacterBtn() {
                   src={character.image} 
                   alt={character.name}
                   className="w-24 h-32 object-cover rounded-lg ring-1 ring-border flex-shrink-0"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement
+                    target.style.display = 'none'
+                  }}
                 />
               )}
               <div className="flex-1 min-w-0">

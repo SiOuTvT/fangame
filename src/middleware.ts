@@ -6,7 +6,7 @@ function buildCSP(nonce: string): string {
     `default-src 'self'`,
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
     `style-src 'self' 'unsafe-inline'`,
-    `img-src 'self' data: blob: https://utfs.io https://*.ufs.sh https://static.vndb.org`,
+    `img-src 'self' data: blob: https: http:`,
     `font-src 'self' data:`,
     `connect-src 'self' https://api.vndb.org https://*.ingest.sentry.io https://*.sentry.io wss://*.sentry.io`,
     `frame-ancestors 'none'`,
