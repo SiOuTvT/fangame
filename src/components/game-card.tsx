@@ -54,7 +54,7 @@ export function GameCard({ game }: { game: GameCardData }) {
     }
   }, [])
 
-  // 空占位卡片 - 纯视觉占位
+  // 占位卡片 - 显示内容但不可点击跳转
   if (isPlaceholder) {
     return (
       <div className="relative">
@@ -62,28 +62,39 @@ export function GameCard({ game }: { game: GameCardData }) {
           className="relative block overflow-hidden rounded-[14px]"
           style={{ aspectRatio: "5/6" }}
         >
+          {/* 内发光边框层 */}
           <div className="absolute inset-0 rounded-[14px] pointer-events-none z-10"
             style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.3)' }} 
           />
+          {/* 背景层 */}
           <div className="absolute inset-0 bg-card rounded-[14px]" />
+          {/* 投影层 */}
           <div className="absolute inset-0 rounded-[14px]"
             style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.1)' }}
           />
-          {/* 封面区占位 */}
-          <div className="absolute inset-0 bottom-[40%] overflow-hidden bg-muted rounded-t-[14px]">
+          {/* 封面区（上方 60%） */}
+          <div className="absolute inset-0 bottom-[40%] overflow-hidden bg-muted">
             <div className="flex h-full w-full items-center justify-center text-muted-foreground/40">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
-              </svg>
+              <ImageOff className="w-8 h-8" strokeWidth={1} />
             </div>
           </div>
-          {/* 信息区占位 */}
-          <div className="absolute inset-x-0 bottom-0 flex h-[40%] flex-col justify-center gap-2 bg-card px-3 py-2.5">
-            <div className="h-3 w-3/4 rounded bg-muted animate-pulse" />
-            <div className="h-3 w-1/2 rounded bg-muted animate-pulse" />
-            <div className="flex gap-1.5 mt-1">
-              <div className="h-4 w-10 rounded-full bg-muted animate-pulse" />
-              <div className="h-4 w-8 rounded-full bg-muted animate-pulse" />
+          {/* 信息条（下方 40%） */}
+          <div className="absolute inset-x-0 bottom-0 flex h-[40%] flex-col justify-center gap-1.5 sm:gap-2 bg-card px-2 sm:px-3 py-2 sm:py-2.5">
+            <p className="line-clamp-2 text-[13px] sm:text-[15px] font-bold leading-snug text-card-foreground">{game.title}</p>
+            <div className="flex flex-wrap gap-1 sm:gap-1.5">
+              {game.tags.slice(0, 2).map((tag) => (
+                <span key={tag.name} className="rounded-full px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-[11px] font-medium text-pink-400 bg-pink-400/10 ring-1 ring-pink-400/20">
+                  {tag.name}
+                </span>
+              ))}
+            </div>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <span className="flex items-center gap-0.5 sm:gap-1 text-[11px] sm:text-[12px] text-muted-foreground">
+                <Eye className="h-3 w-3 sm:h-3.5 sm:w-3.5" strokeWidth={2} />{game.viewCount ?? 0}
+              </span>
+              <span className="flex items-center gap-0.5 sm:gap-1 text-[11px] sm:text-[12px] text-muted-foreground">
+                <Heart className="h-3 w-3 sm:h-3.5 sm:w-3.5" strokeWidth={2} />{game.favoriteCount}
+              </span>
             </div>
           </div>
         </div>
