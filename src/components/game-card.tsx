@@ -26,10 +26,7 @@ export function GameCard({ game }: { game: GameCardData }) {
   const [imgError, setImgError]       = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const isPlaceholder = game.id.startsWith("placeholder-")
-
   function handleMouseEnter() {
-    if (isPlaceholder) return
     timerRef.current = setTimeout(() => {
       if (cardRef.current) {
         const rect = cardRef.current.getBoundingClientRect()
@@ -53,54 +50,6 @@ export function GameCard({ game }: { game: GameCardData }) {
       if (timerRef.current) clearTimeout(timerRef.current)
     }
   }, [])
-
-  // 占位卡片 - 显示内容但不可点击跳转
-  if (isPlaceholder) {
-    return (
-      <div className="relative">
-        <div
-          className="relative block overflow-hidden rounded-[14px]"
-          style={{ aspectRatio: "5/6" }}
-        >
-          {/* 内发光边框层 */}
-          <div className="absolute inset-0 rounded-[14px] pointer-events-none z-10"
-            style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.3)' }} 
-          />
-          {/* 背景层 */}
-          <div className="absolute inset-0 bg-card rounded-[14px]" />
-          {/* 投影层 */}
-          <div className="absolute inset-0 rounded-[14px]"
-            style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.1)' }}
-          />
-          {/* 封面区（上方 60%） */}
-          <div className="absolute inset-0 bottom-[40%] overflow-hidden bg-muted">
-            <div className="flex h-full w-full items-center justify-center text-muted-foreground/40">
-              <ImageOff className="w-8 h-8" strokeWidth={1} />
-            </div>
-          </div>
-          {/* 信息条（下方 40%） */}
-          <div className="absolute inset-x-0 bottom-0 flex h-[40%] flex-col justify-center gap-1.5 sm:gap-2 bg-card px-2 sm:px-3 py-2 sm:py-2.5">
-            <p className="line-clamp-2 text-[13px] sm:text-[15px] font-bold leading-snug text-card-foreground">{game.title}</p>
-            <div className="flex flex-wrap gap-1 sm:gap-1.5">
-              {game.tags.slice(0, 2).map((tag) => (
-                <span key={tag.name} className="rounded-full px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-[11px] font-medium text-pink-400 bg-pink-400/10 ring-1 ring-pink-400/20">
-                  {tag.name}
-                </span>
-              ))}
-            </div>
-            <div className="flex items-center gap-2 sm:gap-3">
-              <span className="flex items-center gap-0.5 sm:gap-1 text-[11px] sm:text-[12px] text-muted-foreground">
-                <Eye className="h-3 w-3 sm:h-3.5 sm:w-3.5" strokeWidth={2} />{game.viewCount ?? 0}
-              </span>
-              <span className="flex items-center gap-0.5 sm:gap-1 text-[11px] sm:text-[12px] text-muted-foreground">
-                <Heart className="h-3 w-3 sm:h-3.5 sm:w-3.5" strokeWidth={2} />{game.favoriteCount}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div
@@ -176,7 +125,7 @@ export function GameCard({ game }: { game: GameCardData }) {
       </Link>
 
       {/* Hover 预览弹窗 - 仅桌面端显示 */}
-      {showPreview && !isPlaceholder && (
+      {showPreview && (
         <div
           onMouseEnter={() => {
             if (timerRef.current) clearTimeout(timerRef.current)

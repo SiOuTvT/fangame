@@ -1,8 +1,8 @@
-import { notFound } from "next/navigation"
-import Link from "next/link"
-import Image from "next/image"
+import { RichTextContent } from "@/components/rich-text-content"
 import { prisma } from "@/lib/prisma"
 import { ArrowLeft, ExternalLink } from "lucide-react"
+import Link from "next/link"
+import { notFound } from "next/navigation"
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -15,37 +15,32 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
   const ann = await prisma.announcement.findUnique({ where: { id } })
   if (!ann) notFound()
 
-  // 解析内容：[img]url[/img] 渲染为图片，其余段落正常显示
-  const blocks = ann.content.split(/\n\n+/)
-
   return (
     <div className="mx-auto max-w-2xl py-4">
-      <Link href="/" className="mb-6 flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-zinc-300">
+      <Link href="/" className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
         <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
         返回首页
       </Link>
 
-      <h1 className="text-2xl font-bold leading-tight text-zinc-100">{ann.title}</h1>
-      <p className="mt-2 text-xs text-zinc-600">
+      {/* 完整封面图（未裁剪） */}
+      {ann.imageUrl && (
+        <div className="mb-6 overflow-hidden rounded-2xl">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={ann.imageUrl}
+            alt={ann.title}
+            className="w-full object-contain"
+          />
+        </div>
+      )}
+
+      <h1 className="text-2xl font-bold leading-tight text-foreground">{ann.title}</h1>
+      <p className="mt-2 text-xs text-muted-foreground">
         {new Date(ann.createdAt).toLocaleString("zh-CN", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}
       </p>
 
-      <div className="mt-6 space-y-4 text-sm leading-relaxed text-zinc-400">
-        {blocks.map((block, i) => {
-          const imgMatch = block.match(/^\[img\](.*?)\[\/img\]$/)
-          if (imgMatch) {
-            return (
-              <div key={i} className="overflow-hidden rounded-xl">
-                <Image src={imgMatch[1]} alt="" width={720} height={480} className="w-full object-cover" />
-              </div>
-            )
-          }
-          return (
-            <p key={i} className="whitespace-pre-wrap">
-              {block.replace(/\n/g, "\n")}
-            </p>
-          )
-        })}
+      <div className="mt-6 text-sm leading-relaxed text-muted-foreground">
+        <RichTextContent html={ann.content} />
       </div>
 
       {ann.link && (
@@ -53,7 +48,7 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
           href={ann.link}
           target="_blank"
           rel="noopener noreferrer"
-          className="gradient-accent mt-8 inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+          className="mt-8 inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-foreground ring-1 ring-border transition-all hover:bg-accent/80"
         >
           查看详情
           <ExternalLink className="h-4 w-4" strokeWidth={1.5} />

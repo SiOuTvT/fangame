@@ -37,8 +37,8 @@ export function Breadcrumb() {
     const seg = segments[i]
     currentPath += `/${seg}`
     
-    // 跳过动态参数段（包含 id 的路径）
-    const isDynamicParam = /^[a-f0-9]{20,}$/i.test(seg) || seg === "[id]"
+    // 跳过动态参数段（CUID、UUID、MongoDB ObjectId 等）
+    const isDynamicParam = /^[a-z0-9]{20,}$/i.test(seg) || /^[0-9a-f]{8}-/.test(seg) || seg === "[id]"
     if (isDynamicParam) continue
     
     const label = ROUTE_NAMES[seg] || seg

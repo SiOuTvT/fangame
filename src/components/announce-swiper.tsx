@@ -52,7 +52,7 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
   const href = ann.link || `/announcements/${ann.id}`
 
   return (
-    <div className="relative h-[220px] sm:h-[260px] lg:h-[280px] w-full lg:max-w-[66.667%] lg:ml-auto overflow-hidden rounded-2xl">
+    <div className="relative h-[180px] sm:h-[260px] lg:h-[280px] w-full lg:max-w-[66.667%] lg:ml-auto overflow-hidden rounded-2xl">
       {/* 背景图 - 视差滚动效果 */}
       <div className="absolute inset-0 bg-zinc-900">
         {ann.imageUrl && !imgError ? (
@@ -84,7 +84,7 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
         href={href}
         target={ann.link ? "_blank" : undefined}
         rel={ann.link ? "noopener noreferrer" : undefined}
-        className="absolute inset-0 z-0 flex flex-col justify-end p-5 sm:p-6"
+        className="absolute inset-0 z-0 flex flex-col justify-end p-3 sm:p-5 lg:p-6"
       >
         <strong className="text-lg sm:text-xl lg:text-2xl font-bold leading-snug text-white line-clamp-1">
           {ann.title}

@@ -9,7 +9,7 @@ import { Suspense } from "react"
 
 function GameGridSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-2 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4">
       {Array.from({ length: 12 }).map((_, i) => <GameCardSkeleton key={i} />)}
     </div>
   )
@@ -99,11 +99,11 @@ export default async function HomePage({
   const allTags = ["全部", ...tags.map((t: { name: string }) => t.name)]
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-3 sm:gap-5">
 
       {/* Hero Section：响应式布局 */}
       {/* 桌面端：左侧按钮 + 右侧公告（对齐用户头像右侧）；手机端：公告在上，按钮在下横排 */}
-      <div className="flex flex-col lg:grid lg:grid-cols-[auto_1fr] gap-6 lg:gap-4 items-start">
+      <div className="flex flex-col lg:grid lg:grid-cols-[auto_1fr] gap-3 sm:gap-6 lg:gap-4 items-start">
         
         {/* 左侧功能区（手机端显示在下面）*/}
         <div className="order-2 lg:order-1 flex flex-col justify-end min-h-[auto] lg:min-h-[220px]">
