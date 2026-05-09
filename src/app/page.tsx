@@ -34,18 +34,20 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
   ])
 
   if (!games.length) {
-    // 展示占位卡片预览
-    const placeholderGames = [
-      { id: "demo-1", title: "东方Project · 绯想天", coverImage: "", description: "经典弹幕射击同人游戏，体验华丽的弹幕艺术", tags: [{ name: "弹幕", color: "#f472b6" }, { name: "东方", color: "#a78bfa" }], favoriteCount: 128, viewCount: 2048, isNsfw: false, status: "完结", createdAt: new Date().toISOString() },
-      { id: "demo-2", title: "月姬 -A piece of blue glass moon-", coverImage: "", description: "TYPE-MOON经典视觉小说重制版", tags: [{ name: "视觉小说", color: "#60a5fa" }, { name: "剧情", color: "#34d399" }], favoriteCount: 256, viewCount: 4096, isNsfw: false, status: "完结", createdAt: new Date().toISOString() },
-      { id: "demo-3", title: "寒蝉鸣泣之时", coverImage: "", description: "悬疑推理同人游戏，揭开雏见泽的真相", tags: [{ name: "悬疑", color: "#f87171" }, { name: "推理", color: "#fbbf24" }], favoriteCount: 89, viewCount: 1536, isNsfw: false, status: "完结", createdAt: new Date().toISOString() },
-      { id: "demo-4", title: "Fate/stay night REMASTERED", coverImage: "", description: "命运之夜，圣杯战争的开幕", tags: [{ name: "视觉小说", color: "#60a5fa" }, { name: "战斗", color: "#fb923c" }], favoriteCount: 512, viewCount: 8192, isNsfw: false, status: "完结", createdAt: new Date().toISOString() },
-      { id: "demo-5", title: "海猫鸣泣之时", coverImage: "", description: "寒蝉续作，魔女与推理的对决", tags: [{ name: "悬疑", color: "#f87171" }, { name: "推理", color: "#fbbf24" }], favoriteCount: 67, viewCount: 1024, isNsfw: false, status: "完结", createdAt: new Date().toISOString() },
-      { id: "demo-6", title: "UNDERTALE 同人 · 黄色命运", coverImage: "", description: "UNDERTALE粉丝自制冒险RPG", tags: [{ name: "RPG", color: "#4ade80" }, { name: "冒险", color: "#38bdf8" }], favoriteCount: 203, viewCount: 3200, isNsfw: false, status: "连载中", createdAt: new Date().toISOString() },
-      { id: "demo-7", title: "东方地灵殿 · 精灵幻想", coverImage: "", description: "探索地底世界的弹幕冒险", tags: [{ name: "弹幕", color: "#f472b6" }, { name: "东方", color: "#a78bfa" }], favoriteCount: 95, viewCount: 1800, isNsfw: false, status: "完结", createdAt: new Date().toISOString() },
-      { id: "demo-8", title: "尸体派对 · 同人续作", coverImage: "", description: "恐怖冒险同人游戏，天神小学的诅咒", tags: [{ name: "恐怖", color: "#ef4444" }, { name: "冒险", color: "#38bdf8" }], favoriteCount: 45, viewCount: 890, isNsfw: false, status: "完结", createdAt: new Date().toISOString() },
-    ]
-    return <GameGridClient initialGames={placeholderGames} total={placeholderGames.length} tag={tag} q={q} nsfw={nsfw} />
+    // 展示空占位卡片预览（纯视觉占位，无具体游戏信息）
+    const placeholderGames = Array.from({ length: 8 }).map((_, i) => ({
+      id: `placeholder-${i}`,
+      title: "",
+      coverImage: "",
+      description: "",
+      tags: [] as { name: string; color: string }[],
+      favoriteCount: 0,
+      viewCount: 0,
+      isNsfw: false,
+      status: "",
+      createdAt: new Date().toISOString(),
+    }))
+    return <GameGridClient initialGames={placeholderGames} total={0} tag={tag} q={q} nsfw={nsfw} />
   }
 
   const mapped = games.map((g: any) => ({ ...g, tags: g.tags.map((t: any) => t.tag) }))
@@ -96,21 +98,19 @@ export default async function HomePage({
         </div>
 
         {/* 右侧公告区（手机端显示在最上面）*/}
-        <div className="lg:col-span-1 order-1 lg:order-2 w-full">
-          <div className="rounded-2xl bg-card/60 backdrop-blur-sm ring-1 ring-border relative overflow-hidden"
-            style={{
-              boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.08)',
-            }}
-          >
-            {/* 顶部高光边 */}
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent z-10" />
-            
-            {announcements.length > 0
-              ? <AnnounceSwiper announcements={announcements} />
-              : <div className="h-full min-h-[180px] sm:min-h-[200px] lg:min-h-[220px] w-full animate-pulse rounded-2xl bg-muted" />
-            }
+        {announcements.length > 0 && (
+          <div className="lg:col-span-1 order-1 lg:order-2 w-full">
+            <div className="rounded-2xl bg-card/60 backdrop-blur-sm ring-1 ring-border relative overflow-hidden"
+              style={{
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.08)',
+              }}
+            >
+              {/* 顶部高光边 */}
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent z-10" />
+              <AnnounceSwiper announcements={announcements} />
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* 标签筛选 */}

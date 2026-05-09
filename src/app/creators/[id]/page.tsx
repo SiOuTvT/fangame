@@ -57,39 +57,39 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
 
       return (
         <div>
-          {/* Hero */}
-          <div className="mb-8 flex items-start gap-6 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 light:from-white light:via-white light:to-zinc-50 p-8 ring-1 ring-white/[0.08] light:ring-black/[0.08] shadow-xl">
-            <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-sky-400 text-4xl font-bold text-white ring-2 ring-white/10 light:ring-black/10 shadow-lg">
+        {/* Hero */}
+        <div className="mb-8 flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 light:from-white light:via-white light:to-zinc-50 p-5 sm:p-8 ring-1 ring-white/[0.08] light:ring-black/[0.08] shadow-xl">
+            <div className="flex h-20 w-20 sm:h-28 sm:w-28 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-sky-400 text-3xl sm:text-4xl font-bold text-white ring-2 ring-white/10 light:ring-black/10 shadow-lg">
               {(staff.original || staff.name)[0]}
             </div>
 
-            <div className="flex-1 min-w-0">
-              <div className="flex flex-wrap items-baseline gap-3 mb-3">
-                <h1 className="text-3xl font-bold text-zinc-100 light:text-zinc-900">{staff.original || staff.name}</h1>
+            <div className="flex-1 min-w-0 w-full">
+              <div className="flex flex-wrap items-baseline gap-2 sm:gap-3 mb-2 sm:mb-3 justify-center sm:justify-start">
+                <h1 className="text-xl sm:text-3xl font-bold text-zinc-100 light:text-zinc-900 text-center sm:text-left">{staff.original || staff.name}</h1>
                 {staff.original && staff.name !== staff.original && (
-                  <span className="text-base text-zinc-500 light:text-zinc-400">{staff.name}</span>
+                  <span className="text-sm sm:text-base text-zinc-500 light:text-zinc-400 text-center sm:text-left">{staff.name}</span>
                 )}
               </div>
 
-              <div className="flex flex-wrap gap-2 mb-4">
-                <span className="rounded-full bg-zinc-800/80 light:bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08]">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4 justify-center sm:justify-start">
+                <span className="rounded-full bg-zinc-800/80 light:bg-zinc-100 px-2.5 sm:px-3 py-1 text-[10px] sm:text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08]">
                   个人创作者
                 </span>
                 {staff.roles.map(role => (
-                  <span key={role} className="rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 px-3 py-1 text-xs font-medium text-amber-400 ring-1 ring-amber-500/30">
+                  <span key={role} className="rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 px-2.5 sm:px-3 py-1 text-[10px] sm:text-xs font-medium text-amber-400 ring-1 ring-amber-500/30">
                     {ROLE_LABEL[role] ?? role}
                   </span>
                 ))}
-                <span className="rounded-full bg-gradient-to-r from-blue-500/20 to-sky-500/20 px-3 py-1 text-xs font-medium text-blue-400 ring-1 ring-blue-500/30">
+                <span className="rounded-full bg-gradient-to-r from-blue-500/20 to-sky-500/20 px-2.5 sm:px-3 py-1 text-[10px] sm:text-xs font-medium text-blue-400 ring-1 ring-blue-500/30">
                   {staff.vns.length} 部作品
                 </span>
               </div>
 
               {staff.description && (
-                <TranslatableDescription text={staff.description} className="mb-4 line-clamp-5" />
+                <TranslatableDescription text={staff.description} className="mb-3 sm:mb-4 line-clamp-3 sm:line-clamp-5 text-center sm:text-left" />
               )}
 
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                 <a href={`https://vndb.org/s${vndbId}`} target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-1.5 rounded-lg bg-zinc-800/80 light:bg-zinc-100 px-3 py-2 text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08] transition-all hover:bg-zinc-700 light:hover:bg-zinc-200 hover:text-white light:hover:text-zinc-900">
                   <Database className="h-3.5 w-3.5" strokeWidth={2} />VNDB
@@ -163,41 +163,41 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
     return (
       <div>
         {/* Hero */}
-        <div className="mb-8 flex items-start gap-6 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 light:from-white light:via-white light:to-zinc-50 p-8 ring-1 ring-white/[0.08] light:ring-black/[0.08] shadow-xl">
+        <div className="mb-8 flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 light:from-white light:via-white light:to-zinc-50 p-5 sm:p-8 ring-1 ring-white/[0.08] light:ring-black/[0.08] shadow-xl">
           {p.image?.url ? (
-            <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-full ring-2 ring-white/10 light:ring-black/10 shadow-lg">
+            <div className="relative h-20 w-20 sm:h-28 sm:w-28 shrink-0 overflow-hidden rounded-full ring-2 ring-white/10 light:ring-black/10 shadow-lg">
               <Image src={p.image.url} alt={p.name} fill className="object-cover" />
             </div>
           ) : (
-            <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-sky-400 text-4xl font-bold text-white ring-2 ring-white/10 light:ring-black/10 shadow-lg">
+            <div className="flex h-20 w-20 sm:h-28 sm:w-28 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-sky-400 text-3xl sm:text-4xl font-bold text-white ring-2 ring-white/10 light:ring-black/10 shadow-lg">
               {(p.original || p.name)[0]}
             </div>
           )}
 
-          <div className="flex-1 min-w-0">
-            <div className="flex flex-wrap items-baseline gap-3 mb-3">
-              <h1 className="text-3xl font-bold text-zinc-100 light:text-zinc-900">{p.original || p.name}</h1>
+          <div className="flex-1 min-w-0 w-full">
+            <div className="flex flex-wrap items-baseline gap-2 sm:gap-3 mb-2 sm:mb-3 justify-center sm:justify-start">
+              <h1 className="text-xl sm:text-3xl font-bold text-zinc-100 light:text-zinc-900 text-center sm:text-left">{p.original || p.name}</h1>
               {p.original && p.name !== p.original && (
-                <span className="text-base text-zinc-500 light:text-zinc-400">{p.name}</span>
+                <span className="text-sm sm:text-base text-zinc-500 light:text-zinc-400 text-center sm:text-left">{p.name}</span>
               )}
             </div>
 
-            <div className="flex flex-wrap gap-2 mb-4">
-              <span className="rounded-full bg-zinc-800/80 light:bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08]">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4 justify-center sm:justify-start">
+              <span className="rounded-full bg-zinc-800/80 light:bg-zinc-100 px-2.5 sm:px-3 py-1 text-[10px] sm:text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08]">
                 {p.type === "individual" ? "个人创作者" : "社团/公司"}
               </span>
               {p.developed && p.developed.length > 0 && (
-                <span className="rounded-full bg-gradient-to-r from-blue-500/20 to-sky-500/20 px-3 py-1 text-xs font-medium text-blue-400 ring-1 ring-blue-500/30">
+                <span className="rounded-full bg-gradient-to-r from-blue-500/20 to-sky-500/20 px-2.5 sm:px-3 py-1 text-[10px] sm:text-xs font-medium text-blue-400 ring-1 ring-blue-500/30">
                   {p.developed.length} 部作品
                 </span>
               )}
             </div>
 
             {p.description && (
-              <TranslatableDescription text={p.description} className="mb-4 line-clamp-5" />
+              <TranslatableDescription text={p.description} className="mb-3 sm:mb-4 line-clamp-3 sm:line-clamp-5 text-center sm:text-left" />
             )}
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
               <a href={`https://vndb.org/p${vndbId}`} target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-1.5 rounded-lg bg-zinc-800/80 light:bg-zinc-100 px-3 py-2 text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08] transition-all hover:bg-zinc-700 light:hover:bg-zinc-200 hover:text-white light:hover:text-zinc-900">
                 <Database className="h-3.5 w-3.5" strokeWidth={2} />VNDB
@@ -277,42 +277,42 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
   return (
     <div>
       {/* Hero */}
-      <div className="mb-8 flex items-start gap-6 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 light:from-white light:via-white light:to-zinc-50 p-8 ring-1 ring-white/[0.08] light:ring-black/[0.08] shadow-xl">
+      <div className="mb-8 flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 light:from-white light:via-white light:to-zinc-50 p-5 sm:p-8 ring-1 ring-white/[0.08] light:ring-black/[0.08] shadow-xl">
         {creator.avatar ? (
-          <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-full ring-2 ring-white/10 light:ring-black/10 shadow-lg">
+          <div className="relative h-20 w-20 sm:h-28 sm:w-28 shrink-0 overflow-hidden rounded-full ring-2 ring-white/10 light:ring-black/10 shadow-lg">
             <Image src={creator.avatar} alt={creator.name} fill
               className="object-cover" />
           </div>
         ) : (
-          <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-sky-400 text-4xl font-bold text-white ring-2 ring-white/10 light:ring-black/10 shadow-lg">
+          <div className="flex h-20 w-20 sm:h-28 sm:w-28 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-sky-400 text-3xl sm:text-4xl font-bold text-white ring-2 ring-white/10 light:ring-black/10 shadow-lg">
             {(creator.nameJa || creator.name)[0]}
           </div>
         )}
 
-        <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-baseline gap-3 mb-3">
-            <h1 className="text-3xl font-bold text-zinc-100 light:text-zinc-900">{creator.nameJa || creator.name}</h1>
+        <div className="flex-1 min-w-0 w-full">
+          <div className="flex flex-wrap items-baseline gap-2 sm:gap-3 mb-2 sm:mb-3 justify-center sm:justify-start">
+            <h1 className="text-xl sm:text-3xl font-bold text-zinc-100 light:text-zinc-900 text-center sm:text-left">{creator.nameJa || creator.name}</h1>
             {creator.nameJa && creator.name !== creator.nameJa && (
-              <span className="text-base text-zinc-500 light:text-zinc-400">{creator.name}</span>
+              <span className="text-sm sm:text-base text-zinc-500 light:text-zinc-400 text-center sm:text-left">{creator.name}</span>
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2 mb-4">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4 justify-center sm:justify-start">
             {([...new Set(publishedGames.map(g => g.role))] as string[]).map(role => (
-              <span key={role} className="rounded-full bg-zinc-800/80 light:bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08]">
+              <span key={role} className="rounded-full bg-zinc-800/80 light:bg-zinc-100 px-2.5 sm:px-3 py-1 text-[10px] sm:text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08]">
                 {ROLE_LABEL[role] ?? role}
               </span>
             ))}
-            <span className="rounded-full bg-gradient-to-r from-blue-500/20 to-sky-500/20 px-3 py-1 text-xs font-medium text-blue-400 ring-1 ring-blue-500/30">
+            <span className="rounded-full bg-gradient-to-r from-blue-500/20 to-sky-500/20 px-2.5 sm:px-3 py-1 text-[10px] sm:text-xs font-medium text-blue-400 ring-1 ring-blue-500/30">
               {uniqueGames.length} 部作品
             </span>
           </div>
 
           {creator.bio && (
-            <TranslatableDescription text={creator.bio} className="mb-4 line-clamp-5" />
+            <TranslatableDescription text={creator.bio} className="mb-3 sm:mb-4 line-clamp-3 sm:line-clamp-5 text-center sm:text-left" />
           )}
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
             {creator.vndbId && (
               <a href={`https://vndb.org/p${creator.vndbId}`} target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-1.5 rounded-lg bg-zinc-800/80 light:bg-zinc-100 px-3 py-2 text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08] transition-all hover:bg-zinc-700 light:hover:bg-zinc-200 hover:text-white light:hover:text-zinc-900">

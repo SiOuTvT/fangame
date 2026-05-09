@@ -14,7 +14,7 @@ import {
   Sun,
   User,
   UserCircle2,
-  X,
+  X
 } from "lucide-react"
 import { signOut, useSession } from "next-auth/react"
 import Link from "next/link"
@@ -140,7 +140,7 @@ export function TopNav() {
             }
           }}
           className={cn(
-            "fixed top-0 left-0 z-[60] flex h-12 w-12 items-center justify-center transition-all btn-spring lg:top-0 lg:left-0 lg:h-14 lg:w-14",
+            "fixed top-0 left-0 z-[60] flex h-12 w-12 items-center justify-center transition-all btn-spring lg:top-0 lg:left-0 lg:h-14 lg:w-14 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
             theme === "dark"
               ? "bg-zinc-950/85 text-zinc-500 hover:bg-zinc-800/40 hover:text-zinc-400"
               : "bg-white/85 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-600"
@@ -152,7 +152,7 @@ export function TopNav() {
               : '0 0 0 1px rgba(0,0,0,0.04), 1px 0 0 rgba(0,0,0,0.04), 0 1px 0 rgba(0,0,0,0.04)',
           }}
         >
-          <MessageSquare className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.2} />
+          <MessageSquare className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
         </button>
 
         {/* 主容器 - 与页面内容容器对齐 */}
@@ -163,13 +163,13 @@ export function TopNav() {
             <button
               onClick={() => setMenuOpen(v => !v)}
               className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-full transition-all btn-spring lg:h-11 lg:w-11",
+                "flex h-9 w-9 items-center justify-center rounded-full transition-all btn-spring lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
                 theme === "dark" 
-                  ? "text-zinc-500 hover:bg-white/[0.06] hover:text-zinc-400"
-                  : "text-zinc-500 hover:bg-black/[0.04] hover:text-zinc-600"
+                  ? "text-zinc-400 hover:bg-white/[0.06] hover:text-zinc-300"
+                  : "text-zinc-600 hover:bg-black/[0.04] hover:text-zinc-800"
               )}
             >
-              <Menu className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.2} />
+              <Menu className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
             </button>
             {menuOpen && (
               <div className={cn(
@@ -200,32 +200,24 @@ export function TopNav() {
             )}
           </div>
 
-          {/* 首页 */}
-          <Link href="/" className={cn(
-            "ml-1 text-base font-semibold transition-colors",
-            theme === "dark" ? "text-zinc-300 hover:text-white" : "text-zinc-700 hover:text-zinc-950"
-          )}>
-            首页
-          </Link>
-
           {/* 右侧 */}
           <div className="ml-auto flex items-center gap-2">
             <Link href="/search" className={cn(
-              "flex h-9 w-9 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11",
+              "flex h-9 w-9 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
               theme === "dark" 
-                ? "text-zinc-500 hover:bg-white/[0.06] hover:text-zinc-400"
-                : "text-zinc-500 hover:bg-black/[0.04] hover:text-zinc-600"
+                ? "text-zinc-400 hover:bg-white/[0.06] hover:text-zinc-300"
+                : "text-zinc-600 hover:bg-black/[0.04] hover:text-zinc-800"
             )}>
-              <Search className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.2} />
+              <Search className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
             </Link>
 
             <button onClick={toggleTheme} className={cn(
-              "flex h-9 w-9 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11",
+              "flex h-9 w-9 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
               theme === "dark" 
-                ? "text-zinc-500 hover:bg-white/[0.06] hover:text-zinc-400"
-                : "text-zinc-500 hover:bg-black/[0.04] hover:text-zinc-600"
+                ? "text-zinc-400 hover:bg-white/[0.06] hover:text-zinc-300"
+                : "text-zinc-600 hover:bg-black/[0.04] hover:text-zinc-800"
             )}>
-              {theme === "light" ? <Sun className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.2} /> : <Moon className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.2} />}
+              {theme === "light" ? <Sun className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} /> : <Moon className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />}
             </button>
 
             {user ? (
@@ -233,7 +225,7 @@ export function TopNav() {
                 <button
                   onClick={() => setUserOpen(v => !v)}
                   className={cn(
-                    "flex h-8 w-8 items-center justify-center overflow-hidden rounded-full ring-1 transition-all lg:h-10 lg:w-10",
+                    "flex h-8 w-8 items-center justify-center overflow-hidden rounded-full ring-1 transition-all lg:h-10 lg:w-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
                     theme === "dark" 
                       ? "ring-white/10 hover:ring-white/25"
                       : "ring-black/10 hover:ring-black/25"
@@ -330,17 +322,14 @@ export function TopNav() {
                 )}
               </div>
             ) : (
-              <div className="ml-1 flex items-center gap-2">
-              <Link href="/login" className={cn(
-                  "rounded-full px-4 py-1.5 text-sm transition-all",
+              <div className="ml-1">
+                <Link href="/login" className={cn(
+                  "rounded-full px-4 py-1.5 text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
                   theme === "dark"
-                    ? "text-zinc-500 hover:text-zinc-300"
+                    ? "text-zinc-400 hover:text-zinc-200"
                     : "text-zinc-600 hover:text-zinc-900"
                 )}>
                   登录
-                </Link>
-                <Link href="/register" className="gradient-accent rounded-full px-4 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-85">
-                  注册
                 </Link>
               </div>
             )}
