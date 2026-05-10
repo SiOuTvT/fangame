@@ -1,5 +1,6 @@
 ﻿"use client"
 
+import { ImageUpload } from "@/components/image-upload";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -111,16 +112,15 @@ export function GameForm({ tags, creators, gameId, initialData }: Props) {
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="游戏简介…" rows={4} className={`${inputCls} resize-none`} />
         </div>
         <div>
-          <label className={labelCls}>封面图 URL</label>
-          <input value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="https://..." className={inputCls} />
-          {coverImage && (
-            <div className="mt-2 flex items-start gap-3">
-              <div className="relative h-24 w-[76px] shrink-0 overflow-hidden rounded-lg bg-secondary" style={{ aspectRatio: "4/5" }}>
-                <img src={coverImage} alt="封面预览" className="h-full w-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }} />
-              </div>
-              <p className="mt-1 text-[11px] text-muted-foreground">封面预览</p>
-            </div>
-          )}
+          <label className={labelCls}>封面图</label>
+          <ImageUpload
+            value={coverImage}
+            onChange={(url) => setCoverImage(url)}
+            aspectRatio={4 / 5}
+            maxSizeMB={5}
+            placeholder="上传游戏封面"
+            className="max-w-[200px]"
+          />
         </div>
         <div>
           <label className={labelCls}>VNDB ID</label>
@@ -219,17 +219,26 @@ export function GameForm({ tags, creators, gameId, initialData }: Props) {
 
       {/* 截图 */}
       <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-3">
-        <h2 className="text-sm font-semibold text-foreground">截图 URL</h2>
-        {screenshots.map((src, i) => (
-          <div key={i} className="flex gap-2">
-            <input value={src} onChange={(e) => setScreenshots((p) => p.map((s, idx) => idx === i ? e.target.value : s))}
-              placeholder="截图 URL" className={inputCls} />
-            <button type="button" onClick={() => setScreenshots((p) => p.filter((_, idx) => idx !== i))}
-              className="shrink-0 rounded-xl bg-secondary px-2.5 text-muted-foreground ring-1 ring-border hover:text-red-400 transition-colors">
-              <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
-            </button>
-          </div>
-        ))}
+        <h2 className="text-sm font-semibold text-foreground">截图</h2>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {screenshots.map((src, i) => (
+            <div key={i} className="group relative">
+              <ImageUpload
+                value={src}
+                onChange={(url) => {
+                  if (!url) {
+                    setScreenshots((p) => p.filter((_, idx) => idx !== i))
+                  } else {
+                    setScreenshots((p) => p.map((s, idx) => idx === i ? url : s))
+                  }
+                }}
+                aspectRatio={16 / 9}
+                maxSizeMB={5}
+                placeholder="上传截图"
+              />
+            </div>
+          ))}
+        </div>
         <button type="button" onClick={() => setScreenshots((p) => [...p, ""])}
           className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
           <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />添加截图

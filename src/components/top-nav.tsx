@@ -57,14 +57,12 @@ export function TopNav() {
     const nsfwVal = getCookie("nsfw_status") === "1"
     setNsfw(nsfwVal)
 
-    // 签到状态完全依赖后端，不再使用 localStorage
     fetch("/api/checkin")
       .then(r => r.json())
       .then(data => setCheckedIn(data.checkedIn))
       .catch(() => setCheckedIn(false))
   }, [])
 
-  // 点击外部关闭下拉，用 mousedown 避免与 click 冲突
   useEffect(() => {
     function handleMouseDown(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -110,49 +108,36 @@ export function TopNav() {
     <>
       <header className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-colors duration-300",
-        theme === "dark" 
-          ? "bg-zinc-950/85 backdrop-blur-xl" 
-          : "bg-white/85 backdrop-blur-xl"
+        theme === "dark"
+          ? "bg-zinc-950 backdrop-blur-xl"
+          : "bg-white backdrop-blur-xl"
       )}
         style={{
           boxShadow: theme === "dark"
-            ? '0 0 0 1px rgba(255,255,255,0.04), 0 1px 2px rgba(0,0,0,0.15)'
-            : '0 0 0 1px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.04)',
+            ? "0 0 0 1px rgba(255,255,255,0.04), 0 1px 2px rgba(0,0,0,0.15)"
+            : "0 0 0 1px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.04)",
         }}
       >
-        {/* 顶部高光边 */}
         <div className={cn(
           "absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent",
           theme === "dark" ? "via-white/[0.06]" : "via-black/[0.04]"
         )} />
-        
-        {/* 论坛按钮 - 固定在左侧留白区域（容器外）*/}
+
         <button
           onClick={() => {
-            // 手机端：直接跳转到求档中心页面
             if (window.innerWidth < 1024) {
-              window.location.href = '/forum'
+              window.location.href = "/forum"
             } else {
-              // 桌面端：展开侧边栏
               setForumOpen(v => !v)
             }
           }}
-          className={cn(
-            "fixed top-0 left-0 z-[60] flex h-14 w-14 items-center justify-center transition-all btn-spring lg:top-0 lg:left-0 lg:h-14 lg:w-14 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
-            "bg-zinc-900/85 text-zinc-500 hover:bg-zinc-800/40 hover:text-zinc-400"
-          )}
-          style={{
-            backdropFilter: 'blur(24px)',
-            boxShadow: '0 0 0 1px rgba(255,255,255,0.04), 1px 0 0 rgba(255,255,255,0.04), 0 1px 0 rgba(255,255,255,0.04)',
-          }}
+          className="fixed top-0 left-0 z-[60] flex h-14 w-14 items-center justify-center text-zinc-500 transition-all hover:text-zinc-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40"
         >
           <MessageSquare className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
         </button>
 
-        {/* 主容器 - 与页面内容容器对齐 */}
         <div className="mx-auto flex h-14 max-w-[1300px] items-center gap-3 pl-[68px] pr-4 lg:pl-6 lg:pr-6 lg:ml-[max(calc((100vw-1240px)/2),0px)]">
 
-          {/* 三条杠菜单 - 第一个位置 */}
           <div ref={menuRef} className="relative">
             <button
               onClick={() => setMenuOpen(v => !v)}
@@ -165,15 +150,15 @@ export function TopNav() {
             </button>
             {menuOpen && (
               <div className={cn(
-                "absolute left-0 top-full mt-2 w-48 overflow-hidden rounded-xl",
+                "absolute left-0 top-full mt-2 w-48 overflow-hidden rounded-xl ring-1",
                 theme === "dark"
-                  ? "bg-zinc-900/95 backdrop-blur-xl"
-                  : "bg-white/95 backdrop-blur-xl"
+                  ? "bg-zinc-900 ring-white/10"
+                  : "bg-white ring-black/10"
               )}
                 style={{
                   boxShadow: theme === "dark"
-                    ? '0 4px 16px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2)'
-                    : '0 4px 16px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)',
+                    ? "0 4px 16px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2)"
+                    : "0 4px 16px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)",
                 }}
               >
                 {MENU_ITEMS.map(({ icon: Icon, label, href }) => (
@@ -192,7 +177,6 @@ export function TopNav() {
             )}
           </div>
 
-          {/* 右侧 */}
           <div className="ml-auto flex items-center gap-2">
             <Link href="/search" className={cn(
               "flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
@@ -213,34 +197,34 @@ export function TopNav() {
                 <button
                   onClick={() => setUserOpen(v => !v)}
                   className={cn(
-                    "flex h-10 w-10 items-center justify-center overflow-hidden rounded-full ring-1 transition-all lg:h-10 lg:w-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
-                    "ring-zinc-500/20 hover:ring-zinc-500/40"
+                    "flex h-10 w-10 items-center justify-center overflow-hidden rounded-full ring-2 transition-all lg:h-10 lg:w-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
+                    "ring-zinc-500/30 hover:ring-zinc-400/50"
                   )}
                 >
                   {user.image
                     ? <img src={user.image} alt={user.name ?? ""} className="h-full w-full object-cover" />
-                    : <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-500 to-blue-500 text-xs font-bold text-white">{(user.name ?? "U")[0].toUpperCase()}</div>
+                    : <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white">{(user.name ?? "U")[0].toUpperCase()}</div>
                   }
                 </button>
 
                 {userOpen && (
                   <div className={cn(
-                    "absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-xl",
+                    "absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-xl ring-1",
                     theme === "dark"
-                      ? "bg-zinc-900/95 backdrop-blur-xl"
-                      : "bg-white/95 backdrop-blur-xl"
+                      ? "bg-zinc-900 ring-white/10"
+                      : "bg-white ring-black/10"
                   )}
                     style={{
                       boxShadow: theme === "dark"
-                        ? '0 4px 16px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2)'
-                        : '0 4px 16px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)',
+                        ? "0 4px 16px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2)"
+                        : "0 4px 16px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)",
                     }}
                   >
                     <div className={cn(
                       "flex items-center gap-3 px-4 py-3",
-                      theme === "dark" ? "border-b border-white/[0.04]" : "border-b border-black/[0.04]"
+                      theme === "dark" ? "border-b border-white/[0.06]" : "border-b border-black/[0.06]"
                     )}>
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-500 to-blue-500 text-xs font-bold text-white">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white ring-1 ring-white/10">
                         {user.image
                           ? <img src={user.image} alt="" className="h-full w-full object-cover" />
                           : (user.name ?? "U")[0].toUpperCase()}
@@ -265,8 +249,8 @@ export function TopNav() {
                     <button onClick={handleCheckin} disabled={checkedIn}
                       className={cn(
                         "flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors",
-                        checkedIn 
-                          ? "cursor-default text-zinc-600" 
+                        checkedIn
+                          ? "cursor-default text-zinc-600"
                           : (theme === "dark" ? "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100" : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900")
                       )}>
                       <CalendarCheck className="h-5 w-5 shrink-0" strokeWidth={2} />
@@ -291,7 +275,7 @@ export function TopNav() {
 
                     <div className={cn(
                       "border-t",
-                      theme === "dark" ? "border-white/[0.04]" : "border-black/[0.04]"
+                      theme === "dark" ? "border-white/[0.06]" : "border-black/[0.06]"
                     )} />
 
                     <button onClick={() => { setUserOpen(false); signOut({ callbackUrl: "/" }) }}
@@ -321,46 +305,32 @@ export function TopNav() {
         </div>
       </header>
 
-      {/* 论坛侧边栏遮罩 - 仅移动端显示 */}
       {forumOpen && (
-        <div 
+        <div
           className={cn(
             "fixed inset-0 z-40 backdrop-blur-sm fade-in lg:hidden",
             theme === "dark" ? "bg-black/40" : "bg-white/40"
-          )} 
-          onClick={() => setForumOpen(false)} 
+          )}
+          onClick={() => setForumOpen(false)}
         />
       )}
 
-      {/* 论坛侧边栏 - 响应式设计 */}
       <aside className={cn(
         "fixed top-14 z-40 flex h-[calc(100vh-3.5rem)] flex-col backdrop-blur-2xl transition-all duration-300 ease-out",
-        // 桌面端：左边缘对齐容器左边缘(px-4=16px)，右边缘对齐三条杠按钮左边缘(16+36=52px)
-        // 所以侧边栏宽度应该是 280px，左边缘在 16px，右边缘在 16+280=296px
-        // 但我们要右边缘在 52px，所以左边缘应该在 52-280=-228px（不合理）
-        // 重新理解：论坛卡片展开后最右侧对齐三条杠最左侧
-        // 三条杠最左侧位置：容器左边距16px，所以右边缘应该在16px处
-        // 侧边栏宽度280px，那么左边缘应该在 16-280=-264px（也不合理）
-        // 正确理解：应该是侧边栏从左边开始，右边缘对齐三条杠左边缘
-        // 三条杠在容器内，距离屏幕左边 = 容器左边距(屏幕宽度/2 - 600 + 16)
-        // 简化处理：侧边栏从屏幕左边开始，宽度设为让右边缘刚好在三条杠左侧
         "lg:left-0 lg:translate-x-0",
         forumOpen ? "lg:w-[240px]" : "lg:w-0 lg:border-r-0 lg:overflow-hidden",
-        // 移动端：保持原有全屏覆盖模式
         "left-0 w-full",
         forumOpen ? "translate-x-0 sidebar-enter" : "-translate-x-full sidebar-exit",
-        // 高级质感样式 - 根据主题动态变化
         theme === "dark"
           ? "bg-gradient-to-b from-zinc-950 via-zinc-950/98 to-zinc-900/95 border-r border-white/[0.08]"
           : "bg-gradient-to-b from-white via-white/98 to-zinc-50/95 border-r border-black/[0.08]",
       )}
         style={{
-          boxShadow: forumOpen 
-            ? (theme === "dark" ? '4px 0 24px rgba(0,0,0,0.4), 8px 0 48px rgba(0,0,0,0.2)' : '4px 0 24px rgba(0,0,0,0.1), 8px 0 48px rgba(0,0,0,0.05)')
-            : 'none',
+          boxShadow: forumOpen
+            ? (theme === "dark" ? "4px 0 24px rgba(0,0,0,0.4), 8px 0 48px rgba(0,0,0,0.2)" : "4px 0 24px rgba(0,0,0,0.1), 8px 0 48px rgba(0,0,0,0.05)")
+            : "none",
         }}
       >
-        {/* 左侧高光边 */}
         {forumOpen && (
           <div className={cn(
             "absolute inset-y-0 left-0 w-px bg-gradient-to-b via-transparent",
@@ -369,7 +339,7 @@ export function TopNav() {
         )}
         <div className={cn(
           "flex items-center justify-between border-b px-5 py-4",
-          theme === "dark" 
+          theme === "dark"
             ? "border-white/[0.08] bg-zinc-900/50"
             : "border-black/[0.08] bg-zinc-100/50"
         )}>
@@ -389,7 +359,7 @@ export function TopNav() {
         </div>
         <div className={cn(
           "border-t p-4",
-          theme === "dark" 
+          theme === "dark"
             ? "border-white/[0.08] bg-zinc-900/50"
             : "border-black/[0.08] bg-zinc-100/50"
         )}>
