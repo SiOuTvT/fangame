@@ -1,7 +1,7 @@
 import { AnnounceSwiper } from "@/components/announce-swiper"
 import { GameCardSkeleton } from "@/components/game-card"
 import { GameGridClient } from "@/components/game-grid-client"
-import { RandomDiscoverBtns } from "@/components/random-discover-btns"
+import { RandomCharacterBtn, RandomCreatorBtn } from "@/components/random-discover-btns"
 import { buildGameSearchFilter } from "@/lib/filters"
 import { prisma } from "@/lib/prisma"
 import { Suspense } from "react"
@@ -106,7 +106,8 @@ export default async function HomePage({
         
         {/* 左侧功能区（手机端显示在下面）*/}
         <div className="order-2 lg:order-1 flex flex-col gap-3">
-          <RandomDiscoverBtns />
+          <RandomCreatorBtn />
+          <RandomCharacterBtn />
         </div>
         {/* 右侧公告区（手机端显示在最上面）*/}
         {announcements.length > 0 && (
