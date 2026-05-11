@@ -199,7 +199,7 @@ export function GameDetailClient({
                         <div
                           className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white"
                           style={{
-                            background: "linear-gradient(135deg, #C8F2E4, #7EDCBA)",
+                            background: "linear-gradient(135deg, #C8F2E4, #5EC4B6)",
                           }}
                         >
                           {(c.nameJa || c.name)[0]}

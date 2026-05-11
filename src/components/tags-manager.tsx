@@ -5,7 +5,7 @@ import { useState } from "react";
 
 interface Tag { id: string; name: string; color: string; gameCount: number }
 
-const PRESET_COLORS = ["#a78bfa","#f472b6","#7EDCBA","#34d399","#fb923c","#facc15","#f87171","#818cf8"]
+const PRESET_COLORS = ["#a78bfa","#f472b6","#5EC4B6","#34d399","#fb923c","#facc15","#f87171","#818cf8"]
 
 export function TagsManager({ initialTags }: { initialTags: Tag[] }) {
   const [tags, setTags] = useState(initialTags)

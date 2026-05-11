@@ -55,15 +55,16 @@ export function GameCard({ game }: { game: GameCardData }) {
   return (
     <Link
       href={`/games/${game.id}`}
-      className="group flex flex-col overflow-hidden rounded-2xl transition-transform duration-200 hover:-translate-y-1"
+      className="group block overflow-hidden rounded-2xl transition-transform duration-200 hover:-translate-y-1"
       style={{
         background: "hsl(var(--card))",
         boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
         border: "1px solid hsl(var(--border))",
+        aspectRatio: "2 / 3",
       }}
     >
-      {/* ─── 封面 50% — aspect-ratio 3:2（3:4 卡片的上半部分）─── */}
-      <div className="relative w-full shrink-0" style={{ aspectRatio: "3 / 2" }}>
+      {/* ─── 封面 50% ─── */}
+      <div className="relative w-full" style={{ height: "50%" }}>
         {game.coverImage && !imgError ? (
           <Image
             src={game.coverImage}
@@ -83,8 +84,8 @@ export function GameCard({ game }: { game: GameCardData }) {
         )}
       </div>
 
-      {/* ─── 内容区 50% — flex-1 填充剩余空间，标签换行时自然增长 ─── */}
-      <div className="flex flex-1 flex-col px-3 py-2 sm:px-4 sm:py-3 overflow-hidden">
+      {/* ─── 内容区 50% ─── */}
+      <div className="flex flex-col px-3 py-2 sm:px-4 sm:py-3 overflow-hidden" style={{ height: "50%" }}>
 
         {/* 标题 (40%) — 大字，加粗 */}
         <div className="flex-[40] flex items-start min-h-0">
@@ -96,19 +97,19 @@ export function GameCard({ game }: { game: GameCardData }) {
         {/* 人气数据 (20%) — 薄荷青，更明显 */}
         <div className="flex-[20] flex items-center gap-3 sm:gap-4">
           {viewStr && (
-            <span className="flex items-center gap-1 text-xs sm:text-sm font-semibold" style={{ color: "#7EDCBA" }}>
+            <span className="flex items-center gap-1 text-xs sm:text-sm font-semibold" style={{ color: "#5EC4B6" }}>
               <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2.5} />
               {viewStr}
             </span>
           )}
           {dlStr && (
-            <span className="flex items-center gap-1 text-xs sm:text-sm font-semibold" style={{ color: "#7EDCBA" }}>
+            <span className="flex items-center gap-1 text-xs sm:text-sm font-semibold" style={{ color: "#5EC4B6" }}>
               <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2.5} />
               {dlStr}
             </span>
           )}
           {favStr && (
-            <span className="flex items-center gap-1 text-xs sm:text-sm font-semibold" style={{ color: "#7EDCBA" }}>
+            <span className="flex items-center gap-1 text-xs sm:text-sm font-semibold" style={{ color: "#5EC4B6" }}>
               <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2.5} />
               {favStr}
             </span>
@@ -122,9 +123,9 @@ export function GameCard({ game }: { game: GameCardData }) {
               key={i}
               className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] sm:text-xs font-medium shrink-0"
               style={{
-                color: "#7EDCBA",
-                backgroundColor: "rgba(126, 220, 186, 0.12)",
-                border: "1px solid rgba(126, 220, 186, 0.25)",
+                color: "#5EC4B6",
+                backgroundColor: "rgba(94, 196, 182, 0.12)",
+                border: "1px solid rgba(94, 196, 182, 0.25)",
               }}
             >
               {tag}
@@ -145,11 +146,11 @@ export function GameCard({ game }: { game: GameCardData }) {
 
 export function GameCardSkeleton() {
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card">
-      {/* 封面 */}
-      <div className="w-full shrink-0 skeleton-shimmer" style={{ aspectRatio: "3 / 2" }} />
-      {/* 内容 */}
-      <div className="flex flex-1 flex-col px-3 py-2 sm:px-4 sm:py-3 gap-1.5">
+    <div className="block overflow-hidden rounded-2xl border border-border bg-card" style={{ aspectRatio: "2 / 3" }}>
+      {/* 封面 50% */}
+      <div className="w-full skeleton-shimmer" style={{ height: "50%" }} />
+      {/* 内容 50% */}
+      <div className="flex flex-col px-3 py-2 sm:px-4 sm:py-3 gap-1.5" style={{ height: "50%" }}>
         <div className="flex-[40] space-y-1.5">
           <div className="h-4 w-full rounded skeleton-shimmer" />
           <div className="h-4 w-3/5 rounded skeleton-shimmer" />
