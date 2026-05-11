@@ -2,6 +2,7 @@
 
 import { ImageUpload } from "@/components/image-upload"
 import { ArrowLeft, Eye, EyeOff, FileText, Loader2, Lock, User } from "lucide-react"
+import { useSession } from "next-auth/react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -12,6 +13,7 @@ interface Props {
 
 export function ProfileEditForm({ user }: Props) {
   const router = useRouter()
+  const { update: updateSession } = useSession()
 
   const [username, setUsername]     = useState(user.username)
   const [bio, setBio]               = useState(user.bio)
@@ -64,6 +66,13 @@ export function ProfileEditForm({ user }: Props) {
     setSaving(false)
 
     if (!res.ok) { setError(data.error); return }
+
+    // 更新 session 以同步导航栏的头像和用户名
+    await updateSession({
+      name: data.username || username.trim(),
+      image: data.avatar || avatarData,
+    })
+
     setSuccess("保存成功！")
     setOldPassword("")
     setNewPassword("")
