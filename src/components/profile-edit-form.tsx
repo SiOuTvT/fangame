@@ -76,7 +76,11 @@ export function ProfileEditForm({ user }: Props) {
     setSuccess("保存成功！")
     setOldPassword("")
     setNewPassword("")
-    setTimeout(() => router.push(`/profile/${user.id}`), 800)
+    // 强制刷新页面以确保所有组件更新头像
+    setTimeout(() => {
+      router.refresh()
+      router.push(`/profile/${user.id}`)
+    }, 800)
   }
 
   const inputCls = "flex-1 bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none"

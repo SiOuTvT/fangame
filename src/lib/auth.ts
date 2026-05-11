@@ -46,14 +46,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id    = user.id
         token.name  = user.name
         token.image = user.image
-        // 从数据库读取头像框
-        const dbUser = await prisma.user.findUnique({ where: { id: user.id! } })
-        token.avatarFrame = (dbUser as any)?.avatarFrame ?? "none"
+        // 从数据库读取头像框（容错处理，避免列不存在时崩溃）
+        try {
+          const dbUser = await prisma.user.findUnique({ where: { id: user.id! } })
+          token.avatarFrame = (dbUser as any)?.avatarFrame ?? "none"
+        } catch {
+          token.avatarFrame = "none"
+        }
       }
       // 用户更新后刷新 session
       if (trigger === "update" && session) {
+        if (session.name) token.name = session.name
         if (session.image) token.image = session.image
-        if (session.avatarFrame) token.avatarFrame = session.avatarFrame
+        if ((session as any).avatarFrame) token.avatarFrame = (session as any).avatarFrame
       }
       return token
     },
