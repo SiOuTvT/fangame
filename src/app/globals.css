@@ -40,16 +40,16 @@ html, body {
 /* ── 深色主题（默认） ── */
 :root {
   /* Zinc 色阶作为基础 - 更有层次感 */
-  --background:    #0a0a0c; /* 比纯黑略暖 */
+  --background:    #0a0a0c; /* 最深的页面底色 */
   --foreground:    #f0f0f2; /* 略带暖白，减少刺眼 */
-  --card:          #141416; /* 更深沉的卡片底色 */
+  --card:          #1a1a1f; /* 比背景明显亮，确保卡片独立分层 */
   --card-foreground: #f0f0f2;
-  --popover:       #141416;
+  --popover:       #1a1a1f;
   --popover-foreground: #f0f0f2;
-  --muted:         #1e1e21; /* 更柔和的muted */
-  --muted-foreground: #a1a1aa; /* 降低对比度，更柔和 */
-  --border:        rgba(255, 255, 255, 0.05);
-  --input:         rgba(255, 255, 255, 0.06);
+  --muted:         #222228; /* 更柔和的muted */
+  --muted-foreground: #9a9aa8; /* 灰调小字，昼夜模式都清晰可辨 */
+  --border:        rgba(255, 255, 255, 0.10); /* 明确的边框分隔线 */
+  --input:         rgba(255, 255, 255, 0.08);
   --secondary:     #1e1e21;
   --secondary-foreground: #f0f0f2;
   --accent:        #1e1e21;
@@ -741,6 +741,65 @@ input:focus, textarea:focus, select:focus {
 /* ── prose 富文本亮色修复 ── */
 .light .prose-headings\:text-zinc-200 :is(:where(h1, h2, h3, h4, h5, h6):not(:where([class~="not-prose"], [class~="not-prose"] *))) {
   color: #18181b !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   游戏卡片 - 深色/亮色模式精细化
+   ═══════════════════════════════════════════════════════ */
+
+/* ── 卡片整体：悬浮浮起 + 阴影加深 ── */
+.game-card {
+  transform: translateY(0);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.35), 0 1px 4px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.game-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.45), 0 4px 12px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.15);
+}
+
+/* ── 卡片标题：深色模式高亮白 ── */
+.game-card-title {
+  color: #f5f5f7;
+}
+
+/* ── 卡片统计：深色模式低亮度灰 ── */
+.game-card-stat {
+  color: #8b8b9a;
+}
+
+/* ── 卡片日期：深色模式更淡灰 ── */
+.game-card-date {
+  color: #6b6b7a;
+}
+
+/* ── 亮色模式下卡片覆盖 ── */
+.light .game-card {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8);
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
+.light .game-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
+  border-color: rgba(0,0,0,0.12);
+}
+
+/* ── 亮色模式下卡片标题：深色 ── */
+.light .game-card-title {
+  color: #111113;
+}
+
+/* ── 亮色模式下卡片统计：中灰 ── */
+.light .game-card-stat {
+  color: #52525b;
+}
+
+/* ── 亮色模式下卡片日期：浅灰 ── */
+.light .game-card-date {
+  color: #71717a;
 }
 
 /* ── 电脑端按钮和图标加大 ── */
