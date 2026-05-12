@@ -116,12 +116,12 @@ export function GameCard({ game }: { game: GameCardData }) {
           )}
         </div>
 
-        {/* 标签 (30%) — 灰色胶囊，自动换行 */}
+        {/* 标签 (30%) — 主题青色胶囊，自动换行 */}
         <div className="flex-[30] flex flex-wrap items-center gap-1 sm:gap-1.5 min-h-0 overflow-hidden">
           {paramTags.map((tag, i) => (
             <span
               key={i}
-              className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] sm:text-xs font-medium shrink-0 bg-secondary text-muted-foreground/80"
+              className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] sm:text-xs font-medium shrink-0 bg-primary/10 text-primary"
             >
               {tag}
             </span>
