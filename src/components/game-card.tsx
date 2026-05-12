@@ -30,6 +30,32 @@ function formatDate(d?: Date | string): string {
   return date.toISOString().slice(0, 10)
 }
 
+/* ─── 解析 JSON 数组（兼容旧格式纯文本） ─── */
+function parseArr(raw?: string): string[] {
+  if (!raw) return []
+  try {
+    const p = JSON.parse(raw)
+    if (Array.isArray(p)) return p.filter(Boolean).map(String)
+  } catch {}
+  return raw.split(/[,，/、]/).map(s => s.trim()).filter(Boolean)
+}
+
+interface FileSizeEntry { value: string; unit: string }
+function parseFileSizes(raw?: string): FileSizeEntry[] {
+  if (!raw) return []
+  try {
+    const p = JSON.parse(raw)
+    if (Array.isArray(p)) return p.filter(e => e.value)
+  } catch {}
+  // 旧格式: "1.25 GB / 700 MB"
+  const parts = raw.split(/[/、,，]/).map(s => s.trim()).filter(Boolean)
+  return parts.map(part => {
+    const m = part.match(/([\d.]+)\s*(MB|GB)/i)
+    if (m) return { value: m[1], unit: m[2].toUpperCase() }
+    return { value: part, unit: "GB" }
+  })
+}
+
 /* ─── 格式化数字 ─── */
 function fmtNum(n?: number): string {
   if (n == null) return ""
@@ -46,11 +72,11 @@ export function GameCard({ game }: { game: GameCardData }) {
   const favStr = fmtNum(game.favoriteCount)
   const dateStr = formatDate(game.updatedAt || game.createdAt)
 
-  /* 收集平台/语言/大小标签 */
-  const paramTags: string[] = []
-  if (game.platform) paramTags.push(game.platform)
-  if (game.language) paramTags.push(game.language)
-  if (game.fileSize) paramTags.push(game.fileSize)
+  /* 收集平台/语言标签 */
+  const platformTags = parseArr(game.platform)
+  const languageTags = parseArr(game.language)
+  const paramTags = [...platformTags, ...languageTags]
+  const fileSizes = parseFileSizes(game.fileSize)
 
   return (
     <Link
@@ -116,16 +142,26 @@ export function GameCard({ game }: { game: GameCardData }) {
           )}
         </div>
 
-        {/* 标签 (34%) — 主题青色胶囊，自动换行 */}
+        {/* 标签+大小 (34%) — 自动换行 */}
         <div className="flex-[34] flex flex-wrap items-center gap-1 sm:gap-1.5 min-h-0 overflow-hidden">
           {paramTags.map((tag, i) => (
             <span
-              key={i}
+              key={`p-${i}`}
               className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] sm:text-xs font-medium shrink-0 bg-primary/10 text-primary"
             >
               {tag}
             </span>
           ))}
+          {fileSizes.length > 0 && (
+            <span className="inline-flex items-center gap-0.5 text-[10px] sm:text-xs shrink-0">
+              {fileSizes.map((fs, i) => (
+                <span key={`fs-${i}`} className="flex items-center">
+                  <span className="font-medium text-primary">{fs.value} {fs.unit}</span>
+                  {i < fileSizes.length - 1 && <span className="mx-0.5 text-muted-foreground/40">/</span>}
+                </span>
+              ))}
+            </span>
+          )}
         </div>
 
         {/* 日期 (10%) — 极淡灰，贴底 */}

@@ -67,10 +67,28 @@ export default async function GameDetailPage({
     isFav = !!fav
   }
 
-  /* 收集平台/语言标签（不包含文件大小） */
-  const paramTags: string[] = []
-  if (game.platform) paramTags.push(game.platform)
-  if (game.language) paramTags.push(game.language)
+  /* 解析 JSON 数组（兼容旧格式纯文本） */
+  function parseArr(raw: string): string[] {
+    if (!raw) return []
+    try { const p = JSON.parse(raw); if (Array.isArray(p)) return p.filter(Boolean).map(String) } catch {}
+    return raw.split(/[,，/、]/).map(s => s.trim()).filter(Boolean)
+  }
+  type FileSizeEntry = { value: string; unit: string }
+  function parseFileSizes(raw: string): FileSizeEntry[] {
+    if (!raw) return []
+    try { const p = JSON.parse(raw); if (Array.isArray(p)) return p.filter(e => e.value) } catch {}
+    const parts = raw.split(/[/、,，]/).map(s => s.trim()).filter(Boolean)
+    return parts.map(part => {
+      const m = part.match(/([\d.]+)\s*(MB|GB)/i)
+      if (m) return { value: m[1], unit: m[2].toUpperCase() }
+      return { value: part, unit: "GB" }
+    })
+  }
+
+  const platformTags = parseArr(game.platform)
+  const languageTags = parseArr(game.language)
+  const paramTags = [...platformTags, ...languageTags]
+  const fileSizes = parseFileSizes(game.fileSize)
 
   const creators = game.creators.map((gc) => ({
     id: gc.creator.id,
@@ -208,27 +226,34 @@ export default async function GameDetailPage({
               border: "1px solid hsl(var(--border))",
             }}
           >
-            {/* 文件大小 — 全站唯一出现处 */}
-            {game.fileSize && (
+            {/* 文件大小 */}
+            {fileSizes.length > 0 && (
               <div className="text-center">
                 <span className="text-xs text-muted-foreground">文件大小</span>
-                <p className="mt-1 text-lg font-bold text-foreground">{game.fileSize}</p>
+                <p className="mt-1 text-lg font-bold text-foreground flex items-center justify-center gap-0.5">
+                  {fileSizes.map((fs, i) => (
+                    <span key={i} className="flex items-center">
+                      <span>{fs.value} {fs.unit}</span>
+                      {i < fileSizes.length - 1 && <span className="mx-1 text-muted-foreground/40">/</span>}
+                    </span>
+                  ))}
+                </p>
               </div>
             )}
 
             {/* 运行参数 */}
-            {(game.platform || game.language) && (
+            {(platformTags.length > 0 || languageTags.length > 0) && (
               <div className="space-y-2">
-                {game.platform && (
+                {platformTags.length > 0 && (
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">平台</span>
-                    <span className="text-foreground">{game.platform}</span>
+                    <span className="text-foreground">{platformTags.join("、")}</span>
                   </div>
                 )}
-                {game.language && (
+                {languageTags.length > 0 && (
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">语言</span>
-                    <span className="text-foreground">{game.language}</span>
+                    <span className="text-foreground">{languageTags.join("、")}</span>
                   </div>
                 )}
               </div>
