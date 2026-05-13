@@ -78,25 +78,57 @@ class VNDBClient {
   // 使用 HTTP API endpoint
   private baseUrl = "https://api.vndb.org/kana"
   private CACHE_TTL = 24 * 60 * 60 // 24小时缓存（秒）
+  private dispatcher: any = null
+  private proxyInitialized = false
 
   /**
-   * 发送 HTTP POST 请求到 VNDB API（带重试机制）
+   * 初始化代理（延迟加载，避免 import 失败影响启动）
+   */
+  private async initProxy() {
+    if (this.proxyInitialized) return
+    this.proxyInitialized = true
+
+    const proxyUrl = process.env.VNDB_API_PROXY || process.env.HTTPS_PROXY || process.env.HTTP_PROXY
+    if (!proxyUrl) {
+      console.log("[VNDB] 未配置代理，直连 API")
+      return
+    }
+
+    try {
+      // @ts-ignore - undici 是 Node.js 内置模块，运行时可用
+      const undici = await import("undici")
+      this.dispatcher = new undici.ProxyAgent(proxyUrl)
+      console.log("[VNDB] 已配置代理:", proxyUrl.replace(/\/\/[^:]+:[^@]+@/, "//***:***@"))
+    } catch (e) {
+      console.warn("[VNDB] 无法加载 undici ProxyAgent，将使用直连:", e)
+    }
+  }
+
+  /**
+   * 发送 HTTP POST 请求到 VNDB API（带重试机制 + 代理支持）
    */
   private async sendRequest(endpoint: string, data: any, retries = 3): Promise<any> {
+    await this.initProxy()
+    
     const url = `${this.baseUrl}/${endpoint}`
     console.log("[VNDB] 发送 HTTP 请求:", url)
     
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
-        const response = await fetch(url, {
+        const fetchOptions: any = {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "User-Agent": "FangameNext/1.0",
           },
           body: JSON.stringify(data),
-          signal: AbortSignal.timeout(15000), // 15秒超时
-        })
+          signal: AbortSignal.timeout(30000), // 30秒超时（代理可能更慢）
+        }
+        // undici 的 ProxyAgent 需要通过 dispatcher 参数传递
+        if (this.dispatcher) {
+          fetchOptions.dispatcher = this.dispatcher
+        }
+        const response = await fetch(url, fetchOptions)
 
         if (!response.ok) {
           const errorBody = await response.text().catch(() => "unknown")
