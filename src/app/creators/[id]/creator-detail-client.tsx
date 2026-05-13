@@ -1,7 +1,7 @@
 "use client"
 
 import { TranslateBtn } from "@/components/translate-btn"
-import { Database, Loader2, RefreshCw, Star, User } from "lucide-react"
+import { Database, Loader2, RefreshCw, User } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -164,43 +164,25 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
             <span className="h-5 w-1 rounded-full bg-gradient-to-b from-indigo-300 to-indigo-400" />
             参与作品
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
             {creator.vns.map(vn => (
               <Link
                 key={vn.id}
                 href={`/games?vndb=${vn.id}`}
-                className="group overflow-hidden rounded-xl bg-zinc-900/50 light:bg-zinc-100 ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:bg-zinc-800/80 light:hover:bg-zinc-200/80 hover:ring-white/[0.12] light:hover:ring-black/[0.12] hover:scale-[1.02]"
+                className="group"
               >
-                {/* 封面图 */}
-                {vn.image ? (
-                  <div className="relative w-full overflow-hidden" style={{ aspectRatio: "3/4" }}>
-                    <Image src={vn.image} alt={vn.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
-                  </div>
-                ) : (
-                  <div className="flex w-full items-center justify-center bg-gradient-to-br from-indigo-500/30 to-purple-500/30 text-3xl font-bold text-indigo-300" style={{ aspectRatio: "3/4" }}>
-                    {vn.title[0]}
-                  </div>
-                )}
-                {/* 信息 */}
-                <div className="p-3">
-                  <p className="text-sm font-medium text-zinc-200 light:text-zinc-800 truncate group-hover:text-white light:group-hover:text-zinc-900 transition-colors">
-                    {vn.original || vn.title}
-                  </p>
-                  {vn.original && vn.title !== vn.original && (
-                    <p className="text-[11px] text-zinc-500 truncate mt-0.5">{vn.title}</p>
+                <div className="relative aspect-[2/3] overflow-hidden rounded-lg ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all group-hover:ring-white/[0.12] light:group-hover:ring-black/[0.12] group-hover:scale-[1.02]">
+                  {vn.image ? (
+                    <Image src={vn.image} alt={vn.title} fill className="object-cover" sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, 16vw" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-500/30 to-purple-500/30 text-2xl font-bold text-indigo-300">
+                      {vn.title[0]}
+                    </div>
                   )}
-                  <div className="flex items-center gap-2 mt-1.5">
-                    <span className="text-[11px] text-indigo-400/80">
-                      {roleLabelMap[vn.role] || vn.role}
-                    </span>
-                    {vn.rating ? (
-                      <span className="flex items-center gap-0.5 text-[11px] text-amber-400/80">
-                        <Star className="h-3 w-3" strokeWidth={2} />
-                        {formatRating(vn.rating)}
-                      </span>
-                    ) : null}
-                  </div>
                 </div>
+                <p className="mt-1.5 line-clamp-2 text-[10px] font-medium leading-tight text-zinc-200 light:text-zinc-800 group-hover:text-white light:group-hover:text-zinc-900 transition-colors">
+                  {vn.original || vn.title}
+                </p>
               </Link>
             ))}
           </div>
