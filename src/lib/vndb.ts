@@ -425,32 +425,16 @@ class VNDBClient {
       try {
         console.log(`[VNDB] 尝试搜索 staff，关键词: "${term}"`)
         
-        // 带 vns 数据获取，以过滤掉 0 作品的创作者
         const data = await this.sendRequest("staff", {
           filters: ["search", "=", term],
-          fields: "id,name,original,description,gender,vns.role,vns.title",
+          fields: "id,name,original,description,gender",
           results: 25,
         })
         
         const staffList = (data.results || []).filter((s: any) => s.id)
         if (staffList.length > 0) {
-          // 优先选择有作品的 staff（降低 0 作品概率）
-          const withWorks = staffList.filter((s: any) => s.vns && s.vns.length > 0)
-          const pool = withWorks.length > 0 ? withWorks : staffList
-          
-          const staff = pool[Math.floor(Math.random() * pool.length)]
-          console.log(`[VNDB] 选中 staff: ${staff.name} (ID: ${staff.id}, 作品数: ${staff.vns?.length || 0})`)
-          
-          // 提取角色职责和关联作品
-          const roles = [...new Set((staff.vns || []).map((v: any) => v.role).filter(Boolean))] as string[]
-          const vns = (staff.vns || []).slice(0, 10).map((v: any) => ({
-            id: v.id || "",
-            title: v.title || "",
-            original: v.original || "",
-            role: v.role || "",
-            rating: v.rating,
-            image: v.image?.url,
-          }))
+          const staff = staffList[Math.floor(Math.random() * staffList.length)]
+          console.log(`[VNDB] 选中 staff: ${staff.name} (ID: ${staff.id})`)
           
           return {
             id: staff.id,
@@ -459,8 +443,8 @@ class VNDBClient {
             description: staff.description,
             gender: staff.gender,
             vndbId: staff.id.replace("s", ""),
-            roles,
-            vns,
+            roles: [],
+            vns: [],
           }
         }
         
