@@ -21,6 +21,7 @@ interface Props {
     status: string; isNsfw: boolean; vndbId: string; isPublished: boolean
     tagIds: string[]
     platform: string; language: string; fileSize: string
+    releaseDate?: string; gameDuration?: string; studioName?: string
   }
 }
 
@@ -70,6 +71,14 @@ export function GameForm({ tags, gameId, initialData }: Props) {
   const [sizeValue, setSizeValue] = useState("")
   const [sizeUnit, setSizeUnit] = useState<"MB" | "GB">("GB")
 
+  // 新增字段
+  const [releaseDate, setReleaseDate] = useState(initialData?.releaseDate ?? "")
+  const [gameDuration, setGameDuration] = useState(initialData?.gameDuration ?? "")
+  const [studioName, setStudioName] = useState(initialData?.studioName ?? "")
+
+  // 标签搜索
+  const [tagSearch, setTagSearch] = useState("")
+
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
 
@@ -109,6 +118,9 @@ export function GameForm({ tags, gameId, initialData }: Props) {
       platform: JSON.stringify(selectedPlatforms),
       language: JSON.stringify(selectedLanguages),
       fileSize: JSON.stringify(fileSizes),
+      releaseDate: releaseDate || null,
+      gameDuration,
+      studioName,
     }
 
     const res = await fetch(
@@ -235,6 +247,35 @@ export function GameForm({ tags, gameId, initialData }: Props) {
           <label className={labelCls}>VNDB ID</label>
           <input value={vndbId} onChange={(e) => setVndbId(e.target.value)} placeholder="如：12345" className={inputCls} />
         </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div>
+            <label className={labelCls}>发售日期</label>
+            <input
+              type="date"
+              value={releaseDate}
+              onChange={(e) => setReleaseDate(e.target.value)}
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>制作会社</label>
+            <input
+              value={studioName}
+              onChange={(e) => setStudioName(e.target.value)}
+              placeholder="如：Key"
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>游戏时长</label>
+            <input
+              value={gameDuration}
+              onChange={(e) => setGameDuration(e.target.value)}
+              placeholder="如：20-30小时"
+              className={inputCls}
+            />
+          </div>
+        </div>
       </div>
 
       {/* 运行参数 */}
@@ -300,19 +341,63 @@ export function GameForm({ tags, gameId, initialData }: Props) {
         </div>
       </div>
 
-      {/* 标签 */}
+      {/* 标签 — 带搜索和复选框 */}
       <div className="rounded-xl bg-card p-5 ring-1 ring-border">
         <h2 className="mb-3 text-sm font-semibold text-foreground">标签</h2>
-        <div className="flex flex-wrap gap-2">
-          {tags.map((tag) => (
-            <button key={tag.id} type="button" onClick={() => toggleTag(tag.id)}
-              className={`rounded-full px-3 py-1 text-xs font-medium ring-1 transition-all duration-200 ${selectedTags.includes(tag.id) ? "ring-current" : "ring-transparent opacity-50 hover:opacity-80"}`}
-              style={{ color: tag.color, background: `${tag.color}18`, outlineColor: tag.color }}>
-              {tag.name}
-            </button>
-          ))}
-          {tags.length === 0 && <p className="text-xs text-muted-foreground">暂无标签，请先在标签管理中创建</p>}
+        {/* 搜索框 */}
+        <div className="mb-3">
+          <input
+            value={tagSearch}
+            onChange={(e) => setTagSearch(e.target.value)}
+            placeholder="搜索标签…"
+            className="w-full rounded-lg bg-secondary px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border outline-none focus:ring-ring transition-all"
+          />
         </div>
+        {/* 已选标签展示 */}
+        {selectedTags.length > 0 && (
+          <div className="mb-3 flex flex-wrap gap-1.5">
+            {selectedTags.map(id => {
+              const tag = tags.find(t => t.id === id)
+              if (!tag) return null
+              return (
+                <span key={id} className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium"
+                  style={{ color: tag.color, background: `${tag.color}18` }}>
+                  {tag.name}
+                  <button type="button" onClick={() => toggleTag(id)}
+                    className="hover:text-red-400 transition-colors cursor-pointer">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )
+            })}
+          </div>
+        )}
+        {/* 复选框列表 */}
+        <div className="max-h-48 overflow-y-auto space-y-1 rounded-lg bg-secondary/50 p-2">
+          {tags
+            .filter(tag => !tagSearch || tag.name.toLowerCase().includes(tagSearch.toLowerCase()))
+            .map((tag) => {
+              const checked = selectedTags.includes(tag.id)
+              return (
+                <button key={tag.id} type="button" onClick={() => toggleTag(tag.id)}
+                  className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${
+                    checked ? "bg-primary/10 text-primary" : "text-foreground hover:bg-accent"
+                  }`}>
+                  <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px] font-bold transition-colors ${
+                    checked ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background"
+                  }`}>
+                    {checked && "✓"}
+                  </span>
+                  <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: tag.color }} />
+                  {tag.name}
+                </button>
+              )
+            })}
+          {tags.filter(tag => !tagSearch || tag.name.toLowerCase().includes(tagSearch.toLowerCase())).length === 0 && (
+            <p className="px-3 py-2 text-xs text-muted-foreground">没有匹配的标签</p>
+          )}
+        </div>
+        {tags.length === 0 && <p className="mt-2 text-xs text-muted-foreground">暂无标签，请先在标签管理中创建</p>}
       </div>
 
       {/* 下载链接 */}

@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
 
   const body = await req.json()
-  const { title, originalWork, description, coverImage, screenshots, downloadLinks, status, isNsfw, vndbId, isPublished, tagIds, gameCreators, platform, language, fileSize } = body
+  const { title, originalWork, description, coverImage, screenshots, downloadLinks, status, isNsfw, vndbId, isPublished, tagIds, gameCreators, platform, language, fileSize, releaseDate, gameDuration, studioName } = body
 
   if (!title?.trim()) return NextResponse.json({ error: "标题不能为空" }, { status: 400 })
 
@@ -48,6 +48,9 @@ export async function POST(req: NextRequest) {
       isNsfw: !!isNsfw,
       vndbId: vndbId ?? "",
       isPublished: isPublished !== false,
+      releaseDate: releaseDate ? new Date(releaseDate) : null,
+      gameDuration: gameDuration ?? "",
+      studioName: studioName ?? "",
       platform: platform ?? "",
       language: language ?? "",
       fileSize: fileSize ?? "",
