@@ -8,14 +8,29 @@ html, body {
   max-width: 100vw;
 }
 
-/* 全局图片防溢出 */
+/* 全局图片防溢出 — 轮播 / fill 模式下也生效 */
 img {
   max-width: 100%;
   height: auto;
 }
+/* Next.js fill 图片不撑破父容器 */
+[style*="position: absolute"][style*="inset: 0"] img,
+img[style*="position: absolute"] {
+  max-width: 100%;
+  max-height: 100%;
+}
+/* 轮播滑动防溢出 */
+.overflow-hidden > div[style*="transform"] {
+  max-width: 100%;
+}
 
 /* 全局防止子元素撑破容器 */
 main > * {
+  min-width: 0;
+}
+
+/* Grid 子项防溢出 */
+.grid > * {
   min-width: 0;
 }
 

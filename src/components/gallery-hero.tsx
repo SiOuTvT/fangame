@@ -197,21 +197,17 @@ export function GalleryStrip({
   if (screenshots.length === 0) return null
 
   return (
-    <div ref={barRef} className="flex h-full items-center gap-2 overflow-x-auto px-3 scrollbar-hide" style={{ scrollBehavior: "smooth" }}>
+    <div ref={barRef} className="flex h-full items-center gap-1.5 sm:gap-2 overflow-x-auto px-2 sm:px-3 scrollbar-hide" style={{ scrollBehavior: "smooth" }}>
       {screenshots.map((img, i) => (
         <button
           key={i}
           type="button"
           onClick={() => onSelect(i)}
-          className="relative shrink-0 overflow-hidden transition-all duration-200"
+          className="relative shrink-0 overflow-hidden transition-all duration-200 h-[48px] w-[85px] sm:h-[60px] sm:w-[106px] lg:h-[72px] lg:w-[128px]"
           style={{
-            height: "72px",
-            width: "128px",
             borderRadius: "8px",
             border: i === activeIndex ? `2px solid var(--clr-blue)` : "2px solid transparent",
             opacity: i === activeIndex ? 1 : 0.45,
-            transform: i === activeIndex ? "scale(1.04)" : "scale(1)",
-            boxShadow: i === activeIndex ? `0 0 10px var(--clr-blue)50` : "none",
           }}
         >
           <Image
@@ -220,7 +216,7 @@ export function GalleryStrip({
             fill
             className="object-cover"
             draggable={false}
-            sizes="128px"
+            sizes="(max-width: 640px) 85px, (max-width: 1024px) 106px, 128px"
             quality={50}
             loading="lazy"
             decoding="async"

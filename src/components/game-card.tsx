@@ -59,7 +59,7 @@ export function GameCard({ game }: { game: GameCardData }) {
       className="game-card group block overflow-hidden rounded-2xl transition-all duration-300"
       style={{
         background: "var(--card)",
-        aspectRatio: "3 / 3.2",
+        aspectRatio: "3 / 4",
       }}
     >
       {/* ─── 封面 50% ─── */}
@@ -84,31 +84,31 @@ export function GameCard({ game }: { game: GameCardData }) {
       </div>
 
       {/* ─── 内容区 50% ─── */}
-      <div className="flex flex-col px-3 py-2 sm:px-4 sm:py-3 overflow-hidden" style={{ height: "50%" }}>
+      <div className="flex flex-col px-2.5 py-2 sm:px-4 sm:py-3 overflow-hidden" style={{ height: "50%" }}>
 
         {/* 标题 (40%) — 大字，加粗，高亮度 */}
         <div className="flex-[40] flex items-start min-h-0">
-          <h3 className="game-card-title text-base sm:text-lg font-bold leading-snug line-clamp-2">
+          <h3 className="game-card-title text-sm sm:text-lg font-bold leading-snug line-clamp-2">
             {game.title}
           </h3>
         </div>
 
         {/* 人气数据 (20%) — 低亮度灰色，昼夜都清晰 */}
-        <div className="flex-[16] flex items-center gap-3 sm:gap-4">
+        <div className="flex-[16] flex items-center gap-2 sm:gap-4">
           {viewStr && (
-            <span className="game-card-stat flex items-center gap-1 text-xs sm:text-sm font-medium">
+            <span className="game-card-stat flex items-center gap-1 text-[11px] sm:text-sm font-medium">
               <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5" strokeWidth={2} />
               {viewStr}
             </span>
           )}
           {dlStr && (
-            <span className="game-card-stat flex items-center gap-1 text-xs sm:text-sm font-medium">
+            <span className="game-card-stat flex items-center gap-1 text-[11px] sm:text-sm font-medium">
               <Download className="w-3 h-3 sm:w-3.5 sm:h-3.5" strokeWidth={2} />
               {dlStr}
             </span>
           )}
           {favStr && (
-            <span className="game-card-stat flex items-center gap-1 text-xs sm:text-sm font-medium">
+            <span className="game-card-stat flex items-center gap-1 text-[11px] sm:text-sm font-medium">
               <Heart className="w-3 h-3 sm:w-3.5 sm:h-3.5" strokeWidth={2} />
               {favStr}
             </span>

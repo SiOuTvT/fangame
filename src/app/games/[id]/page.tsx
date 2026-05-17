@@ -135,12 +135,12 @@ export default async function GameDetailPage({
       {/* ═══════════════════════════════════════════════
           顶部双塔区 — 左 38% + 右 62%，底边齐平 520px
       ═══════════════════════════════════════════════ */}
-      <div className="pt-2 sm:pt-4 lg:pt-6 overflow-hidden">
-        <div className="grid gap-4 sm:gap-5 lg:grid-cols-[38%_1fr]">
+      <div className="pt-2 sm:pt-4 lg:pt-6 overflow-hidden min-w-0">
+        <div className="grid gap-4 sm:gap-5 lg:grid-cols-[38%_1fr] min-w-0">
 
           {/* ─── 左侧：单一整体大卡片 ─── */}
           <div
-            className="flex flex-col"
+            className="flex flex-col min-w-0"
             style={{
               minHeight: "auto",
               borderRadius: "16px",
@@ -151,9 +151,9 @@ export default async function GameDetailPage({
             }}
           >
             {/* ①号位：封面图 3:2，左右留内边距 */}
-            <div className="px-3 sm:px-5 pt-3 sm:pt-5 pb-2 shrink-0">
+            <div className="px-2.5 sm:px-5 pt-2.5 sm:pt-5 pb-2 shrink-0 min-w-0">
               <div
-                className="relative overflow-hidden"
+                className="relative overflow-hidden w-full"
                 style={{
                   aspectRatio: "3 / 2",
                   borderRadius: "12px",
@@ -199,7 +199,7 @@ export default async function GameDetailPage({
             </div>
 
             {/* ②号位：创作者/数据区，紧凑排列 */}
-            <div className="flex flex-col justify-between flex-1 px-3 sm:px-5 pb-3 sm:pb-4 pt-2 min-h-0">
+            <div className="flex flex-col justify-between flex-1 px-2.5 sm:px-5 pb-3 sm:pb-4 pt-2 min-h-0 min-w-0">
 
               {/* 作者信息 */}
               <div className="flex items-center gap-3">

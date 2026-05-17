@@ -17,10 +17,10 @@ export function GameGallery({
   const [activeIndex, setActiveIndex] = useState(0)
 
   return (
-    <div className="flex flex-col h-[300px] sm:h-[400px] lg:h-[520px]">
+    <div className="flex flex-col h-[240px] sm:h-[360px] lg:h-[520px] min-w-0">
       {/* 上卡片：16:10 巨幕预览 */}
       <div
-        className="relative overflow-hidden flex-1 min-h-0"
+        className="relative overflow-hidden flex-1 min-h-0 w-full"
         style={{
           borderRadius: "16px",
           boxShadow: "0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",

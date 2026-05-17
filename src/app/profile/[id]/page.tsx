@@ -82,13 +82,13 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
   }
 
   return (
-    <div className="h-[100dvh] overflow-hidden max-w-full">
+    <div className="h-[100dvh] overflow-hidden max-w-full -mx-3 -my-3 sm:-mx-5 sm:-my-4 lg:-ml-[max(calc((100vw-1240px)/2),0px)] lg:-mr-6 lg:px-0">
       <BreadcrumbSetter segment={id} label={user.username} />
       {/* 4:6 双栏布局 — 全视口锁定 */}
       <div className="flex h-full lg:flex-row flex-col min-w-0">
 
         {/* ====== 左侧 40%：用户信息（独立滚动） ====== */}
-        <aside className="w-full lg:w-[40%] lg:shrink-0 overflow-y-auto overscroll-contain p-3 sm:p-5 lg:p-6 profile-scroll-area min-w-0">
+        <aside className="w-full lg:w-[40%] lg:shrink-0 overflow-y-auto overscroll-contain px-3 py-3 sm:px-5 sm:py-4 lg:px-6 lg:py-5 profile-scroll-area min-w-0">
           <div className="flex flex-col gap-4">
 
             {/* 上层大卡 - 身份区 */}
