@@ -1,20 +1,20 @@
 import { auth } from "@/lib/auth"
+import { mkdir, writeFile } from "fs/promises"
 import { NextResponse } from "next/server"
+import path from "path"
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2MB for base64 storage
+const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2MB
 const ALLOWED_TYPES = [
   "image/jpeg",
   "image/png",
   "image/gif",
   "image/webp",
   "image/avif",
-  "image/svg+xml",
 ]
 
 /**
  * 文件上传 API
- * 将图片转为 base64 data URI 存储，零配置，不需要任何外部服务
- * 适合少量图片场景（公告图、头像等，< 20 张）
+ * 将图片保存到 public/uploads/ 目录，返回可访问的 URL 路径
  */
 export async function POST(request: Request) {
   try {
@@ -46,17 +46,26 @@ export async function POST(request: Request) {
       )
     }
 
-    // 转为 base64 data URI
+    // 生成唯一文件名
+    const ext = file.name.split(".").pop() || "png"
+    const timestamp = Date.now()
+    const random = Math.random().toString(36).slice(2, 8)
+    const filename = `${timestamp}-${random}.${ext}`
+
+    // 保存到 public/uploads/ 目录
+    const uploadDir = path.join(process.cwd(), "public", "uploads")
+    await mkdir(uploadDir, { recursive: true })
+
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
-    const base64 = buffer.toString("base64")
-    const dataUri = `data:${file.type};base64,${base64}`
+    await writeFile(path.join(uploadDir, filename), buffer)
 
-    console.log(`✓ 图片已转为 base64: ${file.name} (${(file.size / 1024).toFixed(1)}KB)`)
+    const url = `/uploads/${filename}`
+    console.log(`✓ 图片已上传: ${url} (${(file.size / 1024).toFixed(1)}KB)`)
 
     return NextResponse.json({
-      url: dataUri,
-      key: `base64-${Date.now()}`,
+      url,
+      key: filename,
       size: file.size,
       type: file.type,
     })

@@ -4,6 +4,7 @@ import { BreadcrumbSetter } from "@/components/breadcrumb-setter"
 import { FollowButton } from "@/components/follow-button"
 import { ProfileContentTabs } from "@/components/profile-content-tabs"
 import { ProfileMedalModal } from "@/components/profile-medal-modal"
+import { SafeAvatar } from "@/components/safe-avatar"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { getRandomAvatarColor } from "@/lib/utils"
@@ -110,10 +111,11 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                 <div className={user.banner ? "-mt-16 mb-4" : "mb-4"}>
                   <AvatarFrame frameId={(user as any).avatarFrame || "none"} size={96}>
                     {user.avatar ? (
-                      <img
-                        src={`${user.avatar}${user.avatar.includes('?') ? '&' : '?'}t=${Date.now()}`}
+                      <SafeAvatar
+                        src={user.avatar}
                         alt={user.username}
-                        className="h-full w-full object-cover rounded-full"
+                        size={96}
+                        className="h-full w-full"
                       />
                     ) : (
                       <div
