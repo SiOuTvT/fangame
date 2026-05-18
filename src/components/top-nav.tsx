@@ -47,8 +47,11 @@ export function TopNav() {
   const [checkedIn, setCheckedIn] = useState(false)
   // 用于强制头像重新渲染的版本号
   const [avatarVersion, setAvatarVersion] = useState(0)
-  // 本地覆盖的头像 URL（避免将 base64 存入 JWT cookie）
-  const [localAvatar, setLocalAvatar] = useState<string | null>(null)
+  // 本地覆盖的头像 URL（避免将 base64 存入 JWT cookie），从 localStorage 恢复
+  const [localAvatar, setLocalAvatar] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null
+    try { return localStorage.getItem("local_avatar") } catch { return null }
+  })
 
   const menuRef = useRef<HTMLDivElement>(null)
   const userRef = useRef<HTMLDivElement>(null)
@@ -74,12 +77,21 @@ export function TopNav() {
       const detail = (e as CustomEvent).detail
       if (detail?.image) {
         setLocalAvatar(detail.image)
+        try { localStorage.setItem("local_avatar", detail.image) } catch {}
       }
       setAvatarVersion(v => v + 1)
     }
     window.addEventListener("profile-updated", handleProfileUpdated)
     return () => window.removeEventListener("profile-updated", handleProfileUpdated)
   }, [])
+
+  // 当 session 中的头像 URL 与 localStorage 中的本地覆盖一致时，清除本地覆盖（说明已同步到 session）
+  useEffect(() => {
+    if (localAvatar && user?.image && localAvatar === user.image) {
+      setLocalAvatar(null)
+      try { localStorage.removeItem("local_avatar") } catch {}
+    }
+  }, [user?.image, localAvatar])
 
   useEffect(() => {
     function handleMouseDown(e: MouseEvent) {

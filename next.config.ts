@@ -3,6 +3,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    // 允许本地上传的图片通过 next/image 优化
+    localPatterns: [
+      { pathname: "/uploads/**" },
+    ],
     remotePatterns: [
       // Cloudflare R2 (图片/文件存储)
       // R2 公开访问域名（pub-xxxx.r2.dev）
