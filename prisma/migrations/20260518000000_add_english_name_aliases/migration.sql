@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Game" ADD COLUMN "englishName" TEXT NOT NULL DEFAULT '',
+ADD COLUMN "aliases" TEXT NOT NULL DEFAULT '';
