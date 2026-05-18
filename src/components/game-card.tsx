@@ -108,7 +108,7 @@ export function GameCard({ game }: { game: GameCardData }) {
             {paramTags.map((tag, i) => (
               <span
                 key={`p-${i}`}
-                className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs sm:text-[11px] font-normal shrink-0 bg-muted text-muted-foreground"
+                className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs sm:text-[11px] font-normal shrink-0 bg-primary/10 text-primary"
               >
                 {tag}
               </span>

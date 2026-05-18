@@ -94,7 +94,7 @@ main > * {
   /* 深空黑基调 — 纯净、沉浸、高级 */
   --background:    #000000; /* 纯黑底色，OLED 级别深邃 */
   --foreground:    #e8e8ec; /* 冷白文字，清晰锐利 */
-  --card:          #111114; /* 微亮浮层，保留层次 */
+  --card:          #19191d; /* 灰调浮层，从纯黑背景中分离 */
   --card-foreground: #e8e8ec;
   --popover:       #111114;
   --popover-foreground: #e8e8ec;
@@ -395,11 +395,10 @@ main > * {
   color: var(--primary-foreground);
 }
 
-/* 亮色模式下主题色文字加强对比 */
+/* 亮色模式下主题色文字 */
 .light .text-primary {
-  color: var(--clr-blue);
+  color: var(--primary);
   text-shadow: none;
-  font-weight: 600;
 }
 
 /* 带主题色背景的元素，文字必须是白色或深色确保可读 */
@@ -922,22 +921,22 @@ input:focus, textarea:focus, select:focus {
 
 /* ── 卡片：干净、自然、无塑料感 ── */
 .game-card {
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
+  background: var(--card);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .game-card:hover {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  border-color: hsl(var(--border));
+  border-color: rgba(255, 255, 255, 0.10);
 }
 
 .game-card-title {
-  color: hsl(var(--foreground));
+  color: var(--foreground);
 }
 
 .game-card-stat {
-  color: hsl(var(--muted-foreground));
+  color: var(--muted-foreground);
 }
 
 .light .game-card {
