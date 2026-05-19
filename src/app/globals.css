@@ -1013,11 +1013,14 @@ input:focus, textarea:focus, select:focus {
   border-color: color-mix(in srgb, var(--primary) 25%, transparent);
 }
 
-/* 白天模式标签：主题色明确 */
+/* 白天模式标签：与深色模式一致，使用天空青色 */
 .light .game-card-tag {
-  background-color: color-mix(in srgb, var(--primary) 10%, transparent);
-  color: var(--primary);
-  border-color: color-mix(in srgb, var(--primary) 25%, transparent);
+  background-color: color-mix(in srgb, var(--clr-blue) 12%, transparent);
+  color: var(--clr-blue);
+  border-color: color-mix(in srgb, var(--clr-blue) 25%, transparent);
+}
+.light .game-card-tag:hover {
+  background-color: color-mix(in srgb, var(--clr-blue) 20%, transparent);
 }
 
 /* ═══ 移动端交互优化 ═══ */
