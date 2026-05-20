@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth"
+import { createNotification } from "@/lib/notifications"
 import { prisma } from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
@@ -42,6 +43,15 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
       followingId: targetId,
     }
   })
+
+  // 创建通知
+  createNotification({
+    userId: targetId,
+    actorId: userId,
+    type: "follow",
+    targetType: "user",
+    targetId: userId,
+  }).catch(() => {})
 
   return NextResponse.json({ success: true })
 }

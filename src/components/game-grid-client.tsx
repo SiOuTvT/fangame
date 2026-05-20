@@ -2,7 +2,7 @@
 
 import { GameCard, type GameCardData } from "@/components/game-card"
 import { ChevronDown, Loader2 } from "lucide-react"
-import { useState, useTransition } from "react"
+import { useCallback, useEffect, useRef, useState, useTransition } from "react"
 
 interface Props {
   initialGames: GameCardData[]
@@ -16,10 +16,12 @@ export function GameGridClient({ initialGames, total, tag, q, nsfw }: Props) {
   const [games, setGames]   = useState(initialGames)
   const [page, setPage]     = useState(1)
   const [pending, startTransition] = useTransition()
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  const loadMoreRef = useRef<(() => void) | null>(null)
 
   const hasMore = games.length < total
 
-  function loadMore() {
+  const loadMore = useCallback(() => {
     startTransition(async () => {
       try {
         const params = new URLSearchParams()
@@ -42,7 +44,27 @@ export function GameGridClient({ initialGames, total, tag, q, nsfw }: Props) {
         console.error("加载更多游戏失败:", err)
       }
     })
-  }
+  }, [page, q, tag, nsfw])
+
+  // 保持 ref 中引用最新的 loadMore，避免 IntersectionObserver 闭包陈旧
+  loadMoreRef.current = loadMore
+
+  // IntersectionObserver 无限滚动
+  useEffect(() => {
+    const el = sentinelRef.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !pending) {
+          loadMoreRef.current?.()
+        }
+      },
+      { rootMargin: "200px" }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [hasMore, pending])
 
   return (
     <>
@@ -52,8 +74,9 @@ export function GameGridClient({ initialGames, total, tag, q, nsfw }: Props) {
         ))}
       </div>
 
+      {/* 无限滚动触发哨兵 + 手动加载 fallback */}
       {hasMore && (
-        <div className="mt-8 flex justify-center">
+        <div ref={sentinelRef} className="mt-8 flex justify-center">
           <button
             onClick={loadMore}
             disabled={pending}

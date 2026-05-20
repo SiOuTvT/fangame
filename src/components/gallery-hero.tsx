@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react"
+import { ChevronLeft, ChevronRight, Maximize2, Pause, Play, X } from "lucide-react"
 import Image from "next/image"
 import { useCallback, useEffect, useRef, useState } from "react"
 
@@ -83,6 +83,12 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
     return () => window.removeEventListener("keydown", handler)
   }, [goPrev, goNext])
 
+  // Lightbox 状态
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+
+  const openLightbox = useCallback(() => setLightboxOpen(true), [])
+  const closeLightbox = useCallback(() => setLightboxOpen(false), [])
+
   if (galleryImages.length === 0) {
     return (
       <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground/40">
@@ -94,6 +100,59 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
   const activeImage = galleryImages[activeIndex]
 
   return (
+    <>
+    {/* Lightbox 弹层 */}
+    {lightboxOpen && (
+      <div
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm"
+        onClick={closeLightbox}
+      >
+        <button
+          type="button"
+          onClick={closeLightbox}
+          className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+          aria-label="关闭"
+        >
+          <X className="h-5 w-5" />
+        </button>
+
+        {hasMultipleImages && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); goPrev() }}
+            className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+            aria-label="上一张"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+        )}
+
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={galleryImages[activeIndex]}
+          alt={`${gameTitle} - 预览 ${activeIndex + 1}`}
+          className="max-h-[90vh] max-w-[90vw] object-contain"
+          onClick={(e) => e.stopPropagation()}
+          draggable={false}
+        />
+
+        {hasMultipleImages && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); goNext() }}
+            className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+            aria-label="下一张"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        )}
+
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-white/70">
+          {activeIndex + 1} / {galleryImages.length}
+        </div>
+      </div>
+    )}
+
     <div className="group relative h-full w-full overflow-hidden">
       <Image
         key={activeIndex}
@@ -139,6 +198,17 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
         </>
       )}
 
+      {/* 放大按钮 */}
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); openLightbox() }}
+        className="absolute left-3 bottom-3 flex h-7 w-7 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 hover:scale-105 opacity-0 group-hover:opacity-100"
+        style={{ background: "rgba(0,0,0,0.45)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)" }}
+        aria-label="放大查看"
+      >
+        <Maximize2 className="h-3 w-3" />
+      </button>
+
       {/* 右上角控件 */}
       <div className="absolute right-3 top-3 flex items-center gap-1.5">
         {hasMultipleImages && (
@@ -168,6 +238,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
         </span>
       </div>
     </div>
+    </>
   )
 }
 

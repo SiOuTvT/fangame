@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
-import { ChevronLeft, MessageSquare } from "lucide-react"
+import { ChevronLeft, MessageSquare, Search } from "lucide-react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 
@@ -13,16 +13,25 @@ export const metadata = { title: "论坛管理 · 管理后台" }
 export default async function AdminForumPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ page?: string; q?: string }>
 }) {
   await requireAdmin()
   const sp = await searchParams
   const page = Math.max(1, parseInt(sp.page || "1"))
+  const q = sp.q?.trim() ?? ""
   const limit = 20
   const skip = (page - 1) * limit
 
+  const where = q ? {
+    OR: [
+      { title:   { contains: q, mode: "insensitive" as const } },
+      { content: { contains: q, mode: "insensitive" as const } },
+    ]
+  } : {}
+
   const [posts, total] = await Promise.all([
     prisma.forumPost.findMany({
+      where,
       orderBy: { createdAt: "desc" },
       skip, take: limit,
       select: {
@@ -31,19 +40,26 @@ export default async function AdminForumPage({
         _count: { select: { comments: true } },
       },
     }),
-    prisma.forumPost.count(),
+    prisma.forumPost.count({ where }),
   ])
 
   const totalPages = Math.ceil(total / limit)
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <MessageSquare className="h-6 w-6 text-primary" />
-        <h1 className="text-xl font-bold text-foreground">论坛管理</h1>
-        <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-          {total} 个帖子
-        </span>
+      <div className="space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <MessageSquare className="h-6 w-6 text-primary" />
+          <h1 className="text-xl font-bold text-foreground">论坛管理</h1>
+          <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+            {total} 个帖子
+          </span>
+        </div>
+        <form method="get" className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
+          <input name="q" defaultValue={q} placeholder="搜索帖子…"
+            className="rounded-xl bg-muted pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring w-full sm:w-48" />
+        </form>
       </div>
 
       {posts.length === 0 ? (
@@ -98,14 +114,14 @@ export default async function AdminForumPage({
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2">
           <Link
-            href={`/admin/forum?page=${Math.max(1, page - 1)}`}
+            href={`/admin/forum?page=${Math.max(1, page - 1)}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
             className={`flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-foreground transition-colors hover:bg-accent ${page === 1 ? "pointer-events-none opacity-40" : ""}`}
           >
             <ChevronLeft className="h-4 w-4" />
           </Link>
           <span className="px-3 text-sm text-muted-foreground">{page} / {totalPages}</span>
           <Link
-            href={`/admin/forum?page=${Math.min(totalPages, page + 1)}`}
+            href={`/admin/forum?page=${Math.min(totalPages, page + 1)}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
             className={`flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-foreground transition-colors hover:bg-accent ${page === totalPages ? "pointer-events-none opacity-40" : ""}`}
           >
             <ChevronLeft className="h-4 w-4 rotate-180" />

@@ -68,9 +68,15 @@ export function ProfileGameTabs({ faveGame, favGames, playStatusGames }: Props) 
       {/* Tab 切换 */}
       <section>
         <div className="mb-3 inline-flex gap-1 rounded-xl p-1"
+          role="tablist"
+          aria-label="游戏状态筛选"
           style={{ backgroundColor: "var(--tab-trough)" }}>
           {TABS.map(tab => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)}
+              role="tab"
+              id={`tab-${tab.key}`}
+              aria-selected={activeTab === tab.key}
+              aria-controls={`tabpanel-${tab.key}`}
               className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-300 ease-out"
               style={{
                 backgroundColor: activeTab === tab.key ? "var(--tab-active)" : "transparent",
@@ -95,6 +101,11 @@ export function ProfileGameTabs({ faveGame, favGames, playStatusGames }: Props) 
           ))}
         </div>
 
+        <div
+          role="tabpanel"
+          id={`tabpanel-${activeTab}`}
+          aria-labelledby={`tab-${activeTab}`}
+        >
         {games.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">
             {activeTab === "fav" ? "还没有收藏任何游戏~" : `还没有「${TABS.find(t => t.key === activeTab)?.label}」的游戏`}
@@ -103,6 +114,7 @@ export function ProfileGameTabs({ faveGame, favGames, playStatusGames }: Props) 
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
             {games.slice(0, 12).map(g => (
               <Link key={g.id} href={`/games/${g.id}`}
+                aria-label={g.title}
                 className="group overflow-hidden rounded-xl bg-secondary/50 ring-1 ring-border transition-all hover:-translate-y-0.5 hover:ring-primary/30">
                 <div className="relative" style={{ aspectRatio: "3/4" }}>
                   {g.coverImage ? (
@@ -119,6 +131,7 @@ export function ProfileGameTabs({ faveGame, favGames, playStatusGames }: Props) 
             ))}
           </div>
         )}
+        </div>
       </section>
     </div>
   )

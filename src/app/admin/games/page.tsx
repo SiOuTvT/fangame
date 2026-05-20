@@ -75,58 +75,60 @@ export default async function AdminGamesPage({
       </div>
 
       <div className="overflow-hidden rounded-xl bg-card ring-1 ring-border">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border text-left text-xs text-muted-foreground">
-              <th className="px-4 py-3 font-medium">游戏名称</th>
-              <th className="hidden px-4 py-3 font-medium sm:table-cell">标签</th>
-              <th className="px-4 py-3 font-medium">状态</th>
-              <th className="hidden px-4 py-3 font-medium md:table-cell">浏览</th>
-              <th className="px-4 py-3 font-medium text-right">操作</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {games.map((g) => (
-              <tr key={g.id} className="group transition-colors hover:bg-accent/50">
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-foreground line-clamp-1">{g.title}</span>
-                    {g.isNsfw && (
-                      <span className="shrink-0 rounded px-1 py-0.5 text-[9px] font-semibold bg-red-500/10 text-red-400 ring-1 ring-red-500/20">R18</span>
-                    )}
-                  </div>
-                </td>
-                <td className="hidden px-4 py-3 sm:table-cell">
-                  <div className="flex flex-wrap gap-1">
-                    {g.tags.slice(0, 3).map(({ tag }) => (
-                      <span key={tag.name} className="rounded-full px-1.5 py-0.5 text-[9px]"
-                        style={{ color: tag.color, background: `${tag.color}18`, outline: `1px solid ${tag.color}30` }}>
-                        {tag.name}
-                      </span>
-                    ))}
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${g.isPublished ? "bg-emerald-500/10 text-emerald-400" : "bg-muted text-muted-foreground"}`}>
-                    {g.isPublished ? "已发布" : "草稿"}
-                  </span>
-                </td>
-                <td className="hidden px-4 py-3 text-xs text-muted-foreground md:table-cell">{g.viewCount}</td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center justify-end gap-2">
-                    <Link
-                      href={`/admin/games/${g.id}`}
-                      className="flex items-center gap-1.5 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground ring-1 ring-border transition-all hover:text-foreground"
-                    >
-                      <Pencil className="h-4 w-4" strokeWidth={2} />编辑
-                    </Link>
-                    <AdminGameDeleteBtn id={g.id} title={g.title} />
-                  </div>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/30 text-left text-xs text-muted-foreground">
+                <th className="px-5 py-3.5 font-semibold tracking-wide">游戏名称</th>
+                <th className="hidden px-5 py-3.5 font-semibold tracking-wide sm:table-cell">标签</th>
+                <th className="px-5 py-3.5 font-semibold tracking-wide">状态</th>
+                <th className="hidden px-5 py-3.5 font-semibold tracking-wide md:table-cell">浏览</th>
+                <th className="px-5 py-3.5 font-semibold tracking-wide text-right">操作</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-border/50">
+              {games.map((g) => (
+                <tr key={g.id} className="group transition-colors hover:bg-accent/30">
+                  <td className="px-5 py-3.5">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-foreground line-clamp-1">{g.title}</span>
+                      {g.isNsfw && (
+                        <span className="shrink-0 rounded px-1.5 py-0.5 text-[9px] font-semibold bg-red-500/10 text-red-400 ring-1 ring-red-500/20">R18</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="hidden px-5 py-3.5 sm:table-cell">
+                    <div className="flex flex-wrap gap-1">
+                      {g.tags.slice(0, 3).map(({ tag }) => (
+                        <span key={tag.name} className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium leading-none"
+                          style={{ color: tag.color, background: `${tag.color}18`, outline: `1px solid ${tag.color}30` }}>
+                          {tag.name}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-none ${g.isPublished ? "bg-emerald-500/10 text-emerald-400" : "bg-muted text-muted-foreground"}`}>
+                      {g.isPublished ? "已发布" : "草稿"}
+                    </span>
+                  </td>
+                  <td className="hidden px-5 py-3.5 text-xs text-muted-foreground tabular-nums md:table-cell">{g.viewCount?.toLocaleString() ?? 0}</td>
+                  <td className="px-5 py-3.5">
+                    <div className="flex items-center justify-end gap-1.5">
+                      <Link
+                        href={`/admin/games/${g.id}`}
+                        className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-foreground"
+                      >
+                        <Pencil className="h-3.5 w-3.5" strokeWidth={2} />编辑
+                      </Link>
+                      <AdminGameDeleteBtn id={g.id} title={g.title} />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* 分页 */}

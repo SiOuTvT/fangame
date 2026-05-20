@@ -41,14 +41,14 @@ export function ThemeScript() {
           root.style.setProperty('--primary', primaryDark);
           root.style.setProperty('--ring', primaryDark);
           root.style.setProperty('--accent', lighten(hex, 0.15));
-          root.style.setProperty('--clr-blue', primaryDark);
+          // --clr-blue 继承自 --primary（CSS alias），无需单独设置
           root.style.setProperty('--clr-sky', lighten(hex, 0.2));
           root.style.setProperty('--clr-glow', hex + '1F');
         } else {
           root.style.setProperty('--primary', hex);
           root.style.setProperty('--ring', hex);
           root.style.setProperty('--accent', lighten(hex, 0.45));
-          root.style.setProperty('--clr-blue', darken(hex, 0.2));
+          // --clr-blue 继承自 --primary（CSS alias），无需单独设置
           root.style.setProperty('--clr-sky', lighten(hex, 0.15));
           root.style.setProperty('--clr-glow', hex + '1F');
           var lum = 0.299*(r/255) + 0.587*(g/255) + 0.114*(b/255);

@@ -1,7 +1,8 @@
 import { GameCard, GameCardSkeleton } from "@/components/game-card"
 import { SearchBar } from "@/components/search-bar"
+import { TagCloud } from "@/components/tag-cloud"
 import { prisma } from "@/lib/prisma"
-import { ArrowUpDown, Clock, Heart, TrendingUp } from "lucide-react"
+import { ChevronDown, Clock, Heart, TrendingUp } from "lucide-react"
 import Link from "next/link"
 import { Suspense } from "react"
 
@@ -117,37 +118,8 @@ export default async function SearchPage({
       {/* 搜索框 */}
       <SearchBar defaultValue={q} />
 
-      {/* 标签云 */}
-      <div className="flex flex-wrap gap-1.5">
-        <Link
-          href={buildHref({ tag: "" })}
-          className={[
-            "rounded-full px-3 py-1 text-xs font-medium transition-all",
-            !tag
-              ? "bg-zinc-700 text-zinc-100 ring-1 ring-zinc-600"
-              : "bg-zinc-900 light:bg-zinc-100 text-zinc-500 ring-1 ring-white/[0.06] light:ring-black/[0.06] hover:bg-zinc-800 light:hover:bg-zinc-200 hover:text-zinc-300 light:hover:text-zinc-700",
-          ].join(" ")}
-        >
-          全部
-        </Link>
-        {tags.map((t) => (
-          <Link
-            key={t.id}
-            href={buildHref({ tag: t.name })}
-            className={[
-              "rounded-full px-3 py-1 text-xs font-medium transition-all ring-1",
-              tag === t.name ? "opacity-100" : "opacity-50 hover:opacity-80",
-            ].join(" ")}
-            style={
-              tag === t.name
-                ? { color: t.color, background: `${t.color}20`, outlineColor: t.color }
-                : { color: t.color, background: `${t.color}10`, borderColor: `${t.color}30` }
-            }
-          >
-            {t.name}
-          </Link>
-        ))}
-      </div>
+        {/* 标签云（折叠） */}
+      <TagCloud tags={tags} activeTag={tag} buildHref={buildHref} />
 
       {/* 排序 + 结果标题 */}
       <div className="flex items-center justify-between">
@@ -161,8 +133,8 @@ export default async function SearchPage({
             : "全部游戏"}
         </h2>
 
-        <div className="flex items-center gap-1">
-          <ArrowUpDown className="h-3.5 w-3.5 text-zinc-600" strokeWidth={1.5} />
+        {/* 桌面端：按钮排序 */}
+        <div className="hidden sm:flex items-center gap-1">
           {SORT_OPTIONS.map(({ key, label, icon: Icon }) => (
             <Link
               key={key}
@@ -178,6 +150,30 @@ export default async function SearchPage({
               {label}
             </Link>
           ))}
+        </div>
+        {/* 移动端：下拉排序 */}
+        <div className="sm:hidden relative group">
+          <Link
+            href={buildHref({ sort: sort })}
+            className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-zinc-400 bg-zinc-800/50"
+          >
+            {SORT_OPTIONS.find(o => o.key === sort)?.label ?? "排序"}
+            <ChevronDown className="h-3 w-3" strokeWidth={1.5} />
+          </Link>
+          <div className="absolute right-0 top-full z-50 mt-1 hidden group-hover:block w-28 overflow-hidden rounded-lg py-1 shadow-lg bg-zinc-900 border border-zinc-800">
+            {SORT_OPTIONS.map(({ key, label }) => (
+              <Link
+                key={key}
+                href={buildHref({ sort: key })}
+                className={[
+                  "flex items-center px-3 py-2 text-xs transition-colors",
+                  sort === key ? "bg-zinc-800 text-zinc-200" : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50",
+                ].join(" ")}
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
 

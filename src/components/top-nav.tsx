@@ -1,6 +1,7 @@
 ﻿"use client"
 
 import { AvatarFrame } from "@/components/avatar-frame"
+import { NotificationBell } from "@/components/notification-bell"
 import { cn } from "@/lib/utils"
 import {
   CalendarCheck,
@@ -137,10 +138,10 @@ export function TopNav() {
   return (
     <>
       <header className={cn(
-"fixed top-0 left-0 right-0 z-50 transition-colors duration-300",
+        "fixed top-0 left-0 right-0 z-50 transition-colors duration-300 will-change-[background]",
         theme === "dark"
-          ? "bg-zinc-950/95 backdrop-blur-sm"
-          : "bg-white/95 backdrop-blur-sm"
+          ? "bg-zinc-950"
+          : "bg-white"
       )}
         style={{
           boxShadow: theme === "dark"
@@ -216,6 +217,8 @@ export function TopNav() {
             )}>
               <Search className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
             </Link>
+
+            {user && <NotificationBell />}
 
             <button onClick={toggleTheme} className={cn(
               "flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",

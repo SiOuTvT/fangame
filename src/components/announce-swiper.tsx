@@ -22,16 +22,7 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
   const len = announcements.length
   const scrollRef = useRef<HTMLDivElement>(null)
   const [imgError, setImgError] = useState(false)
-  const [isLight, setIsLight] = useState(false)
-
-  // 监听主题变化
-  useEffect(() => {
-    const check = () => setIsLight(document.documentElement.classList.contains("light"))
-    check()
-    const observer = new MutationObserver(check)
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
-    return () => observer.disconnect()
-  }, [])
+  const [paused, setPaused] = useState(false)
 
   // 监听滚动，实现视差效果（用 ref + rAF 避免高频 setState）
   useEffect(() => {
@@ -56,10 +47,10 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
   const prev = useCallback(() => setCur((i) => (i - 1 + len) % len), [len])
 
   useEffect(() => {
-    if (len <= 1) return
-    const t = setInterval(next, 4500)
+    if (len <= 1 || paused) return
+    const t = setInterval(next, 6000)
     return () => clearInterval(t)
-  }, [len, next])
+  }, [len, next, paused])
 
   // 切换公告时重置图片错误状态
   useEffect(() => {
@@ -72,7 +63,11 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
   const href = ann.link || `/announcements/${ann.id}`
 
   return (
-    <div className={`relative h-[215px] sm:h-[295px] lg:h-[315px] w-full lg:max-w-[66.667%] lg:ml-auto overflow-hidden rounded-2xl ${isLight ? "bg-zinc-100" : "bg-zinc-900"}`}>
+    <div
+      className="relative h-[240px] sm:h-[295px] lg:h-[315px] w-full lg:max-w-[66.667%] lg:ml-auto overflow-hidden rounded-2xl bg-zinc-900 light:bg-zinc-100"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
       {/* 背景图 - 始终铺满整个容器 */}
       <div className="absolute inset-0">
         {ann.imageUrl && !imgError ? (
@@ -80,9 +75,12 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
           <img
             key={ann.imageUrl}
             src={ann.imageUrl}
-            alt=""
+            alt={ann.title}
             className="h-full w-full object-cover transition-all duration-700 ease-in-out"
             style={{ transform: `scale(1.1)` }}
+            loading={cur === 0 ? "eager" : "lazy"}
+            decoding="async"
+            fetchPriority={cur === 0 ? "high" : "low"}
             onError={() => {
               console.error("[AnnounceSwiper] 图片加载失败:", ann.imageUrl)
               setImgError(true)
@@ -90,11 +88,8 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
             onLoad={() => setImgError(false)}
           />
         ) : (
-          <div className={isLight
-            ? "flex h-full w-full items-center justify-center bg-gradient-to-br from-zinc-200 to-zinc-300"
-            : "flex h-full w-full items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900"
-          }>
-            <ImageIcon className={isLight ? "h-12 w-12 text-zinc-400" : "h-12 w-12 text-zinc-700"} strokeWidth={1} />
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900 light:from-zinc-200 light:to-zinc-300">
+            <ImageIcon className="h-12 w-12 text-zinc-700 light:text-zinc-400" strokeWidth={1} />
           </div>
         )}
       </div>
@@ -119,15 +114,17 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
         <>
           <button
             onClick={(e) => { e.preventDefault(); prev() }}
+            aria-label="上一条公告"
             className="absolute left-3 top-1/2 z-10 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white/80 backdrop-blur-sm transition-all hover:bg-black/60 hover:text-white"
           >
-            <ChevronLeft className="h-5 w-5" strokeWidth={2} />
+            <ChevronLeft className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
           </button>
           <button
             onClick={(e) => { e.preventDefault(); next() }}
+            aria-label="下一条公告"
             className="absolute right-3 top-1/2 z-10 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white/80 backdrop-blur-sm transition-all hover:bg-black/60 hover:text-white"
           >
-            <ChevronRight className="h-5 w-5" strokeWidth={2} />
+            <ChevronRight className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
           </button>
 
           {/* 分页点 */}
@@ -136,6 +133,8 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
               <button
                 key={i}
                 onClick={(e) => { e.preventDefault(); setCur(i) }}
+                aria-label={`切换到第 ${i + 1} 条公告`}
+                aria-current={i === cur ? "true" : undefined}
                 className={`h-2 rounded-full transition-all ${i === cur ? "w-5 bg-white" : "w-2 bg-white/40"}`}
               />
             ))}

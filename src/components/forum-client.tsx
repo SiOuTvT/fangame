@@ -187,16 +187,20 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
         {isLoggedIn && (
           <button onClick={() => setShowNew(true)}
             className="flex items-center gap-1.5 rounded-xl bg-zinc-800 light:bg-zinc-200 px-4 py-2 text-sm font-medium text-zinc-300 light:text-zinc-700 ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:bg-zinc-700 light:hover:bg-zinc-300 hover:text-white light:hover:text-zinc-900">
-            <Plus className="h-4 w-4" strokeWidth={1.5} />发帖
+            <Plus className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />发帖
           </button>
         )}
       </div>
 
       {/* 筛选 tab — 统一凹槽 + 圆角活动方块 */}
       <div className="mb-4 inline-flex gap-1 rounded-xl p-1"
+        role="tablist"
+        aria-label="帖子筛选"
         style={{ backgroundColor: "var(--tab-trough)" }}>
         {FILTER_TABS.map(tab => (
           <button key={tab.key} onClick={() => setFilter(tab.key)}
+            role="tab"
+            aria-selected={filter === tab.key}
             className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-300 ease-out"
             style={{
               backgroundColor: filter === tab.key ? "var(--tab-active)" : "transparent",
@@ -282,8 +286,8 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
       {activePost && (
         <div className="fixed inset-0 z-50 flex flex-col bg-zinc-950 light:bg-white md:hidden">
           <div className="flex items-center gap-3 border-b border-white/[0.06] light:border-black/[0.06] px-4 py-3">
-            <button onClick={() => setActivePost(null)} className="text-zinc-400 hover:text-zinc-200 light:hover:text-zinc-800">
-              <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
+            <button onClick={() => setActivePost(null)} aria-label="返回帖子列表" className="text-zinc-400 hover:text-zinc-200 light:hover:text-zinc-800">
+              <ChevronLeft className="h-5 w-5" strokeWidth={1.5} aria-hidden="true" />
             </button>
             <span className="flex-1 text-sm font-medium text-zinc-200 light:text-zinc-800 line-clamp-1">{activePost.title}</span>
             {activePost.isSolved && <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400 light:text-emerald-600" strokeWidth={1.5} />}
@@ -334,8 +338,8 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
           <div className="w-full max-w-2xl rounded-2xl bg-zinc-900 light:bg-white p-6 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-base font-semibold text-zinc-200 light:text-zinc-800">发布新帖</h2>
-              <button onClick={() => setShowNew(false)} className="text-zinc-500 hover:text-zinc-300 light:hover:text-zinc-700 transition-colors">
-                <X className="h-4 w-4" strokeWidth={1.5} />
+              <button onClick={() => setShowNew(false)} aria-label="关闭" className="text-zinc-500 hover:text-zinc-300 light:hover:text-zinc-700 transition-colors">
+                <X className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
               </button>
             </div>
             <form onSubmit={submitPost} className="space-y-4">
@@ -405,7 +409,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
         
         <RichTextContent html={post.content} />
         
-        {post.imageUrl && <Image src={post.imageUrl} alt="" width={480} height={320} className="mt-3 rounded-xl object-cover" />}
+        {post.imageUrl && <Image src={post.imageUrl} alt={post.title} width={480} height={320} className="mt-3 rounded-xl object-cover" />}
 
         <div className="mt-4 flex items-center gap-2">
           <button onClick={onLikePost} disabled={!isLoggedIn}
@@ -476,8 +480,9 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={commentImagePreview} alt="预览" className="h-16 w-16 rounded-lg object-cover ring-1 ring-white/10 light:ring-black/10" />
                 <button type="button" onClick={onRemoveCommentImage}
+                  aria-label="移除图片"
                   className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-zinc-700 light:bg-zinc-300 text-zinc-300 light:text-zinc-700 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/80 hover:text-white">
-                  <X className="h-2.5 w-2.5" strokeWidth={2} />
+                  <X className="h-2.5 w-2.5" strokeWidth={2} aria-hidden="true" />
                 </button>
               </div>
             )}
@@ -485,8 +490,8 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
               <div className="relative flex items-center gap-1">
                 <button type="button" onClick={() => commentFileRef.current?.click()}
                   className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-500 light:text-zinc-400 transition-colors hover:bg-zinc-800 light:hover:bg-zinc-200 hover:text-zinc-300 light:hover:text-zinc-600 shrink-0"
-                  title="上传图片">
-                  <ImageIcon className="h-3.5 w-3.5" strokeWidth={1.5} />
+                  aria-label="上传图片">
+                  <ImageIcon className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden="true" />
                 </button>
                 <input ref={commentFileRef} type="file" accept="image/*" className="hidden" onChange={onCommentImage} />
                 
@@ -498,8 +503,9 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                         ? "bg-zinc-800 light:bg-zinc-200 text-blue-400" 
                         : "text-zinc-500 light:text-zinc-400 hover:bg-zinc-800 light:hover:bg-zinc-200 hover:text-zinc-300 light:hover:text-zinc-600"
                     )}
-                    title="表情">
-                    <Smile className="h-3.5 w-3.5" strokeWidth={1.5} />
+                    aria-label="表情"
+                    aria-expanded={showCommentEmoji}>
+                    <Smile className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden="true" />
                   </button>
                   {showCommentEmoji && (
                     <>
@@ -521,8 +527,9 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
               <input ref={commentInputRef} value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="写下评论…"
                 className="flex-1 rounded-xl bg-zinc-800 light:bg-zinc-100 px-3 py-2 text-xs text-zinc-200 light:text-zinc-800 placeholder:text-zinc-600 light:placeholder:text-zinc-400 ring-1 ring-white/[0.06] light:ring-black/[0.06] outline-none focus:ring-white/[0.12] light:focus:ring-black/[0.12] transition-all" />
               <button type="submit" disabled={!commentText.trim() && !commentImagePreview}
+                aria-label="发送评论"
                 className="flex items-center gap-1 rounded-xl bg-zinc-800 light:bg-zinc-200 px-3 py-2 text-xs text-zinc-400 light:text-zinc-500 ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:text-zinc-200 light:hover:text-zinc-800 disabled:opacity-40">
-                <Send className="h-3.5 w-3.5" strokeWidth={1.5} />
+                <Send className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden="true" />
               </button>
             </form>
           </div>

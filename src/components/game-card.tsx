@@ -46,10 +46,11 @@ export function GameCard({ game }: { game: GameCardData }) {
   return (
     <Link
       href={`/games/${game.id}`}
+      aria-label={`查看游戏：${game.title}`}
       className="game-card group flex flex-col overflow-hidden rounded-2xl transition-all duration-300"
     >
       {/* ─── 封面：比例固定 ─── */}
-      <div className="relative w-full" style={{ aspectRatio: "3 / 2" }}>
+      <div className="relative w-full" style={{ aspectRatio: "3 / 4" }}>
         {game.coverImage && !imgError ? (
           <Image
             src={game.coverImage}
@@ -61,10 +62,12 @@ export function GameCard({ game }: { game: GameCardData }) {
             loading="lazy"
             decoding="async"
             quality={75}
+            placeholder="blur"
+            blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEzMyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZmlsdGVyIGlkPSJiIj48Z2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMTIiLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWx0ZXI9InVybCgjYikiIGZpbGw9IiMyMjIiLz48L3N2Zz4="
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-muted text-muted-foreground/30">
-            <ImageOff className="w-8 h-8" strokeWidth={1} />
+            <ImageOff className="w-8 h-8" aria-hidden="true" strokeWidth={1} />
           </div>
         )}
       </div>
@@ -83,19 +86,19 @@ export function GameCard({ game }: { game: GameCardData }) {
         <div className="game-card-stats flex items-center gap-3 flex-shrink-0">
           {viewStr && (
             <span className="game-card-stat flex items-center gap-1 text-sm sm:text-[13px] font-normal">
-              <Eye className="w-4 h-4 sm:w-3.5 sm:h-3.5" strokeWidth={1.5} />
+              <Eye className="w-4 h-4 sm:w-3.5 sm:h-3.5" strokeWidth={1.5} aria-hidden="true" />
               {viewStr}
             </span>
           )}
           {dlStr && (
             <span className="game-card-stat flex items-center gap-1 text-sm sm:text-[13px] font-normal">
-              <Download className="w-4 h-4 sm:w-3.5 sm:h-3.5" strokeWidth={1.5} />
+              <Download className="w-4 h-4 sm:w-3.5 sm:h-3.5" strokeWidth={1.5} aria-hidden="true" />
               {dlStr}
             </span>
           )}
           {favStr && (
             <span className="game-card-stat flex items-center gap-1 text-sm sm:text-[13px] font-normal">
-              <Heart className="w-4 h-4 sm:w-3.5 sm:h-3.5" strokeWidth={1.5} />
+              <Heart className="w-4 h-4 sm:w-3.5 sm:h-3.5" strokeWidth={1.5} aria-hidden="true" />
               {favStr}
             </span>
           )}
@@ -136,7 +139,7 @@ export function GameCardSkeleton() {
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border/50">
       {/* 封面 */}
-      <div className="w-full skeleton-shimmer" style={{ aspectRatio: "3 / 2" }} />
+      <div className="w-full skeleton-shimmer" style={{ aspectRatio: "3 / 4" }} />
       {/* 内容 */}
       <div className="flex flex-col flex-1 px-2 pt-2 pb-3 sm:px-4 sm:pt-3 sm:pb-4">
         <div className="h-4 w-full rounded skeleton-shimmer" />

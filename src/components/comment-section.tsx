@@ -1,7 +1,7 @@
 ﻿"use client"
 
 import { cn } from "@/lib/utils"
-import { Heart, ImageIcon, Send, Smile, X } from "lucide-react"
+import { Heart, ImageIcon, Send, Smile, Trash2, X } from "lucide-react"
 import Image from "next/image"
 import { useCallback, useRef, useState } from "react"
 
@@ -20,6 +20,8 @@ interface Props {
   isLoggedIn: boolean
   currentUserId?: string
 }
+
+type SortMode = "newest" | "hottest"
 
 function Avatar({ user }: { user: Comment["user"] }) {
   if (user.avatar) {
@@ -44,13 +46,14 @@ const EMOJI_CATEGORIES = [
   }
 ]
 
-export function CommentSection({ gameId, comments: init, isLoggedIn }: Props) {
+export function CommentSection({ gameId, comments: init, isLoggedIn, currentUserId }: Props) {
   const [comments, setComments] = useState(init)
   const [content, setContent] = useState("")
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [showEmoji, setShowEmoji] = useState(false)
+  const [sortMode, setSortMode] = useState<SortMode>("newest")
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -129,7 +132,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn }: Props) {
       const res = await fetch(`/api/games/${gameId}/comments`, { method: "POST", body: fd })
       if (res.ok) {
         const c = await res.json()
-        setComments((prev) => [c, ...prev])
+        setComments((prev) => sortMode === "newest" ? [c, ...prev] : [...prev, c])
         setContent("")
         removePreview()
         setShowEmoji(false)
@@ -155,6 +158,24 @@ export function CommentSection({ gameId, comments: init, isLoggedIn }: Props) {
       // silent fail for like
     }
   }
+
+  async function deleteComment(commentId: string) {
+    if (!confirm("确定要删除这条评论吗？")) return
+    try {
+      const res = await fetch(`/api/comments/${commentId}`, { method: "DELETE" })
+      if (res.ok) {
+        setComments((prev) => prev.filter((c) => c.id !== commentId))
+      }
+    } catch {
+      // silent fail
+    }
+  }
+
+  // 排序后的评论
+  const sortedComments = [...comments].sort((a, b) => {
+    if (sortMode === "hottest") return b.likeCount - a.likeCount
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  })
 
   return (
     <section>
@@ -257,12 +278,36 @@ export function CommentSection({ gameId, comments: init, isLoggedIn }: Props) {
         </p>
       )}
 
+      {/* 排序切换 */}
+      {comments.length > 1 && (
+        <div className="mb-4 flex items-center gap-1">
+          <button
+            onClick={() => setSortMode("newest")}
+            className={cn(
+              "rounded-lg px-3 py-1 text-xs font-medium transition-colors",
+              sortMode === "newest" ? "bg-zinc-800 text-zinc-200" : "text-zinc-500 hover:text-zinc-300"
+            )}
+          >
+            最新
+          </button>
+          <button
+            onClick={() => setSortMode("hottest")}
+            className={cn(
+              "rounded-lg px-3 py-1 text-xs font-medium transition-colors",
+              sortMode === "hottest" ? "bg-zinc-800 text-zinc-200" : "text-zinc-500 hover:text-zinc-300"
+            )}
+          >
+            最热
+          </button>
+        </div>
+      )}
+
       {/* 评论列表 */}
       <div className="space-y-4">
-        {comments.length === 0 && (
+        {sortedComments.length === 0 && (
           <p className="py-8 text-center text-sm text-zinc-600">还没有评论，来说点什么吧~</p>
         )}
-        {comments.map((c) => (
+        {sortedComments.map((c) => (
           <div key={c.id} className="group flex gap-3 rounded-xl p-2 transition-colors hover:bg-white/[0.02]">
             <Avatar user={c.user} />
             <div className="flex-1 min-w-0">
@@ -271,6 +316,17 @@ export function CommentSection({ gameId, comments: init, isLoggedIn }: Props) {
                 <span className="text-[10px] text-zinc-600">
                   {new Date(c.createdAt).toLocaleDateString("zh-CN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                 </span>
+                {currentUserId === c.user.id && (
+                  <div className="flex items-center gap-0.5 ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => deleteComment(c.id)}
+                      className="flex h-6 w-6 items-center justify-center rounded-md text-zinc-600 hover:bg-red-500/10 hover:text-red-400 transition-colors"
+                      title="删除"
+                    >
+                      <Trash2 className="h-3 w-3" strokeWidth={1.5} />
+                    </button>
+                  </div>
+                )}
               </div>
               {c.content && <p className="text-sm leading-relaxed text-zinc-400 whitespace-pre-wrap break-words">{c.content}</p>}
               {c.imageUrl && (

@@ -160,38 +160,16 @@ export default async function GameDetailPage({
                 }}
               >
                 {game.coverImage ? (
-                  <>
-                    <Image
-                      src={game.coverImage}
-                      alt={game.title}
-                      fill
-                      className="object-cover"
-                      draggable={false}
-                      sizes="(max-width: 1024px) 100vw, 38vw"
-                      priority
-                      quality={80}
-                    />
-                    {/* 底部渐变遮罩显示标题 */}
-                    <div
-                      className="absolute inset-x-0 bottom-0 flex items-end p-3"
-                      style={{ background: "linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%)", height: "55%" }}
-                    >
-                      <div>
-                        <h1
-                          className="font-black leading-tight drop-shadow-lg"
-                          style={{ fontSize: "clamp(18px, 2.5vw, 28px)", color: "#ffffff", fontWeight: 900 }}
-                        >
-                          {game.title}
-                        </h1>
-                        {game.originalWork && (
-                          <p className="mt-0.5 text-[11px] text-white/70">原作：{game.originalWork}</p>
-                        )}
-                        {game.englishName && (
-                          <p className="mt-0.5 text-[10px] text-white/50">{game.englishName}</p>
-                        )}
-                      </div>
-                    </div>
-                  </>
+                  <Image
+                    src={game.coverImage}
+                    alt={game.title}
+                    fill
+                    className="object-cover"
+                    draggable={false}
+                    sizes="(max-width: 1024px) 100vw, 38vw"
+                    priority
+                    quality={80}
+                  />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-secondary">
                     <span className="text-muted-foreground/40 text-sm">暂无封面</span>
@@ -200,8 +178,21 @@ export default async function GameDetailPage({
               </div>
             </div>
 
-            {/* ②号位：创作者/数据区，紧凑排列 */}
+            {/* ②号位：游戏标题 + 创作者/数据区 */}
             <div className="flex flex-col justify-between flex-1 px-2.5 sm:px-5 pb-3 sm:pb-4 pt-2 min-h-0 min-w-0">
+
+              {/* 游戏标题 */}
+              <div className="mb-1">
+                <h1
+                  className="font-black leading-tight"
+                  style={{ fontSize: "clamp(16px, 2.2vw, 24px)", color: "hsl(var(--foreground))", fontWeight: 900 }}
+                >
+                  {game.title}
+                </h1>
+                {game.originalWork && (
+                  <p className="mt-0.5 text-[11px] text-muted-foreground/60">原作：{game.originalWork}</p>
+                )}
+              </div>
 
               {/* 作者信息 */}
               <div className="flex items-center gap-3">

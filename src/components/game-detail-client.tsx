@@ -1,8 +1,13 @@
 "use client"
 
-import { BookOpen, Building2, Calendar, Clock, Download, ExternalLink, Gamepad2, Heart, Monitor } from "lucide-react"
+import { BookOpen, Building2, Calendar, ChevronDown, Clock, Download, ExternalLink, Gamepad2, Heart, Monitor } from "lucide-react"
+import dynamic from "next/dynamic"
 import { useCallback, useEffect, useRef, useState } from "react"
-import { CommentSection } from "./comment-section"
+
+const CommentSection = dynamic(() => import("./comment-section").then(m => ({ default: m.CommentSection })), {
+  loading: () => <div className="mt-4 h-40 animate-pulse rounded-xl bg-muted" />,
+  ssr: false,
+})
 
 type Creator = {
   id: string
@@ -32,13 +37,7 @@ const TABS = [
   { key: "comments" as const, label: "评论" },
 ]
 
-/* 莫兰迪灰蓝色调 — 统一低饱和度 */
-const MLD = {
-  bg: "rgba(148, 163, 184, 0.10)",   /* 灰蓝底 */
-  text: "#7c8a9e",                     /* 灰蓝字 */
-  bgPurple: "rgba(168, 162, 186, 0.10)", /* 灰紫底 */
-  textPurple: "#8b84a0",               /* 灰紫字 */
-}
+/* 莫兰迪灰蓝色调 — 已迁移至 globals.css CSS 变量 + 工具类 */
 
 export default function GameDetailClient({
   description,
@@ -88,6 +87,7 @@ export default function GameDetailClient({
   const [favCnt, setFavCnt] = useState(favCount)
   const [favPending, setFavPending] = useState(false)
   const favAbortRef = useRef<AbortController | null>(null)
+  const [mobileArchiveOpen, setMobileArchiveOpen] = useState(false)
   const sliderRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -151,9 +151,11 @@ export default function GameDetailClient({
 
         {/* ─── 左侧: Tab 导航 + 内容 ─── */}
         <div className="flex-1 min-w-0 lg:w-[calc(100%-320px)]">
-          {/* Tab 栏：圆角底槽 + 悬浮滑块 */}
+          {/* Tab 栏：圆角底槽 + 悬浮滑块 — 横向填满 */}
           <div ref={containerRef}
-            className="relative inline-flex gap-1 rounded-2xl p-1"
+            className="relative flex rounded-2xl p-1"
+            role="tablist"
+            aria-label="游戏详情导航"
             style={{
               backgroundColor: "var(--tab-trough, hsl(var(--secondary)))",
               boxShadow: "inset 0 1px 3px rgba(0,0,0,0.06)",
@@ -161,6 +163,7 @@ export default function GameDetailClient({
             {/* 滑块 */}
             <div ref={sliderRef}
               className="absolute top-1 left-0 h-[calc(100%-8px)] rounded-xl transition-all duration-300 ease-out"
+              aria-hidden="true"
               style={{
                 backgroundColor: "var(--tab-active, hsl(var(--background)))",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.08)",
@@ -170,8 +173,12 @@ export default function GameDetailClient({
               <button
                 key={t.key}
                 data-tab-btn
+                role="tab"
+                aria-selected={tab === t.key}
+                aria-controls={`tabpanel-${t.key}`}
+                id={`tab-${t.key}`}
                 onClick={() => setTab(t.key)}
-                className="relative z-10 rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors duration-300"
+                className="relative z-10 flex-1 rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors duration-300 text-center"
                 style={{
                   color: tab === t.key ? "var(--tab-active-text, hsl(var(--foreground)))" : "var(--tab-inactive-text, hsl(var(--muted-foreground)))",
                   fontWeight: tab === t.key ? 600 : 500,
@@ -189,7 +196,7 @@ export default function GameDetailClient({
           <div className="pt-6">
             {/* 游戏简介 */}
             {tab === "intro" && (
-              <div>
+              <div role="tabpanel" id="tabpanel-intro" aria-labelledby="tab-intro">
                 {description ? (
                   <div
                     className="prose prose-sm prose-invert max-w-none text-muted-foreground leading-relaxed"
@@ -204,7 +211,7 @@ export default function GameDetailClient({
 
             {/* 游戏资源 */}
             {tab === "resource" && (
-              <div className="space-y-5">
+              <div role="tabpanel" id="tabpanel-resource" aria-labelledby="tab-resource" className="space-y-5">
                 {downloadLinks.length > 0 ? (
                   <div className="space-y-2">
                     {downloadLinks.map((dl, i) => (
@@ -213,6 +220,7 @@ export default function GameDetailClient({
                         href={dl.url}
                         target="_blank"
                         rel="noopener noreferrer"
+                        aria-label={`下载 ${dl.label || "游戏资源"}`}
                         className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-black transition-opacity hover:opacity-90"
                         style={{ backgroundColor: "var(--clr-blue)" }}
                       >
@@ -228,6 +236,7 @@ export default function GameDetailClient({
                 <button
                   onClick={toggleFav}
                   disabled={!isLoggedIn}
+                  aria-label={fav ? "取消收藏此游戏" : "收藏此游戏"}
                   className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-medium transition-all disabled:opacity-50"
                   style={{
                     backgroundColor: fav ? "var(--clr-blue)" : "hsl(var(--secondary))",
@@ -274,14 +283,100 @@ export default function GameDetailClient({
 
             {/* 评论 */}
             {tab === "comments" && (
-              <CommentSection
-                gameId={gameId}
-                comments={comments}
-                isLoggedIn={isLoggedIn}
-                currentUserId={currentUserId}
-              />
+              <div role="tabpanel" id="tabpanel-comments" aria-labelledby="tab-comments">
+                <CommentSection
+                  gameId={gameId}
+                  comments={comments}
+                  isLoggedIn={isLoggedIn}
+                  currentUserId={currentUserId}
+                />
+              </div>
             )}
           </div>
+        </div>
+
+        {/* ─── 移动端档案信息（折叠面板）─── */}
+        <div className="mt-6 lg:hidden">
+          <button
+            type="button"
+            onClick={() => setMobileArchiveOpen(v => !v)}
+            className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-medium mld-text transition-colors"
+            style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+          >
+            <span className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 opacity-50" />
+              游戏档案
+            </span>
+            <ChevronDown
+              className="h-4 w-4 opacity-50 transition-transform duration-200"
+              style={{ transform: mobileArchiveOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+            />
+          </button>
+          {mobileArchiveOpen && (
+            <div className="mt-2 space-y-2 rounded-xl p-4" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
+              {releaseDate && (
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-3.5 w-3.5 mld-text" />
+                  <span className="text-xs mld-text">发售日期</span>
+                  <span className="ml-auto text-xs font-semibold text-foreground">{releaseDate}</span>
+                </div>
+              )}
+              {studioName && (
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-3.5 w-3.5 mld-text" />
+                  <span className="text-xs mld-text">制作会社</span>
+                  <span className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium mld-bg">{studioName}</span>
+                </div>
+              )}
+              {platformTags && platformTags.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <Monitor className="h-3.5 w-3.5 mld-text" />
+                  <span className="text-xs mld-text">支持平台</span>
+                  <div className="ml-auto flex flex-wrap justify-end gap-1">
+                    {platformTags.map((tag, i) => (
+                      <span key={i} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium mld-bg">{tag}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {genreTags.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <Gamepad2 className="h-3.5 w-3.5 mld-text" />
+                  <span className="text-xs mld-text">游戏类型</span>
+                  <div className="ml-auto flex flex-wrap justify-end gap-1">
+                    {genreTags.map((tag, i) => (
+                      <span key={i} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium mld-bg-purple">{tag.name}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {gameDuration && (
+                <div className="flex items-center gap-2">
+                  <Clock className="h-3.5 w-3.5 mld-text" />
+                  <span className="text-xs mld-text">游戏时长</span>
+                  <span className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium mld-bg">{gameDuration}</span>
+                </div>
+              )}
+              {storyTags.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <BookOpen className="h-3.5 w-3.5 mld-text" />
+                  <span className="text-xs mld-text">剧情标签</span>
+                  <div className="ml-auto flex flex-wrap justify-end gap-1">
+                    {storyTags.map((tag, i) => (
+                      <span key={i} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium mld-bg">{tag.name}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {vndbId && (
+                <div className="flex items-center gap-2">
+                  <ExternalLink className="h-3.5 w-3.5 mld-text" />
+                  <span className="text-xs mld-text">VNDB</span>
+                  <a href={`https://vndb.org/v${vndbId}`} target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium transition-all hover:opacity-80 mld-bg">v{vndbId}</a>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* ─── 右侧: 档案卡片 300px (仅桌面端显示) ─── */}
@@ -298,9 +393,9 @@ export default function GameDetailClient({
             {/* 发售日期 */}
             {releaseDate && (
               <div className="flex items-start gap-2">
-                <Calendar className="h-3.5 w-3.5 mt-0.5 shrink-0" style={{ color: MLD.text }} strokeWidth={2} />
+                <Calendar className="h-3.5 w-3.5 mt-0.5 shrink-0 mld-text" strokeWidth={2} />
                 <div className="flex flex-wrap items-center gap-x-1 min-w-0">
-                  <span className="text-xs font-medium shrink-0" style={{ color: MLD.text }}>发售日期：</span>
+                  <span className="text-xs font-medium shrink-0 mld-text">发售日期：</span>
                   <span className="text-xs font-semibold text-foreground">{releaseDate}</span>
                 </div>
               </div>
@@ -309,12 +404,10 @@ export default function GameDetailClient({
             {/* 制作会社 */}
             {studioName && (
               <div className="flex items-start gap-2">
-                <Building2 className="h-3.5 w-3.5 mt-0.5 shrink-0" style={{ color: MLD.text }} strokeWidth={2} />
+                <Building2 className="h-3.5 w-3.5 mt-0.5 shrink-0 mld-text" strokeWidth={2} />
                 <div className="flex flex-wrap items-center gap-x-1 min-w-0">
-                  <span className="text-xs font-medium shrink-0" style={{ color: MLD.text }}>制作会社：</span>
-                  <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium"
-                    style={{ background: MLD.bg, color: MLD.text }}>
-                    {studioName}
+                  <span className="text-xs font-medium shrink-0 mld-text">制作会社：</span>
+                  <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium mld-bg">{studioName}
                   </span>
                 </div>
               </div>
@@ -323,12 +416,11 @@ export default function GameDetailClient({
             {/* 支持平台 */}
             {platformTags && platformTags.length > 0 && (
               <div className="flex items-start gap-2">
-                <Monitor className="h-3.5 w-3.5 mt-0.5 shrink-0" style={{ color: MLD.text }} strokeWidth={2} />
+                <Monitor className="h-3.5 w-3.5 mt-0.5 shrink-0 mld-text" strokeWidth={2} />
                 <div className="flex flex-wrap items-center gap-x-1 gap-y-1 min-w-0">
-                  <span className="text-xs font-medium shrink-0" style={{ color: MLD.text }}>支持平台：</span>
+                  <span className="text-xs font-medium shrink-0 mld-text">支持平台：</span>
                   {platformTags.map((tag, i) => (
-                    <span key={i} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium"
-                      style={{ background: MLD.bg, color: MLD.text }}>
+                    <span key={i} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium mld-bg">
                       {tag}
                     </span>
                   ))}
@@ -339,12 +431,11 @@ export default function GameDetailClient({
             {/* 游戏类型 */}
             {genreTags.length > 0 && (
               <div className="flex items-start gap-2">
-                <Gamepad2 className="h-3.5 w-3.5 mt-0.5 shrink-0" style={{ color: MLD.text }} strokeWidth={2} />
+                <Gamepad2 className="h-3.5 w-3.5 mt-0.5 shrink-0 mld-text" strokeWidth={2} />
                 <div className="flex flex-wrap items-center gap-x-1 gap-y-1 min-w-0">
-                  <span className="text-xs font-medium shrink-0" style={{ color: MLD.text }}>游戏类型：</span>
+                  <span className="text-xs font-medium shrink-0 mld-text">游戏类型：</span>
                   {genreTags.map((tag, i) => (
-                    <span key={i} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium"
-                      style={{ background: MLD.bgPurple, color: MLD.textPurple }}>
+                    <span key={i} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium mld-bg-purple">
                       {tag.name}
                     </span>
                   ))}
@@ -355,11 +446,10 @@ export default function GameDetailClient({
             {/* 游戏时长 */}
             {gameDuration && (
               <div className="flex items-start gap-2">
-                <Clock className="h-3.5 w-3.5 mt-0.5 shrink-0" style={{ color: MLD.text }} strokeWidth={2} />
+                <Clock className="h-3.5 w-3.5 mt-0.5 shrink-0 mld-text" strokeWidth={2} />
                 <div className="flex flex-wrap items-center gap-x-1 min-w-0">
-                  <span className="text-xs font-medium shrink-0" style={{ color: MLD.text }}>游戏时长：</span>
-                  <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium"
-                    style={{ background: MLD.bg, color: MLD.text }}>
+                  <span className="text-xs font-medium shrink-0 mld-text">游戏时长：</span>
+                  <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium mld-bg">
                     {gameDuration}
                   </span>
                 </div>
@@ -369,12 +459,11 @@ export default function GameDetailClient({
             {/* 剧情标签 */}
             {storyTags.length > 0 && (
               <div className="flex items-start gap-2">
-                <BookOpen className="h-3.5 w-3.5 mt-0.5 shrink-0" style={{ color: MLD.text }} strokeWidth={2} />
+                <BookOpen className="h-3.5 w-3.5 mt-0.5 shrink-0 mld-text" strokeWidth={2} />
                 <div className="flex flex-wrap items-center gap-x-1 gap-y-1 min-w-0">
-                  <span className="text-xs font-medium shrink-0" style={{ color: MLD.text }}>剧情标签：</span>
+                  <span className="text-xs font-medium shrink-0 mld-text">剧情标签：</span>
                   {storyTags.map((tag, i) => (
-                    <span key={i} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium"
-                      style={{ background: MLD.bg, color: MLD.text }}>
+                    <span key={i} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium mld-bg">
                       {tag.name}
                     </span>
                   ))}
@@ -385,15 +474,14 @@ export default function GameDetailClient({
             {/* VNDB 链接 */}
             {vndbId && (
               <div className="flex items-start gap-2">
-                <ExternalLink className="h-3.5 w-3.5 mt-0.5 shrink-0" style={{ color: MLD.text }} strokeWidth={2} />
+                <ExternalLink className="h-3.5 w-3.5 mt-0.5 shrink-0 mld-text" strokeWidth={2} />
                 <div className="flex items-center gap-x-1 min-w-0">
-                  <span className="text-xs font-medium shrink-0" style={{ color: MLD.text }}>VNDB：</span>
+                  <span className="text-xs font-medium shrink-0 mld-text">VNDB：</span>
                   <a
                     href={`https://vndb.org/v${vndbId}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium transition-all hover:opacity-80"
-                    style={{ background: MLD.bg, color: MLD.text }}
+                    className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium transition-all hover:opacity-80 mld-bg"
                   >
                     v{vndbId}
                   </a>
