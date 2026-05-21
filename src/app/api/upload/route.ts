@@ -3,7 +3,7 @@ import { mkdir, writeFile } from "fs/promises"
 import { NextResponse } from "next/server"
 import path from "path"
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB（与 nginx client_max_body_size 一致）
 const ALLOWED_TYPES = [
   "image/jpeg",
   "image/png",
@@ -41,13 +41,20 @@ export async function POST(request: Request) {
     // 验证文件大小
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { error: `文件太大: ${(file.size / 1024 / 1024).toFixed(1)}MB，最大 2MB` },
+        { error: `文件太大: ${(file.size / 1024 / 1024).toFixed(1)}MB，最大 10MB` },
         { status: 400 }
       )
     }
 
-    // 生成唯一文件名
-    const ext = file.name.split(".").pop() || "png"
+    // 生成唯一文件名（根据实际 MIME 类型确定扩展名，避免 canvas blob 类型与文件名不匹配）
+    const mimeToExt: Record<string, string> = {
+      "image/jpeg": "jpg",
+      "image/png": "png",
+      "image/gif": "gif",
+      "image/webp": "webp",
+      "image/avif": "avif",
+    }
+    const ext = mimeToExt[file.type] || file.name.split(".").pop() || "png"
     const timestamp = Date.now()
     const random = Math.random().toString(36).slice(2, 8)
     const filename = `${timestamp}-${random}.${ext}`
