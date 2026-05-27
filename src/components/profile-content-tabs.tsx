@@ -1,8 +1,8 @@
 "use client"
 
-import { Calendar, Eye, FolderHeart, Gamepad2, Lock, MessageSquare, Plus, Unlock, X } from "lucide-react"
+import { Calendar, Eye, FolderHeart, Gamepad2, Lock, MessageSquare, Plus, Trash2, Unlock, X } from "lucide-react"
 import Link from "next/link"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 interface GameLite {
   id: string
@@ -43,17 +43,82 @@ const tabs: { key: TabKey; label: string; icon: React.ElementType }[] = [
 export function ProfileContentTabs({ favGames, playStatusGames, comments }: Props) {
   const [active, setActive] = useState<TabKey>("favorites")
 
-  // 构建收藏夹（默认一个，后续可扩展多个）
+  // 构建收藏夹（默认一个 + localStorage 持久化自定义文件夹）
+  const STORAGE_KEY = "profile-collection-folders"
+
   const defaultFolder: CollectionFolder = {
     id: "default",
     name: "默认收藏夹",
     isPublic: true,
     games: favGames,
   }
-  const [folders] = useState<CollectionFolder[]>([defaultFolder])
+
+  const loadFolders = (): CollectionFolder[] => {
+    if (typeof window === "undefined") return [defaultFolder]
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (raw) {
+        const saved = JSON.parse(raw) as Omit<CollectionFolder, "games">[]
+        // 合并：默认文件夹 + localStorage 中的自定义文件夹（不含游戏数据，仅结构）
+        const customFolders = saved.filter(f => f.id !== "default").map(f => ({
+          ...f,
+          games: [] as GameLite[],
+        }))
+        return [defaultFolder, ...customFolders]
+      }
+    } catch {}
+    return [defaultFolder]
+  }
+
+  const [folders, setFolders] = useState<CollectionFolder[]>([defaultFolder])
   const [modalFolder, setModalFolder] = useState<CollectionFolder | null>(null)
   const [showCreateFolder, setShowCreateFolder] = useState(false)
   const [newFolderName, setNewFolderName] = useState("")
+  const [newFolderPublic, setNewFolderPublic] = useState(true)
+
+  // 客户端加载 localStorage
+  useEffect(() => {
+    setFolders(loadFolders())
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // 保存到 localStorage（排除默认文件夹的 games 数据）
+  const persistFolders = useCallback((updated: CollectionFolder[]) => {
+    const toSave = updated.filter(f => f.id !== "default").map(({ id, name, isPublic }) => ({ id, name, isPublic }))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave))
+  }, [])
+
+  const handleCreateFolder = () => {
+    const name = newFolderName.trim()
+    if (!name) return
+    const newFolder: CollectionFolder = {
+      id: `folder-${Date.now()}`,
+      name,
+      isPublic: newFolderPublic,
+      games: [],
+    }
+    const updated = [...folders, newFolder]
+    setFolders(updated)
+    persistFolders(updated)
+    setNewFolderName("")
+    setNewFolderPublic(true)
+    setShowCreateFolder(false)
+  }
+
+  const handleToggleVisibility = (folderId: string) => {
+    const updated = folders.map(f =>
+      f.id === folderId ? { ...f, isPublic: !f.isPublic } : f
+    )
+    setFolders(updated)
+    persistFolders(updated)
+  }
+
+  const handleDeleteFolder = (folderId: string) => {
+    if (folderId === "default") return
+    const updated = folders.filter(f => f.id !== folderId)
+    setFolders(updated)
+    persistFolders(updated)
+  }
 
   // 弹窗打开时锁定背景滚动
   useEffect(() => {
@@ -103,7 +168,7 @@ export function ProfileContentTabs({ favGames, playStatusGames, comments }: Prop
       </div>
 
       {/* Tab 内容滚动区 — 局部独立滚动 */}
-      <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5 profile-scroll-area">
+      <div className="p-4 sm:p-5 profile-scroll-area">
         {active === "favorites" && (
           <FavoritesTab
             folders={folders}
@@ -112,6 +177,11 @@ export function ProfileContentTabs({ favGames, playStatusGames, comments }: Prop
             setShowCreateFolder={setShowCreateFolder}
             newFolderName={newFolderName}
             setNewFolderName={setNewFolderName}
+            newFolderPublic={newFolderPublic}
+            setNewFolderPublic={setNewFolderPublic}
+            onCreateFolder={handleCreateFolder}
+            onToggleVisibility={handleToggleVisibility}
+            onDeleteFolder={handleDeleteFolder}
           />
         )}
         {active === "comments" && <CommentsTab comments={comments} />}
@@ -134,6 +204,11 @@ function FavoritesTab({
   setShowCreateFolder,
   newFolderName,
   setNewFolderName,
+  newFolderPublic,
+  setNewFolderPublic,
+  onCreateFolder,
+  onToggleVisibility,
+  onDeleteFolder,
 }: {
   folders: CollectionFolder[]
   onOpenFolder: (f: CollectionFolder) => void
@@ -141,30 +216,63 @@ function FavoritesTab({
   setShowCreateFolder: (v: boolean) => void
   newFolderName: string
   setNewFolderName: (v: string) => void
+  newFolderPublic: boolean
+  setNewFolderPublic: (v: boolean) => void
+  onCreateFolder: () => void
+  onToggleVisibility: (id: string) => void
+  onDeleteFolder: (id: string) => void
 }) {
   return (
     <div className="space-y-3">
       {/* 创建新收藏夹 */}
       {showCreateFolder ? (
-        <div className="rounded-xl bg-secondary/50 p-3 ring-1 ring-border">
+        <div className="rounded-xl bg-secondary/50 p-4 ring-1 ring-border">
           <input
             type="text"
             value={newFolderName}
             onChange={(e) => setNewFolderName(e.target.value)}
             placeholder="收藏夹名称"
-            className="mb-2 w-full rounded-lg bg-background px-3 py-2 text-sm text-foreground outline-none ring-1 ring-border focus:ring-primary/40"
+            className="mb-3 w-full rounded-lg bg-background px-3 py-2.5 text-sm text-foreground outline-none ring-1 ring-border focus:ring-2 focus:ring-primary/40 transition-shadow"
             autoFocus
+            onKeyDown={(e) => { if (e.key === "Enter") onCreateFolder() }}
           />
+          {/* 公开/私密选择 */}
+          <div className="mb-3 flex items-center gap-3">
+            <span className="text-xs text-muted-foreground">可见性：</span>
+            <button
+              type="button"
+              onClick={() => setNewFolderPublic(true)}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                newFolderPublic
+                  ? "bg-emerald-500/15 text-emerald-500 ring-1 ring-emerald-500/30"
+                  : "bg-secondary text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Unlock className="h-3 w-3" /> 公开
+            </button>
+            <button
+              type="button"
+              onClick={() => setNewFolderPublic(false)}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                !newFolderPublic
+                  ? "bg-zinc-500/15 text-zinc-400 ring-1 ring-zinc-500/30"
+                  : "bg-secondary text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Lock className="h-3 w-3" /> 私密
+            </button>
+          </div>
           <div className="flex gap-2">
             <button
-              onClick={() => { setShowCreateFolder(false); setNewFolderName("") }}
-              className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-secondary transition-colors"
+              onClick={() => { setShowCreateFolder(false); setNewFolderName(""); setNewFolderPublic(true) }}
+              className="rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary transition-colors"
             >
               取消
             </button>
             <button
-              onClick={() => { setShowCreateFolder(false); setNewFolderName("") }}
-              className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+              onClick={onCreateFolder}
+              disabled={!newFolderName.trim()}
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm"
             >
               创建
             </button>
@@ -173,9 +281,9 @@ function FavoritesTab({
       ) : (
         <button
           onClick={() => setShowCreateFolder(true)}
-          className="flex w-full items-center gap-2 rounded-xl border-2 border-dashed border-muted-foreground/20 px-4 py-3 text-sm font-medium text-muted-foreground transition-all hover:border-primary/40 hover:text-primary"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-muted-foreground/20 bg-secondary/20 px-4 py-3.5 text-sm font-medium text-muted-foreground transition-all hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
         >
-          <Plus className="h-4 w-4" strokeWidth={2} />
+          <Plus className="h-4 w-4" strokeWidth={2.5} />
           创建新收藏夹
         </button>
       )}
@@ -188,55 +296,76 @@ function FavoritesTab({
         </div>
       ) : (
         folders.map((folder) => (
-          <button
+          <div
             key={folder.id}
-            onClick={() => onOpenFolder(folder)}
-            className="group w-full rounded-xl bg-secondary/40 p-4 text-left transition-all hover:bg-secondary/70"
+            className="group w-full rounded-xl bg-secondary/40 p-4 transition-all hover:bg-secondary/60"
           >
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2.5">
-                <FolderHeart className="h-5 w-5 text-primary/80" strokeWidth={2} />
-                <span className="text-sm font-semibold text-foreground">{folder.name}</span>
-                <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+              <button
+                onClick={() => onOpenFolder(folder)}
+                className="flex items-center gap-2.5 min-w-0 text-left"
+              >
+                <FolderHeart className="h-5 w-5 text-primary/80 shrink-0" strokeWidth={2} />
+                <span className="text-sm font-semibold text-foreground truncate">{folder.name}</span>
+                <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground shrink-0">
                   {folder.games.length} 部
                 </span>
-              </div>
-            </div>
-            {/* 预览缩略图 */}
-            {folder.games.length > 0 ? (
-              <div className="flex gap-1.5 overflow-hidden">
-                {folder.games.slice(0, 5).map((g) => (
-                  <div key={g.id} className="h-16 w-12 shrink-0 overflow-hidden rounded-md">
-                    {g.coverImage ? (
-                      <img src={g.coverImage} alt={g.title} className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
-                        <FolderHeart className="h-4 w-4" />
-                      </div>
-                    )}
-                  </div>
-                ))}
-                {folder.games.length > 5 && (
-                  <div className="flex h-16 w-12 shrink-0 items-center justify-center rounded-md bg-muted text-[10px] font-bold text-muted-foreground">
-                    +{folder.games.length - 5}
-                  </div>
+              </button>
+              <div className="flex items-center gap-1 shrink-0">
+                {/* 公开/私密切换按钮 */}
+                <button
+                  onClick={(e) => { e.stopPropagation(); onToggleVisibility(folder.id) }}
+                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-all ${
+                    folder.isPublic
+                      ? "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20"
+                      : "bg-zinc-500/10 text-zinc-400 hover:bg-zinc-500/20"
+                  }`}
+                  title={folder.isPublic ? "点击设为私密" : "点击设为公开"}
+                >
+                  {folder.isPublic ? <Unlock className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
+                  {folder.isPublic ? "公开" : "私密"}
+                </button>
+                {/* 删除按钮（非默认文件夹） */}
+                {folder.id !== "default" && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onDeleteFolder(folder.id) }}
+                    className="flex items-center justify-center rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-rose-500/10 hover:text-rose-500"
+                    title="删除收藏夹"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
                 )}
               </div>
-            ) : (
-              <p className="text-xs text-muted-foreground">空收藏夹</p>
-            )}
-            {/* 公开/私密标签 */}
-            <div className="mt-3 flex justify-end">
-              <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                folder.isPublic
-                  ? "bg-emerald-500/10 text-emerald-500"
-                  : "bg-zinc-500/10 text-zinc-400"
-              }`}>
-                {folder.isPublic ? <Unlock className="h-2.5 w-2.5" /> : <Lock className="h-2.5 w-2.5" />}
-                {folder.isPublic ? "公开" : "私密"}
-              </span>
             </div>
-          </button>
+            {/* 预览缩略图（可点击打开） */}
+            <button
+              onClick={() => onOpenFolder(folder)}
+              className="w-full text-left"
+            >
+              {folder.games.length > 0 ? (
+                <div className="flex gap-1.5 overflow-hidden">
+                  {folder.games.slice(0, 5).map((g) => (
+                    <div key={g.id} className="h-16 w-12 shrink-0 overflow-hidden rounded-md">
+                      {g.coverImage ? (
+                        <img src={g.coverImage} alt={g.title} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
+                          <FolderHeart className="h-4 w-4" />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  {folder.games.length > 5 && (
+                    <div className="flex h-16 w-12 shrink-0 items-center justify-center rounded-md bg-muted text-[10px] font-bold text-muted-foreground">
+                      +{folder.games.length - 5}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground">空收藏夹 · 点击查看详情</p>
+              )}
+            </button>
+          </div>
         ))
       )}
     </div>

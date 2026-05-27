@@ -1,5 +1,6 @@
 ﻿"use client"
 
+import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { cn } from "@/lib/utils"
 import { Crop, RotateCw, Upload, X, ZoomIn, ZoomOut } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -270,9 +271,10 @@ export function ImageUpload({
   }, [onChange])
 
   // 裁剪弹窗
+  useBodyScrollLock(!!cropSrc)
   if (cropSrc) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+      <div className="fixed inset-0 z-50 touch-none flex items-center justify-center bg-black/80 backdrop-blur-sm">
         <div className="relative mx-4 w-full max-w-lg rounded-2xl p-5 shadow-2xl" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
           <h3 className="mb-4 text-sm font-semibold text-foreground">裁剪图片</h3>
 
@@ -303,8 +305,7 @@ export function ImageUpload({
                 step={0.01}
                 value={zoom}
                 onChange={(e) => setZoom(Number(e.target.value))}
-                className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-muted"
-                style={{ accentColor: "var(--clr-blue)" }}
+                className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-muted accent-primary"
               />
               <ZoomIn className="h-4 w-4 shrink-0 text-muted-foreground" />
             </div>
@@ -319,8 +320,7 @@ export function ImageUpload({
                 step={1}
                 value={rotation}
                 onChange={(e) => setRotation(Number(e.target.value))}
-                className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-muted"
-                style={{ accentColor: "var(--clr-blue)" }}
+                className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-muted accent-primary"
               />
               <span className="w-8 text-right text-[10px] text-muted-foreground">{rotation}°</span>
             </div>
@@ -339,8 +339,7 @@ export function ImageUpload({
               type="button"
               onClick={handleCropConfirm}
               disabled={isCropping}
-              className="flex items-center gap-1.5 rounded-xl px-5 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-60"
-              style={{ backgroundColor: "var(--clr-blue)" }}
+              className="flex items-center gap-1.5 rounded-xl px-5 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-60 bg-primary"
             >
               {isCropping ? (
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />

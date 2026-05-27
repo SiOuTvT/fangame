@@ -109,7 +109,7 @@ export function GameCard({ game }: { game: GameCardData }) {
 
         {/* 第3行：标签 */}
         {(paramTags.length > 0 || fileSizes.length > 0) && (
-          <div className="game-card-tags flex flex-wrap items-center gap-1.5 flex-shrink-0">
+          <div className="game-card-tags flex flex-wrap items-center gap-2 flex-shrink-0">
             {paramTags.map((tag, i) => (
               <span
                 key={`p-${i}`}
@@ -137,7 +137,7 @@ export function GameCard({ game }: { game: GameCardData }) {
 
 export function GameCardSkeleton() {
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border/50">
+    <div className="flex flex-col overflow-hidden rounded-2xl bg-card card-shadow">
       {/* 封面 */}
       <div className="w-full skeleton-shimmer" style={{ aspectRatio: "3 / 2" }} />
       {/* 内容 */}
@@ -149,7 +149,7 @@ export function GameCardSkeleton() {
           <div className="h-3.5 w-11 rounded skeleton-shimmer" />
           <div className="h-3.5 w-11 rounded skeleton-shimmer" />
         </div>
-        <div className="flex flex-wrap gap-1.5 mt-2.5">
+        <div className="flex flex-wrap gap-2 mt-2.5">
           <div className="h-5 w-16 rounded-full skeleton-shimmer" />
           <div className="h-5 w-14 rounded-full skeleton-shimmer" />
         </div>

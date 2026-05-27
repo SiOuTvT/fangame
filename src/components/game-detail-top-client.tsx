@@ -1,5 +1,6 @@
 "use client"
 
+import { cn } from "@/lib/utils"
 import { Download, Heart, Share2 } from "lucide-react"
 import { useState } from "react"
 
@@ -51,8 +52,7 @@ export function GameDetailTopClient({
           href={downloadLinks[0].url}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-semibold transition-opacity hover:opacity-90"
-          style={{ backgroundColor: "var(--clr-blue)", color: "#000" }}
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-semibold transition-opacity hover:opacity-90 bg-primary text-primary-foreground"
         >
           <Download className="w-3.5 h-3.5" strokeWidth={2.5} />
           下载
@@ -63,12 +63,12 @@ export function GameDetailTopClient({
       <button
         onClick={toggleFav}
         disabled={!isLoggedIn}
-        className="flex items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-medium transition-all disabled:opacity-50"
-        style={{
-          backgroundColor: fav ? "var(--clr-blue)" : "hsl(var(--secondary))",
-          color: fav ? "#000" : "hsl(var(--muted-foreground))",
-          border: fav ? "none" : "1px solid hsl(var(--border))",
-        }}
+        className={cn(
+          "flex items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-medium transition-all disabled:opacity-50",
+          fav
+            ? "bg-primary text-primary-foreground"
+            : "bg-secondary text-muted-foreground border border-border"
+        )}
       >
         <Heart
           className="w-3.5 h-3.5"
@@ -83,9 +83,9 @@ export function GameDetailTopClient({
         onClick={handleShare}
         className="flex items-center justify-center rounded-xl p-2.5 transition-colors"
         style={{
-          background: "hsl(var(--secondary))",
-          border: "1px solid hsl(var(--border))",
-          color: "hsl(var(--muted-foreground))",
+          background: "var(--secondary)",
+          border: "1px solid var(--border)",
+          color: "var(--muted-foreground)",
         }}
       >
         <Share2 className="w-3.5 h-3.5" strokeWidth={2.5} />

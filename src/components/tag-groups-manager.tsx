@@ -135,6 +135,7 @@ export function TagGroupsManager({ initialGroups }: { initialGroups: TagGroup[] 
                 <>
                   <div className="h-3 w-3 shrink-0 rounded-full" style={{ background: editColor }} />
                   <input value={editName} onChange={e => setEditName(e.target.value)}
+                    placeholder="标签组名称"
                     className="flex-1 rounded-lg bg-secondary px-3 py-1.5 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring" />
                   <input value={editDesc} onChange={e => setEditDesc(e.target.value)} placeholder="描述"
                     className="w-40 rounded-lg bg-secondary px-3 py-1.5 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring" />
@@ -151,6 +152,7 @@ export function TagGroupsManager({ initialGroups }: { initialGroups: TagGroup[] 
                     {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : "保存"}
                   </button>
                   <button onClick={() => setEditing(null)}
+                    title="取消编辑" aria-label="取消编辑"
                     className="shrink-0 rounded-lg bg-secondary px-2 py-1.5 text-muted-foreground hover:text-foreground transition-colors">
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -167,10 +169,12 @@ export function TagGroupsManager({ initialGroups }: { initialGroups: TagGroup[] 
                     <span className="shrink-0 text-xs text-muted-foreground">{group.tags.length} 个标签</span>
                   </button>
                   <button onClick={() => { setEditing(group.id); setEditName(group.name); setEditDesc(group.description); setEditColor(group.color) }}
+                    title="编辑标签组" aria-label="编辑标签组"
                     className="shrink-0 rounded-lg bg-secondary p-1.5 text-muted-foreground hover:text-foreground transition-colors">
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
                   <button onClick={() => handleDelete(group.id)}
+                    title="删除标签组" aria-label="删除标签组"
                     className="shrink-0 rounded-lg bg-secondary p-1.5 text-muted-foreground hover:text-red-400 transition-colors">
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>

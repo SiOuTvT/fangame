@@ -115,14 +115,14 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
           <button
             onClick={(e) => { e.preventDefault(); prev() }}
             aria-label="上一条公告"
-            className="absolute left-3 top-1/2 z-10 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white/80 backdrop-blur-sm transition-all hover:bg-black/60 hover:text-white"
+            className="absolute left-3 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-black/40 text-white/80 backdrop-blur-sm transition-all hover:bg-black/60 hover:text-white"
           >
             <ChevronLeft className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
           </button>
           <button
             onClick={(e) => { e.preventDefault(); next() }}
             aria-label="下一条公告"
-            className="absolute right-3 top-1/2 z-10 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white/80 backdrop-blur-sm transition-all hover:bg-black/60 hover:text-white"
+            className="absolute right-3 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-black/40 text-white/80 backdrop-blur-sm transition-all hover:bg-black/60 hover:text-white"
           >
             <ChevronRight className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
           </button>
@@ -135,7 +135,7 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
                 onClick={(e) => { e.preventDefault(); setCur(i) }}
                 aria-label={`切换到第 ${i + 1} 条公告`}
                 aria-current={i === cur ? "true" : undefined}
-                className={`h-2 rounded-full transition-all ${i === cur ? "w-5 bg-white" : "w-2 bg-white/40"}`}
+                className={`h-2.5 rounded-full transition-all ${i === cur ? "w-6 bg-white" : "w-2.5 bg-white/40"}`}
               />
             ))}
           </div>

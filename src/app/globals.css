@@ -3,9 +3,18 @@
 @import "shadcn/tailwind.css";
 
 /* 全局移动端溢出保护 */
-html, body {
+html {
+  /* clip 替代 hidden：不创建滚动容器，避免 Radix RemoveScroll 锁定视口滚动 */
+  overflow-x: clip;
+  max-width: 100vw;
+  overscroll-behavior-y: contain;
+}
+body {
   overflow-x: hidden;
   max-width: 100vw;
+  overscroll-behavior-y: contain;
+  /* 禁用双击缩放，保留捏合缩放 */
+  touch-action: manipulation;
 }
 
 /* 全局图片防溢出 — 轮播 / fill 模式下也生效 */
@@ -34,11 +43,19 @@ main > * {
   min-width: 0;
 }
 
+/* ═══ iOS 输入框自动缩放防护 ═══ */
+/* iOS Safari 在 font-size < 16px 的 input/textarea 获焦时会自动缩放页面 */
+@media (max-width: 768px) {
+  input,
+  textarea,
+  select,
+  [contenteditable="true"] {
+    font-size: max(16px, inherit) !important;
+  }
+}
+
 /* 手机端统一 padding 保护 */
 @media (max-width: 639px) {
-  * {
-    max-width: 100vw;
-  }
   /* 确保所有表格不溢出 */
   table {
     display: block;
@@ -103,20 +120,24 @@ main > * {
   /* 深空黑基调 — 纯净、沉浸、高级 */
   --background:    #000000; /* 纯黑底色，OLED 级别深邃 */
   --foreground:    #e8e8ec; /* 冷白文字，清晰锐利 */
-  --card:          #19191d; /* 灰调浮层，从纯黑背景中分离 */
+  --card:          #141416; /* 纯灰调浮层，无色偏，与纯黑背景形成清晰层次 */
   --card-foreground: #e8e8ec;
-  --popover:       #111114;
+  --popover:       #101012;
   --popover-foreground: #e8e8ec;
-  --muted:         #1a1a1e; /* 低调灰色底 */
+  --muted:         #111113; /* 极深中性灰底 */
   --muted-foreground: #a1a1b5; /* 提亮灰字，确保 ≥4.5:1 对比度 */
   --border:        rgba(255, 255, 255, 0.10); /* 细腻分隔线 */
   --input:         rgba(255, 255, 255, 0.08);
-  --secondary:     #151518;
+  --secondary:     #0e0e10;
   --secondary-foreground: #e8e8ec;
-  --accent:        #151518;
+  --accent:        #0e0e10;
   --accent-foreground: #e8e8ec;
   --destructive:   #f87171;
-  --ring:          #2a2a30;
+
+  /* 审计修复：卡片统一阴影 — 深色模式 */
+  --card-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+  --card-shadow-hover: 0 8px 24px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.2);
+  --ring:          #252528;
   --radius:        0.75rem;
 
   /* ── 动态主题变量（由 theme-colors.ts 动态覆盖） ── */
@@ -136,8 +157,8 @@ main > * {
   --clr-warm:   #f59e0b; /* 琥珀色点缀 */
 
   /* ── 统一 Tab 切换组件色 ── */
-  --tab-trough:     #151518;           /* 底槽色，比背景略亮 */
-  --tab-active:     #27272b;           /* 选中方块色，明确区分 */
+  --tab-trough:     #111113;           /* 底槽色，纯中性灰 */
+  --tab-active:     #222224;           /* 选中方块色，纯中性灰 */
   --tab-active-text:#f0f0f4;           /* 选中文字：亮白 */
   --tab-inactive-text:#71717a;         /* 未选中文字：灰 */
   --tab-hover-text: #a1a1aa;           /* 悬停提亮 */
@@ -162,6 +183,10 @@ main > * {
   --destructive:   #ef4444;
   --ring:          #d4d4d8;
   --primary:       #0284C7; /* sky-600 */
+
+  /* 审计修复：卡片统一阴影 — 亮色模式 */
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --card-shadow-hover: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
   --primary-foreground: #ffffff;
 
   /* ── 统一 Tab 切换组件色（亮色主题） ── */
@@ -174,7 +199,7 @@ main > * {
 
 @layer base {
   * {
-    @apply outline-ring/50;
+    @apply outline-none;
   }
 
   body {
@@ -189,13 +214,25 @@ main > * {
     /* 微纹理背景已移除 — feTurbulence SVG filter 在移动端渲染代价高，且 opacity 0.025 几乎不可见 */
   }
 
-  /* 电脑端字体加大 */
-  @media (min-width: 1024px) {
+  /* 大屏电脑端 */
+  @media (min-width: 1440px) {
     body {
       font-size: 16px;
     }
   }
-  /* 移动端也不要太小 */
+  /* 电脑端 */
+  @media (min-width: 1024px) and (max-width: 1439px) {
+    body {
+      font-size: 16px;
+    }
+  }
+  /* 平板端 */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    body {
+      font-size: 15.5px;
+    }
+  }
+  /* 移动端 */
   @media (max-width: 767px) {
     body {
       font-size: 15px;
@@ -702,7 +739,7 @@ main > * {
 
 /* ── 滚动条美化 - 细而精致 ── */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
   height: 6px;
 }
 
@@ -711,31 +748,32 @@ main > * {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
   border-radius: 3px;
   transition: background 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.35);
 }
 
 .light ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 0.22);
 }
 
 .light ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.4);
 }
 
 /* Firefox 滚动条 */
 * {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  scrollbar-width: auto;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
 .light * {
-  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+  scrollbar-color: rgba(0, 0, 0, 0.22) transparent;
 }
 
 /* ── 焦点环 - 简洁聚焦指示 ── */
@@ -764,10 +802,11 @@ a {
   transition: text-decoration-color 0.2s ease;
 }
 
-/* ── 输入框聚焦 - 克制聚焦环 ── */
+/* ── 输入框聚焦 - 克制聚焦环（使用 outline 防止被 overflow-x: hidden 裁剪） ── */
 input:focus, textarea:focus, select:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.15);
+  outline: 2px solid rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.25);
+  outline-offset: -2px;
+  box-shadow: none;
   border-color: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.25);
 }
 
@@ -775,6 +814,15 @@ input:focus, textarea:focus, select:focus {
    亮色模式全面对比度修复
    规则：深色背景 → 浅色背景，浅色文字 → 深色文字
    ═══════════════════════════════════════════════════════ */
+
+/* ── 深色模式：bg-zinc-900 统一映射为卡片背景色 ── */
+/* 所有使用 bg-zinc-900 的卡片/面板在深色模式下获得与首页游戏卡片一致的灰色 */
+:root .bg-zinc-900,
+:root .bg-zinc-900\/95,
+:root .bg-zinc-900\/80,
+:root .bg-zinc-900\/50 {
+  background-color: var(--card) !important;
+}
 
 /* ── 背景色：深色 zinc → 浅色 ── */
 .light .bg-zinc-900,
@@ -959,15 +1007,16 @@ input:focus, textarea:focus, select:focus {
    游戏卡片 - 深色/亮色模式精细化（3D 实体悬浮感）
    ═══════════════════════════════════════════════════════ */
 
-/* ── 卡片：干净、自然、无塑料感 ── */
+/* ── 卡片：干净、自然、带统一阴影层次 ── */
 .game-card {
   background: var(--card);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--card-shadow);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.35s ease;
 }
 
 .game-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--card-shadow-hover);
   border-color: rgba(255, 255, 255, 0.10);
 }
 
@@ -982,11 +1031,11 @@ input:focus, textarea:focus, select:focus {
 .light .game-card {
   background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--card-shadow);
 }
 
 .light .game-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--card-shadow-hover);
   border-color: rgba(0, 0, 0, 0.08);
 }
 
@@ -1103,3 +1152,197 @@ input:focus, textarea:focus, select:focus {
   background: rgba(200,200,200,0.3);
 }
 
+/* ═══ dvh 单位降级（老浏览器 fallback） ═══ */
+@supports not (height: 1dvh) {
+  [style*="100dvh"] {
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
+  }
+  [style*="min-height: 100dvh"], [style*="min-height:100dvh"] {
+    min-height: 100vh;
+    min-height: calc(var(--vh, 1vh) * 100);
+  }
+  [style*="90dvh"] {
+    height: 90vh;
+  }
+  [style*="min-height: 90dvh"], [style*="min-height:90dvh"] {
+    min-height: 90vh;
+  }
+}
+
+/* ═══ backdrop-blur 降级（低端设备） ═══ */
+@supports not (backdrop-filter: blur(1px)) {
+  .backdrop-blur-sm,
+  .backdrop-blur-md,
+  .backdrop-blur-lg {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  /* 模态遮罩：增加不透明度补偿 */
+  .fixed.inset-0.bg-black\/50 { background-color: rgba(0,0,0,0.75) !important; }
+  .fixed.inset-0.bg-black\/90 { background-color: rgba(0,0,0,0.95) !important; }
+  .fixed.inset-0.bg-black\/80 { background-color: rgba(0,0,0,0.92) !important; }
+}
+
+/* ═══ 触摸设备：消除 hover 粘滞 ═══ */
+@media (hover: none) {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* ═══ 长文本安全换行（论坛/评论区） ═══ */
+.break-words {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-width: 0;
+}
+
+/* 论坛富文本内容区 */
+.forum-content,
+.rich-text-content {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-width: 0;
+}
+
+/* ═══ P2-11: SVG 图标抗锯齿 — 小尺寸图标在高 DPI 屏幕上可能出现模糊 ═══ */
+svg {
+  shape-rendering: geometricPrecision;
+}
+
+/* ═══ P1-4: 标签溢出保护 ═══ */
+.tag-pill {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ═══ P2-8: 嵌套评论手机端优化 — 缩小嵌套层级缩进 ═══ */
+@media (max-width: 640px) {
+  .comment-nested-ml {
+    margin-left: 1rem !important;
+  }
+}
+
+/* ═══ 审计修复：统一卡片阴影工具类 ═══ */
+.card-shadow {
+  box-shadow: var(--card-shadow);
+  transition: box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.card-shadow:hover {
+  box-shadow: var(--card-shadow-hover);
+}
+
+/* ═══ 审计修复：统一圆角系统 ═══ */
+/* 容器/卡片/面板 */
+.rounded-container { border-radius: 16px; }
+/* 交互元素/按钮/输入框 */
+.rounded-interactive { border-radius: 12px; }
+/* 胶囊/头像/徽章 */
+.rounded-pill { border-radius: 9999px; }
+
+/* ═══ 审计修复：tabular-nums 数字统一 ═══ */
+.num-tab {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* ═══ 审计修复：英文单词安全换行（禁止在单词中间断行） ═══ */
+.word-break-normal {
+  word-break: normal;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* ═══ 审计修复：加粗文字统一 ═══ */
+/* 避免某些中文字体在 font-weight:700 时过粗 */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .font-semibold {
+    font-weight: 600;
+  }
+  .font-bold {
+    font-weight: 700;
+  }
+  /* 中文粗体降级为 semibold，避免笔画粘连 */
+  .zh-font-bold {
+    font-weight: 600;
+  }
+}
+
+/* ═══ 审计修复：统一 hover 过渡（平滑不突兀） ═══ */
+.hover-transition {
+  transition: all 0.2s ease;
+}
+.hover-transition-slow {
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ═══ 情感消息管理 - 表单输入样式 ═══ */
+.em-input {
+  display: block;
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  padding: 6px 10px;
+  font-size: 13px;
+  color: var(--foreground);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.em-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 15%, transparent);
+}
+.em-input::placeholder {
+  color: var(--muted-foreground);
+  opacity: 0.5;
+}
+
+/* ═══ 微动画：签到成功/收藏/关注按钮弹跳效果 ═══ */
+@keyframes micro-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.15); }
+  70%  { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+.micro-pop {
+  animation: micro-pop 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes micro-shake {
+  0%, 100% { transform: translateX(0); }
+  20%  { transform: translateX(-3px); }
+  40%  { transform: translateX(3px); }
+  60%  { transform: translateX(-2px); }
+  80%  { transform: translateX(1px); }
+}
+.micro-shake {
+  animation: micro-shake 0.4s ease-in-out;
+}
+
+@keyframes micro-confetti {
+  0%   { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-18px) scale(0.6); opacity: 0; }
+}
+.micro-confetti {
+  animation: micro-confetti 0.5s ease-out forwards;
+}
+
+/* 心跳动画（收藏按钮） */
+@keyframes micro-heartbeat {
+  0%, 100% { transform: scale(1); }
+  25%  { transform: scale(1.2); }
+  50%  { transform: scale(1); }
+  75%  { transform: scale(1.15); }
+}
+.micro-heartbeat {
+  animation: micro-heartbeat 0.5s ease-in-out;
+}
+
+/* ═══ P4-8: 锚点跳转补偿固定导航栏高度 ═══ */
+[id] {
+  scroll-margin-top: 80px;
+}

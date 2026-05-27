@@ -1,5 +1,7 @@
 "use client"
 
+import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
+
 interface ReportDialogProps {
   show: boolean
   onClose: () => void
@@ -18,10 +20,11 @@ const REASONS = [
 ]
 
 export function ReportDialog({ show, onClose, reason, setReason, reportSubmitting, onSubmit }: ReportDialogProps) {
+  useBodyScrollLock(show)
   if (!show) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md">
+    <div className="fixed inset-0 z-50 touch-none flex items-center justify-center bg-black/70 backdrop-blur-md">
       <div className="bg-card rounded-2xl p-6 w-[400px] max-w-[90vw] shadow-xl">
         <h3 className="text-lg font-bold text-foreground mb-4">举报游戏</h3>
         <div className="space-y-2 mb-4">
@@ -51,7 +54,12 @@ export function ReportDialog({ show, onClose, reason, setReason, reportSubmittin
             disabled={!reason || reportSubmitting}
             className="px-4 py-2 min-h-[44px] rounded-xl bg-red-500 text-white text-sm hover:bg-red-600 disabled:opacity-50 transition-opacity"
           >
-            {reportSubmitting ? "提交中..." : "提交举报"}
+            {reportSubmitting ? (
+              <span className="inline-flex items-center gap-2">
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                提交中…
+              </span>
+            ) : "提交举报"}
           </button>
         </div>
       </div>

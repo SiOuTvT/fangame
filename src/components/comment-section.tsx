@@ -95,6 +95,12 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
     if (file) handleFile(file)
   }, [])
 
+  // P2-7: 评论框自适应高度
+  function autoResize(textarea: HTMLTextAreaElement) {
+    textarea.style.height = "auto"
+    textarea.style.height = Math.min(textarea.scrollHeight, 200) + "px"
+  }
+
   function insertEmoji(emoji: string) {
     const textarea = textareaRef.current
     if (textarea) {
@@ -204,8 +210,9 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={previewUrl} alt="预览" className="h-20 w-20 rounded-lg object-cover ring-1 ring-white/10" />
                   <button type="button" onClick={removePreview}
-                    className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-zinc-700 text-zinc-300 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/80 hover:text-white">
-                    <X className="h-3 w-3" strokeWidth={2} />
+                    className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-zinc-700 text-zinc-300 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-red-500/80 hover:text-white"
+                    aria-label="移除图片">
+                    <X className="h-3.5 w-3.5" strokeWidth={2} />
                   </button>
                 </div>
               </div>
@@ -215,11 +222,27 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
             <textarea
               ref={textareaRef}
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={(e) => { setContent(e.target.value); autoResize(e.target) }}
               placeholder={isDragging ? "释放以添加图片…" : "写下你的想法…"}
               rows={2}
               className="w-full resize-none bg-transparent px-4 py-3 text-sm text-zinc-200 placeholder:text-zinc-600 outline-none"
+              style={{ minHeight: "3.5rem" }}
             />
+
+            {/* 错误提示 */}
+            {submitError && (
+              <div className="flex items-center gap-2 border-t border-white/[0.04] bg-red-500/5 px-4 py-2">
+                <span className="text-xs text-red-400">{submitError}</span>
+                <button type="button" onClick={() => submit({ preventDefault: () => {} } as React.FormEvent)}
+                  className="ml-auto text-xs font-medium text-red-400 hover:text-red-300 transition-colors underline underline-offset-2">
+                  重试
+                </button>
+                <button type="button" onClick={() => setSubmitError(null)}
+                  className="flex h-5 w-5 items-center justify-center rounded text-zinc-500 hover:text-zinc-300 transition-colors">
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            )}
 
             {/* 工具栏 */}
             <div className="flex items-center gap-1 border-t border-white/[0.04] px-2 py-1.5">
@@ -317,13 +340,13 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
                   {new Date(c.createdAt).toLocaleDateString("zh-CN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                 </span>
                 {currentUserId === c.user.id && (
-                  <div className="flex items-center gap-0.5 ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-0.5 ml-auto sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => deleteComment(c.id)}
-                      className="flex h-6 w-6 items-center justify-center rounded-md text-zinc-600 hover:bg-red-500/10 hover:text-red-400 transition-colors"
-                      title="删除"
+                      className="flex h-8 w-8 items-center justify-center rounded-md text-zinc-600 hover:bg-red-500/10 hover:text-red-400 transition-colors"
+                      aria-label="删除评论"
                     >
-                      <Trash2 className="h-3 w-3" strokeWidth={1.5} />
+                      <Trash2 className="h-4 w-4" strokeWidth={1.5} />
                     </button>
                   </div>
                 )}
@@ -337,10 +360,12 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
               )}
               <button onClick={() => isLoggedIn && likeComment(c.id)}
                 className={cn(
-                  "mt-1.5 flex items-center gap-1 text-[11px] transition-colors",
+                  "mt-1.5 flex items-center gap-1 rounded-md px-1.5 py-1 -mx-1.5 -my-1 text-[11px] transition-colors",
                   isLoggedIn ? "text-zinc-600 hover:text-blue-400 cursor-pointer" : "text-zinc-700 cursor-default"
-                )}>
-                <Heart className="h-3 w-3" strokeWidth={1.5} />
+                )}
+                aria-label={c.likeCount > 0 ? `${c.likeCount} 个赞` : "点赞"}
+              >
+                <Heart className="h-4 w-4" strokeWidth={1.5} />
                 {c.likeCount > 0 && c.likeCount}
               </button>
             </div>

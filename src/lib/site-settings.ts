@@ -1,59 +1,51 @@
-import { revalidateTag, unstable_cache } from "next/cache"
-import { prisma } from "./prisma"
+import { prisma } from "@/lib/prisma"
+import { unstable_cache } from "next/cache"
 
-export interface SiteSettings {
-  themeColor: string
-  themeRadius: number       // 0-30px
-  themeShadowIntensity: number // 0-100
-  themeAlpha: number        // 0-100, transparency for bg tints
-}
-
-const DEFAULT_SETTINGS: SiteSettings = {
-  themeColor: "#38BDF8",
-  themeRadius: 12,
-  themeShadowIntensity: 50,
-  themeAlpha: 15,
-}
-
-export const getSiteSettings = unstable_cache(
-  async (): Promise<SiteSettings> => {
+/**
+ * 获取站点配置值（带缓存）
+ * @param key 配置键名
+ * @param fallback 默认值
+ */
+export const getSiteSetting = unstable_cache(
+  async (key: string, fallback = ""): Promise<string> => {
     try {
-      const result = await prisma.$queryRaw`SELECT * FROM "SiteSetting" WHERE key = 'theme' LIMIT 1` as { key: string, value: string }[]
-      if (result.length > 0) {
-        try {
-          return { ...DEFAULT_SETTINGS, ...JSON.parse(result[0].value) }
-        } catch {
-          return DEFAULT_SETTINGS
-        }
-      }
-      return DEFAULT_SETTINGS
+      const setting = await prisma.siteSetting.findUnique({ where: { key } })
+      return setting?.value ?? fallback
     } catch {
-      return DEFAULT_SETTINGS
+      return fallback
     }
   },
-  ["site-settings"],
-  { tags: ["site-settings"], revalidate: 3600 }
+  ["site-setting"],
+  { revalidate: 60, tags: ["site-settings"] }
 )
 
-export async function updateSiteSettings(settings: Partial<SiteSettings>): Promise<SiteSettings> {
-  const current = await getSiteSettings()
-  const updated = { ...current, ...settings }
-  
-  try {
-    await prisma.$executeRaw`
-      INSERT INTO "SiteSetting" (key, value) 
-      VALUES ('theme', ${JSON.stringify(updated)})
-      ON CONFLICT (key) DO UPDATE SET value = ${JSON.stringify(updated)}
-    `
-  } catch {
-    await prisma.$executeRaw`CREATE TABLE IF NOT EXISTS "SiteSetting" (key TEXT PRIMARY KEY, value TEXT NOT NULL)`
-    await prisma.$executeRaw`
-      INSERT INTO "SiteSetting" (key, value) 
-      VALUES ('theme', ${JSON.stringify(updated)})
-      ON CONFLICT (key) DO UPDATE SET value = ${JSON.stringify(updated)}
-    `
+/**
+ * 获取默认占位图 URL，无自定义时返回 null
+ */
+export async function getDefaultPlaceholderImage(): Promise<string | null> {
+  const url = await getSiteSetting("default_placeholder_image", "")
+  return url || null
+}
+
+/**
+ * 获取所有站点配置（返回 key→value 映射）
+ */
+export async function getSiteSettings(): Promise<Record<string, string>> {
+  const settings = await prisma.siteSetting.findMany()
+  return Object.fromEntries(settings.map(s => [s.key, s.value]))
+}
+
+/**
+ * 批量更新站点配置
+ */
+export async function updateSiteSettings(data: Record<string, unknown>): Promise<Record<string, string>> {
+  const entries = Object.entries(data).filter(([k]) => typeof k === "string")
+  for (const [key, value] of entries) {
+    await prisma.siteSetting.upsert({
+      where: { key },
+      update: { value: String(value ?? "") },
+      create: { key, value: String(value ?? "") },
+    })
   }
-  
-  revalidateTag("site-settings", "soft")
-  return updated
+  return getSiteSettings()
 }

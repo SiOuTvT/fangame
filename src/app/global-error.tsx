@@ -24,7 +24,7 @@ export default function GlobalError({
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            minHeight: "100vh",
+            minHeight: "100dvh",
             fontFamily: "system-ui, -apple-system, sans-serif",
             background: "#0a0a0a",
             color: "#e5e5e5",

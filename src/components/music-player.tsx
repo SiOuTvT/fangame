@@ -1,8 +1,8 @@
 ﻿"use client"
 
-import { useState, useEffect, useRef } from "react"
-import { Play, Pause, SkipBack, SkipForward, Music2, Volume2, VolumeX } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
+import { Music2, Pause, Play, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 interface Track { id: string; title: string; url: string }
 
@@ -76,8 +76,10 @@ export function MusicPlayer() {
       )}>
         {/* 进度条 */}
         {expanded && (
-          <div className="h-0.5 w-full cursor-pointer bg-zinc-800" onClick={handleSeek}>
-            <div className="h-full bg-gradient-to-r from-blue-500 to-blue-500 transition-all" style={{ width: `${progress}%` }} />
+        <div className="h-3 w-full cursor-pointer bg-zinc-800 flex items-center" onClick={handleSeek}>
+            <div className="h-1 w-full bg-zinc-700 rounded-full overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-blue-500 to-blue-500 transition-all rounded-full" style={{ width: `${progress}%` }} />
+            </div>
           </div>
         )}
 
@@ -86,7 +88,7 @@ export function MusicPlayer() {
           <button
             onClick={() => setExpanded(v => !v)}
             className={cn(
-              "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-colors",
+              "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors",
               playing ? "text-blue-400" : "text-zinc-500 hover:text-zinc-300"
             )}
           >
@@ -103,17 +105,17 @@ export function MusicPlayer() {
 
               {/* 控制按钮 */}
               <div className="flex items-center gap-0.5">
-                <button onClick={prev} className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:text-zinc-200">
-                  <SkipBack className="h-3.5 w-3.5" strokeWidth={1.5} />
+                <button onClick={prev} className="flex h-10 w-10 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:text-zinc-200">
+                  <SkipBack className="h-4 w-4" strokeWidth={1.5} />
                 </button>
-                <button onClick={togglePlay} className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-300 transition-colors hover:text-white">
-                  {playing ? <Pause className="h-3.5 w-3.5" strokeWidth={1.5} /> : <Play className="h-3.5 w-3.5" strokeWidth={1.5} />}
+                <button onClick={togglePlay} className="flex h-10 w-10 items-center justify-center rounded-lg text-zinc-300 transition-colors hover:text-white">
+                  {playing ? <Pause className="h-4 w-4" strokeWidth={1.5} /> : <Play className="h-4 w-4" strokeWidth={1.5} />}
                 </button>
-                <button onClick={next} className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:text-zinc-200">
-                  <SkipForward className="h-3.5 w-3.5" strokeWidth={1.5} />
+                <button onClick={next} className="flex h-10 w-10 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:text-zinc-200">
+                  <SkipForward className="h-4 w-4" strokeWidth={1.5} />
                 </button>
-                <button onClick={() => setMuted(v => !v)} className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:text-zinc-200">
-                  {muted ? <VolumeX className="h-3.5 w-3.5" strokeWidth={1.5} /> : <Volume2 className="h-3.5 w-3.5" strokeWidth={1.5} />}
+                <button onClick={() => setMuted(v => !v)} className="flex h-10 w-10 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:text-zinc-200">
+                  {muted ? <VolumeX className="h-4 w-4" strokeWidth={1.5} /> : <Volume2 className="h-4 w-4" strokeWidth={1.5} />}
                 </button>
               </div>
             </>

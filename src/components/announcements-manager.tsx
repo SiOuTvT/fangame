@@ -3,15 +3,20 @@
 import { ImageUpload } from "@/components/image-upload"
 import { RichTextContent } from "@/components/rich-text-content"
 import { RichTextEditor } from "@/components/rich-text-editor"
-import { ChevronDown, ChevronUp, Eye, EyeOff, Loader2, Plus, Trash2 } from "lucide-react"
-import { useState } from "react"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { ChevronDown, ChevronUp, Eye, EyeOff, GripVertical, Loader2, Plus, Trash2 } from "lucide-react"
+import { useCallback, useRef, useState } from "react"
+import { toast } from "sonner"
 
 /** 去除 HTML 标签，返回纯文本 */
 function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim()
 }
 
-interface Ann { id: string; title: string; content: string; imageUrl: string; link: string; isActive: boolean; createdAt: string }
+interface Ann {
+  id: string; title: string; content: string; imageUrl: string;
+  link: string; isActive: boolean; sortOrder: number; createdAt: string
+}
 
 export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
   const [anns, setAnns] = useState(initialAnns)
@@ -22,6 +27,10 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
   const [adding, setAdding] = useState(false)
   const [error, setError] = useState("")
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [draggingId, setDraggingId] = useState<string | null>(null)
+  const [dragOverId, setDragOverId] = useState<string | null>(null)
+  const dragNodeRef = useRef<HTMLDivElement | null>(null)
 
   const inputCls = "w-full rounded-xl bg-muted px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring transition-all"
 
@@ -51,9 +60,73 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
   }
 
   async function deleteAnn(id: string) {
-    await fetch(`/api/admin/announcements/${id}`, { method: "DELETE" })
-    setAnns((prev) => prev.filter((a) => a.id !== id))
+    const res = await fetch(`/api/admin/announcements/${id}`, { method: "DELETE" })
+    if (res.ok) {
+      toast.success("公告已删除")
+      setAnns((prev) => prev.filter((a) => a.id !== id))
+    } else {
+      toast.error("删除失败")
+      throw new Error("删除失败")
+    }
   }
+
+  // --- Drag & Drop handlers ---
+  const handleDragStart = useCallback((e: React.DragEvent, id: string) => {
+    setDraggingId(id)
+    e.dataTransfer.effectAllowed = "move"
+    // store dragged element ref
+    dragNodeRef.current = e.currentTarget as HTMLDivElement
+    // slight delay to allow the browser to capture the drag image
+    setTimeout(() => {
+      if (dragNodeRef.current) dragNodeRef.current.style.opacity = "0.4"
+    }, 0)
+  }, [])
+
+  const handleDragEnd = useCallback(() => {
+    if (dragNodeRef.current) dragNodeRef.current.style.opacity = "1"
+    dragNodeRef.current = null
+    setDraggingId(null)
+    setDragOverId(null)
+  }, [])
+
+  const handleDragOver = useCallback((e: React.DragEvent, id: string) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "move"
+    setDragOverId(id)
+  }, [])
+
+  const handleDragLeave = useCallback(() => {
+    setDragOverId(null)
+  }, [])
+
+  const handleDrop = useCallback(async (e: React.DragEvent, targetId: string) => {
+    e.preventDefault()
+    setDragOverId(null)
+    if (!draggingId || draggingId === targetId) return
+
+    const dragIndex = anns.findIndex((a) => a.id === draggingId)
+    const targetIndex = anns.findIndex((a) => a.id === targetId)
+    if (dragIndex === -1 || targetIndex === -1) return
+
+    // Reorder locally
+    const newAnns = [...anns]
+    const [removed] = newAnns.splice(dragIndex, 1)
+    newAnns.splice(targetIndex, 0, removed)
+    setAnns(newAnns)
+
+    // Persist to server
+    const orderedIds = newAnns.map((a) => a.id)
+    try {
+      const res = await fetch("/api/admin/announcements/reorder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderedIds }),
+      })
+      if (!res.ok) toast.error("排序保存失败")
+    } catch {
+      toast.error("排序保存失败")
+    }
+  }, [draggingId, anns])
 
   return (
     <div className="space-y-4">
@@ -98,13 +171,31 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
       {/* 公告列表 */}
       <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden">
         <div className="border-b border-border px-4 py-3">
-          <p className="text-xs text-muted-foreground">共 {anns.length} 条公告</p>
+          <p className="text-xs text-muted-foreground">共 {anns.length} 条公告 · 拖拽排序</p>
         </div>
         <div className="divide-y divide-border">
           {anns.length === 0 && <p className="px-4 py-8 text-center text-sm text-muted-foreground">暂无公告</p>}
           {anns.map((ann) => (
-            <div key={ann.id} className="px-4 py-3 hover:bg-accent/50 transition-colors">
+            <div
+              key={ann.id}
+              draggable
+              onDragStart={(e) => handleDragStart(e, ann.id)}
+              onDragEnd={handleDragEnd}
+              onDragOver={(e) => handleDragOver(e, ann.id)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, ann.id)}
+              className={`px-4 py-3 hover:bg-accent/50 transition-colors ${
+                draggingId === ann.id ? "opacity-40" : ""
+              } ${dragOverId === ann.id && draggingId !== ann.id ? "border-t-2 border-blue-500" : ""}`}
+            >
               <div className="flex items-start justify-between gap-3">
+                {/* Drag handle */}
+                <div
+                  className="mt-1 flex shrink-0 cursor-grab active:cursor-grabbing touch-none items-center text-muted-foreground hover:text-foreground"
+                  title="拖拽排序"
+                >
+                  <GripVertical className="h-5 w-5" />
+                </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ${ann.isActive ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20" : "bg-muted text-muted-foreground ring-border"}`}>
@@ -140,7 +231,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                     className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
                     {ann.isActive ? <EyeOff className="h-5 w-5" strokeWidth={2} /> : <Eye className="h-5 w-5" strokeWidth={2} />}
                   </button>
-                  <button onClick={() => deleteAnn(ann.id)}
+                  <button onClick={() => setDeleteId(ann.id)}
                     className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-400">
                     <Trash2 className="h-5 w-5" strokeWidth={2} />
                   </button>
@@ -150,6 +241,15 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
           ))}
         </div>
       </div>
+      <ConfirmDialog
+        open={!!deleteId}
+        onOpenChange={v => !v && setDeleteId(null)}
+        title="删除公告"
+        description="确定要删除该公告吗？删除后用户将无法看到此公告。"
+        confirmText="删除"
+        variant="destructive"
+        onConfirm={() => deleteAnn(deleteId!)}
+      />
     </div>
   )
 }

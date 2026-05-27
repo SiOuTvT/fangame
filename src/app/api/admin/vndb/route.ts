@@ -1,5 +1,6 @@
 import { getAdminSession } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
+import { cleanTags } from "@/lib/vndb-tags"
 import { NextRequest, NextResponse } from "next/server"
 
 const VNDB_API = "https://api.vndb.org/kana"
@@ -147,9 +148,12 @@ export async function POST(req: NextRequest) {
     const rawDesc = vn.description ?? ""
     const cleanDesc = stripVndbMarkup(rawDesc)
 
-    /* ── 标签 ── */
-    const vnTags: { name: string }[] = vn.tags ?? []
-    const tagNames = vnTags.map((t: { name: string }) => t.name).filter(Boolean)
+    /* ── 标签（智能清洗：黑名单过滤 + 翻译 + 去重） ── */
+    const vnTags: { name: string; rating?: number }[] = vn.tags ?? []
+    const cleanedTagNames = cleanTags(
+      vnTags.map((t) => ({ name: t.name, rating: t.rating ?? 0.5 }))
+    )
+    const tagNames = cleanedTagNames
 
     // 查询已有标签，找出缺失的
     const existingTags = await prisma.tag.findMany({

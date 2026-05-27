@@ -10,7 +10,7 @@ export const metadata = { title: "公告管理 · 管理后台" }
 
 export default async function AdminAnnouncementsPage() {
   await requireAdmin()
-  const anns = await prisma.announcement.findMany({ orderBy: { createdAt: "desc" }, take: 100 })
+  const anns = await prisma.announcement.findMany({ orderBy: { sortOrder: "asc" }, take: 100 })
   const initial = anns.map(a => ({
     id: a.id,
     title: a.title,
@@ -18,6 +18,7 @@ export default async function AdminAnnouncementsPage() {
     imageUrl: a.imageUrl ?? "",
     link: a.link ?? "",
     isActive: a.isActive,
+    sortOrder: a.sortOrder,
     createdAt: a.createdAt.toISOString(),
   }))
 

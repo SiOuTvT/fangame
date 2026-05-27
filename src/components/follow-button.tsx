@@ -2,6 +2,7 @@
 
 import { Loader2, UserMinus, UserPlus } from "lucide-react"
 import { useState } from "react"
+import { toast } from "sonner"
 
 interface Props {
   targetUserId: string
@@ -20,9 +21,14 @@ export function FollowButton({ targetUserId, initialFollowing }: Props) {
       const res = await fetch(`/api/follow/${targetUserId}`, { method })
       if (res.ok) {
         setFollowing(!following)
+        toast.success(following ? "已取消关注" : "关注成功")
+      } else {
+        toast.error("操作失败，请稍后重试")
       }
     } catch {
-      // ignore
+      toast.error("网络错误", {
+        action: { label: "重试", onClick: () => toggle() },
+      })
     } finally {
       setLoading(false)
     }
@@ -32,7 +38,7 @@ export function FollowButton({ targetUserId, initialFollowing }: Props) {
     <button
       onClick={toggle}
       disabled={loading}
-      className={`inline-flex items-center gap-1.5 rounded-full px-5 py-2 text-xs font-semibold transition-all ${
+      className={`inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-semibold transition-all ${
         following
           ? "bg-secondary text-muted-foreground hover:bg-rose-500/10 hover:text-rose-400"
           : "bg-primary text-primary-foreground hover:opacity-90"

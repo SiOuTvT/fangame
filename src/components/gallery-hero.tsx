@@ -1,5 +1,6 @@
 "use client"
 
+import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { ChevronLeft, ChevronRight, Maximize2, Pause, Play, X } from "lucide-react"
 import Image from "next/image"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -19,18 +20,18 @@ interface GalleryHeroProps {
 export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIndex, onIndexChange }: GalleryHeroProps) {
   const [internalIndex, setInternalIndex] = useState(0)
   const activeIndex = controlledIndex ?? internalIndex
-  const setActiveIndex = useCallback((index: number | ((prev: number) => number)) => {
-    if (typeof index === "function") {
-      setInternalIndex(prev => {
-        const next = index(prev)
-        onIndexChange?.(next)
-        return next
-      })
-    } else {
-      setInternalIndex(index)
-      onIndexChange?.(index)
+  const setActiveIndex = useCallback((index: number) => {
+    setInternalIndex(index)
+  }, [])
+
+  // Notify parent of index changes outside of render to avoid setState-during-render
+  const prevInternalRef = useRef(internalIndex)
+  useEffect(() => {
+    if (prevInternalRef.current !== internalIndex) {
+      prevInternalRef.current = internalIndex
+      onIndexChange?.(internalIndex)
     }
-  }, [onIndexChange])
+  }, [internalIndex, onIndexChange])
   const [isPaused, setIsPaused] = useState(false)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -48,7 +49,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
     if (!hasMultipleImages || isPaused) return
     stopAutoPlay()
     timerRef.current = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % galleryImages.length)
+      setInternalIndex(prev => (prev + 1) % galleryImages.length)
     }, 4000)
   }, [hasMultipleImages, isPaused, stopAutoPlay, galleryImages.length])
 
@@ -85,6 +86,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
 
   // Lightbox 状态
   const [lightboxOpen, setLightboxOpen] = useState(false)
+  useBodyScrollLock(lightboxOpen)
 
   const openLightbox = useCallback(() => setLightboxOpen(true), [])
   const closeLightbox = useCallback(() => setLightboxOpen(false), [])
@@ -104,7 +106,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
     {/* Lightbox 弹层 */}
     {lightboxOpen && (
       <div
-        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm"
+        className="fixed inset-0 z-[100] touch-none flex items-center justify-center bg-black/90 backdrop-blur-sm"
         onClick={closeLightbox}
       >
         <button
@@ -159,13 +161,14 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
         src={activeImage}
         alt={`${gameTitle} - 预览 ${activeIndex + 1}`}
         fill
-        className="object-cover"
+        className="object-cover cursor-pointer"
         style={{ animation: "heroFadeIn 0.35s ease-out" }}
         draggable={false}
         sizes="(max-width: 1024px) 100vw, 62vw"
         quality={80}
         priority={activeIndex === 0}
         loading={activeIndex === 0 ? undefined : "lazy"}
+        onDoubleClick={openLightbox}
       />
 
       {/* 底部渐变遮罩 */}
@@ -180,7 +183,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); goPrev() }}
-            className="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 hover:scale-110 opacity-0 group-hover:opacity-100"
+            className="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 hover:scale-110 sm:opacity-0 sm:group-hover:opacity-100"
             style={{ background: "rgba(0,0,0,0.45)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)" }}
             aria-label="上一张"
           >
@@ -189,7 +192,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); goNext() }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 hover:scale-110 opacity-0 group-hover:opacity-100"
+            className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 hover:scale-110 sm:opacity-0 sm:group-hover:opacity-100"
             style={{ background: "rgba(0,0,0,0.45)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)" }}
             aria-label="下一张"
           >
@@ -202,7 +205,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); openLightbox() }}
-        className="absolute left-3 bottom-3 flex h-7 w-7 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 hover:scale-105 opacity-0 group-hover:opacity-100"
+        className="absolute left-3 bottom-3 flex h-7 w-7 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 hover:scale-105 sm:opacity-0 sm:group-hover:opacity-100"
         style={{ background: "rgba(0,0,0,0.45)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)" }}
         aria-label="放大查看"
       >
@@ -277,7 +280,7 @@ export function GalleryStrip({
           className="relative shrink-0 overflow-hidden transition-all duration-200 h-[48px] w-[85px] sm:h-[60px] sm:w-[106px] lg:h-[72px] lg:w-[128px]"
           style={{
             borderRadius: "8px",
-            border: i === activeIndex ? `2px solid var(--clr-blue)` : "2px solid transparent",
+            border: i === activeIndex ? `2px solid hsl(var(--primary))` : "2px solid transparent",
             opacity: i === activeIndex ? 1 : 0.45,
           }}
         >

@@ -1,5 +1,6 @@
 ﻿"use client"
 
+import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { cn } from "@/lib/utils"
 import { CheckCircle2, ChevronLeft, Heart, ImageIcon, MessageSquare, Plus, Send, Smile, Trash2, X } from "lucide-react"
 import Image from "next/image"
@@ -59,6 +60,9 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
   const [imageError, setImageError] = useState<string | null>(null)
   const commentInputRef = useRef<HTMLInputElement>(null)
 
+  const hasAnyModal = !!confirmAction || showNew || !!activePost
+  useBodyScrollLock(hasAnyModal)
+
   const filteredPosts = useMemo(() => {
     if (filter === "all") return posts
     return posts.filter(p => filter === "solved" ? p.isSolved : !p.isSolved)
@@ -72,10 +76,20 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
   }
 
   async function likePost(id: string) {
-    const res = await fetch(`/api/forum/posts/${id}/like`, { method: "POST" })
-    const data = await res.json()
-    setPosts(p => p.map(x => x.id === id ? { ...x, likeCount: data.likeCount } : x))
-    if (activePost?.id === id) setActivePost(p => p && { ...p, likeCount: data.likeCount })
+    // Optimistic: +1 立即生效，失败时回滚
+    const prev = posts.find(p => p.id === id)?.likeCount ?? 0
+    setPosts(p => p.map(x => x.id === id ? { ...x, likeCount: x.likeCount + 1 } : x))
+    if (activePost?.id === id) setActivePost(p => p && { ...p, likeCount: p.likeCount + 1 })
+    try {
+      const res = await fetch(`/api/forum/posts/${id}/like`, { method: "POST" })
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      setPosts(p => p.map(x => x.id === id ? { ...x, likeCount: data.likeCount } : x))
+      if (activePost?.id === id) setActivePost(p => p && { ...p, likeCount: data.likeCount })
+    } catch {
+      setPosts(p => p.map(x => x.id === id ? { ...x, likeCount: prev } : x))
+      if (activePost?.id === id) setActivePost(p => p && { ...p, likeCount: prev })
+    }
   }
 
   async function toggleSolve(id: string) {
@@ -312,7 +326,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
 
       {/* 确认弹窗 */}
       {confirmAction && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[60] touch-none flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="w-full max-w-sm rounded-2xl bg-zinc-900 light:bg-white p-5 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
             <p className="mb-4 text-sm text-zinc-300 light:text-zinc-700">{confirmAction.message}</p>
             <div className="flex justify-end gap-2">
@@ -481,7 +495,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                 <img src={commentImagePreview} alt="预览" className="h-16 w-16 rounded-lg object-cover ring-1 ring-white/10 light:ring-black/10" />
                 <button type="button" onClick={onRemoveCommentImage}
                   aria-label="移除图片"
-                  className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-zinc-700 light:bg-zinc-300 text-zinc-300 light:text-zinc-700 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/80 hover:text-white">
+                  className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-zinc-700 light:bg-zinc-300 text-zinc-300 light:text-zinc-700 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-red-500/80 hover:text-white">
                   <X className="h-2.5 w-2.5" strokeWidth={2} aria-hidden="true" />
                 </button>
               </div>

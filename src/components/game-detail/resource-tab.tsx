@@ -2,6 +2,7 @@
 
 import type { Creator, DownloadLink } from "@/types/game"
 import { Download, Heart } from "lucide-react"
+import { AddResourceDialog } from "./add-resource-dialog"
 
 interface ResourceTabProps {
   downloadLinks: DownloadLink[]
@@ -33,8 +34,7 @@ export function ResourceTab({
               href={dl.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-black transition-opacity hover:opacity-90"
-              style={{ backgroundColor: "var(--clr-blue)" }}
+              className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-primary-foreground bg-primary transition-opacity hover:opacity-90"
             >
               <Download className="w-4 h-4" strokeWidth={2.5} />
               {dl.label || "下载"}
@@ -45,14 +45,17 @@ export function ResourceTab({
         <p className="text-sm text-muted-foreground">暂无下载链接</p>
       )}
 
+      {/* 添加资源按钮 */}
+      <AddResourceDialog />
+
       {/* 收藏按钮 */}
       <button
         onClick={onToggleFav}
         disabled={!isLoggedIn}
         className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-medium transition-all disabled:opacity-50"
         style={{
-          backgroundColor: isFav ? "var(--clr-blue)" : "hsl(var(--secondary))",
-          color: isFav ? "#000" : "hsl(var(--muted-foreground))",
+          backgroundColor: isFav ? "hsl(var(--primary))" : "hsl(var(--secondary))",
+          color: isFav ? "hsl(var(--primary-foreground))" : "hsl(var(--muted-foreground))",
         }}
       >
         <Heart className="w-4 h-4" strokeWidth={2} fill={isFav ? "#000" : "none"} />
@@ -74,8 +77,7 @@ export function ResourceTab({
                   <img src={c.avatar} alt={c.name} className="h-10 w-10 rounded-full object-cover" />
                 ) : (
                   <div
-                    className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white"
-                    style={{ background: "linear-gradient(135deg, var(--clr-sky), var(--clr-blue))" }}
+                    className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold bg-primary text-primary-foreground"
                   >
                     {(c.nameJa || c.name)[0]}
                   </div>

@@ -400,7 +400,7 @@ export default function NotificationsClient({
                   {!selectMode && (
                     <button
                       onClick={() => deleteNotifications([n.id])}
-                      className="mt-1 shrink-0 rounded-lg p-1.5 text-zinc-600 opacity-0 transition-all group-hover:opacity-100 hover:text-red-400 light:text-zinc-400 light:hover:text-red-600"
+className="mt-1 shrink-0 rounded-lg p-1.5 text-zinc-600 sm:opacity-0 transition-all sm:group-hover:opacity-100 hover:text-red-400 light:text-zinc-400 light:hover:text-red-600"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>

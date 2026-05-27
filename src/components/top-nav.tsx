@@ -21,6 +21,7 @@ import { signOut, useSession } from "next-auth/react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
+import { toast } from "sonner"
 
 const MENU_ITEMS = [
   { icon: Layers,       label: "精选合集", href: "/collections" },
@@ -46,6 +47,7 @@ export function TopNav() {
   const [theme, setTheme]         = useState<"dark" | "light">("dark")
   const [nsfw, setNsfw]           = useState(false)
   const [checkedIn, setCheckedIn] = useState(false)
+  const [checkinLoading, setCheckinLoading] = useState(false)
   // 用于强制头像重新渲染的版本号
   const [avatarVersion, setAvatarVersion] = useState(0)
   // 本地覆盖的头像 URL（避免将 base64 存入 JWT cookie），从 localStorage 恢复
@@ -123,36 +125,28 @@ export function TopNav() {
   }
 
   function handleCheckin() {
-    if (checkedIn) return
+    if (checkedIn || checkinLoading) return
+    setCheckinLoading(true)
+    setUserOpen(false)
     fetch("/api/checkin", { method: "POST" })
       .then(r => r.json())
       .then(data => {
         if (data.ok || data.alreadyDone) {
           setCheckedIn(true)
+          toast.success("签到成功！积分 +1")
+        } else {
+          toast.error("签到失败，请稍后重试")
         }
       })
-      .catch(() => {})
-    setUserOpen(false)
+      .catch(() => { toast.error("签到失败，请稍后重试") })
+      .finally(() => { setCheckinLoading(false) })
   }
 
   return (
     <>
-      <header className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-colors duration-300 will-change-[background]",
-        theme === "dark"
-          ? "bg-zinc-950"
-          : "bg-white"
-      )}
-        style={{
-          boxShadow: theme === "dark"
-            ? "0 0 0 1px rgba(255,255,255,0.04), 0 1px 2px rgba(0,0,0,0.15)"
-            : "0 0 0 1px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.04)",
-        }}
-      >
-        <div className={cn(
-          "absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent",
-          theme === "dark" ? "via-white/[0.06]" : "via-black/[0.04]"
-        )} />
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background transition-colors duration-300 will-change-[background] border-b border-border">
+        {/* 顶部渐变高光线 */}
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/[0.06] to-transparent" />
 
         <button
           onClick={() => {
@@ -162,7 +156,7 @@ export function TopNav() {
               setForumOpen(v => !v)
             }
           }}
-          className="fixed top-0 left-0 z-[60] flex h-14 w-14 items-center justify-center text-zinc-500 transition-all hover:text-zinc-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40"
+          className="fixed top-0 left-0 z-[60] flex h-14 w-14 items-center justify-center text-muted-foreground transition-all hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <MessageSquare className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
         </button>
@@ -172,36 +166,17 @@ export function TopNav() {
         <div ref={menuRef} className="relative">
             <button
               onClick={() => setMenuOpen(v => !v)}
-              className={cn(
-                "group relative flex h-11 items-center pl-0 pr-[22px] lg:pr-[24px] rounded-full transition-all btn-spring focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
-                "text-zinc-500 hover:text-zinc-400"
-              )}
+              className="group relative flex h-11 items-center pl-0 pr-[22px] lg:pr-[24px] rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring text-muted-foreground hover:text-foreground"
             >
               {/* Hover circle: centered on icon, overflows left for visual balance */}
-              <span className="pointer-events-none absolute top-0 left-[11px] lg:left-[12px] h-11 w-11 -translate-x-1/2 rounded-full bg-zinc-500/10 opacity-0 transition-opacity group-hover:opacity-100" />
+              <span className="pointer-events-none absolute top-0 left-[11px] lg:left-[12px] h-11 w-11 -translate-x-1/2 rounded-full bg-muted opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
               <Menu className="relative z-10 h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
             </button>
             {menuOpen && (
-              <div className={cn(
-                "absolute left-0 top-full mt-2 w-48 overflow-hidden rounded-xl ring-1",
-                theme === "dark"
-                  ? "bg-zinc-900 ring-white/10"
-                  : "bg-white ring-black/10"
-              )}
-                style={{
-                  boxShadow: theme === "dark"
-                    ? "0 4px 16px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2)"
-                    : "0 4px 16px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)",
-                }}
-              >
+              <div className="absolute left-0 top-full mt-2 w-48 overflow-hidden rounded-xl bg-popover ring-1 ring-border shadow-lg">
                 {MENU_ITEMS.map(({ icon: Icon, label, href }) => (
                   <Link key={href} href={href} onClick={() => setMenuOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 px-4 py-3 text-sm transition-colors",
-                      theme === "dark"
-                        ? "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
-                        : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
-                    )}>
+                    className="flex items-center gap-3 px-4 py-3 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
                     <Icon className="h-5 w-5 shrink-0" strokeWidth={2} />
                     {label}
                   </Link>
@@ -211,19 +186,13 @@ export function TopNav() {
           </div>
 
           <div className="ml-auto flex items-center gap-2">
-            <Link href="/search" className={cn(
-              "flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
-              "text-zinc-500 hover:bg-zinc-500/10 hover:text-zinc-400"
-            )}>
+            <Link href="/search" className="flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring text-muted-foreground hover:bg-muted hover:text-foreground">
               <Search className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
             </Link>
 
             {user && <NotificationBell />}
 
-            <button onClick={toggleTheme} className={cn(
-              "flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
-              "text-zinc-500 hover:bg-zinc-500/10 hover:text-zinc-400"
-            )}>
+            <button onClick={toggleTheme} className="flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring text-muted-foreground hover:bg-muted hover:text-foreground">
               {theme === "light" ? <Sun className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} /> : <Moon className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />}
             </button>
 
@@ -231,10 +200,7 @@ export function TopNav() {
               <div ref={userRef} className="relative ml-1">
                 <button
                   onClick={() => setUserOpen(v => !v)}
-                  className={cn(
-                    "flex h-10 w-10 items-center justify-center overflow-hidden rounded-full ring-2 transition-all lg:h-10 lg:w-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
-                    "ring-zinc-500/30 hover:ring-zinc-400/50"
-                  )}
+                  className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full ring-2 ring-border transition-all hover:ring-foreground/30 lg:h-10 lg:w-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                     <AvatarFrame frameId={user.avatarFrame || "none"} size={40}>
                     {(localAvatar || user.image)
@@ -245,83 +211,59 @@ export function TopNav() {
                 </button>
 
                 {userOpen && (
-                  <div className={cn(
-                    "absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-xl ring-1",
-                    theme === "dark"
-                      ? "bg-zinc-900 ring-white/10"
-                      : "bg-white ring-black/10"
-                  )}
-                    style={{
-                      boxShadow: theme === "dark"
-                        ? "0 4px 16px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2)"
-                        : "0 4px 16px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)",
-                    }}
-                  >
-                    <div className={cn(
-                      "flex items-center gap-3 px-4 py-3",
-                      theme === "dark" ? "border-b border-white/[0.06]" : "border-b border-black/[0.06]"
-                    )}>
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white ring-1 ring-white/10">
+                  <div className="absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-xl bg-popover ring-1 ring-border shadow-lg">
+                    <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white ring-1 ring-border">
                         {(localAvatar || user.image)
                           ? <img src={`${(localAvatar || user.image)}${(localAvatar || user.image || '').includes('?') ? '&' : '?'}t=${avatarVersion}_${Date.now()}`} alt="" className="h-full w-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentText('beforeend', (user.name ?? "U")[0].toUpperCase()); }} />
                           : (user.name ?? "U")[0].toUpperCase()}
                       </div>
-                      <span className={cn(
-                        "truncate text-sm font-semibold",
-                        theme === "dark" ? "text-zinc-100" : "text-zinc-900"
-                      )}>{user.name}</span>
+                      <span className="truncate text-sm font-semibold text-foreground">{user.name}</span>
                     </div>
 
                     <Link href={`/profile/${user.id}`} onClick={() => setUserOpen(false)}
-                      className={cn(
-                        "flex items-center gap-3 px-4 py-2.5 text-sm transition-colors",
-                        theme === "dark"
-                          ? "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
-                          : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
-                      )}>
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
                       <User className="h-5 w-5 shrink-0" strokeWidth={2} />
                       用户主页
                     </Link>
 
-                    <button onClick={handleCheckin} disabled={checkedIn}
+                    <button onClick={handleCheckin} disabled={checkedIn || checkinLoading}
                       className={cn(
                         "flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors",
                         checkedIn
-                          ? "cursor-default text-zinc-600"
-                          : (theme === "dark" ? "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100" : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900")
+                          ? "cursor-default text-muted-foreground/50"
+                          : "text-muted-foreground hover:bg-accent hover:text-foreground"
                       )}>
-                      <CalendarCheck className="h-5 w-5 shrink-0" strokeWidth={2} />
-                      {checkedIn ? "今日已签到 ✓" : "每日签到"}
+                      {checkinLoading ? (
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      ) : (
+                        <CalendarCheck className="h-5 w-5 shrink-0" strokeWidth={2} />
+                      )}
+                      {checkinLoading ? "签到中…" : checkedIn ? "今日已签到 ✓" : "每日签到"}
                     </button>
 
                     <button onClick={toggleNsfw}
-                      className={cn(
-                        "flex w-full items-center justify-between px-4 py-2.5 text-sm transition-colors",
-                        theme === "dark"
-                          ? "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
-                          : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
-                      )}>
+                      className="flex w-full items-center justify-between px-4 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
                       <span className="flex items-center gap-3">
                         <ShieldAlert className="h-5 w-5 shrink-0" strokeWidth={2} />
                         NSFW 内容
                       </span>
-                      <div className={cn("relative h-5 w-9 rounded-full transition-colors", nsfw ? "bg-red-500/60" : (theme === "dark" ? "bg-zinc-700" : "bg-zinc-300"))}>
-                        <div className={cn("absolute top-0.5 h-4 w-4 rounded-full shadow transition-transform", nsfw ? "translate-x-4 bg-white" : (theme === "dark" ? "translate-x-0.5 bg-white" : "translate-x-0.5 bg-zinc-600"))} />
+                      <div className={cn("relative h-5 w-9 rounded-full transition-colors", nsfw ? "bg-red-500/60" : "bg-muted")}>
+                        <div className={cn("absolute top-0.5 h-4 w-4 rounded-full shadow transition-transform", nsfw ? "translate-x-4 bg-white" : "translate-x-0.5 bg-muted-foreground")} />
                       </div>
                     </button>
 
-                    <div className={cn(
-                      "border-t",
-                      theme === "dark" ? "border-white/[0.06]" : "border-black/[0.06]"
-                    )} />
+                    <div className="border-t border-border" />
 
-                    <button onClick={() => { setUserOpen(false); signOut({ callbackUrl: "/" }) }}
-                      className={cn(
-                        "flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors",
-                        theme === "dark"
-                          ? "text-red-400 hover:bg-zinc-800"
-                          : "text-red-600 hover:bg-zinc-100"
-                      )}>
+                    <button onClick={() => {
+                      setUserOpen(false)
+                      try {
+                        localStorage.clear()
+                        sessionStorage.clear()
+                      } catch {}
+                      signOut({ callbackUrl: "/" })
+                    }}
+                      className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-destructive transition-colors hover:bg-accent">
                       <LogOut className="h-5 w-5 shrink-0" strokeWidth={2} />
                       退出登录
                     </button>
@@ -330,10 +272,7 @@ export function TopNav() {
               </div>
             ) : (
               <div className="ml-1">
-                <Link href="/login" className={cn(
-                  "rounded-full px-4 py-1.5 text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
-                  "text-zinc-500 hover:text-zinc-400"
-                )}>
+                <Link href="/login" className="inline-flex h-10 items-center justify-center rounded-full px-5 text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring text-muted-foreground hover:text-foreground">
                   登录
                 </Link>
               </div>
@@ -344,79 +283,50 @@ export function TopNav() {
 
       {forumOpen && (
         <div
-          className={cn(
-            "fixed inset-0 z-40 backdrop-blur-sm fade-in lg:hidden",
-            theme === "dark" ? "bg-black/40" : "bg-white/40"
-          )}
+          className="fixed inset-0 z-40 backdrop-blur-sm fade-in lg:hidden bg-black/40 touch-none"
           onClick={() => setForumOpen(false)}
         />
       )}
 
       <aside className={cn(
-        "fixed top-14 z-40 flex h-[calc(100vh-3.5rem)] flex-col backdrop-blur-sm transition-all duration-300 ease-out",
+        "fixed top-14 z-40 flex h-[calc(100dvh-3.5rem)] flex-col backdrop-blur-sm transition-all duration-300 ease-out",
         "lg:left-0 lg:translate-x-0",
         forumOpen ? "lg:w-[240px]" : "lg:w-0 lg:border-r-0 lg:overflow-hidden",
         "left-0 w-full",
         forumOpen ? "translate-x-0 sidebar-enter" : "-translate-x-full sidebar-exit",
-        theme === "dark"
-          ? "bg-gradient-to-b from-zinc-950 via-zinc-950/98 to-zinc-900/95 border-r border-white/[0.08]"
-          : "bg-gradient-to-b from-white via-white/98 to-zinc-50/95 border-r border-black/[0.08]",
+        "bg-background border-r border-border",
       )}
         style={{
           boxShadow: forumOpen
-            ? (theme === "dark" ? "4px 0 24px rgba(0,0,0,0.4), 8px 0 48px rgba(0,0,0,0.2)" : "4px 0 24px rgba(0,0,0,0.1), 8px 0 48px rgba(0,0,0,0.05)")
+            ? "4px 0 24px rgba(0,0,0,0.15), 8px 0 48px rgba(0,0,0,0.08)"
             : "none",
         }}
       >
         {forumOpen && (
-          <div className={cn(
-            "absolute inset-y-0 left-0 w-px bg-gradient-to-b via-transparent",
-            theme === "dark" ? "from-white/10 to-black/20" : "from-black/5 to-white/20"
-          )} />
+          <div className="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-border via-transparent to-transparent" />
         )}
-        <div className={cn(
-          "flex items-center justify-between border-b px-5 py-4",
-          theme === "dark"
-            ? "border-white/[0.08] bg-zinc-900/50"
-            : "border-black/[0.08] bg-zinc-100/50"
-        )}>
-          <span className={cn(
-            "text-sm font-semibold",
-            theme === "dark" ? "text-zinc-200" : "text-zinc-900"
-          )}>论坛动态</span>
-          <button onClick={() => setForumOpen(false)} className={cn(
-            "transition-all hover:rotate-90",
-            theme === "dark" ? "text-zinc-500 hover:text-zinc-300" : "text-zinc-500 hover:text-zinc-800"
-          )}>
+        <div className="flex items-center justify-between border-b border-border px-5 py-4 bg-muted/50">
+          <span className="text-sm font-semibold text-foreground">论坛动态</span>
+          <button onClick={() => setForumOpen(false)} className="text-muted-foreground transition-all hover:rotate-90 hover:text-foreground">
             <X className="h-5 w-5" strokeWidth={2.5} />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-3">
-          <ForumSidebarPosts theme={theme} />
-        </div>
-        <div className={cn(
-          "border-t p-4",
-          theme === "dark"
-            ? "border-white/[0.08] bg-zinc-900/50"
-            : "border-black/[0.08] bg-zinc-100/50"
-        )}>
+        <div className="border-b border-border p-3 bg-muted/50">
           <Link href="/forum" onClick={() => setForumOpen(false)}
-            className={cn(
-              "flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-all",
-              theme === "dark"
-                ? "bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100"
-                : "bg-zinc-200 text-zinc-700 hover:bg-zinc-300 hover:text-zinc-900"
-            )}>
+            className="flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-all bg-secondary text-secondary-foreground hover:bg-accent hover:text-foreground">
             <MessageSquare className="h-5 w-5" strokeWidth={2} />
             进入求档区
           </Link>
+        </div>
+        <div className="flex-1 overflow-y-auto p-3">
+          <ForumSidebarPosts />
         </div>
       </aside>
     </>
   )
 }
 
-function ForumSidebarPosts({ theme }: { theme: "dark" | "light" }) {
+function ForumSidebarPosts() {
   const [posts, setPosts] = useState<{ id: string; title: string; user: { username: string } }[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -427,19 +337,16 @@ function ForumSidebarPosts({ theme }: { theme: "dark" | "light" }) {
       .catch(() => setLoading(false))
   }, [])
 
-  if (loading) return <p className={cn("p-4 text-xs", theme === "dark" ? "text-zinc-600" : "text-zinc-600")}>加载中…</p>
-  if (!posts.length) return <p className={cn("p-4 text-xs", theme === "dark" ? "text-zinc-600" : "text-zinc-600")}>暂无帖子，来发第一帖吧~</p>
+  if (loading) return <p className="p-4 text-xs text-muted-foreground">加载中…</p>
+  if (!posts.length) return <p className="p-4 text-xs text-muted-foreground">暂无帖子，来发第一帖吧~</p>
 
   return (
     <div className="space-y-0.5">
       {posts.map(p => (
         <Link key={p.id} href="/forum"
-          className={cn(
-            "block w-full rounded-lg px-3 py-2.5 text-left transition-colors",
-            theme === "dark" ? "hover:bg-zinc-800/60" : "hover:bg-zinc-200/60"
-          )}>
-          <p className={cn("mb-0.5 text-[10px]", theme === "dark" ? "text-zinc-600" : "text-zinc-600")}>{p.user.username}</p>
-          <p className={cn("line-clamp-2 text-xs font-medium", theme === "dark" ? "text-zinc-400" : "text-zinc-700")}>{p.title}</p>
+          className="block w-full rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-accent">
+          <p className="mb-0.5 text-[10px] text-muted-foreground">{p.user.username}</p>
+          <p className="line-clamp-2 text-xs font-medium text-foreground">{p.title}</p>
         </Link>
       ))}
     </div>

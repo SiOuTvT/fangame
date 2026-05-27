@@ -1,6 +1,7 @@
 import { LayoutWrapper } from "@/components/layout-wrapper"
 import { Providers } from "@/components/providers"
 import { ThemeScript } from "@/components/theme-script"
+import { auth } from "@/lib/auth"
 import type { Metadata, Viewport } from "next"
 import NextTopLoader from "nextjs-toploader"
 import "./globals.css"
@@ -8,6 +9,8 @@ import "./globals.css"
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  maximumScale: 1,
+  viewportFit: "cover",
 }
 
 export const metadata: Metadata = {
@@ -39,13 +42,16 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const session = await auth()
+  const isAdmin = (session?.user as any)?.role === "ADMIN"
+
   return (
     <html lang="zh-CN" className="h-full antialiased" suppressHydrationWarning>
       <head>
         <ThemeScript />
       </head>
-      <body className="min-h-full bg-background text-foreground">
+      <body className="min-h-full overflow-x-hidden bg-background text-foreground">
         <NextTopLoader
           color="var(--primary)"
           initialPosition={0.08}
@@ -59,7 +65,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           zIndex={9999}
         />
         <Providers>
-          <LayoutWrapper>
+          <LayoutWrapper isAdmin={isAdmin}>
             {children}
           </LayoutWrapper>
         </Providers>

@@ -9,6 +9,7 @@
  * 缓存策略：优先使用 Redis（Upstash），未配置时降级为内存缓存
  */
 import { cache, cached, cacheKey } from "./redis"
+import { cleanTags } from "./vndb-tags"
 
 interface VNDBCharacter {
   id: string
@@ -627,11 +628,10 @@ class VNDBClient {
       
       if (!vn) return null
 
-      // 提取标签
-      const tags = vn.tags
-        ?.filter(t => t.rating > 0)
-        .map(t => t.name)
-        .slice(0, 10) || []
+      // 提取标签（智能清洗：黑名单过滤 + 翻译 + 去重）
+      const tags = cleanTags(
+        (vn.tags || []).map(t => ({ name: t.name, rating: t.rating }))
+      ).slice(0, 10)
 
       // 提取创作者信息
       const creators = vn.developers

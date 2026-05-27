@@ -1,12 +1,8 @@
+import { AdminGamesTable } from "@/components/admin-games-table"
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
-import { Download, Pencil, Plus, Search } from "lucide-react"
-import dynamic from "next/dynamic"
+import { Download, Plus, Search } from "lucide-react"
 import Link from "next/link"
-
-const AdminGameDeleteBtn = dynamic(() => import("@/components/admin-game-delete-btn").then(m => ({ default: m.AdminGameDeleteBtn })), {
-  loading: () => <div className="h-8 w-8 animate-pulse rounded-lg bg-muted" />,
-})
 
 export default async function AdminGamesPage({
   searchParams,
@@ -74,62 +70,7 @@ export default async function AdminGamesPage({
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl bg-card ring-1 ring-border">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border bg-muted/30 text-left text-xs text-muted-foreground">
-                <th className="px-5 py-3.5 font-semibold tracking-wide">游戏名称</th>
-                <th className="hidden px-5 py-3.5 font-semibold tracking-wide sm:table-cell">标签</th>
-                <th className="px-5 py-3.5 font-semibold tracking-wide">状态</th>
-                <th className="hidden px-5 py-3.5 font-semibold tracking-wide md:table-cell">浏览</th>
-                <th className="px-5 py-3.5 font-semibold tracking-wide text-right">操作</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/50">
-              {games.map((g) => (
-                <tr key={g.id} className="group transition-colors hover:bg-accent/30">
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-foreground line-clamp-1">{g.title}</span>
-                      {g.isNsfw && (
-                        <span className="shrink-0 rounded px-1.5 py-0.5 text-[9px] font-semibold bg-red-500/10 text-red-400 ring-1 ring-red-500/20">R18</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="hidden px-5 py-3.5 sm:table-cell">
-                    <div className="flex flex-wrap gap-1">
-                      {g.tags.slice(0, 3).map(({ tag }) => (
-                        <span key={tag.name} className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium leading-none"
-                          style={{ color: tag.color, background: `${tag.color}18`, outline: `1px solid ${tag.color}30` }}>
-                          {tag.name}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-none ${g.isPublished ? "bg-emerald-500/10 text-emerald-400" : "bg-muted text-muted-foreground"}`}>
-                      {g.isPublished ? "已发布" : "草稿"}
-                    </span>
-                  </td>
-                  <td className="hidden px-5 py-3.5 text-xs text-muted-foreground tabular-nums md:table-cell">{g.viewCount?.toLocaleString() ?? 0}</td>
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <Link
-                        href={`/admin/games/${g.id}`}
-                        className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-foreground"
-                      >
-                        <Pencil className="h-3.5 w-3.5" strokeWidth={2} />编辑
-                      </Link>
-                      <AdminGameDeleteBtn id={g.id} title={g.title} />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <AdminGamesTable games={games} />
 
       {/* 分页 */}
       {totalPages > 1 && (

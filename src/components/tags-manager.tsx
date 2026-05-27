@@ -151,6 +151,7 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
               <>
                 <div className="h-3 w-3 shrink-0 rounded-full" style={{ background: editColor }} />
                 <input value={editName} onChange={e => setEditName(e.target.value)}
+                  placeholder="标签名称"
                   className="flex-1 rounded-lg bg-secondary px-3 py-1.5 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring" />
                 <select
                   value={editGroupId}
@@ -175,6 +176,8 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
                   {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : "保存"}
                 </button>
                 <button onClick={() => setEditing(null)}
+                  title="取消编辑"
+                  aria-label="取消编辑"
                   className="shrink-0 rounded-lg bg-secondary px-2 py-1.5 text-muted-foreground hover:text-foreground transition-colors">
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -190,10 +193,14 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
                 )}
                 <span className="shrink-0 text-xs text-muted-foreground">{tag.gameCount} 个游戏</span>
                 <button onClick={() => { setEditing(tag.id); setEditName(tag.name); setEditColor(tag.color); setEditGroupId(tag.groupId ?? "") }}
+                  title="编辑标签"
+                  aria-label="编辑标签"
                   className="shrink-0 rounded-lg bg-secondary p-1.5 text-muted-foreground hover:text-foreground transition-colors">
                   <Pencil className="h-3.5 w-3.5" />
                 </button>
                 <button onClick={() => handleDelete(tag.id)}
+                  title="删除标签"
+                  aria-label="删除标签"
                   className="shrink-0 rounded-lg bg-secondary p-1.5 text-muted-foreground hover:text-red-400 transition-colors">
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>

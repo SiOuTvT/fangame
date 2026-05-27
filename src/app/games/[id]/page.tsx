@@ -2,6 +2,8 @@ import { GameBreadcrumb } from "@/components/game-breadcrumb"
 import GameDetailClient from "@/components/game-detail-client"
 import { GameDetailTopClient } from "@/components/game-detail-top-client"
 import { GameGallery } from "@/components/game-gallery"
+import { RelatedGames } from "@/components/related-games"
+import { SafeImage } from "@/components/safe-image"
 import { auth } from "@/lib/auth"
 import { parseFileSizes, parseStringArray, safeParse } from "@/lib/parse-utils"
 import { prisma } from "@/lib/prisma"
@@ -66,6 +68,22 @@ export default async function GameDetailPage({
   }
 
   const tags = game.tags.map((t) => t.tag)
+
+  // 相关游戏推荐：按共同标签匹配
+  const tagNames = tags.map((t) => t.name)
+  const relatedGames =
+    tagNames.length > 0
+      ? await prisma.game.findMany({
+          where: {
+            id: { not: id },
+            isPublished: true,
+            tags: { some: { tag: { name: { in: tagNames } } } },
+          },
+          select: { id: true, title: true, coverImage: true, originalWork: true },
+          orderBy: { favoriteCount: "desc" },
+          take: 8,
+        })
+      : []
   const screenshots = safeParse<string[]>(game.screenshots, [])
   const downloadLinks = safeParse<{ label: string; url: string }[]>(game.downloadLinks, [])
 
@@ -144,8 +162,8 @@ export default async function GameDetailPage({
             style={{
               minHeight: "auto",
               borderRadius: "16px",
-              background: "hsl(var(--card))",
-              border: "1px solid hsl(var(--border))",
+              background: "var(--card)",
+              border: "1px solid var(--border)",
               boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
               overflow: "hidden",
             }}
@@ -160,7 +178,7 @@ export default async function GameDetailPage({
                 }}
               >
                 {game.coverImage ? (
-                  <Image
+                  <SafeImage
                     src={game.coverImage}
                     alt={game.title}
                     fill
@@ -315,6 +333,8 @@ export default async function GameDetailPage({
             studioName={game.studioName ?? undefined}
           />
       </div>
+
+      <RelatedGames games={relatedGames} />
     </div>
   )
 }

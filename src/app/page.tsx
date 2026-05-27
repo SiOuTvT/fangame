@@ -4,6 +4,7 @@ import { GameGridClient } from "@/components/game-grid-client"
 import { RandomCharacterBtn, RandomCreatorBtn } from "@/components/random-discover-btns"
 import { buildGameSearchFilter } from "@/lib/filters"
 import { prisma } from "@/lib/prisma"
+import { getSiteSetting } from "@/lib/site-settings"
 import { Suspense } from "react"
 
 function GameGridSkeleton() {
@@ -37,7 +38,12 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
     return <GameGridClient initialGames={[]} total={0} tag={tag} q={q} nsfw={nsfw} />
   }
 
-  const mapped = games.map((g) => ({ ...g, tags: g.tags.map((t) => t.tag) }))
+  const placeholder = await getSiteSetting("default_placeholder_image")
+  const mapped = games.map((g) => ({
+    ...g,
+    coverImage: g.coverImage || placeholder,
+    tags: g.tags.map((t) => t.tag),
+  }))
 
   return <GameGridClient initialGames={mapped} total={total} tag={tag} q={q} nsfw={nsfw} />
 }

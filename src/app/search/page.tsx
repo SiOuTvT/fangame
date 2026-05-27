@@ -2,7 +2,7 @@ import { GameCard, GameCardSkeleton } from "@/components/game-card"
 import { SearchBar } from "@/components/search-bar"
 import { TagCloud } from "@/components/tag-cloud"
 import { prisma } from "@/lib/prisma"
-import { ChevronDown, Clock, Heart, TrendingUp } from "lucide-react"
+import { ChevronDown, Clock, Heart, TrendingUp, X } from "lucide-react"
 import Link from "next/link"
 import { Suspense } from "react"
 
@@ -55,15 +55,45 @@ async function SearchResults({
   })
 
   if (!games.length) {
+    // 搜索无结果时推荐热门游戏
+    const recommended = await prisma.game.findMany({
+      where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) },
+      orderBy: { viewCount: "desc" },
+      take: 8,
+      select: {
+        id: true, title: true, coverImage: true, status: true,
+        isNsfw: true, favoriteCount: true, viewCount: true,
+        downloadCount: true, platform: true, language: true, fileSize: true,
+        updatedAt: true, createdAt: true,
+        tags: { select: { tag: { select: { name: true, color: true } } } },
+      },
+    })
+
     return (
-      <div className="py-16 text-center">
-        <p className="text-sm text-zinc-500">
+      <div className="py-10 text-center">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-zinc-800/50">
+          <span className="text-3xl">🔍</span>
+        </div>
+        <p className="text-sm font-medium text-zinc-300">
           {q ? `没有找到与「${q}」相关的游戏` : "没有符合条件的游戏"}
         </p>
+        <p className="mt-1 text-xs text-zinc-500">
+          试试换个关键词，或浏览下方推荐
+        </p>
         {q && (
-          <Link href="/search" className="mt-3 inline-block text-xs text-zinc-600 hover:text-zinc-400 transition-colors">
+          <Link href="/search" className="mt-3 inline-block rounded-lg px-4 py-1.5 text-xs text-zinc-400 ring-1 ring-zinc-700 transition-colors hover:text-zinc-200 hover:ring-zinc-500">
             清除搜索条件
           </Link>
+        )}
+        {recommended.length > 0 && (
+          <div className="mt-8 text-left">
+            <h3 className="mb-3 text-sm font-semibold text-zinc-300">🔥 热门推荐</h3>
+            <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 md:grid-cols-4 items-stretch">
+              {recommended.map((game) => (
+                <GameCard key={game.id} game={{ ...game, tags: game.tags.map((t: any) => t.tag) }} />
+              ))}
+            </div>
+          </div>
         )}
       </div>
     )
@@ -121,6 +151,15 @@ export default async function SearchPage({
         {/* 标签云（折叠） */}
       <TagCloud tags={tags} activeTag={tag} buildHref={buildHref} />
 
+      {/* 清除筛选 */}
+      {(q || tag || sort !== "newest" || nsfw) && (
+        <Link href="/search"
+          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-zinc-500 ring-1 ring-zinc-800 transition-colors hover:text-zinc-300 hover:ring-zinc-600">
+          <X className="h-3 w-3" strokeWidth={2} />
+          清除筛选
+        </Link>
+      )}
+
       {/* 排序 + 结果标题 */}
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-zinc-300">
@@ -152,15 +191,12 @@ export default async function SearchPage({
           ))}
         </div>
         {/* 移动端：下拉排序 */}
-        <div className="sm:hidden relative group">
-          <Link
-            href={buildHref({ sort: sort })}
-            className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-zinc-400 bg-zinc-800/50"
-          >
+        <details className="sm:hidden relative">
+          <summary className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-zinc-400 bg-zinc-800/50 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
             {SORT_OPTIONS.find(o => o.key === sort)?.label ?? "排序"}
             <ChevronDown className="h-3 w-3" strokeWidth={1.5} />
-          </Link>
-          <div className="absolute right-0 top-full z-50 mt-1 hidden group-hover:block w-28 overflow-hidden rounded-lg py-1 shadow-lg bg-zinc-900 border border-zinc-800">
+          </summary>
+          <div className="absolute right-0 top-full z-50 mt-1 w-28 overflow-hidden rounded-lg py-1 shadow-lg bg-zinc-900 border border-zinc-800">
             {SORT_OPTIONS.map(({ key, label }) => (
               <Link
                 key={key}
@@ -174,7 +210,7 @@ export default async function SearchPage({
               </Link>
             ))}
           </div>
-        </div>
+        </details>
       </div>
 
       {/* 结果网格 */}

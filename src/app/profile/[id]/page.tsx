@@ -87,13 +87,13 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
   else if (totalActivity >= 3) lv = 3
 
   return (
-    <div>
+    <div className="flex flex-col">
       <BreadcrumbSetter segment={id} label={user.username} />
       {/* 双栏布局：左窄右宽，两侧等高 */}
-      <div className="flex lg:flex-row flex-col items-stretch min-w-0 gap-4 lg:gap-0">
+      <div className="flex lg:flex-row flex-col items-stretch min-w-0 gap-4 lg:gap-0 flex-1">
 
         {/* ====== 左侧：用户信息（移动端在上方显示） ====== */}
-        <aside className="w-full lg:w-[320px] lg:shrink-0 min-w-0 order-1 lg:order-none">
+        <aside className="w-full lg:w-[380px] lg:shrink-0 min-w-0 order-1 lg:order-none">
           <div className="flex flex-col gap-4">
 
             {/* 上层主卡片 - 身份区 */}
@@ -102,24 +102,24 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
 
               {/* Banner */}
               {user.banner && (
-                <div className="h-28 w-full bg-cover bg-center" style={{ backgroundImage: `url(${user.banner})` }} />
+                <div className="h-36 w-full bg-cover bg-center" style={{ backgroundImage: `url(${user.banner})` }} />
               )}
 
-              <div className="px-6 py-6 flex flex-col items-center text-center">
+              <div className="px-6 py-8 flex flex-col items-center text-center">
 
                 {/* 头像（居中） */}
-                <div className={user.banner ? "-mt-16 mb-4" : "mb-4"}>
-                  <AvatarFrame frameId={(user as any).avatarFrame || "none"} size={96}>
+                <div className={user.banner ? "-mt-22 mb-5" : "mb-5"}>
+                  <AvatarFrame frameId={(user as any).avatarFrame || "none"} size={130}>
                     {user.avatar ? (
                       <SafeAvatar
                         src={user.avatar}
                         alt={user.username}
-                        size={96}
+                        size={130}
                         className="h-full w-full"
                       />
                     ) : (
                       <div
-                        className="flex h-full w-full items-center justify-center rounded-full text-3xl font-bold text-white"
+                        className="flex h-full w-full items-center justify-center rounded-full text-[2.8rem] font-bold text-white"
                         style={{ backgroundColor: getRandomAvatarColor(user.username) }}
                       >
                         {user.username[0].toUpperCase()}
@@ -129,15 +129,15 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                 </div>
 
                 {/* 用户名 */}
-                <h1 className="text-xl font-bold text-foreground tracking-tight">{user.username}</h1>
+                <h1 className="text-2xl font-bold text-foreground tracking-tight">{user.username}</h1>
 
                 {/* 个性签名 */}
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed line-clamp-2 px-2">
+                <p className="mt-3 text-sm text-muted-foreground leading-relaxed line-clamp-3 px-4">
                   {user.bio || "这个人很懒，什么都没留下。"}
                 </p>
 
                 {/* 关注 / 粉丝（增加间距） */}
-                <div className="mt-5 flex items-center justify-center gap-10">
+                <div className="mt-6 flex items-center justify-center gap-12">
                   <div className="flex flex-col items-center">
                     <span className="text-lg font-bold text-foreground">{user._count.following}</span>
                     <span className="text-xs text-muted-foreground mt-0.5">关注</span>
@@ -149,25 +149,25 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                 </div>
 
                 {/* 收藏 / 评论 / 玩过（带图标，间距增大） */}
-                <div className="mt-5 flex items-center justify-center gap-8">
-                  <div className="flex flex-col items-center gap-1">
+                <div className="mt-6 flex items-center justify-center gap-10">
+                  <div className="flex flex-col items-center gap-1.5">
                     <div className="flex items-center gap-1.5">
-                      <Bookmark className="h-3.5 w-3.5 text-primary" strokeWidth={2.5} />
-                      <span className="text-base font-bold text-foreground">{allFavGames.length}</span>
+                      <Bookmark className="h-4 w-4 text-primary" strokeWidth={2.5} />
+                      <span className="text-lg font-bold text-foreground">{allFavGames.length}</span>
                     </div>
                     <span className="text-[11px] text-muted-foreground">收藏</span>
                   </div>
-                  <div className="flex flex-col items-center gap-1">
+                  <div className="flex flex-col items-center gap-1.5">
                     <div className="flex items-center gap-1.5">
-                      <MessageSquare className="h-3.5 w-3.5 text-primary" strokeWidth={2.5} />
-                      <span className="text-base font-bold text-foreground">{user.comments.length}</span>
+                      <MessageSquare className="h-4 w-4 text-primary" strokeWidth={2.5} />
+                      <span className="text-lg font-bold text-foreground">{user.comments.length}</span>
                     </div>
                     <span className="text-[11px] text-muted-foreground">评论</span>
                   </div>
-                  <div className="flex flex-col items-center gap-1">
+                  <div className="flex flex-col items-center gap-1.5">
                     <div className="flex items-center gap-1.5">
-                      <Gamepad2 className="h-3.5 w-3.5 text-primary" strokeWidth={2.5} />
-                      <span className="text-base font-bold text-foreground">{user.playStatuses.length}</span>
+                      <Gamepad2 className="h-4 w-4 text-primary" strokeWidth={2.5} />
+                      <span className="text-lg font-bold text-foreground">{user.playStatuses.length}</span>
                     </div>
                     <span className="text-[11px] text-muted-foreground">玩过</span>
                   </div>
@@ -175,7 +175,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
 
                 {/* 关注按钮（非本人时显示） */}
                 {!isSelf && session?.user && (
-                  <div className="mt-5">
+                  <div className="mt-6">
                     <FollowButton targetUserId={id} initialFollowing={isFollowing} />
                   </div>
                 )}
@@ -227,9 +227,9 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
         </aside>
 
         {/* ====== 右侧：内容 Tab（移动端在下方显示） ====== */}
-        <main className="w-full lg:w-[calc(100%-336px)] lg:shrink-0 flex flex-col lg:ml-4 min-w-0 order-2 lg:order-none">
-          <div className="flex-1 rounded-2xl bg-card ring-1 ring-border overflow-y-auto"
-            style={{ boxShadow: 'none', maxHeight: 'calc(100vh - 120px)' }}>
+        <main className="w-full lg:w-[calc(100%-396px)] lg:shrink-0 flex flex-col lg:ml-4 min-w-0 order-2 lg:order-none">
+          <div className="rounded-2xl bg-card ring-1 ring-border h-full"
+            style={{ boxShadow: 'none' }}>
             <ProfileContentTabs
               favGames={favGames}
               playStatusGames={playStatusGames}

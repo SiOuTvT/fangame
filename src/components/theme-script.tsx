@@ -1,11 +1,35 @@
 /**
  * Inline script to prevent flash of wrong theme color.
  * Reads from localStorage and applies CSS variables before React hydrates.
+ * Also handles dark/light mode: follows system preference on first visit,
+ * then respects user's explicit choice from localStorage.
  */
 export function ThemeScript() {
   const script = `
     (function() {
       try {
+        var root = document.documentElement;
+        
+        // ── Dark/Light mode: follow system if no explicit choice ──
+        var storedMode = localStorage.getItem('theme');
+        if (storedMode === 'light') {
+          root.classList.remove('dark');
+          root.classList.add('light');
+        } else if (storedMode === 'dark') {
+          root.classList.remove('light');
+          root.classList.add('dark');
+        } else {
+          // No stored preference → follow system
+          var prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+          if (prefersLight) {
+            root.classList.remove('dark');
+            root.classList.add('light');
+          } else {
+            root.classList.remove('light');
+            root.classList.add('dark');
+          }
+        }
+        
         var raw = localStorage.getItem('site-theme-settings');
         var settings = raw ? JSON.parse(raw) : null;
         var color = settings ? settings.themeColor : localStorage.getItem('site-theme-color');
@@ -14,7 +38,6 @@ export function ThemeScript() {
         var r = parseInt(color.substring(0, 2), 16);
         var g = parseInt(color.substring(2, 4), 16);
         var b = parseInt(color.substring(4, 6), 16);
-        var root = document.documentElement;
         var radius = settings ? settings.themeRadius : 12;
         var shadowIntensity = settings ? settings.themeShadowIntensity : 50;
         var alpha = settings ? settings.themeAlpha : 15;

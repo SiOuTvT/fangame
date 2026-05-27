@@ -192,6 +192,7 @@ model Announcement {
   imageUrl  String   @default("")
   link      String   @default("")
   isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
   createdAt DateTime @default(now())
 }
 
@@ -315,4 +316,36 @@ model Notification {
 
   @@index([userId, isRead, createdAt])
   @@index([actorId])
+}
+
+/// 情感化消息管理 — 可在后台自定义各场景的提示文案和插图
+model EmotionalMessage {
+  id         String   @id @default(cuid())
+  /// 唯一标识，如 "favorite_added", "checkin_success", "empty_search" 等
+  key        String   @unique
+  /// 场景分类: toast / empty / error / success
+  category   String
+  /// 正标题
+  title      String   @default("")
+  /// 副标题或描述
+  subtitle   String   @default("")
+  /// 插图 URL（可选，用于空状态/错误页等）
+  imageUrl   String   @default("")
+  /// 自定义 emoji 作为图标替代（当无插图时使用）
+  emoji      String   @default("")
+  /// 是否启用（禁用时走前端默认文案）
+  enabled    Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([category])
+  @@index([key])
+}
+
+/// 全局站点配置 — 键值对存储，用于后台可配置项
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @default("")
+  updatedAt DateTime @updatedAt
 }

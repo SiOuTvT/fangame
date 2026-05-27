@@ -45,7 +45,7 @@ export function useComments(gameId: string, initialComments: Comment[], initialC
     const controller = new AbortController()
     setCommentLoading(true)
     const sort = commentSort === "hot" ? "hot" : undefined
-    apiGet<{ comments: Comment[] }>(`/api/games/${gameId}/comments?page=1&limit=10${sort ? "&sort=hot" : ""}`, controller.signal)
+    apiGet<{ comments: Comment[] }>(`/api/games/${gameId}/comments?page=1&limit=10${sort ? "&sort=hot" : ""}`, { signal: controller.signal })
       .then((data) => {
         if (controller.signal.aborted) return
         setCommentPage(2)
@@ -254,7 +254,7 @@ export function useComments(gameId: string, initialComments: Comment[], initialC
       const sort = commentSort === "hot" ? "hot" : undefined
       const data = await apiGet<{ comments: Comment[] }>(
         `/api/games/${gameId}/comments?page=${commentPage}&limit=10${sort ? "&sort=hot" : ""}`,
-        controller.signal,
+        { signal: controller.signal },
       )
       if (controller.signal.aborted) return
       const newComments = data.comments ?? []

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 import {
   ArrowLeft, CalendarCheck, ChevronLeft, ChevronRight, Flag, Gamepad2, Heart,
   LayoutDashboard, Megaphone, Menu, MessageSquare, Moon, Music, Palette,
-  PenTool, Sun, Tag, UserPlus, Users, X,
+  PenTool, Settings, SmilePlus, Sun, Tag, UserPlus, Users, X,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -23,6 +23,8 @@ const items = [
   { icon: Heart,           label: "收藏数据",    href: "/admin/favorites" },
   { icon: UserPlus,        label: "关注关系",    href: "/admin/follows" },
   { icon: Users,           label: "用户管理",    href: "/admin/users" },
+  { icon: SmilePlus,       label: "情感消息",    href: "/admin/emotional-messages" },
+  { icon: Settings,        label: "站点设置",    href: "/admin/site-settings" },
   { icon: Palette,         label: "主题设置",    href: "/admin/theme" },
 ]
 
@@ -65,7 +67,7 @@ export function AdminNav() {
     }
 
     const savedTheme = localStorage.getItem(THEME_KEY) as ThemeMode | null
-    const mode = savedTheme || "dark"
+    const mode = savedTheme || "system"
     setThemeMode(mode)
     applyTheme(mode)
 
@@ -222,7 +224,7 @@ export function AdminNav() {
       {/* ═══════════ 手机端遮罩 ═══════════ */}
       <div
         className={cn(
-          "fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity duration-200 md:hidden",
+          "fixed inset-0 z-40 touch-none bg-black/50 backdrop-blur-sm transition-opacity duration-200 md:hidden",
           mobileOpen ? "opacity-100" : "pointer-events-none opacity-0"
         )}
         onClick={() => setMobileOpen(false)}

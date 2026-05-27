@@ -1,8 +1,9 @@
 "use client"
 
-import { BookOpen, Building2, Calendar, ChevronDown, Clock, Download, ExternalLink, Gamepad2, Heart, Monitor } from "lucide-react"
+import { BookOpen, Building2, Calendar, ChevronDown, Clock, Download, ExternalLink, Gamepad2, Monitor } from "lucide-react"
 import dynamic from "next/dynamic"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { AddResourceDialog } from "./game-detail/add-resource-dialog"
 
 const CommentSection = dynamic(() => import("./comment-section").then(m => ({ default: m.CommentSection })), {
   loading: () => <div className="mt-4 h-40 animate-pulse rounded-xl bg-muted" />,
@@ -157,7 +158,7 @@ export default function GameDetailClient({
             role="tablist"
             aria-label="游戏详情导航"
             style={{
-              backgroundColor: "var(--tab-trough, hsl(var(--secondary)))",
+              backgroundColor: "var(--tab-trough, var(--secondary))",
               boxShadow: "inset 0 1px 3px rgba(0,0,0,0.06)",
             }}>
             {/* 滑块 */}
@@ -165,7 +166,7 @@ export default function GameDetailClient({
               className="absolute top-1 left-0 h-[calc(100%-8px)] rounded-xl transition-all duration-300 ease-out"
               aria-hidden="true"
               style={{
-                backgroundColor: "var(--tab-active, hsl(var(--background)))",
+                backgroundColor: "var(--tab-active, var(--background))",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.08)",
               }}
             />
@@ -180,7 +181,7 @@ export default function GameDetailClient({
                 onClick={() => setTab(t.key)}
                 className="relative z-10 flex-1 rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors duration-300 text-center"
                 style={{
-                  color: tab === t.key ? "var(--tab-active-text, hsl(var(--foreground)))" : "var(--tab-inactive-text, hsl(var(--muted-foreground)))",
+                  color: tab === t.key ? "var(--tab-active-text, var(--foreground))" : "var(--tab-inactive-text, var(--muted-foreground))",
                   fontWeight: tab === t.key ? 600 : 500,
                 }}
               >
@@ -212,6 +213,12 @@ export default function GameDetailClient({
             {/* 游戏资源 */}
             {tab === "resource" && (
               <div role="tabpanel" id="tabpanel-resource" aria-labelledby="tab-resource" className="space-y-5">
+                {/* 资源区头部：标题 + 添加资源按钮 */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-foreground">下载链接</span>
+                  <AddResourceDialog />
+                </div>
+
                 {downloadLinks.length > 0 ? (
                   <div className="space-y-2">
                     {downloadLinks.map((dl, i) => (
@@ -221,8 +228,7 @@ export default function GameDetailClient({
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={`下载 ${dl.label || "游戏资源"}`}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-black transition-opacity hover:opacity-90"
-                        style={{ backgroundColor: "var(--clr-blue)" }}
+                        className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 bg-primary"
                       >
                         <Download className="w-4 h-4" strokeWidth={2} />
                         {dl.label || "下载"}
@@ -232,20 +238,6 @@ export default function GameDetailClient({
                 ) : (
                   <p className="text-sm text-muted-foreground">暂无下载链接</p>
                 )}
-
-                <button
-                  onClick={toggleFav}
-                  disabled={!isLoggedIn}
-                  aria-label={fav ? "取消收藏此游戏" : "收藏此游戏"}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-medium transition-all disabled:opacity-50"
-                  style={{
-                    backgroundColor: fav ? "var(--clr-blue)" : "hsl(var(--secondary))",
-                    color: fav ? "#000" : "hsl(var(--muted-foreground))",
-                  }}
-                >
-                  <Heart className="w-4 h-4" strokeWidth={2} fill={fav ? "#000" : "none"} />
-                  {fav ? "已收藏" : "收藏"} ({favCnt})
-                </button>
 
                 {creators.length > 0 && (
                   <div>
@@ -261,8 +253,7 @@ export default function GameDetailClient({
                             <img src={c.avatar} alt={c.name} className="h-10 w-10 rounded-full object-cover" />
                           ) : (
                             <div
-                              className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white"
-                              style={{ background: "linear-gradient(135deg, var(--clr-sky), var(--clr-blue))" }}
+                              className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold bg-primary text-primary-foreground"
                             >
                               {(c.nameJa || c.name)[0]}
                             </div>
@@ -301,7 +292,7 @@ export default function GameDetailClient({
             type="button"
             onClick={() => setMobileArchiveOpen(v => !v)}
             className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-medium mld-text transition-colors"
-            style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+            style={{ background: "var(--card)", border: "1px solid var(--border)" }}
           >
             <span className="flex items-center gap-2">
               <Calendar className="h-4 w-4 opacity-50" />
@@ -313,7 +304,7 @@ export default function GameDetailClient({
             />
           </button>
           {mobileArchiveOpen && (
-            <div className="mt-2 space-y-2 rounded-xl p-4" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
+            <div className="mt-2 space-y-2 rounded-xl p-4" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
               {releaseDate && (
                 <div className="flex items-center gap-2">
                   <Calendar className="h-3.5 w-3.5 mld-text" />
@@ -382,8 +373,8 @@ export default function GameDetailClient({
         {/* ─── 右侧: 档案卡片 300px (仅桌面端显示) ─── */}
         <div className="hidden lg:block w-[300px] shrink-0 rounded-2xl p-5"
           style={{
-            background: "hsl(var(--card))",
-            border: "1px solid hsl(var(--border))",
+            background: "var(--card)",
+            border: "1px solid var(--border)",
             boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
           }}>
 

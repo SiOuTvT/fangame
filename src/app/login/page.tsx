@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowLeft, CheckCircle2, Loader2, Lock, Mail, User } from "lucide-react"
+import { ArrowLeft, CheckCircle2, Eye, EyeOff, Loader2, Lock, Mail, User } from "lucide-react"
 import { signIn } from "next-auth/react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -24,6 +24,7 @@ function LoginContent() {
   // 登录表单
   const [identifier, setIdentifier] = useState("")
   const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
 
   // 注册表单
   const [regForm, setRegForm] = useState({ username: "", email: "", password: "", confirm: "" })
@@ -45,7 +46,8 @@ function LoginContent() {
     if (res?.error) {
       setError("账号或密码错误")
     } else {
-      router.push("/")
+      const callbackUrl = searchParams.get("callbackUrl")
+      router.push(callbackUrl || "/")
       router.refresh()
     }
   }
@@ -79,7 +81,7 @@ function LoginContent() {
   ]
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
+    <div className="flex min-h-[100dvh] items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <Link href="/" className="mb-8 flex items-center gap-2 text-sm text-zinc-500 transition-colors hover:text-zinc-300">
           <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
@@ -128,7 +130,7 @@ function LoginContent() {
 
           {tab === "login" ? (
             <form onSubmit={handleLogin} className="space-y-3">
-              <div className="flex items-center gap-3 rounded-xl bg-zinc-800 px-4 py-3 ring-1 ring-white/[0.06] focus-within:ring-zinc-600 transition-all">
+              <div className="flex items-center gap-3 rounded-xl bg-zinc-800 px-4 py-3 border border-white/[0.06] focus-within:border-zinc-500 transition-all">
                 <User className="h-4 w-4 shrink-0 text-zinc-500" strokeWidth={1.5} />
                 <input
                   type="text"
@@ -138,19 +140,29 @@ function LoginContent() {
                   required
                   autoComplete="off"
                   className="flex-1 bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none"
+                  onFocus={(e) => e.target.scrollIntoView({ behavior: "smooth", block: "center" })}
                 />
               </div>
 
-              <div className="flex items-center gap-3 rounded-xl bg-zinc-800 px-4 py-3 ring-1 ring-white/[0.06] focus-within:ring-zinc-600 transition-all">
+              <div className="flex items-center gap-3 rounded-xl bg-zinc-800 px-4 py-3 border border-white/[0.06] focus-within:border-zinc-500 transition-all">
                 <Lock className="h-4 w-4 shrink-0 text-zinc-500" strokeWidth={1.5} />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="密码"
                   required
                   className="flex-1 bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none"
+                  onFocus={(e) => e.target.scrollIntoView({ behavior: "smooth", block: "center" })}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-zinc-500 hover:text-zinc-300 transition-colors"
+                  aria-label={showPassword ? "隐藏密码" : "显示密码"}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
+                </button>
               </div>
 
               <button
@@ -165,7 +177,7 @@ function LoginContent() {
           ) : (
             <form onSubmit={handleRegister} className="space-y-3">
               {regFields.map(({ key, icon: Icon, type, placeholder }) => (
-                <div key={key} className="flex items-center gap-3 rounded-xl bg-zinc-800 px-4 py-3 ring-1 ring-white/[0.06] focus-within:ring-zinc-600 transition-all">
+                <div key={key} className="flex items-center gap-3 rounded-xl bg-zinc-800 px-4 py-3 border border-white/[0.06] focus-within:border-zinc-500 transition-all">
                   <Icon className="h-4 w-4 shrink-0 text-zinc-500" strokeWidth={1.5} />
                   <input
                     type={type}
@@ -175,6 +187,7 @@ function LoginContent() {
                     required
                     autoComplete="off"
                     className="flex-1 bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none"
+                    onFocus={(e) => e.target.scrollIntoView({ behavior: "smooth", block: "center" })}
                   />
                 </div>
               ))}

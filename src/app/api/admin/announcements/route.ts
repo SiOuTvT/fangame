@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   // 默认只返回最新的1条公告（公开）
   const limit = isAdmin ? undefined : 1
   const anns = await prisma.announcement.findMany({ 
-    orderBy: { createdAt: "desc" },
+    orderBy: { sortOrder: "asc" },
     take: limit,
     select: {
       id: true,
@@ -24,6 +24,7 @@ export async function GET(req: NextRequest) {
       imageUrl: true,
       link: true,
       createdAt: true,
+      ...(isAdmin ? { sortOrder: true, isActive: true } : {}),
     }
   })
   return NextResponse.json(anns)

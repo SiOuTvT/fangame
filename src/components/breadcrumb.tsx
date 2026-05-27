@@ -159,7 +159,7 @@ export function Breadcrumb() {
               className="h-4 w-4 shrink-0 self-center text-muted-foreground/40"
               strokeWidth={2}
             />
-            <span className="inline-flex items-center font-medium leading-none text-muted-foreground">
+            <span className="inline-flex items-center font-medium leading-none text-muted-foreground max-w-[180px] sm:max-w-[280px] truncate" title={crumb.label}>
               {crumb.label}
             </span>
           </span>
@@ -219,7 +219,7 @@ export function Breadcrumb() {
               strokeWidth={2}
             />
             {isLast ? (
-              <span className="inline-flex items-center font-medium leading-none text-muted-foreground">
+              <span className="inline-flex items-center font-medium leading-none text-muted-foreground max-w-[180px] sm:max-w-[280px] truncate" title={crumb.label}>
                 {crumb.label}
               </span>
             ) : (
