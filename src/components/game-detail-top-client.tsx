@@ -1,9 +1,10 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { Download, Heart, Share2 } from "lucide-react"
+import { Download, Heart, Loader2, Share2 } from "lucide-react"
 import { useState } from "react"
 import { CollectionPickerDialog } from "./collection-picker-dialog"
+import { ConfirmDialog } from "./ui/confirm-dialog"
 
 export function GameDetailTopClient({
   gameId,
@@ -18,11 +19,33 @@ export function GameDetailTopClient({
 }) {
   const [fav, setFav] = useState(isFav)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [unfavoriting, setUnfavoriting] = useState(false)
 
   function handleFavoriteClick() {
     if (!isLoggedIn) return
-    // 点击时弹出收藏集选择弹窗
-    setDialogOpen(true)
+    if (fav) {
+      // 已收藏 → 弹出确认取消收藏弹窗
+      setConfirmOpen(true)
+    } else {
+      // 未收藏 → 弹出收藏集选择弹窗
+      setDialogOpen(true)
+    }
+  }
+
+  async function handleUnfavorite() {
+    setUnfavoriting(true)
+    try {
+      const res = await fetch(`/api/games/${gameId}/favorite`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      })
+      if (res.ok) {
+        setFav(false)
+      }
+    } finally {
+      setUnfavoriting(false)
+    }
   }
 
   function handleSelect(_collectionId: string | null) {
@@ -40,7 +63,7 @@ export function GameDetailTopClient({
 
   return (
     <>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2.5">
         {/* 下载按钮 — 点击跳转到页面底部资源区 */}
         {downloadLinks.length > 0 && (
           <a
@@ -49,43 +72,41 @@ export function GameDetailTopClient({
             rel="noopener noreferrer"
             className="flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-semibold transition-opacity hover:opacity-90 bg-primary text-primary-foreground"
           >
-            <Download className="w-3.5 h-3.5" strokeWidth={2.5} />
+            <Download className="w-4 h-4" strokeWidth={2.5} />
             下载
           </a>
         )}
 
-        {/* 收藏按钮 — 点击弹出收藏集选择 */}
-        <button
-          onClick={handleFavoriteClick}
-          disabled={!isLoggedIn}
-          className={cn(
-            "flex items-center justify-center rounded-xl p-2.5 transition-all disabled:opacity-50",
-            fav
-              ? "text-white border border-transparent"
-              : "bg-secondary border border-border"
+        {/* 收藏按钮 — 爱心变色 */}
+          <button
+            onClick={handleFavoriteClick}
+            disabled={!isLoggedIn || unfavoriting}
+            className={cn(
+              "flex items-center justify-center rounded-lg px-3.5 py-2.5 transition-all disabled:opacity-50",
+              fav
+                ? "bg-secondary border border-transparent"
+                : "bg-secondary border border-border"
+            )}
+          >
+            {unfavoriting ? (
+              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+            ) : (
+              <Heart
+                className={cn("w-4 h-4 transition-colors", fav ? "text-rose-500" : "text-muted-foreground")}
+              strokeWidth={2}
+              fill={fav ? "currentColor" : "none"}
+              style={fav ? { filter: "drop-shadow(0 1px 2px rgba(231,76,111,0.4))" } : undefined}
+            />
           )}
-          style={fav ? { background: "linear-gradient(135deg, #e74c6f, #f06292)" } : undefined}
-        >
-          <Heart
-            className="w-3.5 h-3.5"
-            strokeWidth={2.5}
-            fill={fav ? "#fff" : "none"}
-            style={fav ? { filter: "drop-shadow(0 1px 2px rgba(231,76,111,0.4))" } : undefined}
-          />
         </button>
 
         {/* 分享按钮 */}
-        <button
-          onClick={handleShare}
-          className="flex items-center justify-center rounded-xl p-2.5 transition-colors"
-          style={{
-            background: "var(--secondary)",
-            border: "1px solid var(--border)",
-            color: "var(--muted-foreground)",
-          }}
-        >
-          <Share2 className="w-3.5 h-3.5" strokeWidth={2.5} />
-        </button>
+          <button
+            onClick={handleShare}
+            className="flex items-center justify-center rounded-lg px-3.5 py-2.5 transition-colors bg-secondary border border-border text-muted-foreground"
+          >
+            <Share2 className="w-4 h-4" strokeWidth={2} />
+          </button>
       </div>
 
       <CollectionPickerDialog
@@ -94,6 +115,17 @@ export function GameDetailTopClient({
         onSelect={handleSelect}
         isFav={fav}
         gameId={gameId}
+      />
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="取消收藏"
+        description="确定要取消收藏这个游戏吗？"
+        confirmText="取消收藏"
+        cancelText="再想想"
+        variant="destructive"
+        onConfirm={handleUnfavorite}
       />
     </>
   )

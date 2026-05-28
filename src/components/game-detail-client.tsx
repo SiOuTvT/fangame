@@ -42,6 +42,7 @@ const TABS = [
 
 export default function GameDetailClient({
   description,
+  allDescriptions,
   screenshots,
   downloadLinks,
   creators,
@@ -63,6 +64,7 @@ export default function GameDetailClient({
   studioName,
 }: {
   description: string
+  allDescriptions?: { lang: string; label: string; text: string }[]
   screenshots: string[]
   downloadLinks: DownloadLink[]
   creators: Creator[]
@@ -198,10 +200,40 @@ export default function GameDetailClient({
             {/* 游戏简介 */}
             {tab === "intro" && (
               <div role="tabpanel" id="tabpanel-intro" aria-labelledby="tab-intro">
-                {description ? (
+                {allDescriptions && allDescriptions.length > 0 ? (
+                  <div className="space-y-5">
+                    {allDescriptions.map((d, idx) => (
+                      <div key={d.lang}>
+                        {/* 语言标签（仅多语言时显示） */}
+                        {allDescriptions.length > 1 && (
+                          <div className="mb-2">
+                            <span
+                              className="inline-block rounded-md px-1.5 py-0.5 text-[10px] font-medium"
+                              style={{
+                                background: "rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.1)",
+                                color: "var(--muted-foreground)",
+                              }}
+                            >
+                              {d.label}
+                            </span>
+                          </div>
+                        )}
+                        <div
+                          className="prose prose-invert max-w-none leading-relaxed"
+                          style={{ fontSize: "15px", lineHeight: "1.9", color: "var(--foreground)" }}
+                          dangerouslySetInnerHTML={{ __html: d.text }}
+                        />
+                        {/* 分隔线（非最后一个） */}
+                        {idx < allDescriptions.length - 1 && (
+                          <div className="mt-5 border-t border-border/50" />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : description ? (
                   <div
-                    className="prose prose-sm prose-invert max-w-none text-muted-foreground leading-relaxed"
-                    style={{ fontSize: "14px", lineHeight: "1.85" }}
+                    className="prose prose-invert max-w-none leading-relaxed"
+                    style={{ fontSize: "15px", lineHeight: "1.9", color: "var(--foreground)" }}
                     dangerouslySetInnerHTML={{ __html: description }}
                   />
                 ) : (

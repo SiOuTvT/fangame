@@ -6,6 +6,7 @@ import { RelatedGames } from "@/components/related-games"
 import { SafeImage } from "@/components/safe-image"
 import { ViewCounter } from "@/components/view-counter"
 import { auth } from "@/lib/auth"
+import { getAllDescriptions, getDescriptionText } from "@/lib/parse-description"
 import { parseFileSizes, parseStringArray, safeParse } from "@/lib/parse-utils"
 import { prisma } from "@/lib/prisma"
 import Image from "next/image"
@@ -20,10 +21,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!game) return { title: "游戏详情" }
   return {
     title: `${game.title} · 同人游戏站`,
-    description: game.description?.slice(0, 160) || `${game.originalWork ? `${game.originalWork}同人游戏` : "同人游戏"} - ${game.title}`,
+    description: getDescriptionText(game.description)?.slice(0, 160) || `${game.originalWork ? `${game.originalWork}同人游戏` : "同人游戏"} - ${game.title}`,
     openGraph: {
       title: game.title,
-      description: game.description?.slice(0, 160) || "",
+      description: getDescriptionText(game.description)?.slice(0, 160) || "",
       images: game.coverImage ? [{ url: game.coverImage, width: 800, height: 1000 }] : [],
       type: "website",
     },
@@ -121,7 +122,7 @@ export default async function GameDetailPage({
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": game.title,
-    "description": game.description?.slice(0, 300) || `${game.originalWork || ""} 同人游戏`,
+    "description": getDescriptionText(game.description)?.slice(0, 300) || `${game.originalWork || ""} 同人游戏`,
     "image": game.coverImage || undefined,
     "url": `${BASE}/games/${id}`,
     "applicationCategory": "Game",
@@ -297,7 +298,8 @@ export default async function GameDetailPage({
       ═══════════════════════════════════════════════ */}
       <div className="py-4 sm:py-6 lg:py-8">
           <GameDetailClient
-            description={game.description ?? ""}
+            description={getDescriptionText(game.description)}
+            allDescriptions={getAllDescriptions(game.description)}
             screenshots={screenshots}
             downloadLinks={downloadLinks}
             creators={creators}

@@ -23,6 +23,8 @@ export function GameGallery({
         className="relative overflow-hidden flex-1 min-h-0 w-full"
         style={{
           borderRadius: "16px",
+          background: "var(--card)",
+          border: "1px solid var(--border)",
           boxShadow: "0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
         }}
       >
@@ -42,8 +44,8 @@ export function GameGallery({
         className="shrink-0 flex items-center h-[60px] sm:h-[80px] lg:h-[100px]"
         style={{
           borderRadius: "16px",
-          background: "hsl(var(--card))",
-          border: "1px solid hsl(var(--border))",
+          background: "var(--card)",
+          border: "1px solid var(--border)",
           boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
         }}
       >

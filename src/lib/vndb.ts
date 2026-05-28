@@ -141,11 +141,16 @@ class VNDBClient {
           body: JSON.stringify(data),
           signal: AbortSignal.timeout(10000), // 10秒超时
         }
-        // undici 的 ProxyAgent 需要通过 dispatcher 参数传递
+        // 使用 undici.fetch 代替全局 fetch（Next.js 的 fetch 会忽略 dispatcher 参数）
+        let response: Response
         if (this.dispatcher) {
+          // @ts-ignore - undici 的 fetch 支持 dispatcher
+          const undici = await import("undici")
           fetchOptions.dispatcher = this.dispatcher
+          response = await (undici.fetch as any)(url, fetchOptions)
+        } else {
+          response = await fetch(url, fetchOptions)
         }
-        const response = await fetch(url, fetchOptions)
 
         if (!response.ok) {
           const errorBody = await response.text().catch(() => "unknown")

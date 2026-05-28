@@ -166,14 +166,14 @@ export function CollectionPickerDialog({
                 </button>
               )}
 
-              {/* 未分组 */}
+              {/* 默认收藏夹 */}
               <button
                 onClick={() => handleSelect(null)}
                 disabled={submitting !== null}
                 className="flex items-center gap-3.5 rounded-xl px-4 py-3.5 text-left text-[15px] font-medium transition-colors hover:bg-accent disabled:opacity-50"
               >
                 <Folder className="w-5 h-5 text-muted-foreground shrink-0" />
-                <span className="flex-1 truncate">未分组</span>
+                <span className="flex-1 truncate">默认收藏夹</span>
                 {currentCollectionId === null && isFav && (
                   <Check className="w-5 h-5 text-primary shrink-0" />
                 )}

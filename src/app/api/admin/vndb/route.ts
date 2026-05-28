@@ -106,7 +106,13 @@ export async function POST(req: NextRequest) {
         if (dispatcher) {
           fetchOptions.dispatcher = dispatcher
         }
-        vnRes = await fetch(`${VNDB_API}/vn`, fetchOptions)
+        // 使用 undici.fetch 代替全局 fetch（Next.js 的 fetch 会忽略 dispatcher 参数）
+        if (dispatcher) {
+          const undici = await import("undici")
+          vnRes = await (undici.fetch as any)(`${VNDB_API}/vn`, fetchOptions)
+        } else {
+          vnRes = await fetch(`${VNDB_API}/vn`, fetchOptions)
+        }
         break // 成功则跳出重试循环
       } catch (fetchErr: any) {
         lastError = fetchErr

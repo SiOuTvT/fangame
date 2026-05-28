@@ -7,10 +7,15 @@ html {
   /* clip 替代 hidden：不创建滚动容器，避免 Radix RemoveScroll 锁定视口滚动 */
   overflow-x: clip;
   max-width: 100vw;
+  /* html 是唯一滚动容器，body/main 都用 clip 避免抢占滚动事件 */
+  overflow-y: auto;
   overscroll-behavior-y: contain;
 }
 body {
-  overflow-x: hidden;
+  /* 必须用 clip 而非 hidden：hidden 会强制 overflow-y 变成 auto，
+     导致 body 成为独立滚动容器，与 html 冲突，
+     表现为鼠标滚轮/触摸滑动失效，只能拖右侧滚动条 */
+  overflow-x: clip;
   max-width: 100vw;
   overscroll-behavior-y: contain;
   /* 禁用双击缩放，保留捏合缩放 */
@@ -1345,4 +1350,13 @@ svg {
 /* ═══ P4-8: 锚点跳转补偿固定导航栏高度 ═══ */
 [id] {
   scroll-margin-top: 80px;
+}
+
+/* ═══ 全站滚动锁安全网 ═══
+ * useBodyScrollLock hook 通过 classList 添加 body-scroll-locked 类来锁定滚动。
+ * CSS 只在有该类时锁定，默认始终允许滚动。
+ * 安全可靠：即使 cleanup 异常，刷新页面即可自动恢复。
+ */
+body.body-scroll-locked {
+  overflow: hidden !important;
 }

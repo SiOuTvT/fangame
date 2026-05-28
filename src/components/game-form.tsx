@@ -5,6 +5,7 @@ import { ChevronDown, Loader2, Plus, Trash2, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useRef, useState } from "react"
 
+import { DESCRIPTION_LANGUAGES, parseDescription, serializeDescription, type LangKey } from "@/lib/parse-description"
 import { parseFileSizes, parseStringArray } from "@/lib/parse-utils"
 
 interface Tag { id: string; name: string; color: string; groupId?: string | null }
@@ -47,7 +48,13 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
 
   const [title, setTitle]               = useState(initialData?.title ?? "")
   const [originalWork, setOriginalWork] = useState(initialData?.originalWork ?? "")
-  const [description, setDescription]  = useState(initialData?.description ?? "")
+  // 多语言简介
+  const parsedInitialDesc = parseDescription(initialData?.description ?? "")
+  const [descLangs, setDescLangs] = useState(parsedInitialDesc)
+  const [activeDescLang, setActiveDescLang] = useState<LangKey>("zh")
+  function setDescLang(lang: LangKey, val: string) {
+    setDescLangs(prev => ({ ...prev, [lang]: val }))
+  }
   const [coverImage, setCoverImage]     = useState(initialData?.coverImage ?? "")
   const [screenshots, setScreenshots]  = useState<string[]>(initialData?.screenshots ?? [])
   const [dlLinks, setDlLinks]          = useState<DownloadLink[]>(initialData?.downloadLinks ?? [{ label: "", url: "" }])
@@ -83,6 +90,103 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
 
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
+
+  // 翻译状态
+  const [translating, setTranslating] = useState(false)
+  const [translateError, setTranslateError] = useState("")
+  const [translateSuccess, setTranslateSuccess] = useState("")
+
+  /** 翻译当前 Tab 内容到指定目标语种 */
+  async function handleTranslate(targetLang: "zh" | "ja" | "en") {
+    const sourceText = descLangs[activeDescLang]
+    if (!sourceText.trim()) { setTranslateError("当前语种没有内容可翻译"); return }
+    // activeDescLang 不可能是 targetLang（外层已过滤），无需重复检查
+
+    const fromLang = activeDescLang === "en" ? "en" : activeDescLang === "ja" ? "ja" : "auto"
+    const toLang = targetLang === "zh" ? "zh-CN" : targetLang === "en" ? "en" : "ja"
+    const targetLabel = targetLang === "zh" ? "中文" : targetLang === "en" ? "英文" : "日文"
+
+    setTranslating(true)
+    setTranslateError("")
+    setTranslateSuccess("")
+
+    try {
+      const res = await fetch("/api/admin/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: sourceText, from: fromLang, to: toLang }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setTranslateError(data.error || "翻译失败"); return }
+
+      setDescLangs(prev => {
+        const existing = prev[targetLang]?.trim()
+        const newContent = existing ? `${existing}\n\n${data.translatedText}` : data.translatedText
+        return { ...prev, [targetLang]: newContent }
+      })
+      setTranslateSuccess(`已将${DESCRIPTION_LANGUAGES.find(l => l.key === activeDescLang)?.label}翻译为${targetLabel}并填入${targetLabel} Tab，可手动修改。`)
+    } catch (err) {
+      setTranslateError(`翻译出错: ${(err as Error).message}`)
+    } finally {
+      setTranslating(false)
+    }
+  }
+
+  /** 一键翻译到另外两种语言（英文 Tab → 中+日；中文 Tab → 英+日） */
+  async function handleTranslateToBoth() {
+    const sourceText = descLangs[activeDescLang]
+    if (!sourceText.trim()) { setTranslateError("当前语种没有内容可翻译"); return }
+
+    const fromLang = activeDescLang === "en" ? "en" : activeDescLang === "ja" ? "ja" : "auto"
+    // 确定两个目标语种
+    const targets: { lang: "zh" | "ja" | "en"; to: string; label: string }[] = activeDescLang === "zh"
+      ? [{ lang: "en", to: "en", label: "英文" }, { lang: "ja", to: "ja", label: "日文" }]
+      : activeDescLang === "en"
+        ? [{ lang: "zh", to: "zh-CN", label: "中文" }, { lang: "ja", to: "ja", label: "日文" }]
+        : [{ lang: "zh", to: "zh-CN", label: "中文" }, { lang: "en", to: "en", label: "英文" }]
+    setTranslating(true)
+    setTranslateError("")
+    setTranslateSuccess("")
+
+    try {
+      // 并行请求两个目标语种翻译
+      const [res1, res2] = await Promise.all(
+        targets.map(t =>
+          fetch("/api/admin/translate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: sourceText, from: fromLang, to: t.to }),
+          })
+        )
+      )
+
+      const data1 = await res1.json()
+      const data2 = await res2.json()
+
+      const errors: string[] = []
+      if (!res1.ok) errors.push(`${targets[0].label}翻译失败: ${data1.error || "未知错误"}`)
+      if (!res2.ok) errors.push(`${targets[1].label}翻译失败: ${data2.error || "未知错误"}`)
+      if (errors.length > 0) { setTranslateError(errors.join("；")); return }
+
+      setDescLangs(prev => {
+        const result = { ...prev }
+        const d1 = prev[targets[0].lang]?.trim()
+        const d2 = prev[targets[1].lang]?.trim()
+        result[targets[0].lang] = d1 ? `${d1}\n\n${data1.translatedText}` : data1.translatedText
+        result[targets[1].lang] = d2 ? `${d2}\n\n${data2.translatedText}` : data2.translatedText
+        return result
+      })
+
+      const parts: string[] = []
+      if (data1.translatedText) parts.push(targets[0].label)
+      if (data2.translatedText) parts.push(targets[1].label)
+      setTranslateSuccess(`已将${DESCRIPTION_LANGUAGES.find(l => l.key === activeDescLang)?.label}简介翻译为${parts.join("和")}并填入对应 Tab，可手动修改。`)
+    } catch (err) {
+      setTranslateError(`翻译出错: ${(err as Error).message}`)
+    } finally {
+      setTranslating(false)
+    }
+  }
 
   function toggleMultiSelect(arr: string[], setArr: (v: string[]) => void, val: string) {
     setArr(arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val])
@@ -129,7 +233,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       if (data.japaneseName) setOriginalWork(data.japaneseName)
       if (data.englishName) setEnglishName(data.englishName)
       if (data.aliases) setAliases(data.aliases)
-      if (data.description) setDescription(data.description)
+      if (data.description) setDescLangs(prev => ({ ...prev, en: data.description }))
       if (data.studioName) setStudioName(data.studioName)
 
       // 发售日期
@@ -182,7 +286,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     setSaving(true)
 
     const body = {
-      title, originalWork, description, coverImage,
+      title, originalWork, description: serializeDescription(descLangs), coverImage,
       screenshots: screenshots.filter(Boolean),
       downloadLinks: dlLinks.filter((d) => d.url.trim()),
       isNsfw, vndbId, isPublished,
@@ -348,9 +452,165 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
           <label className={labelCls}>搜索别名库（逗号分隔，用于搜索匹配）</label>
           <textarea value={aliases} onChange={(e) => setAliases(e.target.value)} placeholder="民间别称、其他语言名称，用逗号隔开…" rows={2} className={`${inputCls} resize-none`} />
         </div>
+        {/* 多语言简介 Tab 切换 */}
         <div>
           <label className={labelCls}>简介</label>
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="游戏简介…" rows={4} className={`${inputCls} resize-none`} />
+          <div className="flex gap-1.5 mb-2 overflow-x-auto">
+            {DESCRIPTION_LANGUAGES.map(({ key, label, flag }) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setActiveDescLang(key)}
+                className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-all whitespace-nowrap ${
+                  activeDescLang === key
+                    ? "bg-primary/15 text-primary ring-1 ring-primary/20"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                }`}
+              >
+                <span>{flag}</span>
+                <span>{label}</span>
+                {descLangs[key] && (
+                  <span className="ml-0.5 h-2 w-2 rounded-full bg-green-500" />
+                )}
+              </button>
+            ))}
+          </div>
+          {DESCRIPTION_LANGUAGES.map(({ key, label }) => (
+            activeDescLang === key && (
+              <textarea
+                key={key}
+                value={descLangs[key]}
+                onChange={(e) => setDescLang(key, e.target.value)}
+                placeholder={`输入${label}…`}
+                rows={4}
+                className={`${inputCls} resize-none`}
+              />
+            )
+          ))}
+          {/* 翻译按钮 — 所有语言 Tab 均显示 */}
+          <div className="flex flex-wrap items-center gap-2 mt-2">
+            {/* 翻译到中文（非 zh Tab 时显示） */}
+            {activeDescLang !== "zh" && (
+              <button
+                type="button"
+                onClick={() => handleTranslate("zh")}
+                disabled={translating || !descLangs[activeDescLang].trim()}
+                className="flex items-center gap-2 rounded-lg bg-amber-500/10 text-amber-500 px-4 py-2 text-xs font-medium ring-1 ring-amber-500/20 hover:bg-amber-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {translating ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} />
+                ) : (
+                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m5 8 6 6" /><path d="m4 14 6-6 2-3" /><path d="M2 5h12" /><path d="M7 2h1" />
+                    <path d="m22 22-5-10-5 10" /><path d="M14 18h6" />
+                  </svg>
+                )}
+                {translating ? "翻译中…" : "翻译为中文"}
+              </button>
+            )}
+            {/* 翻译到英文（zh Tab 时显示） */}
+            {activeDescLang === "zh" && (
+              <button
+                type="button"
+                onClick={() => handleTranslate("en")}
+                disabled={translating || !descLangs.zh.trim()}
+                className="flex items-center gap-2 rounded-lg bg-sky-500/10 text-sky-500 px-4 py-2 text-xs font-medium ring-1 ring-sky-500/20 hover:bg-sky-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {translating ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} />
+                ) : (
+                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m5 8 6 6" /><path d="m4 14 6-6 2-3" /><path d="M2 5h12" /><path d="M7 2h1" />
+                    <path d="m22 22-5-10-5 10" /><path d="M14 18h6" />
+                  </svg>
+                )}
+                {translating ? "翻译中…" : "翻译为英文"}
+              </button>
+            )}
+            {/* 翻译到日文（非 ja Tab 时显示） */}
+            {activeDescLang !== "ja" && (
+              <button
+                type="button"
+                onClick={() => handleTranslate("ja")}
+                disabled={translating || !descLangs[activeDescLang].trim()}
+                className="flex items-center gap-2 rounded-lg bg-violet-500/10 text-violet-500 px-4 py-2 text-xs font-medium ring-1 ring-violet-500/20 hover:bg-violet-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {translating ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} />
+                ) : (
+                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m5 8 6 6" /><path d="m4 14 6-6 2-3" /><path d="M2 5h12" /><path d="M7 2h1" />
+                    <path d="m22 22-5-10-5 10" /><path d="M14 18h6" />
+                  </svg>
+                )}
+                {translating ? "翻译中…" : "翻译为日文"}
+              </button>
+            )}
+            {/* 一键双语翻译（英文 Tab 显示，翻译为中+日） */}
+            {activeDescLang === "en" && (
+              <button
+                type="button"
+                onClick={handleTranslateToBoth}
+                disabled={translating || !descLangs.en.trim()}
+                className="flex items-center gap-2 rounded-lg bg-emerald-500/10 text-emerald-500 px-4 py-2 text-xs font-semibold ring-1 ring-emerald-500/20 hover:bg-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {translating ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} />
+                ) : (
+                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2v20M2 12h20" /><circle cx="12" cy="12" r="10" />
+                  </svg>
+                )}
+                {translating ? "翻译中…" : "一键翻译为中+日"}
+              </button>
+            )}
+            {/* 一键双语翻译（中文 Tab 显示，翻译为英+日） */}
+            {activeDescLang === "zh" && (
+              <button
+                type="button"
+                onClick={handleTranslateToBoth}
+                disabled={translating || !descLangs.zh.trim()}
+                className="flex items-center gap-2 rounded-lg bg-emerald-500/10 text-emerald-500 px-4 py-2 text-xs font-semibold ring-1 ring-emerald-500/20 hover:bg-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {translating ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} />
+                ) : (
+                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2v20M2 12h20" /><circle cx="12" cy="12" r="10" />
+                  </svg>
+                )}
+                {translating ? "翻译中…" : "一键翻译为英+日"}
+              </button>
+            )}
+            {/* 一键双语翻译（日文 Tab 显示，翻译为中+英） */}
+            {activeDescLang === "ja" && (
+              <button
+                type="button"
+                onClick={handleTranslateToBoth}
+                disabled={translating || !descLangs.ja.trim()}
+                className="flex items-center gap-2 rounded-lg bg-emerald-500/10 text-emerald-500 px-4 py-2 text-xs font-semibold ring-1 ring-emerald-500/20 hover:bg-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {translating ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} />
+                ) : (
+                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2v20M2 12h20" /><circle cx="12" cy="12" r="10" />
+                  </svg>
+                )}
+                {translating ? "翻译中…" : "一键翻译为中+英"}
+              </button>
+            )}
+          </div>
+          {translateError && (
+            <div className="mt-1 rounded-lg bg-red-500/10 px-3 py-1.5 text-xs text-red-400 ring-1 ring-red-500/20">{translateError}</div>
+          )}
+          {translateSuccess && (
+            <div className="mt-1 rounded-lg bg-green-500/10 px-3 py-1.5 text-xs text-green-400 ring-1 ring-green-500/20">{translateSuccess}</div>
+          )}
+          <p className="mt-1 text-[11px] text-muted-foreground/50">
+            前台默认优先展示中文，缺少的语种将按{"中文 > 英文 > 日文 > 其他"}的优先级自动回退。
+            {activeDescLang === "en" && " VNDB 拉取的英文简介将自动填入此栏，可点击翻译按钮一键生成中文。"}
+          </p>
         </div>
         <div>
           <label className={labelCls}>封面图</label>
