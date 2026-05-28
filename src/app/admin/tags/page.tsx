@@ -17,11 +17,11 @@ export default async function AdminTagsPage() {
 
   const [tags, groups] = await Promise.all([
     prisma.tag.findMany({
-      orderBy: { name: "asc" },
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
       include: { _count: { select: { games: true } }, group: true },
     }),
     prisma.tagGroup.findMany({
-      orderBy: { name: "asc" },
+      orderBy: [{ isPreset: "desc" }, { name: "asc" }],
       include: {
         tags: {
           orderBy: { name: "asc" },
@@ -34,10 +34,13 @@ export default async function AdminTagsPage() {
   const initialTags = tags.map((t) => ({
     id: t.id,
     name: t.name,
+    description: t.description ?? undefined,
     color: t.color,
     gameCount: t._count.games,
     groupId: t.groupId,
     groupName: t.group?.name ?? null,
+    sortOrder: t.sortOrder,
+    isVisible: t.isVisible,
   }))
 
   const initialGroups = groups.map((g) => ({
@@ -45,6 +48,8 @@ export default async function AdminTagsPage() {
     name: g.name,
     description: g.description,
     color: g.color,
+    positions: JSON.parse(g.positions) as string[],
+    isPreset: g.isPreset,
     tags: g.tags.map((t) => ({ id: t.id, name: t.name, color: t.color, gameCount: t._count.games })),
   }))
 

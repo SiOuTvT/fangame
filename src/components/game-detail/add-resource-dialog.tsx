@@ -57,13 +57,35 @@ const RESOURCE_CONTENT_OPTIONS = [
   "其他",
 ]
 
+/* ─────────── 导出资源数据类型 ─────────── */
+
+export interface SubmittedResource {
+  id: string
+  entries: {
+    url: string
+    extractCode: string
+    decompressCode: string
+    fileSize: string
+  }[]
+  platform: string[]
+  language: string[]
+  runType: string[]
+  resourceContent: string[]
+  resourceName: string
+  resourceNote: string
+  userId: string
+  username: string
+  userAvatar: string | null
+  createdAt: string
+}
+
 /* ─────────── 必填标记 ─────────── */
 
 function RequiredMark() {
   return <span className="text-red-500 ml-0.5">*</span>
 }
 
-/* ─────────── 浮动 Popover 单选组件 ─────────── */
+/* ─────────── 浮动 Popover 多选组件 ─────────── */
 
 function PopoverSelect({ label, icon, options, value, onChange }: {
   label: string
@@ -102,9 +124,9 @@ function PopoverSelect({ label, icon, options, value, onChange }: {
         type="button"
         onClick={toggle}
         className={cn(
-          "flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-medium transition-all",
+          "flex w-full items-center gap-3 rounded-xl px-4 py-3 text-base font-semibold transition-all",
           "border border-foreground/15 bg-card hover:bg-muted",
-          value ? "text-foreground" : "text-foreground/60"
+          value.length > 0 ? "text-foreground" : "text-foreground/60"
         )}
       >
         <span className="flex-shrink-0 opacity-80">{icon}</span>
@@ -125,41 +147,40 @@ function PopoverSelect({ label, icon, options, value, onChange }: {
         >
           <div className="rounded-xl border border-foreground/15 bg-card shadow-xl overflow-hidden max-h-56 overflow-y-auto">
             {options.map((opt) => (
-                <button
-                  key={opt}
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    if (value.includes(opt)) {
-                      onChange(value.filter(v => v !== opt))
-                    } else {
-                      onChange([...value, opt])
-                    }
-                    // 多选不自动关闭，用户可继续选择或点外部关闭
-                  }}
-                  className={cn(
-                    "w-full text-left px-4 py-2.5 text-sm transition-all flex items-center gap-2",
-                    "hover:bg-muted",
-                    value.includes(opt)
-                      ? "text-primary bg-primary/10 font-medium"
-                      : "text-foreground"
+              <button
+                key={opt}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  if (value.includes(opt)) {
+                    onChange(value.filter(v => v !== opt))
+                  } else {
+                    onChange([...value, opt])
+                  }
+                }}
+                className={cn(
+                  "w-full text-left px-4 py-3 text-base font-semibold transition-all flex items-center gap-2.5",
+                  "hover:bg-muted",
+                  value.includes(opt)
+                    ? "text-primary bg-primary/10"
+                    : "text-foreground"
+                )}
+              >
+                <span className={cn(
+                  "flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all",
+                  value.includes(opt)
+                    ? "bg-primary border-primary"
+                    : "border-foreground/30"
+                )}>
+                  {value.includes(opt) && (
+                    <svg className="w-3.5 h-3.5 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
                   )}
-                >
-                  <span className={cn(
-                    "flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center transition-all",
-                    value.includes(opt)
-                      ? "bg-primary border-primary"
-                      : "border-foreground/30"
-                  )}>
-                    {value.includes(opt) && (
-                      <svg className="w-3 h-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
-                  </span>
-                  {opt}
-                </button>
+                </span>
+                {opt}
+              </button>
             ))}
           </div>
         </div>
@@ -190,9 +211,46 @@ function createEmptyEntry(): ResourceEntry {
 
 /* ─────────── 主组件 ─────────── */
 
-export function AddResourceDialog() {
-  const [open, setOpen] = useState(false)
+interface AddResourceDialogProps {
+  gameId: string
+  userId: string
+  username: string
+  userAvatar: string | null
+  isLoggedIn: boolean
+  onAdd?: (resource: SubmittedResource) => void
+  /** 编辑模式：传入已有资源数据 */
+  editData?: SubmittedResource | null
+  /** 编辑完成回调 */
+  onEdit?: (resource: SubmittedResource) => void
+  /** 外部控制弹窗开关 */
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  /** 是否隐藏触发按钮（外部控制时使用） */
+  hideTrigger?: boolean
+}
+
+export function AddResourceDialog({
+  gameId,
+  userId,
+  username,
+  userAvatar,
+  isLoggedIn,
+  onAdd,
+  editData = null,
+  onEdit,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+  hideTrigger = false,
+}: AddResourceDialogProps) {
+  const isEditMode = !!editData
+  const [internalOpen, setInternalOpen] = useState(false)
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen
+  const setOpen = useCallback((v: boolean) => {
+    if (controlledOnOpenChange) controlledOnOpenChange(v)
+    else setInternalOpen(v)
+  }, [controlledOnOpenChange])
   const [submitAttempted, setSubmitAttempted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
   // 资源链接列表
   const [entries, setEntries] = useState<ResourceEntry[]>([createEmptyEntry()])
@@ -206,6 +264,30 @@ export function AddResourceDialog() {
   // 资源名称 & 备注（可选）
   const [resourceName, setResourceName] = useState("")
   const [resourceNote, setResourceNote] = useState("")
+
+  // 编辑模式：初始化表单数据
+  useEffect(() => {
+    if (editData && open) {
+      setEntries(editData.entries.length > 0
+        ? editData.entries.map((e, i) => ({
+            id: `edit-${i}`,
+            url: e.url,
+            extractCode: e.extractCode,
+            decompressCode: e.decompressCode,
+            fileSize: e.fileSize,
+          }))
+        : [createEmptyEntry()]
+      )
+      setPlatform(editData.platform || [])
+      setLanguage(editData.language || [])
+      setRunType(editData.runType || [])
+      setResourceContent(editData.resourceContent || [])
+      setResourceName(editData.resourceName || "")
+      setResourceNote(editData.resourceNote || "")
+      setSubmitAttempted(false)
+      setSubmitting(false)
+    }
+  }, [editData, open])
 
   const addEntry = useCallback(() => {
     setEntries((prev) => [...prev, createEmptyEntry()])
@@ -233,6 +315,7 @@ export function AddResourceDialog() {
     setResourceName("")
     setResourceNote("")
     setSubmitAttempted(false)
+    setSubmitting(false)
   }, [])
 
   // 检查必填项是否都已填写
@@ -242,39 +325,79 @@ export function AddResourceDialog() {
     return hasUrl && hasSelections
   }, [entries, platform, language, runType, resourceContent])
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     setSubmitAttempted(true)
-    if (!isValid()) return
-    // TODO: 提交逻辑
-    console.log({
-      entries,
+    if (!isValid() || submitting) return
+
+    setSubmitting(true)
+
+    const resource: SubmittedResource = {
+      id: isEditMode && editData ? editData.id : Math.random().toString(36).slice(2, 11),
+      entries: entries.map(e => ({
+        url: e.url.trim(),
+        extractCode: e.extractCode.trim(),
+        decompressCode: e.decompressCode.trim(),
+        fileSize: e.fileSize.trim(),
+      })),
       platform,
       language,
       runType,
       resourceContent,
-      resourceName,
-      resourceNote,
-    })
+      resourceName: resourceName.trim(),
+      resourceNote: resourceNote.trim(),
+      userId: isEditMode && editData ? editData.userId : userId,
+      username: isEditMode && editData ? editData.username : username,
+      userAvatar: isEditMode && editData ? editData.userAvatar : userAvatar,
+      createdAt: isEditMode && editData ? editData.createdAt : new Date().toISOString(),
+    }
+
+    // 保存到 localStorage
+    try {
+      const key = `resources_${gameId}`
+      const existing = JSON.parse(localStorage.getItem(key) || "[]") as SubmittedResource[]
+      if (isEditMode) {
+        const idx = existing.findIndex(r => r.id === resource.id)
+        if (idx >= 0) existing[idx] = resource
+        else existing.unshift(resource)
+      } else {
+        existing.unshift(resource)
+      }
+      localStorage.setItem(key, JSON.stringify(existing))
+    } catch {
+      // localStorage 不可用时静默失败
+    }
+
+    // 回调通知父组件
+    if (isEditMode) {
+      onEdit?.(resource)
+    } else {
+      onAdd?.(resource)
+    }
+
     setOpen(false)
     handleReset()
-  }, [entries, platform, language, runType, resourceContent, resourceName, resourceNote, handleReset, isValid])
+  }, [entries, platform, language, runType, resourceContent, resourceName, resourceNote, gameId, userId, username, userAvatar, isValid, submitting, onAdd, onEdit, handleReset, isEditMode, editData])
 
-  const canSubmit = isValid()
+  const canSubmit = isValid() && !submitting
 
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) handleReset() }}>
-      <DialogTrigger asChild>
-        <button
-          className={cn(
-            "inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold",
-            "bg-primary/10 text-primary hover:bg-primary/20",
-            "transition-colors"
-          )}
-        >
-          <Plus className="w-4 h-4" />
-          添加资源
-        </button>
-      </DialogTrigger>
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          <button
+            disabled={!isLoggedIn}
+            className={cn(
+              "inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold",
+              "bg-primary/10 text-primary hover:bg-primary/20",
+              "transition-colors",
+              !isLoggedIn && "opacity-50 cursor-not-allowed"
+            )}
+          >
+            <Plus className="w-4 h-4" />
+            添加资源
+          </button>
+        </DialogTrigger>
+      )}
 
       <DialogContent
         showCloseButton
@@ -284,22 +407,22 @@ export function AddResourceDialog() {
         )}
       >
         <DialogHeader className="px-10 pt-10 pb-5">
-          <DialogTitle className="text-xl text-foreground">添加资源</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-foreground">{isEditMode ? "编辑资源" : "添加资源"}</DialogTitle>
         </DialogHeader>
 
         <div className="px-10 pb-10 space-y-8">
           {/* ════════ 资源链接区 ════════ */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-foreground/80 uppercase tracking-wider">
+              <span className="text-base font-bold text-foreground">
                 资源链接 <RequiredMark />
               </span>
               <button
                 type="button"
                 onClick={addEntry}
-                className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+                className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-4 h-4" />
                 继续添加链接
               </button>
             </div>
@@ -307,23 +430,21 @@ export function AddResourceDialog() {
             {entries.map((entry) => (
               <div
                 key={entry.id}
-                className="space-y-2 rounded-xl border border-foreground/15 bg-muted/30 p-4 relative"
+                className="space-y-3 rounded-xl border border-foreground/15 bg-muted/30 p-5 relative"
               >
-                {/* 删除按钮 */}
                 {entries.length > 1 && (
                   <button
                     type="button"
                     onClick={() => removeEntry(entry.id)}
-                    className="absolute top-3 right-3 p-1 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                    className="absolute top-3 right-3 p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 )}
 
-                {/* 链接（独占一行） */}
                 <div>
-                  <label className="flex items-center gap-1.5 text-xs text-foreground/80 mb-1.5">
-                    <Link2 className="w-3 h-3 opacity-80" />
+                  <label className="flex items-center gap-1.5 text-sm font-semibold text-foreground mb-1.5">
+                    <Link2 className="w-4 h-4 opacity-80" />
                     下载地址 <RequiredMark />
                   </label>
                   <input
@@ -332,16 +453,15 @@ export function AddResourceDialog() {
                     value={entry.url}
                     onChange={(e) => updateEntry(entry.id, "url", e.target.value)}
                     className={cn(
-                      "w-full rounded-lg border bg-card text-foreground px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all",
+                      "w-full rounded-lg border bg-card text-foreground px-3.5 py-2.5 text-base outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all",
                       submitAttempted && !entry.url.trim() ? "border-red-400" : "border-foreground/15"
                     )}
                   />
                 </div>
 
-                {/* 提取码 + 解压码（一行两列） */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs text-foreground/80 mb-1 block">
+                    <label className="text-sm font-semibold text-foreground mb-1.5 block">
                       提取码（没有可不填）
                     </label>
                     <input
@@ -349,11 +469,11 @@ export function AddResourceDialog() {
                       placeholder="如 abcd"
                       value={entry.extractCode}
                       onChange={(e) => updateEntry(entry.id, "extractCode", e.target.value)}
-                      className="w-full rounded-lg border border-foreground/15 bg-card text-foreground px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                      className="w-full rounded-lg border border-foreground/15 bg-card text-foreground px-3.5 py-2.5 text-base outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-foreground/80 mb-1 block">
+                    <label className="text-sm font-semibold text-foreground mb-1.5 block">
                       解压码（没有可不填）
                     </label>
                     <input
@@ -361,14 +481,13 @@ export function AddResourceDialog() {
                       placeholder="如 1234"
                       value={entry.decompressCode}
                       onChange={(e) => updateEntry(entry.id, "decompressCode", e.target.value)}
-                      className="w-full rounded-lg border border-foreground/15 bg-card text-foreground px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                      className="w-full rounded-lg border border-foreground/15 bg-card text-foreground px-3.5 py-2.5 text-base outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
                     />
                   </div>
                 </div>
 
-                {/* 资源大小（占半行，右侧留白） */}
                 <div className="w-1/2">
-                  <label className="text-xs text-foreground/80 mb-1 block">
+                  <label className="text-sm font-semibold text-foreground mb-1.5 block">
                     资源大小（MB或GB）
                   </label>
                   <input
@@ -376,7 +495,7 @@ export function AddResourceDialog() {
                     placeholder="如 2.5GB"
                     value={entry.fileSize}
                     onChange={(e) => updateEntry(entry.id, "fileSize", e.target.value)}
-                    className="w-full rounded-lg border border-foreground/15 bg-card text-foreground px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                    className="w-full rounded-lg border border-foreground/15 bg-card text-foreground px-3.5 py-2.5 text-base outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
                   />
                 </div>
               </div>
@@ -385,14 +504,13 @@ export function AddResourceDialog() {
 
           {/* ════════ 详情区 ════════ */}
           <div className="space-y-3">
-            <span className="text-xs font-semibold text-foreground/80 uppercase tracking-wider">
+            <span className="text-base font-bold text-foreground">
               资源详情 <RequiredMark />
             </span>
 
-            {/* 第一行：资源 + 语言 */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs text-foreground/80 mb-1.5 block">
+                <label className="text-sm font-semibold text-foreground mb-1.5 block">
                   平台 <RequiredMark />
                 </label>
                 <PopoverSelect
@@ -404,7 +522,7 @@ export function AddResourceDialog() {
                 />
               </div>
               <div>
-                <label className="text-xs text-foreground/80 mb-1.5 block">
+                <label className="text-sm font-semibold text-foreground mb-1.5 block">
                   语言 <RequiredMark />
                 </label>
                 <PopoverSelect
@@ -417,15 +535,13 @@ export function AddResourceDialog() {
               </div>
             </div>
 
-            {/* 提示文字 */}
             {submitAttempted && (platform.length === 0 || language.length === 0) && (
-              <p className="text-xs text-red-500">请填写上方的资源和语言</p>
+              <p className="text-sm text-red-500 font-medium">请填写上方的平台和语言</p>
             )}
 
-            {/* 第二行：运行方式 + 资源内容（向上展开） */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs text-foreground/80 mb-1.5 block">
+                <label className="text-sm font-semibold text-foreground mb-1.5 block">
                   运行方式 <RequiredMark />
                 </label>
                 <PopoverSelect
@@ -437,7 +553,7 @@ export function AddResourceDialog() {
                 />
               </div>
               <div>
-                <label className="text-xs text-foreground/80 mb-1.5 block">
+                <label className="text-sm font-semibold text-foreground mb-1.5 block">
                   资源内容 <RequiredMark />
                 </label>
                 <PopoverSelect
@@ -451,29 +567,29 @@ export function AddResourceDialog() {
             </div>
 
             {submitAttempted && (runType.length === 0 || resourceContent.length === 0) && (
-              <p className="text-xs text-red-500">请填写运行方式和资源内容</p>
+              <p className="text-sm text-red-500 font-medium">请填写运行方式和资源内容</p>
             )}
           </div>
 
           {/* ════════ 可选信息 ════════ */}
           <div className="space-y-3">
-            <span className="text-xs font-semibold text-foreground/80 uppercase tracking-wider">
+            <span className="text-base font-bold text-foreground">
               补充信息（可选，不填也能提交）
             </span>
             <div>
-              <label className="text-xs text-foreground/80 mb-1 block">
-                平台名称
+              <label className="text-sm font-semibold text-foreground mb-1.5 block">
+                资源名称
               </label>
               <input
                 type="text"
-                placeholder="如: Steam、DLsite、百度网盘等"
+                placeholder="给你的资源起个名字，如：全CG存档版、汉化硬盘版等"
                 value={resourceName}
                 onChange={(e) => setResourceName(e.target.value)}
-                className="w-full rounded-lg border border-foreground/15 bg-card text-foreground px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                className="w-full rounded-lg border border-foreground/15 bg-card text-foreground px-3.5 py-2.5 text-base outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
               />
             </div>
             <div>
-              <label className="text-xs text-foreground/80 mb-1 block">
+              <label className="text-sm font-semibold text-foreground mb-1.5 block">
                 资源备注
               </label>
               <input
@@ -481,7 +597,7 @@ export function AddResourceDialog() {
                 placeholder="比如：包含全CG存档、已测试可运行等"
                 value={resourceNote}
                 onChange={(e) => setResourceNote(e.target.value)}
-                className="w-full rounded-lg border border-foreground/15 bg-card text-foreground px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                className="w-full rounded-lg border border-foreground/15 bg-card text-foreground px-3.5 py-2.5 text-base outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
               />
             </div>
           </div>
@@ -490,15 +606,15 @@ export function AddResourceDialog() {
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={false}
+            disabled={!canSubmit}
             className={cn(
-              "w-full rounded-xl py-3.5 text-sm font-semibold transition-all",
+              "w-full rounded-xl py-4 text-base font-bold transition-all",
               canSubmit
                 ? "text-primary-foreground bg-primary hover:opacity-90 active:scale-[0.98]"
-                : "text-primary-foreground/70 bg-primary/50 hover:bg-primary/60 active:scale-[0.98]"
+                : "text-primary-foreground/70 bg-primary/50 cursor-not-allowed"
             )}
           >
-            {canSubmit ? "提交资源" : "请填写所有必填项后提交"}
+            {submitting ? "提交中..." : canSubmit ? (isEditMode ? "保存修改" : "提交资源") : "请填写所有必填项后提交"}
           </button>
         </div>
       </DialogContent>

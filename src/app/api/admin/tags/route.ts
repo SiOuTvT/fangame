@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server"
 export async function GET() {
   if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
   const tags = await prisma.tag.findMany({
-    orderBy: { name: "asc" },
+    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
     include: {
       _count: { select: { games: true } },
       group: true,
@@ -16,7 +16,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
-  const { name, color, groupId } = await req.json()
+  const { name, description, color, groupId, sortOrder, isVisible } = await req.json()
   if (!name?.trim()) return NextResponse.json({ error: "标签名不能为空" }, { status: 400 })
 
   const exists = await prisma.tag.findUnique({ where: { name: name.trim() } })
@@ -25,8 +25,11 @@ export async function POST(req: NextRequest) {
   const tag = await prisma.tag.create({
     data: {
       name: name.trim(),
+      description: description?.trim() ?? "",
       color: color ?? "#a78bfa",
       groupId: groupId || null,
+      sortOrder: typeof sortOrder === "number" ? sortOrder : 0,
+      isVisible: isVisible !== false,
     },
   })
   return NextResponse.json(tag, { status: 201 })

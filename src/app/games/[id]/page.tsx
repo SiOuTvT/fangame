@@ -213,14 +213,14 @@ export default async function GameDetailPage({
                   <Image
                     src={game.publisher.avatar}
                     alt={game.publisher.username}
-                    width={36}
-                    height={36}
+                    width={48}
+                    height={48}
                     className="rounded-full object-cover shrink-0"
                     loading="lazy"
                   />
                 ) : (
                   <div
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-base font-bold text-white"
                     style={{ background: "linear-gradient(135deg, var(--clr-sky), var(--clr-blue))" }}
                   >
                     {game.publisher ? game.publisher.username[0] : "?"}
@@ -325,6 +325,8 @@ export default async function GameDetailPage({
             releaseDate={game.releaseDate ? new Date(game.releaseDate).toLocaleDateString("zh-CN") : undefined}
             gameDuration={game.gameDuration ?? undefined}
             studioName={game.studioName ?? undefined}
+            username={session?.user?.name || undefined}
+            userAvatar={session?.user?.image || null}
           />
       </div>
 

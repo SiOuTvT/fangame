@@ -1,9 +1,10 @@
 "use client"
 
-import { BookOpen, Building2, Calendar, ChevronDown, Clock, Download, ExternalLink, Gamepad2, Monitor } from "lucide-react"
+import { BookOpen, Building2, Calendar, ChevronDown, ChevronUp, Clock, Download, ExternalLink, Gamepad2, Monitor } from "lucide-react"
 import dynamic from "next/dynamic"
 import { useCallback, useEffect, useRef, useState } from "react"
-import { AddResourceDialog } from "./game-detail/add-resource-dialog"
+import { type SubmittedResource } from "./game-detail/add-resource-dialog"
+import { ResourceTab } from "./game-detail/resource-tab"
 
 const CommentSection = dynamic(() => import("./comment-section").then(m => ({ default: m.CommentSection })), {
   loading: () => <div className="mt-4 h-40 animate-pulse rounded-xl bg-muted" />,
@@ -38,6 +39,120 @@ const TABS = [
   { key: "comments" as const, label: "评论" },
 ]
 
+/* ─── 资源卡片组件（标签放大、下载可展开、用户信息底部）─── */
+function ResourceCard({ resource }: { resource: SubmittedResource }) {
+  const [downloadsExpanded, setDownloadsExpanded] = useState(false)
+  const hasMultiple = resource.entries.length > 1
+
+  return (
+    <div
+      className="rounded-xl border border-foreground/10 bg-card overflow-hidden"
+      style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}
+    >
+      {/* ── 标签区（放大标签）── */}
+      <div className="px-4 pt-3.5 pb-2.5 flex flex-wrap gap-2">
+        {resource.platform.map((p) => (
+          <span key={p} className="inline-flex items-center rounded-lg px-3 py-1 text-sm font-bold bg-primary/10 text-primary">{p}</span>
+        ))}
+        {resource.language.map((l) => (
+          <span key={l} className="inline-flex items-center rounded-lg px-3 py-1 text-sm font-bold bg-blue-500/10 text-blue-400">{l}</span>
+        ))}
+        {resource.runType.map((r) => (
+          <span key={r} className="inline-flex items-center rounded-lg px-3 py-1 text-sm font-bold bg-green-500/10 text-green-400">{r}</span>
+        ))}
+        {resource.resourceContent.map((rc) => (
+          <span key={rc} className="inline-flex items-center rounded-lg px-3 py-1 text-sm font-bold bg-amber-500/10 text-amber-400">{rc}</span>
+        ))}
+      </div>
+
+      {/* ── 资源名称 & 备注 ── */}
+      {(resource.resourceName || resource.resourceNote) && (
+        <div className="px-4 pb-2">
+          {resource.resourceName && (
+            <p className="text-[15px] font-semibold text-foreground leading-snug">{resource.resourceName}</p>
+          )}
+          {resource.resourceNote && (
+            <p className="text-xs text-muted-foreground mt-0.5">{resource.resourceNote}</p>
+          )}
+        </div>
+      )}
+
+      {/* ── 下载区（可展开）── */}
+      <div className="px-4 pb-3">
+        {hasMultiple && !downloadsExpanded ? (
+          /* 多链接：默认收起，显示第一个 + 展开按钮 */
+          <div className="space-y-2">
+            <DownloadEntry entry={resource.entries[0]} />
+            <button
+              type="button"
+              onClick={() => setDownloadsExpanded(true)}
+              className="flex w-full items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+              style={{ background: "var(--secondary)" }}
+            >
+              <ChevronDown className="w-3.5 h-3.5" />
+              展开其余 {resource.entries.length - 1} 个下载链接
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {resource.entries.map((entry, i) => (
+              <DownloadEntry key={i} entry={entry} />
+            ))}
+            {hasMultiple && downloadsExpanded && (
+              <button
+                type="button"
+                onClick={() => setDownloadsExpanded(false)}
+                className="flex w-full items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                style={{ background: "var(--secondary)" }}
+              >
+                <ChevronUp className="w-3.5 h-3.5" />
+                收起下载链接
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ── 提交者信息（底部）── */}
+      <div className="flex items-center gap-2.5 px-4 py-2.5 border-t border-foreground/5">
+        <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center text-[11px] font-bold text-muted-foreground overflow-hidden shrink-0">
+          {resource.userAvatar ? (
+            <img src={resource.userAvatar} alt="" className="h-full w-full object-cover" />
+          ) : (
+            (resource.username || "?")[0]
+          )}
+        </div>
+        <span className="text-xs font-medium text-foreground truncate">{resource.username || "匿名用户"}</span>
+        <span className="text-[11px] text-muted-foreground/50 ml-auto shrink-0">
+          {new Date(resource.createdAt).toLocaleDateString("zh-CN")}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+function DownloadEntry({ entry }: { entry: SubmittedResource["entries"][number] }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <a
+        href={entry.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 bg-primary"
+      >
+        <Download className="w-4 h-4" strokeWidth={2} />
+        {entry.fileSize ? `下载 (${entry.fileSize})` : "下载"}
+      </a>
+      {(entry.extractCode || entry.decompressCode) && (
+        <div className="flex gap-2 text-[11px] text-muted-foreground">
+          {entry.extractCode && <span>提取码: {entry.extractCode}</span>}
+          {entry.decompressCode && <span>解压码: {entry.decompressCode}</span>}
+        </div>
+      )}
+    </div>
+  )
+}
+
 /* 莫兰迪灰蓝色调 — 已迁移至 globals.css CSS 变量 + 工具类 */
 
 export default function GameDetailClient({
@@ -62,6 +177,8 @@ export default function GameDetailClient({
   releaseDate,
   gameDuration,
   studioName,
+  username,
+  userAvatar,
 }: {
   description: string
   allDescriptions?: { lang: string; label: string; text: string }[]
@@ -84,6 +201,8 @@ export default function GameDetailClient({
   releaseDate?: string
   gameDuration?: string
   studioName?: string
+  username?: string
+  userAvatar?: string | null
 }) {
   const [tab, setTab] = useState<"intro" | "resource" | "comments">("intro")
   const [fav, setFav] = useState(isFav)
@@ -91,8 +210,24 @@ export default function GameDetailClient({
   const [favPending, setFavPending] = useState(false)
   const favAbortRef = useRef<AbortController | null>(null)
   const [mobileArchiveOpen, setMobileArchiveOpen] = useState(true)
+  const [submittedResources, setSubmittedResources] = useState<SubmittedResource[]>([])
   const sliderRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  // 从 localStorage 加载已提交的资源
+  useEffect(() => {
+    try {
+      const key = `resources_${gameId}`
+      const stored = JSON.parse(localStorage.getItem(key) || "[]") as SubmittedResource[]
+      setSubmittedResources(stored)
+    } catch {
+      // ignore
+    }
+  }, [gameId])
+
+  const handleResourceAdded = useCallback((resource: SubmittedResource) => {
+    setSubmittedResources(prev => [resource, ...prev])
+  }, [])
 
   // Sliding block animation
   useEffect(() => {
@@ -244,63 +379,20 @@ export default function GameDetailClient({
 
             {/* 游戏资源 */}
             {tab === "resource" && (
-              <div role="tabpanel" id="tabpanel-resource" aria-labelledby="tab-resource" className="space-y-5">
-                {/* 资源区头部：标题 + 添加资源按钮 */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-foreground">下载链接</span>
-                  <AddResourceDialog />
-                </div>
-
-                {downloadLinks.length > 0 ? (
-                  <div className="space-y-2">
-                    {downloadLinks.map((dl, i) => (
-                      <a
-                        key={i}
-                        href={dl.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={`下载 ${dl.label || "游戏资源"}`}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 bg-primary"
-                      >
-                        <Download className="w-4 h-4" strokeWidth={2} />
-                        {dl.label || "下载"}
-                      </a>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">暂无下载链接</p>
-                )}
-
-                {creators.length > 0 && (
-                  <div>
-                    <h3 className="mb-3 text-sm font-semibold text-foreground">制作人员</h3>
-                    <div className="space-y-3">
-                      {creators.map((c) => (
-                        <a
-                          key={`${c.id}-${c.role}`}
-                          href={`/creators/${c.id}`}
-                          className="flex items-center gap-3 rounded-xl p-3 transition-colors hover:bg-secondary"
-                        >
-                          {c.avatar ? (
-                            <img src={c.avatar} alt={c.name} className="h-10 w-10 rounded-full object-cover" />
-                          ) : (
-                            <div
-                              className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold bg-primary text-primary-foreground"
-                            >
-                              {(c.nameJa || c.name)[0]}
-                            </div>
-                          )}
-                          <div>
-                            <p className="text-sm font-medium text-foreground">{c.nameJa || c.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {{ scenario: "脚本", art: "原画", chardesign: "角色设计", director: "导演", music: "音乐", songs: "主题曲" }[c.role] ?? c.role}
-                            </p>
-                          </div>
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                )}
+              <div role="tabpanel" id="tabpanel-resource" aria-labelledby="tab-resource">
+                <ResourceTab
+                  downloadLinks={downloadLinks}
+                  creators={creators}
+                  isLoggedIn={isLoggedIn}
+                  isFav={fav}
+                  favCount={favCnt}
+                  onToggleFav={toggleFav}
+                  roleLabels={{ scenario: "脚本", art: "原画", chardesign: "角色设计", director: "导演", music: "音乐", songs: "主题曲" }}
+                  gameId={gameId}
+                  currentUserId={currentUserId}
+                  username={username}
+                  userAvatar={userAvatar}
+                />
               </div>
             )}
 

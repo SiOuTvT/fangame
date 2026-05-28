@@ -124,18 +124,25 @@ model TagGroup {
   name        String   @unique
   description String   @default("")
   color       String   @default("#7c8a9e")
+  positions   String   @default("[]")  // JSON array of position keys
+  isPreset    Boolean  @default(false)  // 系统内置组，不可删除
   tags        Tag[]
   createdAt   DateTime @default(now())
 }
 
 model Tag {
-  id      String    @id @default(cuid())
-  name    String    @unique
-  color   String    @default("#a78bfa")
-  groupId String?
-  group   TagGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
-  games   GameTag[]
+  id          String    @id @default(cuid())
+  name        String    @unique
+  description String    @default("")
+  color       String    @default("#a78bfa")
+  sortOrder   Int       @default(0)
+  isVisible   Boolean   @default(true)
+  groupId     String?
+  createdAt   DateTime  @default(now())
+  group       TagGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  games       GameTag[]
   @@index([groupId])
+  @@index([sortOrder])
 }
 
 model GameTag {

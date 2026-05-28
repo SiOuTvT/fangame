@@ -56,9 +56,9 @@ export function buildGameSearchFilter(options: {
     ...getGameNsfwFilter(nsfw),
   }
 
-  // 标签筛选（精确匹配，作为顶层 AND 条件）
+  // 标签筛选（模糊匹配，作为顶层 AND 条件）
   if (tag && tag !== "全部") {
-    where.tags = { some: { tag: { name: tag } } }
+    where.tags = { some: { tag: { name: { contains: tag, mode: "insensitive" } } } }
   }
 
   // 搜索关键词（当已指定标签时，不在 OR 中重复搜索 tags，避免冲突）

@@ -38,7 +38,7 @@ async function SearchResults({
         { tags: { some: { tag: { name: { contains: q, mode: "insensitive" as const } } } } },
       ],
     }),
-    ...(tag && { tags: { some: { tag: { name: tag } } } }),
+    ...(tag && { tags: { some: { tag: { name: { contains: tag, mode: "insensitive" as const } } } } }),
   }
 
   const rawGames = await prisma.game.findMany({
