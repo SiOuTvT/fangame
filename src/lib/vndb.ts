@@ -162,7 +162,7 @@ class VNDBClient {
         if (isLastAttempt) {
           console.error(`[VNDB] 请求失败（已重试 ${retries} 次）:`, error.message)
           // 触发熔断器：网络不可达时，后续请求快速失败
-          if (isTimeout || error?.message?.includes('fetch failed') || error?.code === 'ECONNREFUSED') {
+          if (isTimeout || error?.message?.includes('fetch failed') || error?.code === 'ECONNREFUSED' || error?.code === 'ENOTFOUND') {
             this.circuitBroken = true
             this.circuitBrokenUntil = Date.now() + this.CIRCUIT_BREAK_DURATION
             console.debug(`[VNDB] 熔断器已触发，${this.CIRCUIT_BREAK_DURATION / 1000}秒内不再尝试`)
@@ -170,7 +170,7 @@ class VNDBClient {
           throw error
         }
         
-        if (isTimeout || error?.message?.includes('fetch failed') || error?.code === 'ECONNREFUSED') {
+        if (isTimeout || error?.message?.includes('fetch failed') || error?.code === 'ECONNREFUSED' || error?.code === 'ENOTFOUND') {
           const delay = attempt * 500 // 递增延迟: 500ms
           console.debug(`[VNDB] 请求超时，${delay}ms 后重试 (${attempt}/${retries})...`)
           await new Promise(r => setTimeout(r, delay))

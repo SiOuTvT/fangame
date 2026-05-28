@@ -5,6 +5,28 @@ import { NextRequest, NextResponse } from "next/server"
 
 const VNDB_API = "https://api.vndb.org/kana"
 
+/* ── 代理支持（与 src/lib/vndb.ts 保持一致） ── */
+let _proxyDispatcher: any = null
+let _proxyInitialized = false
+
+async function getProxyDispatcher() {
+  if (_proxyInitialized) return _proxyDispatcher
+  _proxyInitialized = true
+
+  const proxyUrl = process.env.VNDB_API_PROXY || process.env.HTTPS_PROXY || process.env.HTTP_PROXY
+  if (!proxyUrl) return null
+
+  try {
+    // @ts-ignore - undici 是 Node.js 内置模块
+    const undici = await import("undici")
+    _proxyDispatcher = new undici.ProxyAgent(proxyUrl)
+    console.debug("[VNDB Admin] 已配置代理:", proxyUrl.replace(/\/\/[^:]+:[^@]+@/, "//***:***@"))
+  } catch (e) {
+    console.warn("[VNDB Admin] 无法加载 undici ProxyAgent，将使用直连:", e)
+  }
+  return _proxyDispatcher
+}
+
 /* ── 清理 VNDB BBCode 标记，只保留纯文本 ── */
 function stripVndbMarkup(raw: string): string {
   if (!raw) return ""
@@ -57,16 +79,50 @@ export async function POST(req: NextRequest) {
   const vnId = /^\d+$/.test(vndbId.trim()) ? `v${vndbId.trim()}` : vndbId.trim()
 
   try {
-    // 调用 VNDB Kana API
-    const vnRes = await fetch(`${VNDB_API}/vn`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        filters: ["id", "=", vnId],
-        fields: "title, alttitle, aliases, description, released, tags.name, developers.name",
-        results: 1,
-      }),
-    })
+    // 调用 VNDB Kana API（带超时 + 代理支持 + 重试）
+    const dispatcher = await getProxyDispatcher()
+    let vnRes: Response | null = null
+    let lastError: Error | null = null
+
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        const fetchOptions: any = {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            filters: ["id", "=", vnId],
+            fields: "title, alttitle, aliases, description, released, tags.name, developers.name",
+            results: 1,
+          }),
+          signal: AbortSignal.timeout(10000), // 10秒超时
+        }
+        if (dispatcher) {
+          fetchOptions.dispatcher = dispatcher
+        }
+        vnRes = await fetch(`${VNDB_API}/vn`, fetchOptions)
+        break // 成功则跳出重试循环
+      } catch (fetchErr: any) {
+        lastError = fetchErr
+        const isNetworkError =
+          fetchErr?.code === 'ENOTFOUND' ||
+          fetchErr?.code === 'ETIMEDOUT' ||
+          fetchErr?.code === 'ECONNREFUSED' ||
+          fetchErr?.code === 'UND_ERR_CONNECT_TIMEOUT' ||
+          fetchErr?.name === 'TimeoutError' ||
+          fetchErr?.message?.includes('fetch failed')
+
+        if (attempt < 2 && isNetworkError) {
+          console.debug(`[VNDB Admin] 网络错误 (${fetchErr?.code || fetchErr?.message})，${attempt * 500}ms 后重试...`)
+          await new Promise(r => setTimeout(r, attempt * 500))
+          continue
+        }
+        throw fetchErr
+      }
+    }
+
+    if (!vnRes) {
+      throw lastError || new Error("VNDB 请求失败")
+    }
 
     if (!vnRes.ok) {
       const errText = await vnRes.text()
@@ -196,11 +252,25 @@ export async function POST(req: NextRequest) {
       // 也返回标签名称用于前端显示（标签可能刚创建，前端列表还没刷新）
       tagNames: [...existingTags, ...newTags].map(t => ({ id: t.id, name: t.name })),
     })
-  } catch (err) {
+  } catch (err: any) {
     console.error("VNDB fetch error:", err)
+
+    // 提供更友好的错误信息
+    let errorMsg = `VNDB 数据拉取失败: ${err?.message || "未知错误"}`
+
+    if (err?.code === 'ENOTFOUND') {
+      errorMsg = `无法解析 VNDB API 域名 (${err.hostname || 'api.vndb.org'})，请检查服务器的 DNS 配置或网络连接。如在国内服务器上，请配置 VNDB_API_PROXY 代理环境变量。`
+    } else if (err?.code === 'ETIMEDOUT' || err?.code === 'UND_ERR_CONNECT_TIMEOUT' || err?.name === 'TimeoutError') {
+      errorMsg = "VNDB API 请求超时，请检查网络连接或配置代理。"
+    } else if (err?.code === 'ECONNREFUSED') {
+      errorMsg = "VNDB API 连接被拒绝，请检查网络或代理配置。"
+    } else if (err?.message?.includes('fetch failed')) {
+      errorMsg = `VNDB API 请求失败（${err?.cause?.code || err?.code || '网络错误'}），请检查服务器网络连接。如在国内服务器上，请配置 VNDB_API_PROXY 代理环境变量。`
+    }
+
     return NextResponse.json(
-      { error: `VNDB 数据拉取失败: ${(err as Error).message}` },
-      { status: 500 }
+      { error: errorMsg },
+      { status: 502 }
     )
   }
 }
