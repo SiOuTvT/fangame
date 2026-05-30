@@ -16,12 +16,14 @@ model User {
   email         String         @unique
   password      String
   avatar        String         @default("")
-  avatarFrame   String         @default("none")
+  avatarFrameId String?
+  composedAvatarUrl String?    @default("")
   banner        String         @default("")
   bio           String         @default("")
   role          String         @default("USER")
   faveGameId    String?
   createdAt     DateTime       @default(now())
+  avatarFrame   AvatarFrame?   @relation(fields: [avatarFrameId], references: [id], onDelete: SetNull)
   comments      Comment[]
   favorites     Favorite[]
   playStatuses  PlayStatus[]
@@ -41,6 +43,20 @@ model User {
 
   @@index([role])
   @@index([serialId])
+  @@index([avatarFrameId])
+}
+
+model AvatarFrame {
+  id          String   @id @default(cuid())
+  name        String
+  description String   @default("")
+  imageUrl    String
+  isPublic    Boolean  @default(true)
+  sort        Int      @default(0)
+  createdAt   DateTime @default(now())
+  users       User[]
+
+  @@index([isPublic, sort])
 }
 
 model Follow {

@@ -1,32 +1,56 @@
 "use client"
 
-import { AvatarFrame } from "@/components/avatar-frame"
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { cn } from "@/lib/utils"
 import { useSession } from "next-auth/react"
-import { useState, useTransition } from "react"
+import { useCallback, useEffect, useState, useTransition } from "react"
 
-const FRAMES = [
-  { id: "none",  label: "无边框", desc: "经典简洁",      color: "from-zinc-500/20 to-zinc-600/10" },
-  { id: "slime", label: "史莱姆", desc: "可爱蓝色史莱姆趴在右上角", color: "from-sky-500/20 to-blue-500/10" },
-]
+interface FrameItem {
+  id: string
+  name: string
+  description: string
+  imageUrl: string
+}
 
 export function AvatarFrameSelector({
-  currentFrame,
+  currentFrameId,
   userImage,
   userName,
 }: {
-  currentFrame: string
+  currentFrameId: string | null
   userImage?: string | null
   userName: string
 }) {
   const { update } = useSession()
-  const [selected, setSelected] = useState(currentFrame)
+  const [selected, setSelected] = useState<string | null>(currentFrameId)
   const [saving, setSaving] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [open, setOpen] = useState(false)
+  const [frames, setFrames] = useState<FrameItem[]>([])
+  const [loading, setLoading] = useState(false)
 
-  async function handleSelect(frameId: string) {
+  const loadFrames = useCallback(async () => {
+    setLoading(true)
+    try {
+      const res = await fetch("/api/user/avatar-frame")
+      if (res.ok) {
+        const data = await res.json()
+        setFrames(data.frames || [])
+      }
+    } catch (e) {
+      console.error("加载头像框列表失败:", e)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (open && frames.length === 0) {
+      loadFrames()
+    }
+  }, [open, frames.length, loadFrames])
+
+  async function handleSelect(frameId: string | null) {
     if (frameId === selected || saving) return
     setSelected(frameId)
     setSaving(true)
@@ -34,11 +58,11 @@ export function AvatarFrameSelector({
       const res = await fetch("/api/user/avatar-frame", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ frame: frameId }),
+        body: JSON.stringify({ frameId }),
       })
       if (res.ok) {
         startTransition(async () => {
-          await update({ avatarFrame: frameId })
+          await update({ avatarFrameId: frameId })
         })
       }
     } finally {
@@ -69,51 +93,82 @@ export function AvatarFrameSelector({
               <button onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground text-lg">×</button>
             </div>
 
-            <div className="p-5">
+            <div className="p-5 max-h-[70vh] overflow-y-auto">
               {/* Preview */}
               <div className="mb-5 flex justify-center">
-                <AvatarFrame frameId={selected} size={80}>
-                  {userImage ? (
-                    <img src={userImage} alt={userName} className="h-full w-full object-cover rounded-full" />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-2xl font-bold text-white">
-                      {userName[0].toUpperCase()}
-                    </div>
-                  )}
-                </AvatarFrame>
+                <div className="relative w-20 h-20">
+                  <div className="w-full h-full rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                    {userImage ? (
+                      <img src={userImage} alt={userName} className="h-full w-full object-cover" />
+                    ) : (
+                      <span className="text-2xl font-bold text-white">{userName[0].toUpperCase()}</span>
+                    )}
+                  </div>
+                  {selected && (() => {
+                    const f = frames.find(fr => fr.id === selected)
+                    return f ? (
+                      <img src={f.imageUrl} alt={f.name} className="absolute inset-0 w-full h-full object-contain pointer-events-none" />
+                    ) : null
+                  })()}
+                </div>
               </div>
 
               {/* Grid */}
-              <div className="grid grid-cols-2 gap-3">
-                {FRAMES.map(f => (
+              {loading ? (
+                <div className="text-center py-8 text-muted-foreground text-sm">加载中…</div>
+              ) : (
+                <div className="grid grid-cols-3 gap-3">
+                  {/* No frame option */}
                   <button
-                    key={f.id}
-                    onClick={() => handleSelect(f.id)}
+                    onClick={() => handleSelect(null)}
                     disabled={saving}
                     className={cn(
-                      "flex flex-col items-center gap-2 rounded-xl p-4 ring-1 transition-all",
-                      selected === f.id
+                      "flex flex-col items-center gap-2 rounded-xl p-3 ring-1 transition-all",
+                      selected === null
                         ? "ring-primary bg-primary/10"
                         : "ring-border bg-secondary/50 hover:bg-accent hover:ring-primary/30",
                       saving && "opacity-50 cursor-wait"
                     )}
                   >
-                    <AvatarFrame frameId={f.id} size={56}>
-                      {userImage ? (
-                        <img src={userImage} alt="" className="h-full w-full object-cover rounded-full" />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-sm font-bold text-white">
-                          {userName[0].toUpperCase()}
-                        </div>
-                      )}
-                    </AvatarFrame>
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-zinc-500/30 to-zinc-600/20 flex items-center justify-center">
+                      <span className="text-xs text-muted-foreground">无</span>
+                    </div>
                     <div className="text-center">
-                      <div className="text-sm font-medium text-foreground">{f.label}</div>
-                      <div className="text-[11px] text-muted-foreground">{f.desc}</div>
+                      <div className="text-xs font-medium text-foreground">无边框</div>
                     </div>
                   </button>
-                ))}
-              </div>
+
+                  {frames.map(f => (
+                    <button
+                      key={f.id}
+                      onClick={() => handleSelect(f.id)}
+                      disabled={saving}
+                      className={cn(
+                        "flex flex-col items-center gap-2 rounded-xl p-3 ring-1 transition-all",
+                        selected === f.id
+                          ? "ring-primary bg-primary/10"
+                          : "ring-border bg-secondary/50 hover:bg-accent hover:ring-primary/30",
+                        saving && "opacity-50 cursor-wait"
+                      )}
+                    >
+                      <div className="relative w-14 h-14">
+                        <div className="w-full h-full rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                          {userImage ? (
+                            <img src={userImage} alt="" className="h-full w-full object-cover" />
+                          ) : (
+                            <span className="text-sm font-bold text-white">{userName[0].toUpperCase()}</span>
+                          )}
+                        </div>
+                        <img src={f.imageUrl} alt={f.name} className="absolute inset-0 w-full h-full object-contain pointer-events-none" />
+                      </div>
+                      <div className="text-center">
+                        <div className="text-xs font-medium text-foreground truncate max-w-[80px]">{f.name}</div>
+                        {f.description && <div className="text-[10px] text-muted-foreground truncate max-w-[80px]">{f.description}</div>}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {saving && (

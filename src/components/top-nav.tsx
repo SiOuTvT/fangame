@@ -221,7 +221,7 @@ export function TopNav() {
                       <span className="truncate text-sm font-semibold text-foreground">{user.name}</span>
                     </div>
 
-                    <Link href={`/profile/${user.id}`} onClick={() => setUserOpen(false)}
+                    <Link href={`/user/${user.serialId || user.id}`} onClick={() => setUserOpen(false)}
                       className="flex items-center gap-3 px-4 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
                       <User className="h-5 w-5 shrink-0" strokeWidth={2} />
                       用户主页

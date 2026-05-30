@@ -8,6 +8,7 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string
+      serialId: number
       name: string
       email?: string | null
       image?: string | null
@@ -105,17 +106,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           if (token.id) {
             const dbUser = await prisma.user.findUnique({
               where: { id: token.id as string },
-              select: { avatar: true, avatarFrame: true },
+              select: { avatar: true, avatarFrameId: true, serialId: true },
             })
             session.user.image = dbUser?.avatar ?? null
-            session.user.avatarFrame = dbUser?.avatarFrame ?? "none"
+            session.user.avatarFrame = dbUser?.avatarFrameId ?? "none"
+            session.user.serialId = dbUser?.serialId ?? 0
           } else {
             session.user.image = null
             session.user.avatarFrame = "none"
+            session.user.serialId = 0
           }
         } catch {
           session.user.image = null
           session.user.avatarFrame = "none"
+          session.user.serialId = 0
         }
       }
       return session

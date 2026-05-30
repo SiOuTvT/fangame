@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import {
-  ArrowLeft, CalendarCheck, ChevronLeft, ChevronRight, Flag, Gamepad2, Heart,
+  ArrowLeft, CalendarCheck, ChevronLeft, ChevronRight, Flag, Frame, Gamepad2, Heart,
   LayoutDashboard, Megaphone, Menu, MessageSquare, Moon, Music, Palette,
   PenTool, Settings, SmilePlus, Sun, Tag, UserPlus, Users, X,
 } from "lucide-react"
@@ -23,6 +23,7 @@ const items = [
   { icon: Heart,           label: "收藏数据",    href: "/admin/favorites" },
   { icon: UserPlus,        label: "关注关系",    href: "/admin/follows" },
   { icon: Users,           label: "用户管理",    href: "/admin/users" },
+  { icon: Frame,           label: "头像框管理",  href: "/admin/avatar-frames" },
   { icon: SmilePlus,       label: "情感消息",    href: "/admin/emotional-messages" },
   { icon: Settings,        label: "站点设置",    href: "/admin/site-settings" },
   { icon: Palette,         label: "主题设置",    href: "/admin/theme" },
