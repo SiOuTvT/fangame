@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth"
+import { cleanupOldComposedAvatar } from "@/lib/avatar-compose"
 import { prisma } from "@/lib/prisma"
 import fs from "fs/promises"
 import { NextResponse } from "next/server"
@@ -78,24 +79,39 @@ export async function DELETE(
   }
 
   try {
-    // 删除头像框图片文件
-    const framePath = path.join(
-      process.cwd(),
-      "public",
-      "uploads",
-      "avatar-frames",
-      `${id}.png`
-    )
-    try {
-      await fs.unlink(framePath)
-    } catch {
-      // 文件可能不存在，忽略
+    // 删除头像框图片文件（支持多种格式）
+    for (const ext of ["png", "webp", "jpg"]) {
+      const framePath = path.join(
+        process.cwd(),
+        "public",
+        "uploads",
+        "avatar-frames",
+        `${id}.${ext}`
+      )
+      try {
+        await fs.unlink(framePath)
+      } catch {
+        // 文件可能不存在，忽略
+      }
     }
 
-    // 将使用该头像框的用户的 avatarFrameId 设为 null
+    // 清理使用该头像框的用户的合成头像文件和数据
+    const affectedUsers = await prisma.user.findMany({
+      where: { avatarFrameId: id },
+      select: { composedAvatarUrl: true },
+    })
+
+    // 删除旧的合成头像文件
+    for (const user of affectedUsers) {
+      if (user.composedAvatarUrl) {
+        await cleanupOldComposedAvatar(user.composedAvatarUrl)
+      }
+    }
+
+    // 将使用该头像框的用户的 avatarFrameId 和 composedAvatarUrl 设为 null
     await prisma.user.updateMany({
       where: { avatarFrameId: id },
-      data: { avatarFrameId: null },
+      data: { avatarFrameId: null, composedAvatarUrl: null },
     })
 
     await prisma.avatarFrame.delete({ where: { id } })

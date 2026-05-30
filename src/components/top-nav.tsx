@@ -202,12 +202,15 @@ export function TopNav() {
                   onClick={() => setUserOpen(v => !v)}
                   className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full ring-2 ring-border transition-all hover:ring-foreground/30 lg:h-10 lg:w-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                    <AvatarFrame frameId={user.avatarFrame || "none"} size={40}>
-                    {(localAvatar || user.image)
-                      ? <img src={`${(localAvatar || user.image)}${(localAvatar || user.image || '').includes('?') ? '&' : '?'}t=${avatarVersion}_${Date.now()}`} alt={user.name ?? ""} className="h-full w-full object-cover rounded-full" onError={(e) => { e.currentTarget.style.display = 'none'; const fb = document.createElement('div'); fb.className = 'flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white'; fb.textContent = (user.name ?? "U")[0].toUpperCase(); e.currentTarget.parentElement?.appendChild(fb); }} />
-                      : <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white">{(user.name ?? "U")[0].toUpperCase()}</div>
+                    {(user as any).composedAvatarUrl
+                      ? <img src={`${(user as any).composedAvatarUrl}${(user as any).composedAvatarUrl.includes('?') ? '&' : '?'}t=${avatarVersion}_${Date.now()}`} alt={user.name ?? ""} className="h-full w-full object-cover rounded-full" onError={(e) => { e.currentTarget.style.display = 'none'; const fb = document.createElement('div'); fb.className = 'flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white'; fb.textContent = (user.name ?? "U")[0].toUpperCase(); e.currentTarget.parentElement?.appendChild(fb); }} />
+                      : <AvatarFrame frameId={user.avatarFrame || "none"} size={40}>
+                          {(localAvatar || user.image)
+                            ? <img src={`${(localAvatar || user.image)}${(localAvatar || user.image || '').includes('?') ? '&' : '?'}t=${avatarVersion}_${Date.now()}`} alt={user.name ?? ""} className="h-full w-full object-cover rounded-full" onError={(e) => { e.currentTarget.style.display = 'none'; const fb = document.createElement('div'); fb.className = 'flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white'; fb.textContent = (user.name ?? "U")[0].toUpperCase(); e.currentTarget.parentElement?.appendChild(fb); }} />
+                            : <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white">{(user.name ?? "U")[0].toUpperCase()}</div>
+                          }
+                        </AvatarFrame>
                     }
-                  </AvatarFrame>
                 </button>
 
                 {userOpen && (

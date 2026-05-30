@@ -61,9 +61,9 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "头像框不存在" }, { status: 404 })
       }
 
-      // 合成头像
+      // 合成头像（DB头像框传入imageUrl，内置头像框只传frameId）
       if (user.avatar) {
-        composedUrl = await composeAvatar(user.avatar, frameId)
+        composedUrl = await composeAvatar(user.avatar, frameId, frame.imageUrl)
       }
     }
 
