@@ -48,6 +48,7 @@ export function TopNav() {
   const [menuOpen, setMenuOpen]   = useState(false)
   const [userOpen, setUserOpen]   = useState(false)
   const [forumOpen, setForumOpen] = useState(false)
+  const [scrolled, setScrolled]   = useState(false)
   const [theme, setTheme]         = useState<"dark" | "light">("dark")
   const [nsfw, setNsfw]           = useState(false)
   const [checkedIn, setCheckedIn] = useState(false)
@@ -80,6 +81,22 @@ export function TopNav() {
       .then(r => r.json())
       .then(data => setCheckedIn(data.checkedIn))
       .catch(() => setCheckedIn(false))
+  }, [])
+
+  // 监听滚动，用于导航栏透明效果
+  useEffect(() => {
+    let ticking = false
+    function handleScroll() {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setScrolled(window.scrollY > 60)
+          ticking = false
+        })
+        ticking = true
+      }
+    }
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
   // 监听头像更新事件
@@ -153,9 +170,9 @@ export function TopNav() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background transition-colors duration-300 will-change-[background] border-b border-border">
+      <header className={cn("fixed top-0 left-0 right-0 z-50 bg-background border-b border-border nav-header", scrolled && "nav-scrolled")}>
         {/* 顶部渐变高光线 */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/[0.06] to-transparent" />
+        <div className={cn("nav-gradient-line absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/[0.06] to-transparent transition-opacity duration-300", scrolled && "opacity-0")} />
 
         <button
           onClick={() => {
@@ -165,7 +182,7 @@ export function TopNav() {
               setForumOpen(v => !v)
             }
           }}
-          className="fixed top-0 left-0 z-[60] flex h-14 w-14 items-center justify-center text-muted-foreground transition-all hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="fixed top-0 left-0 z-[60] flex h-14 w-14 items-center justify-center nav-icon-btn transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <MessageSquare className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
         </button>
@@ -175,7 +192,7 @@ export function TopNav() {
         <div ref={menuRef} className="relative">
             <button
               onClick={() => setMenuOpen(v => !v)}
-              className="group relative flex h-11 items-center pl-0 pr-[22px] lg:pr-[24px] rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring text-muted-foreground hover:text-foreground"
+              className="group relative flex h-11 items-center pl-0 pr-[22px] lg:pr-[24px] rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn"
             >
               {/* Hover circle: centered on icon, overflows left for visual balance */}
               <span className="pointer-events-none absolute top-0 left-[11px] lg:left-[12px] h-11 w-11 -translate-x-1/2 rounded-full bg-muted opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
@@ -195,13 +212,13 @@ export function TopNav() {
           </div>
 
           <div className="ml-auto flex items-center gap-2">
-            <Link href="/search" className="flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring text-muted-foreground hover:bg-muted hover:text-foreground">
+            <Link href="/search" className="flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
               <Search className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
             </Link>
 
             {user && <NotificationBell />}
 
-            <button onClick={toggleTheme} className="flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring text-muted-foreground hover:bg-muted hover:text-foreground">
+            <button onClick={toggleTheme} className="flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
               {theme === "light" ? <Sun className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} /> : <Moon className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />}
             </button>
 

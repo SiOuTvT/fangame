@@ -111,9 +111,6 @@ model Game {
   viewCount     Int          @default(0)
   downloadCount Int          @default(0)
   favoriteCount Int          @default(0)
-  platform      String       @default("")
-  language      String       @default("")
-  fileSize      String       @default("")
   isPublished   Boolean      @default(true)
   releaseDate   DateTime?
   gameDuration  String       @default("")

@@ -48,7 +48,7 @@ async function SearchResults({
       select: {
       id: true, serialId: true, title: true, coverImage: true, status: true,
       isNsfw: true, favoriteCount: true, viewCount: true,
-      downloadCount: true, platform: true, language: true, fileSize: true,
+      downloadCount: true,
       downloadLinks: true,
       updatedAt: true, createdAt: true,
       tags: { select: { tag: { select: { name: true, color: true } } } },
@@ -77,7 +77,7 @@ async function SearchResults({
       select: {
         id: true, serialId: true, title: true, coverImage: true, status: true,
         isNsfw: true, favoriteCount: true, viewCount: true,
-        downloadCount: true, platform: true, language: true, fileSize: true,
+        downloadCount: true,
         downloadLinks: true,
         updatedAt: true, createdAt: true,
         tags: { select: { tag: { select: { name: true, color: true } } } },

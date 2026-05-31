@@ -7,7 +7,7 @@ import { SafeImage } from "@/components/safe-image"
 import { ViewCounter } from "@/components/view-counter"
 import { auth } from "@/lib/auth"
 import { getAllDescriptions, getDescriptionText } from "@/lib/parse-description"
-import { parseFileSizes, parseStringArray, safeParse } from "@/lib/parse-utils"
+import { safeParse } from "@/lib/parse-utils"
 import { prisma } from "@/lib/prisma"
 import { isNumericId } from "@/lib/serial-id"
 import { unstable_cache } from "next/cache"
@@ -125,11 +125,6 @@ export default async function GameDetailPage({
     isFav = !!fav
   }
 
-  const platformTags = parseStringArray(game.platform)
-  const languageTags = parseStringArray(game.language)
-  const paramTags = [...platformTags, ...languageTags]
-  const fileSizes = parseFileSizes(game.fileSize)
-
   const creators = game.creators.map((gc) => ({
     id: gc.creator.id,
     name: gc.creator.name,
@@ -137,9 +132,6 @@ export default async function GameDetailPage({
     avatar: gc.creator.avatar,
     role: gc.role,
   }))
-
-  // 取第一个创作者作为主要发布者
-  const primaryCreator = creators[0]
 
   // 计算发布时间相对描述
   const now = new Date()
@@ -270,29 +262,15 @@ export default async function GameDetailPage({
                 </div>
               </div>
 
-              {/* 平台/语言标签行 */}
-              {paramTags.length > 0 && (
-                <div className="flex flex-wrap items-center gap-2 mt-2">
-                  <span
-                    className="inline-block text-xs font-bold"
-                    style={{ color: "var(--clr-blue)" }}
-                  >
-                    {game.isNsfw ? "NSFW" : "SFW"}
-                  </span>
-                  {paramTags.slice(0, 4).map((tag, i) => (
-                    <span
-                      key={i}
-                      className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium"
-                      style={{
-                        color: "var(--clr-blue)",
-                        background: "rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.10)",
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
+              {/* NSFW/SFW 标识 */}
+              <div className="flex flex-wrap items-center gap-2 mt-2">
+                <span
+                  className="inline-block text-xs font-bold"
+                  style={{ color: "var(--clr-blue)" }}
+                >
+                  {game.isNsfw ? "NSFW" : "SFW"}
+                </span>
+              </div>
 
               {/* 人气数据 */}
               <div className="flex items-center gap-4 mt-3">
@@ -350,7 +328,6 @@ export default async function GameDetailPage({
             gameId={resolved.id}
             isFav={isFav}
             favCount={game.favoriteCount}
-            platformTags={platformTags}
             gameTags={tags.map((t) => ({ name: t.name, color: t.group?.color || t.color, groupName: t.group?.name }))}
             vndbId={game.vndbId ?? undefined}
             releaseDate={game.releaseDate ? new Date(game.releaseDate).toLocaleDateString("zh-CN") : undefined}

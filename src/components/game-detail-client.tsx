@@ -1,6 +1,6 @@
 "use client"
 
-import { Building2, Calendar, ChevronDown, Clock, ExternalLink, Gamepad2, Monitor } from "lucide-react"
+import { Building2, Calendar, ChevronDown, Clock, ExternalLink, Gamepad2 } from "lucide-react"
 import dynamic from "next/dynamic"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { ResourceTab } from "./game-detail/resource-tab"
@@ -50,7 +50,6 @@ export default function GameDetailClient({
   gameId,
   isFav,
   favCount,
-  platformTags,
   gameTags,
   vndbId,
   releaseDate,
@@ -69,7 +68,6 @@ export default function GameDetailClient({
   gameId: string
   isFav: boolean
   favCount: number
-  platformTags?: string[]
   gameTags?: TagInfo[]
   vndbId?: string
   releaseDate?: string
@@ -298,17 +296,6 @@ export default function GameDetailClient({
                   <span className="ml-auto inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>{studioName}</span>
                 </div>
               )}
-              {platformTags && platformTags.length > 0 && (
-                <div className="flex items-start gap-3">
-                  <Monitor className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "var(--muted-foreground)" }} />
-                  <span className="text-sm shrink-0" style={{ color: "var(--muted-foreground)" }}>支持平台</span>
-                  <div className="ml-auto flex flex-wrap justify-end gap-1.5">
-                    {platformTags.map((tag, i) => (
-                      <span key={i} className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>{tag}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
               {gameDuration && (
                 <div className="flex items-center gap-3">
                   <Clock className="h-4 w-4 shrink-0" style={{ color: "var(--muted-foreground)" }} />
@@ -372,21 +359,6 @@ export default function GameDetailClient({
                 <div className="flex flex-wrap items-center gap-x-1.5 min-w-0">
                   <span className="text-sm font-medium shrink-0" style={{ color: "var(--muted-foreground)" }}>制作会社：</span>
                   <span className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>{studioName}</span>
-                </div>
-              </div>
-            )}
-
-            {/* 支持平台 */}
-            {platformTags && platformTags.length > 0 && (
-              <div className="flex items-start gap-2.5">
-                <Monitor className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "var(--muted-foreground)" }} strokeWidth={2} />
-                <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1.5 min-w-0">
-                  <span className="text-sm font-medium shrink-0" style={{ color: "var(--muted-foreground)" }}>支持平台：</span>
-                  {platformTags.map((tag, i) => (
-                    <span key={i} className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>
-                      {tag}
-                    </span>
-                  ))}
                 </div>
               </div>
             )}

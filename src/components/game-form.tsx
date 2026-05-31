@@ -6,15 +6,10 @@ import { useRouter } from "next/navigation"
 import { useRef, useState } from "react"
 
 import { DESCRIPTION_LANGUAGES, parseDescription, serializeDescription, type LangKey } from "@/lib/parse-description"
-import { parseFileSizes, parseStringArray } from "@/lib/parse-utils"
 
 interface Tag { id: string; name: string; color: string; groupId?: string | null }
 interface TagGroup { id: string; name: string; color: string; tags: Tag[] }
-interface DownloadLink { label: string; url: string }
-type FileSizeEntry = { value: string; unit: "MB" | "GB" }
-
-const LANGUAGE_OPTIONS = ["简体中文", "繁体中文", "日文", "英文", "韩文", "其他"]
-const PLATFORM_OPTIONS = ["PC", "安卓直装", "模拟器", "Linux", "MacOS", "网页版"]
+interface DownloadLink { label: string; url: string; tags?: string[] }
 
 interface Props {
   tags: Tag[]
@@ -25,17 +20,9 @@ interface Props {
     coverImage: string; screenshots: string[]; downloadLinks: DownloadLink[]
     status: string; isNsfw: boolean; vndbId: string; isPublished: boolean
     tagIds: string[]
-    platform: string; language: string; fileSize: string
     releaseDate?: string; gameDuration?: string; studioName?: string
     englishName?: string; aliases?: string
   }
-}
-
-function parseFileSizeArray(raw: string): FileSizeEntry[] {
-  return parseFileSizes(raw).map(e => ({
-    value: e.value,
-    unit: (e.unit === "MB" ? "MB" : "GB") as "MB" | "GB",
-  }))
 }
 
 export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], gameId, initialData }: Props) {
@@ -62,15 +49,6 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
   const [vndbId, setVndbId]            = useState(initialData?.vndbId ?? "")
   const [isPublished, setIsPublished]  = useState(initialData?.isPublished ?? true)
   const [selectedTags, setSelectedTags]= useState<string[]>(initialData?.tagIds ?? [])
-
-  // 多选标签：语言 & 平台
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(parseStringArray(initialData?.platform ?? ""))
-  const [selectedLanguages, setSelectedLanguages] = useState<string[]>(parseStringArray(initialData?.language ?? ""))
-
-  // 文件大小：多行追加
-  const [fileSizes, setFileSizes] = useState<FileSizeEntry[]>(parseFileSizeArray(initialData?.fileSize ?? ""))
-  const [sizeValue, setSizeValue] = useState("")
-  const [sizeUnit, setSizeUnit] = useState<"MB" | "GB">("GB")
 
   // 新增字段
   const [releaseDate, setReleaseDate] = useState(initialData?.releaseDate ?? "")
@@ -196,16 +174,6 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     setSelectedTags((prev) => prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id])
   }
 
-  function addFileSize() {
-    if (!sizeValue.trim()) return
-    setFileSizes(prev => [...prev, { value: sizeValue.trim(), unit: sizeUnit }])
-    setSizeValue("")
-  }
-
-  function removeFileSize(idx: number) {
-    setFileSizes(prev => prev.filter((_, i) => i !== idx))
-  }
-
   function updateDl(i: number, field: keyof DownloadLink, val: string) {
     setDlLinks((prev) => prev.map((dl, idx) => idx === i ? { ...dl, [field]: val } : dl))
   }
@@ -291,9 +259,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       downloadLinks: dlLinks.filter((d) => d.url.trim()),
       isNsfw, vndbId, isPublished,
       tagIds: selectedTags,
-      platform: JSON.stringify(selectedPlatforms),
-      language: JSON.stringify(selectedLanguages),
-      fileSize: JSON.stringify(fileSizes),
+      resourceTags: [], // 后台表单不直接编辑资源标签，由前台资源链接管理
       releaseDate: releaseDate || null,
       gameDuration,
       studioName,
@@ -654,54 +620,6 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
               placeholder="如：20-30小时"
               className={inputCls}
             />
-          </div>
-        </div>
-      </div>
-
-      {/* 运行参数 */}
-      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-5">
-        <h2 className="text-sm font-semibold text-foreground">运行参数</h2>
-
-        {renderMultiSelect("平台", PLATFORM_OPTIONS, selectedPlatforms, setSelectedPlatforms, "platform")}
-        {renderMultiSelect("语言", LANGUAGE_OPTIONS, selectedLanguages, setSelectedLanguages, "language")}
-
-        {/* 文件大小：多行追加 */}
-        <div>
-          <label className={labelCls}>文件大小</label>
-          {/* 已添加的大小列表 */}
-          <div className="flex flex-wrap gap-1.5 mb-2 min-h-[28px]">
-            {fileSizes.map((fs, i) => (
-              <span key={i} className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-xs font-medium transition-all duration-200">
-                {fs.value} {fs.unit}
-                <button type="button" onClick={() => removeFileSize(i)} className="hover:text-red-400 transition-colors duration-200">
-                  <X className="w-3 h-3" />
-                </button>
-              </span>
-            ))}
-          </div>
-          {/* 输入行 */}
-          <div className="flex gap-2 items-center">
-            <input
-              type="number"
-              step="any"
-              value={sizeValue}
-              onChange={e => setSizeValue(e.target.value)}
-              placeholder="数值"
-              className={`${inputCls} !w-28`}
-              onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addFileSize() } }}
-            />
-            <select
-              value={sizeUnit}
-              onChange={e => setSizeUnit(e.target.value as "MB" | "GB")}
-              className={`${inputCls} !w-20`}
-            >
-              <option value="GB">GB</option>
-              <option value="MB">MB</option>
-            </select>
-            <button type="button" onClick={addFileSize}
-              className="shrink-0 flex items-center gap-1 rounded-xl bg-primary/10 text-primary px-4 py-2.5 text-xs font-medium ring-1 ring-primary/20 hover:bg-primary/20 transition-all duration-200">
-              <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />添加
-            </button>
           </div>
         </div>
       </div>

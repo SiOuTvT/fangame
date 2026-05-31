@@ -1,6 +1,5 @@
 "use client"
 
-import { parseFileSizes, parseStringArray } from "@/lib/parse-utils"
 import { Download, Eye, Heart, ImageOff } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -15,10 +14,7 @@ export interface GameCardData {
   favoriteCount: number
   viewCount?: number
   downloadCount?: number
-  platform?: string
-  downloadLinks?: { label?: string; url: string; platform?: string }[]
-  language?: string
-  fileSize?: string
+  downloadLinks?: { label?: string; url: string; tags?: string[] }[]
   updatedAt?: Date | string
   createdAt?: Date | string
   isNsfw: boolean
@@ -60,20 +56,16 @@ export function GameCard({ game }: { game: GameCardData }) {
   const dlStr = fmtNum(game.downloadCount)
   const favStr = fmtNum(game.favoriteCount)
 
-  // 优先从 downloadLinks 中提取平台标签（去重），回退到 game.platform
-  const platformTags = (() => {
+  // 从 downloadLinks 中收集去重的标签
+  const paramTags = (() => {
     if (game.downloadLinks && game.downloadLinks.length > 0) {
-      const platforms = game.downloadLinks
-        .map((dl) => dl.platform)
-        .filter((p): p is string => !!p)
-      const unique = [...new Set(platforms)]
-      if (unique.length > 0) return unique
+      const allTags = game.downloadLinks
+        .flatMap((dl) => dl.tags ?? [])
+        .filter((t): t is string => !!t)
+      return [...new Set(allTags)]
     }
-    return parseStringArray(game.platform)
+    return []
   })()
-  const languageTags = parseStringArray(game.language)
-  const paramTags = [...platformTags, ...languageTags]
-  const fileSizes = parseFileSizes(game.fileSize)
 
   return (
     <Link
@@ -156,7 +148,7 @@ export function GameCard({ game }: { game: GameCardData }) {
         <div className="game-card-spacer" />
 
         {/* 第3行：标签 */}
-        {(paramTags.length > 0 || fileSizes.length > 0) && (
+        {paramTags.length > 0 && (
           <div className="game-card-tags flex flex-wrap items-center gap-2 flex-shrink-0">
             {paramTags.map((tag, i) => (
               <span
@@ -166,16 +158,6 @@ export function GameCard({ game }: { game: GameCardData }) {
                 {tag}
               </span>
             ))}
-            {fileSizes.length > 0 && (
-              <span className="inline-flex items-center gap-0.5 text-xs sm:text-[11px] shrink-0 text-muted-foreground">
-                {fileSizes.map((fs, i) => (
-                  <span key={`fs-${i}`} className="flex items-center">
-                    <span>{fs.value} {fs.unit}</span>
-                    {i < fileSizes.length - 1 && <span className="mx-0.5 text-muted-foreground/40">/</span>}
-                  </span>
-                ))}
-              </span>
-            )}
           </div>
         )}
       </div>
