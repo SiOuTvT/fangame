@@ -12,6 +12,7 @@ import { prisma } from "@/lib/prisma"
 import { isNumericId } from "@/lib/serial-id"
 import { unstable_cache } from "next/cache"
 import Image from "next/image"
+import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 
 /**
@@ -78,7 +79,7 @@ export default async function GameDetailPage({
       return prisma.game.findFirst({
         where: { id: gameId, isPublished: true },
         include: {
-          tags: { select: { tag: { select: { name: true, color: true, group: { select: { color: true, name: true } } } } } },
+          tags: { select: { tag: { select: { id: true, name: true, color: true, group: { select: { color: true, name: true } } } } } },
           comments: {
             orderBy: { createdAt: "desc" },
             include: { user: { select: { id: true, username: true, avatar: true } } },
@@ -220,10 +221,10 @@ export default async function GameDetailPage({
               </div>
             </div>
 
-            {/* ②号位：游戏标题 + 创作者/数据区 */}
-            <div className="flex flex-col justify-between flex-1 px-2.5 sm:px-5 pb-3 sm:pb-4 pt-2 min-h-0 min-w-0">
+            {/* ②号位：标题 → 标签 → 按钮 → 发布者 → 数据 */}
+            <div className="flex flex-col flex-1 px-2.5 sm:px-5 pb-3 sm:pb-4 pt-2 min-h-0 min-w-0">
 
-              {/* 游戏标题 */}
+              {/* ① 游戏标题 */}
               <div className="mb-1">
                 <h1
                   className="font-black leading-tight"
@@ -236,7 +237,46 @@ export default async function GameDetailPage({
                 )}
               </div>
 
-              {/* 发布者信息 */}
+              {/* ② 标签行（SFW/NSFW + 游戏标签，两行） */}
+              <div className="flex flex-wrap items-center gap-1.5 mt-1 mb-2">
+                {/* SFW/NSFW 标识 */}
+                <span
+                  className="inline-block text-[10px] font-bold px-1.5 py-0.5 rounded"
+                  style={{
+                    color: game.isNsfw ? "var(--clr-rose)" : "var(--clr-blue)",
+                    background: game.isNsfw ? "rgba(231,76,111,0.1)" : "rgba(52,152,219,0.1)",
+                  }}
+                >
+                  {game.isNsfw ? "NSFW" : "SFW"}
+                </span>
+                {/* 游戏标签（全部显示，溢出自动换行） */}
+                {tags.map((tag) => (
+                  <Link
+                    key={tag.id}
+                    href={`/search?tag=${tag.id}`}
+                    className="rounded-md bg-secondary/80 px-1.5 py-0.5 text-[10px] text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors truncate max-w-[80px]"
+                    title={tag.name}
+                  >
+                    {tag.name}
+                  </Link>
+                ))}
+              </div>
+
+              {/* ③ 功能按钮行（紧凑模式，等宽三列） */}
+              <div className="mb-2">
+                <GameDetailTopClient
+                  gameId={resolved.id}
+                  downloadLinks={downloadLinks}
+                  isFav={isFav}
+                  isLoggedIn={!!session}
+                  compact
+                  onDownloadClick={() => {
+                    document.getElementById("resources-section")?.scrollIntoView({ behavior: "smooth" })
+                  }}
+                />
+              </div>
+
+              {/* ④ 发布者信息 */}
               <div className="flex items-center gap-3">
                 {game.publisher?.avatar ? (
                   <Image
@@ -263,18 +303,8 @@ export default async function GameDetailPage({
                 </div>
               </div>
 
-              {/* NSFW/SFW 标识 */}
-              <div className="flex flex-wrap items-center gap-2 mt-2">
-                <span
-                  className="inline-block text-xs font-bold"
-                  style={{ color: "var(--clr-blue)" }}
-                >
-                  {game.isNsfw ? "NSFW" : "SFW"}
-                </span>
-              </div>
-
-              {/* 人气数据 */}
-              <div className="flex items-center gap-4 mt-3">
+              {/* ⑤ 人气数据 */}
+              <div className="flex items-center gap-4 mt-auto pt-3">
                 <span className="flex items-center gap-1.5 text-xs" style={{ color: "var(--muted-foreground)" }}>
                   <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                   <span className="font-bold tabular-nums">{game.viewCount}</span>
@@ -287,16 +317,6 @@ export default async function GameDetailPage({
                   <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
                   <span className="font-bold tabular-nums">{game.favoriteCount}</span>
                 </span>
-              </div>
-
-              {/* 功能按钮行 */}
-              <div className="mt-auto pt-3">
-              <GameDetailTopClient
-                gameId={resolved.id}
-                downloadLinks={downloadLinks}
-                isFav={isFav}
-                isLoggedIn={!!session}
-              />
               </div>
             </div>
           </div>

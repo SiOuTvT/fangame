@@ -11,11 +11,16 @@ export function GameDetailTopClient({
   downloadLinks,
   isFav,
   isLoggedIn,
+  onDownloadClick,
+  compact = false,
 }: {
   gameId: string
   downloadLinks: { label: string; url: string }[]
   isFav: boolean
   isLoggedIn: boolean
+  onDownloadClick?: () => void
+  /** 紧凑模式：三个按钮等宽并排，用于手机端卡片内 */
+  compact?: boolean
 }) {
   const [fav, setFav] = useState(isFav)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -25,10 +30,8 @@ export function GameDetailTopClient({
   function handleFavoriteClick() {
     if (!isLoggedIn) return
     if (fav) {
-      // 已收藏 → 弹出确认取消收藏弹窗
       setConfirmOpen(true)
     } else {
-      // 未收藏 → 弹出收藏集选择弹窗
       setDialogOpen(true)
     }
   }
@@ -49,7 +52,6 @@ export function GameDetailTopClient({
   }
 
   function handleSelect(_collectionId: string | null) {
-    // 收藏集选择完成后更新状态
     setFav(true)
   }
 
@@ -61,38 +63,127 @@ export function GameDetailTopClient({
     }
   }
 
+  function handleDownloadClick() {
+    if (onDownloadClick) {
+      onDownloadClick()
+    }
+  }
+
+  const btnBase = "flex items-center justify-center gap-1.5 rounded-lg text-xs font-semibold transition-all"
+
+  if (compact) {
+    // 紧凑模式：三个等宽按钮并排
+    return (
+      <>
+        <div className="flex items-center gap-2">
+          {/* 收藏 */}
+          <button
+            onClick={handleFavoriteClick}
+            disabled={!isLoggedIn || unfavoriting}
+            className={cn(
+              btnBase,
+              "flex-1 py-2.5 border",
+              fav
+                ? "bg-secondary border-border text-rose-500"
+                : "bg-secondary border-border/70 text-muted-foreground"
+            )}
+          >
+            {unfavoriting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Heart
+                className="w-4 h-4"
+                strokeWidth={2}
+                fill={fav ? "currentColor" : "none"}
+                style={fav ? { filter: "drop-shadow(0 1px 2px rgba(231,76,111,0.4))" } : undefined}
+              />
+            )}
+          </button>
+
+          {/* 分享 */}
+          <button
+            onClick={handleShare}
+            className={cn(btnBase, "flex-1 py-2.5 bg-secondary border border-border/70 text-muted-foreground")}
+          >
+            <Share2 className="w-4 h-4" strokeWidth={2} />
+          </button>
+
+          {/* 下载 */}
+          {downloadLinks.length > 0 ? (
+            <a
+              href={downloadLinks[0].url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleDownloadClick}
+              className={cn(btnBase, "flex-1 py-2.5 bg-primary text-primary-foreground hover:opacity-90")}
+            >
+              <Download className="w-4 h-4" strokeWidth={2.5} />
+            </a>
+          ) : (
+            <button
+              onClick={handleDownloadClick}
+              className={cn(btnBase, "flex-1 py-2.5 bg-primary text-primary-foreground hover:opacity-90")}
+            >
+              <Download className="w-4 h-4" strokeWidth={2.5} />
+            </button>
+          )}
+        </div>
+
+        <CollectionPickerDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          onSelect={handleSelect}
+          isFav={fav}
+          gameId={gameId}
+        />
+
+        <ConfirmDialog
+          open={confirmOpen}
+          onOpenChange={setConfirmOpen}
+          title="取消收藏"
+          description="确定要取消收藏这个游戏吗？"
+          confirmText="取消收藏"
+          cancelText="再想想"
+          variant="destructive"
+          onConfirm={handleUnfavorite}
+        />
+      </>
+    )
+  }
+
+  // 默认模式（桌面端）
   return (
     <>
       <div className="flex items-center gap-2.5">
-        {/* 下载按钮 — 点击跳转到页面底部资源区 */}
+        {/* 下载按钮 */}
         {downloadLinks.length > 0 && (
           <a
             href={downloadLinks[0].url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-semibold transition-opacity hover:opacity-90 bg-primary text-primary-foreground"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2.5 px-4 text-xs font-semibold transition-opacity hover:opacity-90 bg-primary text-primary-foreground"
           >
             <Download className="w-4 h-4" strokeWidth={2.5} />
             下载
           </a>
         )}
 
-        {/* 收藏按钮 — 爱心变色 */}
-          <button
-            onClick={handleFavoriteClick}
-            disabled={!isLoggedIn || unfavoriting}
-            className={cn(
-              "flex items-center justify-center rounded-lg px-3.5 py-2.5 transition-all disabled:opacity-50",
-              fav
-                ? "bg-secondary border border-transparent"
-                : "bg-secondary border border-border"
-            )}
-          >
-            {unfavoriting ? (
-              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-            ) : (
-              <Heart
-                className={cn("w-4 h-4 transition-colors", fav ? "text-rose-500" : "text-muted-foreground")}
+        {/* 收藏按钮 */}
+        <button
+          onClick={handleFavoriteClick}
+          disabled={!isLoggedIn || unfavoriting}
+          className={cn(
+            "flex items-center justify-center rounded-lg px-3.5 py-2.5 transition-all disabled:opacity-50 border",
+            fav
+              ? "bg-secondary border-border text-rose-500"
+              : "bg-secondary border-border/70 text-muted-foreground"
+          )}
+        >
+          {unfavoriting ? (
+            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+          ) : (
+            <Heart
+              className="w-4 h-4 transition-colors"
               strokeWidth={2}
               fill={fav ? "currentColor" : "none"}
               style={fav ? { filter: "drop-shadow(0 1px 2px rgba(231,76,111,0.4))" } : undefined}
@@ -101,12 +192,12 @@ export function GameDetailTopClient({
         </button>
 
         {/* 分享按钮 */}
-          <button
-            onClick={handleShare}
-            className="flex items-center justify-center rounded-lg px-3.5 py-2.5 transition-colors bg-secondary border border-border text-muted-foreground"
-          >
-            <Share2 className="w-4 h-4" strokeWidth={2} />
-          </button>
+        <button
+          onClick={handleShare}
+          className="flex items-center justify-center rounded-lg px-3.5 py-2.5 transition-colors bg-secondary border border-border/70 text-muted-foreground"
+        >
+          <Share2 className="w-4 h-4" strokeWidth={2} />
+        </button>
       </div>
 
       <CollectionPickerDialog
