@@ -406,11 +406,11 @@ export function AddResourceDialog({
           "rounded-3xl"
         )}
       >
-        <DialogHeader className="px-10 pt-10 pb-5">
-          <DialogTitle className="text-2xl font-bold text-foreground">{isEditMode ? "编辑资源" : "添加资源"}</DialogTitle>
+        <DialogHeader className="px-4 sm:px-10 pt-6 sm:pt-10 pb-4 sm:pb-5">
+          <DialogTitle className="text-xl sm:text-2xl font-bold text-foreground">{isEditMode ? "编辑资源" : "添加资源"}</DialogTitle>
         </DialogHeader>
 
-        <div className="px-10 pb-10 space-y-8">
+        <div className="px-4 sm:px-10 pb-6 sm:pb-10 space-y-6 sm:space-y-8">
           {/* ════════ 资源链接区 ════════ */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -449,7 +449,7 @@ export function AddResourceDialog({
                   </label>
                   <input
                     type="url"
-                    placeholder="粘贴下载链接，如 https://pan.baidu.com/..."
+                    placeholder="请填写您的资源链接"
                     value={entry.url}
                     onChange={(e) => updateEntry(entry.id, "url", e.target.value)}
                     className={cn(
@@ -459,14 +459,14 @@ export function AddResourceDialog({
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="text-sm font-semibold text-foreground mb-1.5 block">
-                      提取码（没有可不填）
+                      提取码
                     </label>
                     <input
                       type="text"
-                      placeholder="如 abcd"
+                      placeholder="输入资源链接提取码，没有可留空"
                       value={entry.extractCode}
                       onChange={(e) => updateEntry(entry.id, "extractCode", e.target.value)}
                       className="w-full rounded-lg border border-foreground/15 bg-card text-foreground px-3.5 py-2.5 text-base outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
@@ -474,11 +474,11 @@ export function AddResourceDialog({
                   </div>
                   <div>
                     <label className="text-sm font-semibold text-foreground mb-1.5 block">
-                      解压码（没有可不填）
+                      解压码
                     </label>
                     <input
                       type="text"
-                      placeholder="如 1234"
+                      placeholder="请填写压缩包解压码，没有可留空"
                       value={entry.decompressCode}
                       onChange={(e) => updateEntry(entry.id, "decompressCode", e.target.value)}
                       className="w-full rounded-lg border border-foreground/15 bg-card text-foreground px-3.5 py-2.5 text-base outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
@@ -486,13 +486,13 @@ export function AddResourceDialog({
                   </div>
                 </div>
 
-                <div className="w-1/2">
+                <div className="w-full md:w-1/2">
                   <label className="text-sm font-semibold text-foreground mb-1.5 block">
                     资源大小（MB或GB）
                   </label>
                   <input
                     type="text"
-                    placeholder="如 2.5GB"
+                    placeholder="请填写资源大小，如 2.5GB"
                     value={entry.fileSize}
                     onChange={(e) => updateEntry(entry.id, "fileSize", e.target.value)}
                     className="w-full rounded-lg border border-foreground/15 bg-card text-foreground px-3.5 py-2.5 text-base outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
@@ -508,7 +508,7 @@ export function AddResourceDialog({
               资源详情 <RequiredMark />
             </span>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <label className="text-sm font-semibold text-foreground mb-1.5 block">
                   平台 <RequiredMark />
@@ -539,7 +539,7 @@ export function AddResourceDialog({
               <p className="text-sm text-red-500 font-medium">请填写上方的平台和语言</p>
             )}
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <label className="text-sm font-semibold text-foreground mb-1.5 block">
                   运行方式 <RequiredMark />
@@ -574,7 +574,7 @@ export function AddResourceDialog({
           {/* ════════ 可选信息 ════════ */}
           <div className="space-y-3">
             <span className="text-base font-bold text-foreground">
-              补充信息（可选，不填也能提交）
+              补充信息（可选）
             </span>
             <div>
               <label className="text-sm font-semibold text-foreground mb-1.5 block">
@@ -582,7 +582,7 @@ export function AddResourceDialog({
               </label>
               <input
                 type="text"
-                placeholder="给你的资源起个名字，如：全CG存档版、汉化硬盘版等"
+                placeholder="请填写您的资源名称"
                 value={resourceName}
                 onChange={(e) => setResourceName(e.target.value)}
                 className="w-full rounded-lg border border-foreground/15 bg-card text-foreground px-3.5 py-2.5 text-base outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
@@ -594,7 +594,7 @@ export function AddResourceDialog({
               </label>
               <input
                 type="text"
-                placeholder="比如：包含全CG存档、已测试可运行等"
+                placeholder="请按需填写备注信息，如用途、来源等"
                 value={resourceNote}
                 onChange={(e) => setResourceNote(e.target.value)}
                 className="w-full rounded-lg border border-foreground/15 bg-card text-foreground px-3.5 py-2.5 text-base outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"

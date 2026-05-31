@@ -287,7 +287,7 @@ export function ProfileEditForm({ user }: Props) {
               <h3 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">安全设置</h3>
               <span className="text-[10px] text-zinc-600">不修改请留空</span>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block mb-1.5 text-[11px] font-medium text-zinc-600">当前密码</label>
                 <div className="flex items-center gap-2 rounded-xl bg-zinc-800/60 px-4 py-3 ring-1 ring-white/[0.04] focus-within:ring-zinc-600 transition-all">
