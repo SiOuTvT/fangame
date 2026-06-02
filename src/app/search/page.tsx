@@ -92,13 +92,13 @@ async function SearchResults({
 
     return (
       <div className="py-10 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-zinc-800/50">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
           <span className="text-3xl">🔍</span>
         </div>
-        <p className="text-sm font-medium text-zinc-300">
+        <p className="text-sm font-medium text-foreground">
           {q ? `没有找到与「${q}」相关的游戏` : "没有符合条件的游戏"}
         </p>
-        <p className="mt-1 text-xs text-zinc-500">
+        <p className="mt-1 text-xs text-muted-foreground">
           试试换个关键词，或浏览下方推荐
         </p>
         {q && (
@@ -122,7 +122,7 @@ async function SearchResults({
 
   return (
     <>
-      <p className="mb-4 text-xs text-zinc-600">找到 {games.length} 个结果</p>
+      <p className="mb-4 text-xs text-muted-foreground">找到 {games.length} 个结果</p>
       <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 items-stretch">
         {games.map((game) => (
           <GameCard key={game.id} game={game} />

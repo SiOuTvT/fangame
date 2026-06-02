@@ -2,6 +2,7 @@
 
 import type { TagInfo } from "@/types/game"
 import { BookOpen, Building2, Calendar, Clock, ExternalLink, Gamepad2, Monitor } from "lucide-react"
+import Link from "next/link"
 
 /* 莫兰迪灰蓝色调 — 统一低饱和度 */
 const MLD = {
@@ -37,21 +38,20 @@ function InfoRow({ icon: Icon, label, children }: {
   )
 }
 
-function TagBadge({ children, variant = "default" }: {
+function TagBadge({ children, variant = "default", href }: {
   children: React.ReactNode
   variant?: "default" | "purple"
+  href?: string
 }) {
-  return (
-    <span
-      className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium"
-      style={{
-        background: variant === "purple" ? MLD.bgPurple : MLD.bg,
-        color: variant === "purple" ? MLD.textPurple : MLD.text,
-      }}
-    >
-      {children}
-    </span>
-  )
+  const cls = "inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium transition-all hover:opacity-80"
+  const style = {
+    background: variant === "purple" ? MLD.bgPurple : MLD.bg,
+    color: variant === "purple" ? MLD.textPurple : MLD.text,
+  }
+  if (href) {
+    return <Link href={href} className={cls} style={style}>{children}</Link>
+  }
+  return <span className={cls} style={style}>{children}</span>
 }
 
 export function ProfileCard({
@@ -100,7 +100,7 @@ export function ProfileCard({
         {genreTags.length > 0 && (
           <InfoRow icon={Gamepad2} label="游戏类型：">
             {genreTags.map((tag, i) => (
-              <TagBadge key={i} variant="purple">{tag.name}</TagBadge>
+              <TagBadge key={i} variant="purple" href={`/search?tag=${encodeURIComponent(tag.name)}`}>{tag.name}</TagBadge>
             ))}
           </InfoRow>
         )}
@@ -116,7 +116,7 @@ export function ProfileCard({
         {storyTags.length > 0 && (
           <InfoRow icon={BookOpen} label="剧情标签：">
             {storyTags.map((tag, i) => (
-              <TagBadge key={i}>{tag.name}</TagBadge>
+              <TagBadge key={i} href={`/search?tag=${encodeURIComponent(tag.name)}`}>{tag.name}</TagBadge>
             ))}
           </InfoRow>
         )}

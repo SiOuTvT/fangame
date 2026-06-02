@@ -1,6 +1,6 @@
 export default function SearchLoading() {
   return (
-    <div className="min-h-screen py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div className="py-6">
       {/* 搜索栏骨架 */}
       <div className="mb-6">
         <div className="h-12 w-full rounded-xl bg-muted animate-pulse" />
@@ -16,9 +16,9 @@ export default function SearchLoading() {
       {/* 结果数量骨架 */}
       <div className="mb-4 h-5 w-32 rounded bg-muted animate-pulse" />
 
-      {/* 游戏卡片网格骨架 */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
-        {Array.from({ length: 10 }).map((_, i) => (
+      {/* 游戏卡片网格骨架 — 列数与实际搜索页一致 */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-5">
+        {Array.from({ length: 12 }).map((_, i) => (
           <div key={i} className="flex flex-col gap-2">
             <div
               className="w-full animate-pulse rounded-xl bg-muted"

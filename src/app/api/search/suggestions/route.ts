@@ -18,6 +18,7 @@ export async function GET(req: NextRequest) {
     take: 8,
     select: {
       id: true,
+      serialId: true,
       title: true,
       coverImage: true,
       originalWork: true,

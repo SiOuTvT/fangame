@@ -1,10 +1,12 @@
 import { AnnounceSwiper } from "@/components/announce-swiper"
-import { GameCardSkeleton } from "@/components/game-card"
+import { GameCard, GameCardSkeleton } from "@/components/game-card"
 import { GameGridClient } from "@/components/game-grid-client"
 import { RandomCharacterBtn, RandomCreatorBtn } from "@/components/random-discover-btns"
 import { buildGameSearchFilter } from "@/lib/filters"
 import { prisma } from "@/lib/prisma"
 import { getSiteSetting } from "@/lib/site-settings"
+import { TrendingUp } from "lucide-react"
+import Link from "next/link"
 import { Suspense } from "react"
 
 function GameGridSkeleton() {
@@ -83,7 +85,7 @@ export default async function HomePage({
   const activeTag = sp.tag || "全部"
   const nsfw      = sp.nsfw === "1"
 
-  const [tags, total, announcements] = await Promise.all([
+  const [tags, total, announcements, hotGames] = await Promise.all([
     prisma.tag.findMany({ orderBy: { name: "asc" } }),
     prisma.game.count({ where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) } }),
     prisma.announcement.findMany({
@@ -92,7 +94,22 @@ export default async function HomePage({
       take: 5,
       select: { id: true, title: true, content: true, imageUrl: true, link: true },
     }),
+    prisma.game.findMany({
+      where: { isPublished: true, isNsfw: false, favoriteCount: { gt: 0 } },
+      orderBy: { favoriteCount: "desc" },
+      take: 8,
+      select: {
+        id: true, serialId: true, title: true, coverImage: true, status: true,
+        isNsfw: true, favoriteCount: true, viewCount: true,
+        downloadCount: true, downloadLinks: true,
+        updatedAt: true, createdAt: true,
+        tags: { select: { tag: { select: { name: true, color: true } } } },
+        resources: { select: { language: true, runType: true, resourceContent: true } },
+      },
+    }),
   ])
+
+  const placeholder = await getSiteSetting("default_placeholder_image")
 
   return (
     <div className="flex flex-col gap-3 sm:gap-5">
@@ -113,6 +130,40 @@ export default async function HomePage({
           </div>
         )}
       </div>
+
+      {/* 热门游戏 */}
+      {hotGames.length > 0 && !q && activeTag === "全部" && (
+        <section>
+          <div className="mb-3 flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-primary" strokeWidth={2} />
+            <h2 className="text-base font-semibold text-foreground">热门推荐</h2>
+            <Link href="/search?sort=mostFaved" className="ml-auto text-xs text-muted-foreground hover:text-foreground transition-colors">
+              查看更多 →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-4 lg:grid-cols-4 items-stretch">
+            {hotGames.map((g) => {
+              let downloadLinks: { label?: string; url: string }[] = []
+              try { downloadLinks = JSON.parse(g.downloadLinks || "[]") } catch {}
+              const resourceTags: string[] = [...new Set(
+                g.resources.flatMap((r) => {
+                  const items: string[] = []
+                  try { items.push(...JSON.parse(r.language)) } catch {}
+                  try { items.push(...JSON.parse(r.runType)) } catch {}
+                  try { items.push(...JSON.parse(r.resourceContent)) } catch {}
+                  return items
+                })
+              )]
+              return (
+                <GameCard
+                  key={g.id}
+                  game={{ ...g, coverImage: g.coverImage || placeholder, tags: g.tags.map(t => t.tag), downloadLinks, resourceTags }}
+                />
+              )
+            })}
+          </div>
+        </section>
+      )}
 
       {/* 游戏网格 */}
       <section>

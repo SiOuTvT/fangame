@@ -4,7 +4,8 @@ import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { cn } from "@/lib/utils"
 import { CheckCircle2, ChevronLeft, Heart, ImageIcon, MessageSquare, Plus, Send, Smile, Trash2, X } from "lucide-react"
 import Image from "next/image"
-import { useMemo, useRef, useState } from "react"
+import { useSearchParams } from "next/navigation"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { RichTextContent } from "./rich-text-content"
 import { RichTextEditor } from "./rich-text-editor"
 
@@ -74,6 +75,15 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
     if (res.ok) setActivePost(await res.json())
     setLoadingPost(false)
   }
+
+  // 从 URL 参数自动打开帖子（侧边栏跳转）
+  const searchParams = useSearchParams()
+  useEffect(() => {
+    const postId = searchParams.get("post")
+    if (postId && !activePost) {
+      openPost(postId)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function likePost(id: string) {
     // Optimistic: +1 立即生效，失败时回滚

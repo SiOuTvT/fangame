@@ -8,6 +8,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 
 type Suggestion = {
   id: string
+  serialId: number
   title: string
   coverImage: string | null
   originalWork: string | null
@@ -78,7 +79,7 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
     } else if (e.key === "Enter" && activeIdx >= 0) {
       e.preventDefault()
       setShowSuggestions(false)
-      router.push(`/games/${suggestions[activeIdx].id}`)
+      router.push(`/games/${suggestions[activeIdx].serialId}`)
     } else if (e.key === "Escape") {
       setShowSuggestions(false)
     }
@@ -128,7 +129,7 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
           {suggestions.map((s, i) => (
             <Link
               key={s.id}
-              href={`/games/${s.id}`}
+              href={`/games/${s.serialId}`}
               onClick={() => setShowSuggestions(false)}
               className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-secondary"
               style={i === activeIdx ? { background: "hsl(var(--secondary))" } : undefined}

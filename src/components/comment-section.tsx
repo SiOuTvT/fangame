@@ -1,5 +1,6 @@
 ﻿"use client"
 
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { cn } from "@/lib/utils"
 import { Heart, ImageIcon, Send, Smile, Trash2, X } from "lucide-react"
 import Image from "next/image"
@@ -56,6 +57,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
   const [sortMode, setSortMode] = useState<SortMode>("newest")
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -166,7 +168,6 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
   }
 
   async function deleteComment(commentId: string) {
-    if (!confirm("确定要删除这条评论吗？")) return
     try {
       const res = await fetch(`/api/comments/${commentId}`, { method: "DELETE" })
       if (res.ok) {
@@ -175,6 +176,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
     } catch {
       // silent fail
     }
+    setDeletingId(null)
   }
 
   // 排序后的评论
@@ -342,7 +344,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
                 {currentUserId === c.user.id && (
                   <div className="flex items-center gap-0.5 ml-auto sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <button
-                      onClick={() => deleteComment(c.id)}
+                      onClick={() => setDeletingId(c.id)}
                       className="flex h-8 w-8 items-center justify-center rounded-md text-zinc-600 hover:bg-red-500/10 hover:text-red-400 transition-colors"
                       aria-label="删除评论"
                     >
@@ -372,6 +374,15 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
           </div>
         ))}
       </div>
+
+      <ConfirmDialog
+        open={!!deletingId}
+        onOpenChange={(open) => { if (!open) setDeletingId(null) }}
+        title="删除评论"
+        description="确定要删除这条评论吗？此操作不可撤销。"
+        variant="destructive"
+        onConfirm={() => { if (deletingId) deleteComment(deletingId) }}
+      />
     </section>
   )
 }

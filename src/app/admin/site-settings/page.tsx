@@ -3,6 +3,7 @@
 import { applyThemeColor, type ThemeVars } from "@/lib/theme-colors"
 import { Image as ImageIcon, Palette, Save, Settings, Trash2, Upload } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { toast } from "sonner"
 
 /* ── 预设主题色卡 ── */
 const PRESET_COLORS = [
@@ -74,9 +75,9 @@ export default function SiteSettingsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ default_placeholder_image: placeholderUrl }),
       })
-      alert("已保存")
+      toast.success("已保存")
     } catch {
-      alert("保存失败")
+      toast.error("保存失败")
     } finally {
       setSaving(false)
     }
@@ -140,9 +141,9 @@ export default function SiteSettingsPage() {
         themeAlpha: alpha,
       }))
       setThemeChanged(false)
-      alert("主题色已保存，全站将立即生效")
+      toast.success("主题色已保存，全站将立即生效")
     } catch {
-      alert("保存失败")
+      toast.error("保存失败")
     } finally {
       setThemeSaving(false)
     }
@@ -169,10 +170,10 @@ export default function SiteSettingsPage() {
       if (data.url) {
         setPlaceholderUrl(data.url)
       } else {
-        alert("上传失败: " + (data.error || "未知错误"))
+        toast.error("上传失败: " + (data.error || "未知错误"))
       }
     } catch {
-      alert("上传失败")
+      toast.error("上传失败")
     } finally {
       setUploading(false)
     }

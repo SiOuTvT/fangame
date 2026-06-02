@@ -19,6 +19,7 @@ function LoginContent() {
   const searchParams = useSearchParams()
   const [tab, setTab] = useState<"login" | "register">("login")
   const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
   const [loading, setLoading] = useState(false)
 
   // 登录表单
@@ -69,6 +70,7 @@ function LoginContent() {
     // 注册成功后自动切换到登录
     setTab("login")
     setError("")
+    setSuccess("注册成功！请登录")
     setIdentifier(regForm.username)
     setPassword("")
   }
@@ -92,7 +94,7 @@ function LoginContent() {
           {/* 标签切换 */}
           <div className="mb-6 flex rounded-xl bg-zinc-800/60 p-1">
             <button
-              onClick={() => { setTab("login"); setError("") }}
+              onClick={() => { setTab("login"); setError(""); setSuccess("") }}
               className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${
                 tab === "login"
                   ? "bg-zinc-700 text-zinc-100 shadow-sm"
@@ -102,7 +104,7 @@ function LoginContent() {
               登录
             </button>
             <button
-              onClick={() => { setTab("register"); setError("") }}
+              onClick={() => { setTab("register"); setError(""); setSuccess("") }}
               className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${
                 tab === "register"
                   ? "bg-zinc-700 text-zinc-100 shadow-sm"
@@ -125,6 +127,12 @@ function LoginContent() {
           {error && (
             <div className="mb-4 rounded-lg bg-red-500/10 px-4 py-2.5 text-sm text-red-400 ring-1 ring-red-500/20">
               {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-4 rounded-lg bg-emerald-500/10 px-4 py-2.5 text-sm text-emerald-400 ring-1 ring-emerald-500/20">
+              {success}
             </div>
           )}
 

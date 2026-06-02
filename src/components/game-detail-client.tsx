@@ -3,6 +3,7 @@
 import { Building2, Calendar, ChevronDown, Clock, ExternalLink, Gamepad2 } from "lucide-react"
 import dynamic from "next/dynamic"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { toast } from "sonner"
 import { ResourceTab } from "./game-detail/resource-tab"
 
 const CommentSection = dynamic(() => import("./comment-section").then(m => ({ default: m.CommentSection })), {
@@ -122,6 +123,7 @@ export default function GameDetailClient({
         if (!controller.signal.aborted) {
           setFav(data.isFav)
           setFavCnt(data.count)
+          toast.success(data.isFav ? "已收藏" : "已取消收藏")
         }
       }
     } catch {

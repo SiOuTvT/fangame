@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog"
 import { api } from "@/lib/api-client"
 import { useCallback, useEffect, useState } from "react"
+import { toast } from "sonner"
 
 interface AvatarFrame {
   id: string
@@ -81,7 +82,7 @@ export default function AdminAvatarFramesPage() {
 
   const handleSave = async () => {
     if (!form.name || !form.imageUrl) {
-      alert("请填写名称和上传图片")
+      toast.error("请填写名称和上传图片")
       return
     }
     setSaving(true)
@@ -95,7 +96,7 @@ export default function AdminAvatarFramesPage() {
       loadFrames()
     } catch (error: any) {
       console.error("保存头像框失败:", error)
-      alert(error?.message || "保存失败")
+      toast.error(error?.message || "保存失败")
     } finally {
       setSaving(false)
     }
@@ -110,7 +111,7 @@ export default function AdminAvatarFramesPage() {
       loadFrames()
     } catch (error: any) {
       console.error("删除头像框失败:", error)
-      alert(error?.message || "删除失败")
+      toast.error(error?.message || "删除失败")
     } finally {
       setDeleting(null)
     }

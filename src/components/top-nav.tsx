@@ -386,7 +386,7 @@ function ForumSidebarPosts() {
   return (
     <div className="space-y-0.5">
       {posts.map(p => (
-        <Link key={p.id} href="/forum"
+        <Link key={p.id} href={`/forum?post=${p.id}`}
           className="block w-full rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-accent">
           <p className="mb-0.5 text-[10px] text-muted-foreground">{p.user.username}</p>
           <p className="line-clamp-2 text-xs font-medium text-foreground">{p.title}</p>

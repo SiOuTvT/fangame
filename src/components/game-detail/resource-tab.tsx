@@ -3,6 +3,7 @@
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { ChevronDown, ChevronUp, Download, Loader2, Pencil, Trash2 } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { toast } from "sonner"
 import { AddResourceDialog, type SubmittedResource } from "./add-resource-dialog"
 
 /* ─── 相对时间格式化 ─── */
@@ -354,7 +355,7 @@ export function ResourceTab({
       }
       setResources(prev => [data.resource, ...prev])
     } catch (err) {
-      alert(err instanceof Error ? err.message : "提交资源失败")
+      toast.error(err instanceof Error ? err.message : "提交资源失败")
     } finally {
       setActionLoading(false)
     }
@@ -387,7 +388,7 @@ export function ResourceTab({
       setEditingResource(null)
       setEditOpen(false)
     } catch (err) {
-      alert(err instanceof Error ? err.message : "编辑资源失败")
+      toast.error(err instanceof Error ? err.message : "编辑资源失败")
     } finally {
       setActionLoading(false)
     }
@@ -409,7 +410,7 @@ export function ResourceTab({
       setDeleteTarget(null)
       setDeleteOpen(false)
     } catch (err) {
-      alert(err instanceof Error ? err.message : "删除资源失败")
+      toast.error(err instanceof Error ? err.message : "删除资源失败")
     } finally {
       setActionLoading(false)
     }
@@ -442,8 +443,8 @@ export function ResourceTab({
 
       {/* 加载错误 */}
       {loadError && !loading && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-center">
-          <p className="text-sm text-red-600">{loadError}</p>
+        <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-center">
+          <p className="text-sm text-red-500">{loadError}</p>
           <button
             type="button"
             onClick={fetchResources}
