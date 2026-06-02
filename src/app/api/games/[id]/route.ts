@@ -32,13 +32,6 @@ export async function GET(
 
   if (!game) return NextResponse.json({ error: "游戏不存在或已下架" }, { status: 404 })
 
-  // 增加浏览量（使用 logger 记录错误）
-  prisma.game
-    .update({ where: { id }, data: { viewCount: { increment: 1 } } })
-    .catch((err) => {
-      logger.game.error('Failed to increment view count', err, { gameId: id })
-    })
-
   let isFav = false
   let playStatus: string | null = null
 

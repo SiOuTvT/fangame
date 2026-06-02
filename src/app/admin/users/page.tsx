@@ -1,8 +1,8 @@
+import { Pagination } from "@/components/ui/pagination"
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Search } from "lucide-react"
 import dynamic from "next/dynamic"
-import Link from "next/link"
 
 const UsersManager = dynamic(() => import("@/components/users-manager").then(m => ({ default: m.UsersManager })), {
   loading: () => <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-14 animate-pulse rounded-xl bg-muted" />)}</div>,
@@ -59,23 +59,12 @@ export default async function AdminUsersPage({
         </form>
       </div>
       <UsersManager initialUsers={data} />
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-            <Link
-              key={p}
-              href={`/admin/users?page=${p}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
-              className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
-                p === page
-                  ? "bg-accent text-foreground"
-                  : "bg-card text-muted-foreground ring-1 ring-border hover:bg-accent hover:text-foreground"
-              }`}
-            >
-              {p}
-            </Link>
-          ))}
-        </div>
-      )}
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        baseUrl="/admin/users"
+        extraParams={q ? { q } : undefined}
+      />
     </div>
   )
 }

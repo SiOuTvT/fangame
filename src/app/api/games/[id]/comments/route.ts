@@ -4,7 +4,9 @@ import { withRateLimit } from "@/lib/middleware"
 import { prisma } from "@/lib/prisma"
 import { rateLimits } from "@/lib/rate-limit"
 import { sanitizeString } from "@/lib/sanitize"
+import { mkdir, writeFile } from "fs/promises"
 import { NextRequest } from "next/server"
+import path from "path"
 import sharp from "sharp"
 
 async function handleComment(req: NextRequest, context: { params: Promise<{ id: string }> }) {
@@ -30,7 +32,6 @@ async function handleComment(req: NextRequest, context: { params: Promise<{ id: 
       return badRequest("图片大小不能超过 1MB")
     }
 
-    // 用 sharp 压缩后转 base64 存储（临时方案，后续改用 R2）
     const rawBytes = await image.arrayBuffer()
     const rawBuffer = Buffer.from(rawBytes)
 
@@ -45,12 +46,18 @@ async function handleComment(req: NextRequest, context: { params: Promise<{ id: 
       return badRequest("不是有效的图片文件")
     }
 
+    // 压缩图片
     const compressed = await sharp(rawBuffer)
       .resize(1024, 1024, { fit: "inside", withoutEnlargement: true })
       .jpeg({ quality: 75 })
       .toBuffer()
 
-    imageUrl = `data:image/jpeg;base64,${compressed.toString("base64")}`
+    // 保存到 public/uploads/
+    const uploadDir = path.join(process.cwd(), "public", "uploads")
+    await mkdir(uploadDir, { recursive: true })
+    const filename = `comment-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`
+    await writeFile(path.join(uploadDir, filename), compressed)
+    imageUrl = `/uploads/${filename}`
   }
 
   const comment = await prisma.comment.create({

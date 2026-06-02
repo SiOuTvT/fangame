@@ -27,8 +27,14 @@ export function getRandomAvatarColor(name: string): string {
 }
 
 /**
- * 获取头像文字颜色（白色或深色，取决于背景）
+ * 获取头像文字颜色（白色或深色，取决于背景亮度）
  */
-export function getAvatarTextColor(): string {
+export function getAvatarTextColor(bgColor: string): string {
+  // 从 HSL 颜色中提取亮度
+  const match = bgColor.match(/hsl\(\d+,\s*\d+%,\s*(\d+)%\)/)
+  if (match) {
+    const lightness = parseInt(match[1], 10)
+    return lightness > 55 ? "#1a1a1a" : "#ffffff"
+  }
   return "#ffffff"
 }

@@ -14,13 +14,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const games = await prisma.game.findMany({
       where: { isPublished: true },
-      select: { id: true, updatedAt: true },
+      select: { serialId: true, updatedAt: true },
       orderBy: { updatedAt: "desc" },
       take: 5000,
     })
 
     const gamePages: MetadataRoute.Sitemap = games.map(g => ({
-      url: `${BASE}/games/${g.id}`,
+      url: `${BASE}/games/${g.serialId}`,
       lastModified: g.updatedAt,
       changeFrequency: "weekly" as const,
       priority: 0.9,

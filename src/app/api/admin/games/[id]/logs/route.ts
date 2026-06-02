@@ -5,6 +5,7 @@ import { getAdminSession } from "@/lib/admin"
 type Ctx = { params: Promise<{ id: string }> }
 
 export async function GET(_req: NextRequest, { params }: Ctx) {
+  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
   const { id } = await params
   const logs = await prisma.gameLog.findMany({
     where: { gameId: id },

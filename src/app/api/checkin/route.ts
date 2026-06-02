@@ -10,7 +10,8 @@ async function handleCheckin(req: NextRequest) {
   const session = await auth()
   if (!session?.user?.id) return unauthorized()
 
-  const today = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
+  // 使用 Asia/Shanghai 时区计算日期，避免 UTC 时区偏差
+  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Shanghai" })
 
   try {
     const existing = await prisma.checkIn.findUnique({
@@ -40,7 +41,7 @@ async function handleGetCheckinStatus() {
   if (!session?.user?.id) return ok({ checkedIn: false, total: 0 })
 
   try {
-    const today = new Date().toISOString().slice(0, 10)
+    const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Shanghai" })
     const [existing, total] = await Promise.all([
       prisma.checkIn.findUnique({ where: { userId_date: { userId: session.user.id, date: today } } }),
       prisma.checkIn.count({ where: { userId: session.user.id } }),

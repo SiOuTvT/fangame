@@ -5,7 +5,11 @@ import crypto from "crypto"
 // 配置项需在 .env 中设置：
 //   R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME, R2_PUBLIC_URL
 
+let _r2Client: S3Client | null = null
+
 function getR2Client() {
+  if (_r2Client) return _r2Client
+
   const accountId = process.env.R2_ACCOUNT_ID
   const accessKeyId = process.env.R2_ACCESS_KEY_ID
   const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY
@@ -14,11 +18,12 @@ function getR2Client() {
     throw new Error("缺少 R2 配置，请检查 .env 中的 R2_ACCOUNT_ID / R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY")
   }
 
-  return new S3Client({
+  _r2Client = new S3Client({
     region: "auto",
     endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
     credentials: { accessKeyId, secretAccessKey },
   })
+  return _r2Client
 }
 
 export interface UploadResult {

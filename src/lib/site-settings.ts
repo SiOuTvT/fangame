@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma"
-import { unstable_cache } from "next/cache"
+import { revalidateTag, unstable_cache } from "next/cache"
 
 /**
  * 获取站点配置值（带缓存）
@@ -47,5 +47,6 @@ export async function updateSiteSettings(data: Record<string, unknown>): Promise
       create: { key, value: String(value ?? "") },
     })
   }
+  revalidateTag("site-settings", "max")
   return getSiteSettings()
 }

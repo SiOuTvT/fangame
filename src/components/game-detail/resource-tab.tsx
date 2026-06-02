@@ -348,11 +348,10 @@ export function ResourceTab({
           resourceNote: resource.resourceNote,
         }),
       })
+      const data = await res.json()
       if (!res.ok) {
-        const data = await res.json()
         throw new Error(data.error || "提交失败")
       }
-      const data = await res.json()
       setResources(prev => [data.resource, ...prev])
     } catch (err) {
       alert(err instanceof Error ? err.message : "提交资源失败")

@@ -148,7 +148,8 @@ export default async function SearchPage({
   const sp    = await searchParams
   const q     = sp.q?.trim() ?? ""
   const tag   = sp.tag?.trim() ?? ""
-  const sort  = (sp.sort as SortKey) ?? "newest"
+  const VALID_SORTS: SortKey[] = ["newest", "popular", "mostFaved"]
+  const sort  = VALID_SORTS.includes(sp.sort as SortKey) ? (sp.sort as SortKey) : "newest"
   const nsfw  = sp.nsfw === "1"
 
   const tags = await prisma.tag.findMany({ orderBy: { name: "asc" } })

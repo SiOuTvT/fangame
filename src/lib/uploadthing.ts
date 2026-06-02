@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
 import { createUploadthing, type FileRouter } from "uploadthing/next"
 
 const f = createUploadthing()
@@ -31,6 +32,11 @@ export const ourFileRouter = {
     .middleware(async () => {
       const session = await auth()
       if (!session?.user?.id) throw new Error("未登录")
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { role: true },
+      })
+      if (user?.role !== "ADMIN") throw new Error("无权限")
       return { userId: session.user.id }
     })
     .onUploadComplete(async ({ file }) => {

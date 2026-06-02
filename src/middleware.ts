@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server"
 function buildCSP(): string {
   const directives = [
     `default-src 'self'`,
-    `script-src 'self' 'unsafe-eval' 'unsafe-inline'`,
+    `script-src 'self' 'unsafe-inline'`,
     `style-src 'self' 'unsafe-inline'`,
     `img-src 'self' data: blob: https:`,
     `font-src 'self' data:`,

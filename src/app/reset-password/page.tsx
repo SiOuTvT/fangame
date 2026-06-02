@@ -21,7 +21,7 @@ function ResetForm() {
 
   useEffect(() => {
     if (!token) { setStatus("invalid"); return }
-    fetch(`/api/auth/reset-password?token=${token}`)
+    fetch(`/api/auth/reset-password?token=${encodeURIComponent(token)}`)
       .then(r => r.json())
       .then(d => { if (d.valid) { setStatus("valid"); setEmail(d.email) } else setStatus("invalid") })
       .catch(() => setStatus("invalid"))

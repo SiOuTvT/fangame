@@ -1,4 +1,5 @@
 import { AdminGamesTable } from "@/components/admin-games-table"
+import { Pagination } from "@/components/ui/pagination"
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Download, Plus, Search } from "lucide-react"
@@ -72,24 +73,12 @@ export default async function AdminGamesPage({
 
       <AdminGamesTable games={games} />
 
-      {/* 分页 */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-            <Link
-              key={p}
-              href={`/admin/games?page=${p}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
-              className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
-                p === page
-                  ? "bg-accent text-foreground"
-                  : "bg-card text-muted-foreground ring-1 ring-border hover:bg-accent hover:text-foreground"
-              }`}
-            >
-              {p}
-            </Link>
-          ))}
-        </div>
-      )}
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        baseUrl="/admin/games"
+        extraParams={q ? { q } : undefined}
+      />
     </div>
   )
 }

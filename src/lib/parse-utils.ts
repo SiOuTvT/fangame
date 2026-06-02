@@ -10,7 +10,7 @@ export function parseStringArray(raw: string | null | undefined): string[] {
   } catch {
     // 不是 JSON，按分隔符拆分
   }
-  return raw.split(/[,，/、]/).map(s => s.trim()).filter(Boolean)
+  return raw.split(/[,，、]/).map(s => s.trim()).filter(Boolean)
 }
 
 export type FileSizeEntry = { value: string; unit: string }
@@ -27,11 +27,11 @@ export function parseFileSizes(raw: string | null | undefined): FileSizeEntry[] 
   } catch {
     // 不是 JSON，按分隔符拆分
   }
-  const parts = raw.split(/[/、,，]/).map(s => s.trim()).filter(Boolean)
+  const parts = raw.split(/[、,，]/).map(s => s.trim()).filter(Boolean)
   return parts.map(part => {
     const m = part.match(/([\d.]+)\s*(MB|GB)/i)
     if (m) return { value: m[1], unit: m[2].toUpperCase() }
-    return { value: part, unit: "GB" }
+    return { value: part, unit: "" }
   })
 }
 

@@ -24,7 +24,7 @@ export const registerSchema = z.object({
 })
 
 export const loginSchema = z.object({
-  email: z.string().email("邮箱格式不正确"),
+  identifier: z.string().min(1, "请输入用户名或邮箱"),
   password: z.string().min(1, "请输入密码"),
 })
 

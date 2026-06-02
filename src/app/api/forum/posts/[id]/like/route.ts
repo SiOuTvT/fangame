@@ -7,8 +7,33 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
   const session = await auth()
   if (!session?.user?.id) return NextResponse.json({ error: "未登录" }, { status: 401 })
   const { id } = await params
-  const post = await prisma.forumPost.update({ where: { id }, data: { likeCount: { increment: 1 } }, select: { likeCount: true, userId: true } })
-  
+
+  // 检查是否已点赞
+  const existing = await prisma.forumPostLike.findUnique({
+    where: { userId_postId: { userId: session.user.id, postId: id } },
+  })
+
+  if (existing) {
+    // 取消点赞
+    await prisma.forumPostLike.delete({ where: { id: existing.id } })
+    const post = await prisma.forumPost.update({
+      where: { id },
+      data: { likeCount: { decrement: 1 } },
+      select: { likeCount: true },
+    })
+    return NextResponse.json({ likeCount: post.likeCount, liked: false })
+  }
+
+  // 点赞
+  await prisma.forumPostLike.create({
+    data: { userId: session.user.id, postId: id },
+  })
+  const post = await prisma.forumPost.update({
+    where: { id },
+    data: { likeCount: { increment: 1 } },
+    select: { likeCount: true, userId: true },
+  })
+
   // 创建通知
   createNotification({
     userId: post.userId,
@@ -18,5 +43,5 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
     targetId: id,
   }).catch(() => {})
 
-  return NextResponse.json({ likeCount: post.likeCount })
+  return NextResponse.json({ likeCount: post.likeCount, liked: true })
 }

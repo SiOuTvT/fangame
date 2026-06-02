@@ -52,20 +52,7 @@ export interface ThemeVars {
 export function getThemeCSSVariables(vars: ThemeVars): string {
   const { color, radius, shadowIntensity, alpha } = vars
   const [r, g, b] = hexToRgb(color)
-  const hue = (() => {
-    const [r1, g1, b1] = [r / 255, g / 255, b / 255]
-    const max = Math.max(r1, g1, b1), min = Math.min(r1, g1, b1)
-    let h = 0
-    if (max !== min) {
-      const d = max - min
-      switch (max) {
-        case r1: h = ((g1 - b1) / d + (g1 < b1 ? 6 : 0)) * 60; break
-        case g1: h = ((b1 - r1) / d + 2) * 60; break
-        case b1: h = ((r1 - g1) / d + 4) * 60; break
-      }
-    }
-    return Math.round(h)
-  })()
+  const hue = getHue(color)
   const alphaDecimal = alpha / 100
 
   return [

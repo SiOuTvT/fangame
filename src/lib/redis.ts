@@ -59,10 +59,14 @@ class RedisCache implements CacheClient {
   async set(key: string, value: unknown, ttlSeconds?: number): Promise<void> {
     try {
       const serialized = JSON.stringify(value)
+      // 使用 POST body 避免 URL 长度限制
       const path = ttlSeconds
-        ? `/set/${encodeURIComponent(key)}/${encodeURIComponent(serialized)}?ex=${ttlSeconds}`
-        : `/set/${encodeURIComponent(key)}/${encodeURIComponent(serialized)}`
-      await this.request(path)
+        ? `/set/${encodeURIComponent(key)}?ex=${ttlSeconds}`
+        : `/set/${encodeURIComponent(key)}`
+      await this.request(path, {
+        method: "POST",
+        body: serialized,
+      })
     } catch (error) {
       console.error("Redis set error:", error)
     }

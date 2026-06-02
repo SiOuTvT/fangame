@@ -74,10 +74,10 @@ function LoginContent() {
   }
 
   const regFields = [
-    { key: "username" as const, icon: User, type: "text", placeholder: "用户名" },
-    { key: "email" as const, icon: Mail, type: "email", placeholder: "邮箱地址" },
-    { key: "password" as const, icon: Lock, type: "password", placeholder: "密码（至少6位）" },
-    { key: "confirm" as const, icon: CheckCircle2, type: "password", placeholder: "确认密码" },
+    { key: "username" as const, icon: User, type: "text", placeholder: "用户名", autoComplete: "username" },
+    { key: "email" as const, icon: Mail, type: "email", placeholder: "邮箱地址", autoComplete: "email" },
+    { key: "password" as const, icon: Lock, type: "password", placeholder: "密码（至少6位）", autoComplete: "new-password" },
+    { key: "confirm" as const, icon: CheckCircle2, type: "password", placeholder: "确认密码", autoComplete: "new-password" },
   ]
 
   return (
@@ -138,7 +138,7 @@ function LoginContent() {
                   onChange={(e) => setIdentifier(e.target.value)}
                   placeholder="用户名或邮箱"
                   required
-                  autoComplete="off"
+                  autoComplete="username"
                   className="flex-1 bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none"
                   onFocus={(e) => e.target.scrollIntoView({ behavior: "smooth", block: "center" })}
                 />
@@ -152,6 +152,7 @@ function LoginContent() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="密码"
                   required
+                  autoComplete="current-password"
                   className="flex-1 bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none"
                   onFocus={(e) => e.target.scrollIntoView({ behavior: "smooth", block: "center" })}
                 />
@@ -176,7 +177,7 @@ function LoginContent() {
             </form>
           ) : (
             <form onSubmit={handleRegister} className="space-y-3">
-              {regFields.map(({ key, icon: Icon, type, placeholder }) => (
+              {regFields.map(({ key, icon: Icon, type, placeholder, autoComplete }) => (
                 <div key={key} className="flex items-center gap-3 rounded-xl bg-zinc-800 px-4 py-3 border border-white/[0.06] focus-within:border-zinc-500 transition-all">
                   <Icon className="h-4 w-4 shrink-0 text-zinc-500" strokeWidth={1.5} />
                   <input
@@ -185,7 +186,7 @@ function LoginContent() {
                     onChange={setReg(key)}
                     placeholder={placeholder}
                     required
-                    autoComplete="off"
+                    autoComplete={autoComplete}
                     className="flex-1 bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none"
                     onFocus={(e) => e.target.scrollIntoView({ behavior: "smooth", block: "center" })}
                   />

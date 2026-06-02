@@ -41,6 +41,9 @@ model User {
   collections      Collection[]
   publishedGames   Game[]
   gameResources    GameResource[]
+  forumPostLikes   ForumPostLike[]
+  forumCommentLikes ForumCommentLike[]
+  commentLikes     CommentLike[]
 
   @@index([role])
   @@index([serialId])
@@ -183,6 +186,7 @@ model Comment {
   createdAt DateTime @default(now())
   game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes     CommentLike[]
 
   @@index([gameId, createdAt])
   @@index([userId])
@@ -369,6 +373,7 @@ model ForumPost {
   createdAt DateTime       @default(now())
   user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   comments  ForumComment[]
+  likes     ForumPostLike[]
 
   @@index([userId])
   @@index([createdAt])
@@ -384,6 +389,7 @@ model ForumComment {
   createdAt DateTime  @default(now())
   post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes     ForumCommentLike[]
 
   @@index([postId, createdAt])
   @@index([userId])
@@ -403,6 +409,39 @@ model Notification {
 
   @@index([userId, isRead, createdAt])
   @@index([actorId])
+}
+
+model ForumPostLike {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  @@unique([userId, postId])
+  @@index([postId])
+}
+
+model ForumCommentLike {
+  id        String      @id @default(cuid())
+  userId    String
+  commentId String
+  createdAt DateTime    @default(now())
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment   ForumComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  @@unique([userId, commentId])
+  @@index([commentId])
+}
+
+model CommentLike {
+  id        String   @id @default(cuid())
+  userId    String
+  commentId String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  @@unique([userId, commentId])
+  @@index([commentId])
 }
 
 /// 情感化消息管理 — 可在后台自定义各场景的提示文案和插图

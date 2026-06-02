@@ -11,8 +11,8 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   const post = await prisma.forumPost.findUnique({ where: { id } })
   if (!post) return notFound()
   // 只允许作者或管理员删除
-  const isAdmin = (session.user as { role?: string }).role === "admin"
-  if (post.userId !== session.user.id && !isAdmin) return forbidden()
+  const dbUser = await prisma.user.findUnique({ where: { id: session.user.id }, select: { role: true } })
+  if (post.userId !== session.user.id && dbUser?.role !== "ADMIN") return forbidden()
 
   await prisma.forumPost.delete({ where: { id } })
   return NextResponse.json({ success: true })

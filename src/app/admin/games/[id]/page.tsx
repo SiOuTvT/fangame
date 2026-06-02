@@ -33,10 +33,15 @@ export default async function EditGamePage({ params }: { params: Promise<{ id: s
 
   if (!game) notFound()
 
+  let screenshots: string[] = []
+  let downloadLinks: { url: string; label: string }[] = []
+  try { screenshots = JSON.parse(game.screenshots || "[]") } catch { /* ignore */ }
+  try { downloadLinks = JSON.parse(game.downloadLinks || "[]") } catch { /* ignore */ }
+
   const gameData = {
     ...game,
-    screenshots: JSON.parse(game.screenshots || "[]"),
-    downloadLinks: JSON.parse(game.downloadLinks || "[]"),
+    screenshots,
+    downloadLinks,
     tagIds: game.tags.map((t) => t.tag.id),
     releaseDate: game.releaseDate ? game.releaseDate.toISOString().slice(0, 10) : undefined,
   }

@@ -1,7 +1,20 @@
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
+import { unstable_cache } from "next/cache"
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
+
+// 请求级缓存：同一请求内多次 auth() 调用只查一次 DB
+const getCachedUser = unstable_cache(
+  async (id: string) => {
+    return prisma.user.findUnique({
+      where: { id },
+      select: { avatar: true, avatarFrameId: true, serialId: true, composedAvatarUrl: true },
+    })
+  },
+  ["session-user"],
+  { revalidate: 30, tags: ["session-user"] }
+)
 
 // 全局类型声明：扩展 JWT 和 Session 类型
 declare module "next-auth" {
@@ -13,6 +26,7 @@ declare module "next-auth" {
       email?: string | null
       image?: string | null
       avatarFrame: string
+      composedAvatarUrl: string | null
     }
   }
 }
@@ -106,25 +120,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // 实时从数据库读取 image 和 avatarFrame，避免存入 JWT 增大 cookie
         try {
           if (token.id) {
-            const dbUser = await prisma.user.findUnique({
-              where: { id: token.id as string },
-              select: { avatar: true, avatarFrameId: true, serialId: true, composedAvatarUrl: true },
-            })
+            const dbUser = await getCachedUser(token.id as string)
             session.user.image = dbUser?.avatar ?? null
             session.user.avatarFrame = dbUser?.avatarFrameId ?? "none"
             session.user.serialId = dbUser?.serialId ?? 0
-            ;(session.user as any).composedAvatarUrl = dbUser?.composedAvatarUrl ?? null
+            session.user.composedAvatarUrl = dbUser?.composedAvatarUrl ?? null
           } else {
             session.user.image = null
             session.user.avatarFrame = "none"
             session.user.serialId = 0
-            ;(session.user as any).composedAvatarUrl = null
+            session.user.composedAvatarUrl = null
           }
         } catch {
           session.user.image = null
           session.user.avatarFrame = "none"
           session.user.serialId = 0
-          ;(session.user as any).composedAvatarUrl = null
+          session.user.composedAvatarUrl = null
         }
       }
       return session

@@ -29,7 +29,7 @@ export default async function AdminDashboard() {
     prisma.tag.count(),
     prisma.user.count(),
     prisma.game.findMany({ orderBy: { createdAt: "desc" }, take: 5, select: { id: true, title: true, isPublished: true, createdAt: true } }),
-    prisma.game.findMany({ where: { isPublished: true }, orderBy: { viewCount: "desc" }, take: 5, select: { id: true, title: true, viewCount: true } }),
+    prisma.game.findMany({ where: { isPublished: true }, orderBy: { viewCount: "desc" }, take: 5, select: { id: true, serialId: true, title: true, viewCount: true } }),
     prisma.game.findMany({ where: { createdAt: { gte: since } }, select: { createdAt: true } }),
     prisma.user.findMany({ where: { createdAt: { gte: since } }, select: { createdAt: true } }),
     prisma.comment.findMany({ where: { createdAt: { gte: since } }, select: { createdAt: true } }),
@@ -105,7 +105,7 @@ export default async function AdminDashboard() {
             {topGames.map((g, i) => (
               <div key={g.id} className="flex items-center gap-3">
                 <span className="w-5 shrink-0 text-sm text-muted-foreground">{i + 1}</span>
-                <Link href={`/games/${g.id}`} className="flex-1 truncate text-sm text-muted-foreground hover:text-foreground transition-colors">{g.title}</Link>
+                <Link href={`/games/${g.serialId}`} className="flex-1 truncate text-sm text-muted-foreground hover:text-foreground transition-colors">{g.title}</Link>
                 <span className="shrink-0 text-sm text-muted-foreground">{g.viewCount} 次</span>
               </div>
             ))}
