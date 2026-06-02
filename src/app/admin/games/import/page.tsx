@@ -37,23 +37,23 @@ export default async function VNDBImportPage() {
         <h3 className="mb-3 text-sm font-semibold text-foreground">使用说明</h3>
         <ul className="space-y-2 text-xs text-muted-foreground">
           <li className="flex items-start gap-2">
-            <span className="text-blue-400 mt-0.5">•</span>
+            <span className="text-primary mt-0.5">•</span>
             <span>输入 VNDB 视觉小说 ID（纯数字），可以在 VNDB 网站 URL 中找到，例如 vndb.org/v<strong>12345</strong></span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-blue-400 mt-0.5">•</span>
+            <span className="text-primary mt-0.5">•</span>
             <span>支持批量导入，每行一个 ID 或用逗号分隔</span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-blue-400 mt-0.5">•</span>
+            <span className="text-primary mt-0.5">•</span>
             <span>系统会自动获取标题、原作、标签等信息</span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-blue-400 mt-0.5">•</span>
+            <span className="text-primary mt-0.5">•</span>
             <span>导入的游戏默认为「草稿」状态，需要手动编辑后发布</span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-blue-400 mt-0.5">•</span>
+            <span className="text-primary mt-0.5">•</span>
             <span>已存在的 VNDB ID 会被跳过，不会重复导入</span>
           </li>
         </ul>

@@ -97,7 +97,7 @@ export function AvatarFrameSelector({
               {/* Preview */}
               <div className="mb-5 flex justify-center">
                 <div className="relative w-20 h-20">
-                  <div className="w-full h-full rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                  <div className="w-full h-full rounded-full overflow-hidden bg-primary/80 flex items-center justify-center">
                     {userImage ? (
                       <img src={userImage} alt={userName} className="h-full w-full object-cover" />
                     ) : (
@@ -152,7 +152,7 @@ export function AvatarFrameSelector({
                       )}
                     >
                       <div className="relative w-14 h-14">
-                        <div className="w-full h-full rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                        <div className="w-full h-full rounded-full overflow-hidden bg-primary/80 flex items-center justify-center">
                           {userImage ? (
                             <img src={userImage} alt="" className="h-full w-full object-cover" />
                           ) : (

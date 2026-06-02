@@ -38,7 +38,7 @@ export function FollowDeleteBtn({ id }: { id: string }) {
         open={open}
         onOpenChange={setOpen}
         title="删除关注关系"
-        description="确定要删除这条关注关系吗？此操作无法撤销。"
+        description="确定要删除这条关注关系吗？删了就找不回来了。"
         confirmText="删除"
         variant="destructive"
         onConfirm={handleDelete}

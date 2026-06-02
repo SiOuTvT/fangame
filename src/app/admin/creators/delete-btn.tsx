@@ -34,7 +34,7 @@ export function CreatorDeleteBtn({ id }: { id: string }) {
         open={open}
         onOpenChange={setOpen}
         title="删除创作者"
-        description="确定要删除该创作者吗？相关游戏不会被删除，但创作者信息将被移除。此操作无法撤销。"
+        description="确定要删除该创作者吗？相关游戏不会被删除，但创作者信息将被移除。删了就找不回来了。"
         confirmText="删除"
         variant="destructive"
         onConfirm={handleDelete}

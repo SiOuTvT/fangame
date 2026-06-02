@@ -38,7 +38,7 @@ export function FavoriteDeleteBtn({ id }: { id: string }) {
         open={open}
         onOpenChange={setOpen}
         title="删除收藏"
-        description="确定要删除这条收藏记录吗？此操作无法撤销。"
+        description="确定要删除这条收藏记录吗？删了就找不回来了。"
         confirmText="删除"
         variant="destructive"
         onConfirm={handleDelete}

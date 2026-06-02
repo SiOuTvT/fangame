@@ -57,7 +57,7 @@ export default async function AdminFollowsPage({
               key={follow.id}
               className="group flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/30"
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-500 text-sm font-bold text-white">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/80 text-sm font-bold text-primary-foreground">
                 {follow.follower.username.charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">

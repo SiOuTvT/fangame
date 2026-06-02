@@ -177,7 +177,7 @@ function ResourceCard({
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-foreground truncate">
-            {resource.username || "匿名用户"}
+            {resource.username || "热心网友"}
           </p>
           <p className="text-sm text-muted-foreground/80">
             {formatRelativeTime(resource.createdAt)}
@@ -483,7 +483,7 @@ export function ResourceTab({
 
       {/* 空状态 */}
       {!loading && !loadError && resources.length === 0 && downloadLinks.length === 0 && (
-        <p className="text-sm text-muted-foreground/60 text-center py-4">暂无下载链接</p>
+        <p className="text-sm text-muted-foreground/60 text-center py-4">还没有人分享资源，等一等~</p>
       )}
 
       {/* 编辑资源弹窗 */}
@@ -510,7 +510,7 @@ export function ResourceTab({
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         title="删除资源"
-        description={`确定要删除"${deleteTarget?.resourceName || "此资源"}"吗？此操作无法撤销。`}
+        description={`确定要删除"${deleteTarget?.resourceName || "此资源"}"吗？删了就找不回来了。`}
         confirmText={actionLoading ? "删除中..." : "删除"}
         onConfirm={handleDeleteConfirm}
         variant="destructive"

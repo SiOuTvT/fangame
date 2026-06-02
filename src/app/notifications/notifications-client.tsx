@@ -235,7 +235,7 @@ export default function NotificationsClient({
           <div className="flex items-center gap-2">
             <Bell className="h-5 w-5 text-zinc-400" />
             <h1 className="text-xl font-bold text-zinc-100 light:text-zinc-900">
-              通知中心
+              消息中心
             </h1>
             {unreadCount > 0 && (
               <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[11px] font-bold text-white">
@@ -297,7 +297,7 @@ export default function NotificationsClient({
                   <>
                     <button
                       onClick={handleMarkSelectedRead}
-                      className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-blue-400 transition-colors hover:bg-zinc-800 light:text-blue-600 light:hover:bg-zinc-100"
+                      className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-zinc-800 light:text-primary light:hover:bg-zinc-100"
                     >
                       <CheckCheck className="h-3.5 w-3.5" />
                       标记已读
@@ -331,7 +331,7 @@ export default function NotificationsClient({
             <div className="flex flex-col items-center justify-center py-20">
               <Bell className="mb-4 h-12 w-12 text-zinc-700 light:text-zinc-300" />
               <p className="text-sm text-zinc-600 light:text-zinc-400">
-                {filter === "unread" ? "没有未读通知" : "暂无通知"}
+                {filter === "unread" ? "所有消息都看过了~" : "暂时没有新消息~"}
               </p>
             </div>
           ) : (
@@ -345,9 +345,9 @@ export default function NotificationsClient({
                   key={n.id}
                   className={`group flex items-start gap-3 rounded-xl px-4 py-3 transition-colors ${
                     !n.isRead
-                      ? "bg-zinc-900/80 light:bg-blue-50/60"
+                      ? "bg-zinc-900/80 light:bg-primary/5/60"
                       : "hover:bg-zinc-900/40 light:hover:bg-zinc-50"
-                  } ${selectMode && selectedIds.has(n.id) ? "ring-1 ring-blue-500/50 bg-blue-900/20 light:bg-blue-50" : ""}`}
+                  } ${selectMode && selectedIds.has(n.id) ? "ring-1 ring-primary/50 bg-primary/10 light:bg-primary/5" : ""}`}
                 >
                   {selectMode && (
                     <button
@@ -355,7 +355,7 @@ export default function NotificationsClient({
                       className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded border border-zinc-600 transition-colors light:border-zinc-300"
                     >
                       {selectedIds.has(n.id) && (
-                        <Check className="h-3 w-3 text-blue-400" />
+                        <Check className="h-3 w-3 text-primary" />
                       )}
                     </button>
                   )}
@@ -380,7 +380,7 @@ export default function NotificationsClient({
                       </Link>
                     )}
                     {!n.isRead && (
-                      <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-black light:border-white bg-blue-500" />
+                      <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-black light:border-white bg-primary" />
                     )}
                   </div>
 
@@ -429,7 +429,7 @@ className="mt-1 shrink-0 rounded-lg p-1.5 text-zinc-600 sm:opacity-0 transition-
         open={showClearConfirm}
         onOpenChange={setShowClearConfirm}
         title="清空通知"
-        description="确定要清空所有通知吗？此操作不可撤销。"
+        description="确定要清空所有通知吗？删了就找不回来了。"
         variant="destructive"
         confirmText="清空"
         onConfirm={deleteAll}

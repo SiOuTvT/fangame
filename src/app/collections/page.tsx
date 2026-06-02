@@ -73,7 +73,7 @@ export default async function CollectionsPage() {
                       sizes="(max-width: 640px) 33vw, (max-width: 1024px) 16vw, 12vw"
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-muted text-xs text-muted-foreground">暂无封面</div>
+                    <div className="flex h-full w-full items-center justify-center bg-muted text-xs text-muted-foreground">封面还没上传~</div>
                   )}
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2">
                     <p className="line-clamp-2 text-xs font-medium leading-tight text-white">{g.title}</p>

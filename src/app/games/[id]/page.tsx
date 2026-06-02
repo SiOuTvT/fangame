@@ -226,7 +226,7 @@ export default async function GameDetailPage({
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-secondary">
-                    <span className="text-muted-foreground/40 text-sm">暂无封面</span>
+                    <span className="text-muted-foreground/40 text-sm">封面还没上传~</span>
                   </div>
                 )}
               </div>
@@ -239,7 +239,7 @@ export default async function GameDetailPage({
               <div className="mb-1">
                 <h1
                   className="font-black leading-tight"
-                  style={{ fontSize: "clamp(16px, 2.2vw, 24px)", color: "hsl(var(--foreground))", fontWeight: 900 }}
+                  style={{ fontSize: "clamp(16px, 2.2vw, 24px)", color: "var(--foreground)", fontWeight: 900 }}
                 >
                   {game.title}
                 </h1>

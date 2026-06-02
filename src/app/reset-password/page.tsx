@@ -58,9 +58,9 @@ function ResetForm() {
       {status === "invalid" && (
         <div className="text-center">
           <XCircle className="mx-auto mb-4 h-12 w-12 text-red-400" strokeWidth={1.5} />
-          <h1 className="text-lg font-bold text-zinc-100">链接无效或已过期</h1>
-          <p className="mt-2 text-sm text-zinc-500">重置链接有效期为1小时，请重新申请。</p>
-          <Link href="/forgot-password" className="mt-6 block text-sm text-blue-400 hover:text-blue-300 transition-colors">重新申请</Link>
+          <h1 className="text-lg font-bold text-zinc-100">链接过期啦</h1>
+          <p className="mt-2 text-sm text-zinc-500">重新申请一个吧~</p>
+          <Link href="/forgot-password" className="mt-6 block text-sm text-primary hover:text-primary/80 transition-colors">重新申请</Link>
         </div>
       )}
       {status === "valid" && !done && (
@@ -93,7 +93,7 @@ function ResetForm() {
       {done && (
         <div className="text-center">
           <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-emerald-400" strokeWidth={1.5} />
-          <h1 className="text-lg font-bold text-zinc-100">密码已重置</h1>
+          <h1 className="text-lg font-bold text-zinc-100">密码重置成功！</h1>
           <p className="mt-2 text-sm text-zinc-500">正在跳转到登录页…</p>
         </div>
       )}

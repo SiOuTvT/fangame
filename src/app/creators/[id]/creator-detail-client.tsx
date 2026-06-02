@@ -178,7 +178,7 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
                       className="object-cover transition-transform duration-300 group-hover:scale-[1.05]"
                       sizes="(max-width: 640px) 33vw, 16vw" />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-zinc-800 light:bg-zinc-100 text-zinc-600 text-xs">无封面</div>
+                    <div className="flex h-full w-full items-center justify-center bg-zinc-800 light:bg-zinc-100 text-zinc-600 text-xs">封面还没上传~</div>
                   )}
                   {vn.rating ? (
                     <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 rounded-md bg-black/60 px-1.5 py-0.5 text-[9px] font-medium text-amber-400 backdrop-blur-sm">

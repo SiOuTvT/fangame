@@ -312,7 +312,7 @@ export function GalleryStrip({
           className="relative shrink-0 overflow-hidden transition-all duration-200 h-[48px] w-[85px] sm:h-[60px] sm:w-[106px] lg:h-[72px] lg:w-[128px]"
           style={{
             borderRadius: "8px",
-            border: i === activeIndex ? `2px solid hsl(var(--primary))` : "2px solid transparent",
+            border: i === activeIndex ? `2px solid var(--primary)` : "2px solid transparent",
             opacity: i === activeIndex ? 1 : 0.45,
           }}
         >

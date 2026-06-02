@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 import {
   ArrowLeft, CalendarCheck, ChevronLeft, ChevronRight, Flag, Frame, Gamepad2, Heart,
   LayoutDashboard, Megaphone, Menu, MessageSquare, Moon, Music, Palette,
-  PenTool, Settings, SmilePlus, Sun, Tag, UserPlus, Users, X,
+  PenTool, Settings, SmilePlus, Sun, Tag, Type, UserPlus, Users, X,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -26,6 +26,7 @@ const items = [
   { icon: Frame,           label: "头像框管理",  href: "/admin/avatar-frames" },
   { icon: SmilePlus,       label: "情感消息",    href: "/admin/emotional-messages" },
   { icon: Settings,        label: "站点设置",    href: "/admin/site-settings" },
+  { icon: Type,            label: "文案管理",    href: "/admin/copy" },
   { icon: Palette,         label: "主题设置",    href: "/admin/theme" },
 ]
 

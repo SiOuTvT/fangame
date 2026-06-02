@@ -351,8 +351,8 @@ export function RichTextEditor({
         className="relative"
       >
         {dragOver && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-b-xl bg-blue-500/10 backdrop-blur-sm border-2 border-dashed border-blue-500/40">
-            <div className="flex flex-col items-center gap-2 text-blue-400">
+          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-b-xl bg-primary/10 backdrop-blur-sm border-2 border-dashed border-primary/40">
+            <div className="flex flex-col items-center gap-2 text-primary">
               <Upload className="h-8 w-8" strokeWidth={1.5} />
               <span className="text-sm font-medium">松开上传图片</span>
             </div>

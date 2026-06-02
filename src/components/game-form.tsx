@@ -378,7 +378,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 type="button"
                 onClick={handleVndbFetch}
                 disabled={vndbLoading}
-                className="shrink-0 flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-blue-700 disabled:opacity-60"
+                className="shrink-0 flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all duration-200 hover:opacity-90 disabled:opacity-60"
               >
                 {vndbLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />
@@ -629,11 +629,11 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
         <h2 className="text-sm font-semibold text-foreground">发布设置</h2>
         <div className="flex flex-wrap gap-4">
           <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
-            <input type="checkbox" checked={isNsfw} onChange={(e) => setIsNsfw(e.target.checked)} className="h-4 w-4 rounded accent-blue-500" />
+            <input type="checkbox" checked={isNsfw} onChange={(e) => setIsNsfw(e.target.checked)} className="h-4 w-4 rounded accent-primary" />
             NSFW 内容
           </label>
           <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
-            <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="h-4 w-4 rounded accent-blue-500" />
+            <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="h-4 w-4 rounded accent-primary" />
             立即发布
           </label>
         </div>

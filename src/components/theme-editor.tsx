@@ -10,16 +10,16 @@ import { toast } from "sonner"
 
 /* ── 预设主题色 ── */
 const THEME_PRESETS = [
-  { name: "sky", label: "天空蓝", color: "#38BDF8", desc: "清新 · 现代" },
-  { name: "violet", label: "梦幻紫", color: "#a78bfa", desc: "浪漫 · 二次元" },
-  { name: "pink", label: "樱花粉", color: "#f472b6", desc: "甜美 · 少女" },
-  { name: "rose", label: "玫瑰红", color: "#fb7185", desc: "热情 · 活力" },
-  { name: "emerald", label: "翡翠绿", color: "#34d399", desc: "清新 · 自然" },
-  { name: "amber", label: "琥珀金", color: "#fbbf24", desc: "温暖 · 活泼" },
-  { name: "orange", label: "落日橙", color: "#fb923c", desc: "热情 · 明亮" },
-  { name: "teal", label: "薄荷青", color: "#2dd4bf", desc: "清凉 · 治愈" },
-  { name: "indigo", label: "靛青蓝", color: "#818cf8", desc: "深邃 · 优雅" },
-  { name: "cyan", label: "水色青", color: "#22d3ee", desc: "清澈 · 灵动" },
+  { name: "rose", label: "柔玫瑰", color: "#e8789a", desc: "温暖 · 怀旧" },
+  { name: "sakura", label: "樱花粉", color: "#f0a0b8", desc: "甜美 · 少女" },
+  { name: "mauve", label: "暮色紫", color: "#b088c0", desc: "梦幻 · 文艺" },
+  { name: "mist", label: "雾蓝", color: "#7ca8c8", desc: "安静 · 治愈" },
+  { name: "tea", label: "茶绿", color: "#8cb888", desc: "清新 · 自然" },
+  { name: "amber", label: "暖琥珀", color: "#d4a050", desc: "温暖 · 复古" },
+  { name: "slate", label: "烟灰蓝", color: "#8898a8", desc: "沉稳 · 内敛" },
+  { name: "apricot", label: "杏橘", color: "#e89868", desc: "活泼 · 温暖" },
+  { name: "mint", label: "薄荷", color: "#78c0b0", desc: "清凉 · 干净" },
+  { name: "copper", label: "赤铜", color: "#c07868", desc: "厚重 · 质感" },
 ]
 
 function hexToRgb(hex: string): [number, number, number] {
@@ -30,7 +30,7 @@ function hexToRgb(hex: string): [number, number, number] {
 }
 
 const DEFAULT_SETTINGS = {
-  themeColor: "#38BDF8",
+  themeColor: "#e8789a",
   themeRadius: 12,
   themeShadowIntensity: 50,
   themeAlpha: 15,

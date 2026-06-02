@@ -35,7 +35,7 @@ export function RelatedGames({ games }: { games: RelatedGame[] }) {
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center">
-                <span className="text-xs text-muted-foreground">暂无封面</span>
+                <span className="text-xs text-muted-foreground">封面还没上传~</span>
                 </div>
               )}
             </div>

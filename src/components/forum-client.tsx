@@ -177,7 +177,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
   function handleCommentImage(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file || !file.type.startsWith("image/")) return
-    if (file.size > 5 * 1024 * 1024) { setImageError("图片大小不能超过 5MB"); setTimeout(() => setImageError(null), 3000); return }
+    if (file.size > 5 * 1024 * 1024) { setImageError("图片太大啦，最多 5MB 哦"); setTimeout(() => setImageError(null), 3000); return }
     setCommentImageFile(file)
     const reader = new FileReader()
     reader.onload = (ev) => setCommentImagePreview(ev.target?.result as string)
@@ -248,7 +248,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
         {/* 左：帖子列表 */}
         <div className="space-y-2">
           {filteredPosts.length === 0 && (
-            <p className="py-16 text-center text-sm text-zinc-600 light:text-zinc-400">暂无帖子</p>
+            <p className="py-16 text-center text-sm text-zinc-600 light:text-zinc-400">还没有人发过帖，来开个头吧~</p>
           )}
           {filteredPosts.map(post => (
             <button key={post.id} 
@@ -437,7 +437,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
 
         <div className="mt-4 flex items-center gap-2">
           <button onClick={onLikePost} disabled={!isLoggedIn}
-            className="flex items-center gap-1.5 rounded-lg bg-zinc-800 light:bg-zinc-100 px-3 py-1.5 text-xs text-zinc-400 light:text-zinc-500 ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:text-blue-400 disabled:opacity-40">
+            className="flex items-center gap-1.5 rounded-lg bg-zinc-800 light:bg-zinc-100 px-3 py-1.5 text-xs text-zinc-400 light:text-zinc-500 ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:text-primary disabled:opacity-40">
             <Heart className="h-3.5 w-3.5" strokeWidth={1.5} />{post.likeCount}
           </button>
           {isAuthor && (
@@ -464,7 +464,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
       <div className="border-t border-white/[0.06] light:border-black/[0.06] p-5">
         <p className="mb-3 text-xs font-semibold text-zinc-400 light:text-zinc-500">评论 {post.comments.length}</p>
         <div className="mb-4 max-h-64 space-y-3 overflow-y-auto">
-          {post.comments.length === 0 && <p className="text-xs text-zinc-600 light:text-zinc-400">还没有评论~</p>}
+          {post.comments.length === 0 && <p className="text-xs text-zinc-600 light:text-zinc-400">还没有人回复，来说点什么吧~</p>}
           {post.comments.map(c => (
             <div key={c.id} className="flex gap-2.5">
               <Avatar user={c.user} size={6} />
@@ -482,7 +482,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                 )}
                 <div className="mt-1 flex items-center gap-2">
                   <button onClick={() => onLikeComment(c.id)} disabled={!isLoggedIn}
-                    className="flex items-center gap-1 text-[10px] text-zinc-600 light:text-zinc-400 transition-colors hover:text-blue-400 disabled:opacity-40">
+                    className="flex items-center gap-1 text-[10px] text-zinc-600 light:text-zinc-400 transition-colors hover:text-primary disabled:opacity-40">
                     <Heart className="h-2.5 w-2.5" strokeWidth={1.5} />{c.likeCount > 0 && c.likeCount}
                   </button>
                   {(currentUserId === c.user.id || isAdmin) && (
@@ -524,7 +524,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                     className={cn(
                       "flex h-8 w-8 items-center justify-center rounded-lg transition-colors shrink-0",
                       showCommentEmoji 
-                        ? "bg-zinc-800 light:bg-zinc-200 text-blue-400" 
+                        ? "bg-zinc-800 light:bg-zinc-200 text-primary" 
                         : "text-zinc-500 light:text-zinc-400 hover:bg-zinc-800 light:hover:bg-zinc-200 hover:text-zinc-300 light:hover:text-zinc-600"
                     )}
                     aria-label="表情"
@@ -558,7 +558,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
             </form>
           </div>
         ) : (
-          <p className="text-xs text-zinc-500 light:text-zinc-400"><a href="/login" className="text-blue-400 hover:text-blue-300">登录</a>后发表评论</p>
+          <p className="text-xs text-zinc-500 light:text-zinc-400"><a href="/login" className="text-primary hover:text-primary/80">登录</a>后发表评论</p>
         )}
       </div>
     </div>

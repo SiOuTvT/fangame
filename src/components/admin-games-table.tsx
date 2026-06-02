@@ -156,7 +156,7 @@ export function AdminGamesTable({ games }: { games: Game[] }) {
         open={showDeleteConfirm}
         onOpenChange={setShowDeleteConfirm}
         title="批量删除游戏"
-        description={`确定要删除选中的 ${selected.size} 个游戏吗？此操作不可撤销。`}
+        description={`确定要删除选中的 ${selected.size} 个游戏吗？删了就找不回来了。`}
         variant="destructive"
         confirmText="删除"
         onConfirm={batchDelete}

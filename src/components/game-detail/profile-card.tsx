@@ -6,10 +6,10 @@ import Link from "next/link"
 
 /* 莫兰迪灰蓝色调 — 统一低饱和度 */
 const MLD = {
-  bg: "rgba(148, 163, 184, 0.10)",
-  text: "#7c8a9e",
-  bgPurple: "rgba(168, 162, 186, 0.10)",
-  textPurple: "#8b84a0",
+  bg: "rgba(148, 163, 184, 0.12)",
+  text: "#94a0b0",
+  bgPurple: "rgba(168, 162, 186, 0.12)",
+  textPurple: "#a098b0",
 }
 
 interface ProfileCardProps {

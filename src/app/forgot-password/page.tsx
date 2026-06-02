@@ -36,14 +36,14 @@ export default function ForgotPasswordPage() {
           {sent ? (
             <div className="text-center">
               <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-emerald-400" strokeWidth={1.5} />
-              <h1 className="text-lg font-bold text-zinc-100">已发送重置链接</h1>
+              <h1 className="text-lg font-bold text-zinc-100">邮件已发出~</h1>
               <p className="mt-2 text-sm text-zinc-500">
-                如果该邮箱已注册，你将收到一封密码重置邮件。
+                如果这个邮箱注册过，你应该很快就能收到邮件了。
               </p>
               <p className="mt-3 text-xs text-zinc-600">
-                没收到？请联系管理员手动重置。
+                没收到？看看垃圾箱，或者联系我们帮忙~
               </p>
-              <Link href="/login" className="mt-6 block text-sm text-blue-400 hover:text-blue-300 transition-colors">
+              <Link href="/login" className="mt-6 block text-sm text-primary hover:text-primary/80 transition-colors">
                 返回登录
               </Link>
             </div>
@@ -51,7 +51,7 @@ export default function ForgotPasswordPage() {
             <>
               <div className="mb-6">
                 <h1 className="text-xl font-bold text-zinc-100">忘记密码</h1>
-                <p className="mt-1 text-sm text-zinc-500">输入注册邮箱，我们将发送重置链接</p>
+                <p className="mt-1 text-sm text-zinc-500">输入注册邮箱，我们马上发到你邮箱~</p>
               </div>
 
               {error && (

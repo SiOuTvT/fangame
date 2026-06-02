@@ -23,10 +23,10 @@ export function FollowButton({ targetUserId, initialFollowing }: Props) {
         setFollowing(!following)
         toast.success(following ? "已取消关注" : "关注成功")
       } else {
-        toast.error("操作失败，请稍后重试")
+        toast.error("出了点问题，等一下再试试？")
       }
     } catch {
-      toast.error("网络错误", {
+      toast.error("网络好像断了", {
         action: { label: "重试", onClick: () => toggle() },
       })
     } finally {

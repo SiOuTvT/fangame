@@ -98,7 +98,7 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
                     收藏 {u._count.favorites} · 评论 {u._count.comments} · 签到 {u._count.checkIns}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${u.role === "ADMIN" ? "bg-blue-500/15 text-blue-400" : "bg-muted text-muted-foreground"}`}>
+                    <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${u.role === "ADMIN" ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
                       {u.role === "ADMIN" ? "管理员" : "用户"}
                     </span>
                   </td>

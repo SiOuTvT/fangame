@@ -85,9 +85,9 @@ export function ProfileMedalModal({ favCount, playCount, commentCount, totalLeve
       icon: Sword,
       name: "老司机",
       description: "记录 10 个游玩状态",
-      color: "text-blue-400",
-      bgColor: "bg-blue-500/10",
-      borderColor: "ring-blue-500/20",
+      color: "text-primary",
+      bgColor: "bg-primary/10",
+      borderColor: "ring-primary/20",
       earned: playCount >= 10,
     },
     {

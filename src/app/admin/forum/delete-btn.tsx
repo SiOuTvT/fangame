@@ -34,7 +34,7 @@ export function ForumDeleteBtn({ id }: { id: string }) {
         open={open}
         onOpenChange={setOpen}
         title="删除帖子"
-        description="确定要删除这篇帖子吗？所有评论也将一并删除，此操作无法撤销。"
+        description="确定要删除这篇帖子吗？所有评论也将一并删除，删了就找不回来了。"
         confirmText="删除"
         variant="destructive"
         onConfirm={handleDelete}

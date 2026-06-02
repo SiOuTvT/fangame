@@ -19,8 +19,8 @@ interface ConfirmDialogProps {
 export function ConfirmDialog({
   open,
   onOpenChange,
-  title = "确认操作",
-  description = "确定要执行此操作吗？",
+  title = "确认一下",
+  description = "确定要这样做吗？",
   confirmText = "确认",
   cancelText = "取消",
   variant = "default",

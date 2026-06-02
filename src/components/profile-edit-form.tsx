@@ -28,13 +28,13 @@ export function ProfileEditForm({ user }: Props) {
 
   async function handleAvatarUpload(file: File): Promise<string> {
     if (file.size > 5 * 1024 * 1024) {
-      throw new Error("头像图片不能超过 5MB")
+      throw new Error("头像太大啦，最多 5MB 哦")
     }
     const formData = new FormData()
     formData.append("file", file)
     const res = await fetch("/api/upload", { method: "POST", body: formData })
     const data = await res.json()
-    if (!res.ok || !data.url) throw new Error(data.error || "上传失败")
+    if (!res.ok || !data.url) throw new Error(data.error || "上传失败了，再试试？")
     return data.url
   }
 
@@ -178,8 +178,8 @@ export function ProfileEditForm({ user }: Props) {
         <div className="p-8 bg-zinc-900/50">
           <div className="flex items-center gap-2 mb-5">
             <Lock className="h-4 w-4 text-zinc-600" strokeWidth={1.5} />
-            <h3 className="text-xs font-semibold text-muted-foreground">安全设置</h3>
-            <span className="text-[10px] text-zinc-600">不修改请留空</span>
+            <h3 className="text-xs font-semibold text-muted-foreground">修改密码</h3>
+            <span className="text-[10px] text-zinc-600">不想改的话留空就好~</span>
           </div>
           <div className="space-y-4">
             <div>

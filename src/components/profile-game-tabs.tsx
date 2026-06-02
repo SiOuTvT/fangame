@@ -46,7 +46,7 @@ export function ProfileGameTabs({ faveGame, favGames, playStatusGames }: Props) 
       {faveGame && (
         <section>
             <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
-            <span className="h-4 w-0.5 rounded-full bg-gradient-to-b from-blue-400 to-blue-400" />
+            <span className="h-4 w-0.5 rounded-full bg-primary" />
             本命游戏
           </h2>
           <Link href={`/games/${faveGame.serialId ?? faveGame.id}`}
@@ -121,7 +121,7 @@ export function ProfileGameTabs({ faveGame, favGames, playStatusGames }: Props) 
                     <Image src={g.coverImage} alt={g.title} fill
                       className="object-cover transition-transform group-hover:scale-[1.04]" />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground text-xs">无封面</div>
+                    <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground text-xs">封面还没上传~</div>
                   )}
                 </div>
                 <p className="truncate px-2 py-1.5 text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">

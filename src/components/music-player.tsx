@@ -89,7 +89,7 @@ export function MusicPlayer() {
             onClick={() => setExpanded(v => !v)}
             className={cn(
               "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors",
-              playing ? "text-blue-400" : "text-zinc-500 hover:text-zinc-300"
+              playing ? "text-primary" : "text-zinc-500 hover:text-zinc-300"
             )}
           >
             <Music2 className={cn("h-4 w-4", playing && "animate-pulse")} strokeWidth={1.5} />

@@ -413,7 +413,7 @@ export function ImageUpload({
           "flex cursor-pointer flex-col items-center justify-center gap-3 border-2 border-dashed transition-all",
           shape === "circle" ? "rounded-full" : "rounded-xl",
           isDragging
-            ? "border-blue-500 bg-blue-500/10"
+            ? "border-primary bg-primary/10"
             : "border-zinc-700 bg-zinc-900 hover:border-zinc-600 hover:bg-zinc-800"
         )}
         style={{ aspectRatio, minHeight: "120px" }}
@@ -421,7 +421,7 @@ export function ImageUpload({
         <div
           className={cn(
             "flex h-10 w-10 items-center justify-center rounded-full transition-colors",
-            isDragging ? "bg-blue-500/20 text-blue-400" : "bg-zinc-800 text-zinc-500"
+            isDragging ? "bg-primary/20 text-primary" : "bg-zinc-800 text-zinc-500"
           )}
         >
           <Upload className="h-5 w-5" strokeWidth={1.5} />
@@ -430,7 +430,7 @@ export function ImageUpload({
           <p
             className={cn(
               "text-xs font-medium transition-colors",
-              isDragging ? "text-blue-400" : "text-zinc-500"
+              isDragging ? "text-primary" : "text-zinc-500"
             )}
           >
             {isDragging ? "释放以上传图片" : placeholder}

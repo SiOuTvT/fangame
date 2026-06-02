@@ -22,7 +22,7 @@ interface EmMsg {
 }
 
 const CATEGORY_META: Record<string, { label: string; icon: typeof Sparkles; color: string }> = {
-  toast:   { label: "Toast 提示",  icon: MessageCircle, color: "text-blue-400" },
+  toast:   { label: "Toast 提示",  icon: MessageCircle, color: "text-primary" },
   empty:   { label: "空状态",      icon: SearchIcon,    color: "text-amber-400" },
   error:   { label: "错误页",      icon: AlertTriangle, color: "text-red-400" },
   success: { label: "成功页",      icon: CheckCircle2,  color: "text-emerald-400" },

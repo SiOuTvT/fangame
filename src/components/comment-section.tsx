@@ -64,7 +64,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
   function handleFile(file: File) {
     if (!file.type.startsWith("image/")) return
     if (file.size > 5 * 1024 * 1024) {
-      setSubmitError("图片大小不能超过 5MB")
+      setSubmitError("图片太大啦，最多 5MB 哦")
       return
     }
     setSelectedFile(file)
@@ -145,11 +145,11 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
         removePreview()
         setShowEmoji(false)
       } else {
-        const err = await res.json().catch(() => ({ error: "发送失败" }))
-        setSubmitError(err.error || "发送失败")
+        const err = await res.json().catch(() => ({ error: "发送失败了，再试试？" }))
+        setSubmitError(err.error || "发送失败了，再试试？")
       }
     } catch {
-      setSubmitError("网络错误，请重试")
+      setSubmitError("网络好像不太给力，检查一下？")
     } finally {
       setSubmitting(false)
     }
@@ -188,7 +188,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
   return (
     <section>
       <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-zinc-200">
-        <span className="h-4 w-0.5 rounded-full bg-gradient-to-b from-blue-400 to-blue-400" />
+        <span className="h-4 w-0.5 rounded-full bg-primary" />
         评论
         <span className="text-xs font-normal text-zinc-500">{comments.length}</span>
       </h2>
@@ -202,7 +202,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
             onDrop={handleDrop}
             className={cn(
               "rounded-2xl bg-zinc-900/80 light:bg-zinc-100 ring-1 transition-all overflow-hidden",
-              isDragging ? "ring-blue-500/50 bg-blue-500/5 light:bg-blue-500/5" : "ring-white/[0.06] light:ring-black/[0.06] focus-within:ring-white/[0.12] light:focus-within:ring-black/[0.12]"
+              isDragging ? "ring-primary/50 bg-primary/5 light:bg-primary/5" : "ring-white/[0.06] light:ring-black/[0.06] focus-within:ring-white/[0.12] light:focus-within:ring-black/[0.12]"
             )}
           >
             {/* 图片预览 */}
@@ -259,7 +259,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
                 <button type="button" onClick={() => setShowEmoji(!showEmoji)}
                   className={cn(
                     "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
-                    showEmoji ? "bg-zinc-800 text-blue-400" : "text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
+                    showEmoji ? "bg-zinc-800 text-primary" : "text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
                   )}
                   title="表情">
                   <Smile className="h-4 w-4" strokeWidth={1.5} />
@@ -299,7 +299,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
         </form>
       ) : (
         <p className="mb-6 text-sm text-zinc-500">
-          <a href="/login" className="text-blue-400 hover:text-blue-300 transition-colors">登录</a>后可以发表评论
+          <a href="/login" className="text-primary hover:text-blue-300 transition-colors">登录</a>后可以发表评论
         </p>
       )}
 
@@ -363,7 +363,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
               <button onClick={() => isLoggedIn && likeComment(c.id)}
                 className={cn(
                   "mt-1.5 flex items-center gap-1 rounded-md px-1.5 py-1 -mx-1.5 -my-1 text-[11px] transition-colors",
-                  isLoggedIn ? "text-zinc-600 hover:text-blue-400 cursor-pointer" : "text-zinc-700 cursor-default"
+                  isLoggedIn ? "text-zinc-600 hover:text-primary cursor-pointer" : "text-zinc-700 cursor-default"
                 )}
                 aria-label={c.likeCount > 0 ? `${c.likeCount} 个赞` : "点赞"}
               >
@@ -379,7 +379,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
         open={!!deletingId}
         onOpenChange={(open) => { if (!open) setDeletingId(null) }}
         title="删除评论"
-        description="确定要删除这条评论吗？此操作不可撤销。"
+        description="确定要删除这条评论吗？删了就找不回来了。"
         variant="destructive"
         onConfirm={() => { if (deletingId) deleteComment(deletingId) }}
       />
