@@ -161,7 +161,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
 
           <input value={link} onChange={(e) => setLink(e.target.value)} placeholder="跳转链接（选填）" className={inputCls} />
           <button type="submit" disabled={adding}
-            className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-500 to-blue-500 px-5 py-2.5 text-sm font-medium text-white transition-all hover:opacity-90 disabled:opacity-60">
+            className="flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:opacity-90 disabled:opacity-60">
             {adding ? <Loader2 className="h-5 w-5 animate-spin" strokeWidth={2} /> : <Plus className="h-5 w-5" strokeWidth={2} />}
             {adding ? "发布中…" : "发布公告"}
           </button>

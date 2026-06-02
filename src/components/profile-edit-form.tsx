@@ -137,7 +137,7 @@ export function ProfileEditForm({ user }: Props) {
         {/* 基本信息 */}
         <div className="p-8 space-y-6">
           <div>
-            <label className="block mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+            <label className="block mb-2 text-xs font-semibold text-muted-foreground">
               用户名
             </label>
             <div className="flex items-center gap-3 rounded-xl bg-zinc-800 px-4 py-3.5 ring-1 ring-white/[0.06] focus-within:ring-zinc-500 transition-all">
@@ -154,7 +154,7 @@ export function ProfileEditForm({ user }: Props) {
           </div>
 
           <div>
-            <label className="block mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+            <label className="block mb-2 text-xs font-semibold text-muted-foreground">
               个人简介
             </label>
             <div className="rounded-xl bg-zinc-800 px-4 py-3.5 ring-1 ring-white/[0.06] focus-within:ring-zinc-500 transition-all">
@@ -178,7 +178,7 @@ export function ProfileEditForm({ user }: Props) {
         <div className="p-8 bg-zinc-900/50">
           <div className="flex items-center gap-2 mb-5">
             <Lock className="h-4 w-4 text-zinc-600" strokeWidth={1.5} />
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">安全设置</h3>
+            <h3 className="text-xs font-semibold text-muted-foreground">安全设置</h3>
             <span className="text-[10px] text-zinc-600">不修改请留空</span>
           </div>
           <div className="space-y-4">

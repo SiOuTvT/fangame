@@ -112,7 +112,7 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
           )}
           <button
             type="submit"
-            className="rounded-xl bg-blue-500 px-5 py-2.5 text-sm font-medium text-white ring-1 ring-blue-500/30 transition-all hover:bg-blue-600"
+            className="rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:opacity-90"
           >
             搜索
           </button>

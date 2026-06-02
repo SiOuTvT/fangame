@@ -78,7 +78,7 @@ export function MusicPlayer() {
         {expanded && (
         <div className="h-3 w-full cursor-pointer bg-zinc-800 flex items-center" onClick={handleSeek}>
             <div className="h-1 w-full bg-zinc-700 rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-blue-500 to-blue-500 transition-all rounded-full" style={{ width: `${progress}%` }} />
+              <div className="h-full bg-primary transition-all rounded-full" style={{ width: `${progress}%` }} />
             </div>
           </div>
         )}

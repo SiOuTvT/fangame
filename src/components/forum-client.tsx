@@ -29,7 +29,7 @@ const EMOJI_LIST = [
 function Avatar({ user, size = 6 }: { user: User; size?: number }) {
   const s = `h-${size} w-${size}`
   if (user.avatar) return <Image src={user.avatar} alt={user.username} width={size * 4} height={size * 4} className={`${s} rounded-full object-cover shrink-0`} />
-  return <div className={`${s} rounded-full bg-gradient-to-br from-blue-500 to-blue-500 flex items-center justify-center text-[10px] font-bold text-white shrink-0`}>{user.username[0].toUpperCase()}</div>
+  return <div className={`${s} rounded-full bg-primary/80 flex items-center justify-center text-[10px] font-bold text-primary-foreground shrink-0`}>{user.username[0].toUpperCase()}</div>
 }
 
 function fmtDate(d: string) {
@@ -378,7 +378,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
               />
               
               <button type="submit" disabled={submitting}
-                className="w-full rounded-xl bg-gradient-to-r from-blue-500 to-blue-500 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60">
+                className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60">
                 {submitting ? "发布中…" : "发 布"}
               </button>
             </form>

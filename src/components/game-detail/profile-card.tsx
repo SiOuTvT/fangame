@@ -43,7 +43,7 @@ function TagBadge({ children, variant = "default", href }: {
   variant?: "default" | "purple"
   href?: string
 }) {
-  const cls = "inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium transition-all hover:opacity-80"
+  const cls = "inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium transition-all hover:opacity-80"
   const style = {
     background: variant === "purple" ? MLD.bgPurple : MLD.bg,
     color: variant === "purple" ? MLD.textPurple : MLD.text,
@@ -65,18 +65,14 @@ export function ProfileCard({
 }: ProfileCardProps) {
   return (
     <div
-      className="hidden lg:block w-[300px] shrink-0 rounded-2xl p-5"
-      style={{
-        background: "hsl(var(--card))",
-        border: "1px solid hsl(var(--border))",
-        boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
-      }}
+      className="hidden lg:block w-[300px] shrink-0 rounded-2xl p-5 bg-card ring-1 ring-border"
+      style={{ boxShadow: "var(--card-shadow)" }}
     >
       <div className="space-y-3">
         {/* 发售日期 */}
         {releaseDate && (
           <InfoRow icon={Calendar} label="发售日期：">
-            <span className="text-xs font-bold text-foreground">{releaseDate}</span>
+            <span className="text-xs font-semibold text-foreground">{releaseDate}</span>
           </InfoRow>
         )}
 
@@ -128,7 +124,7 @@ export function ProfileCard({
               href={`https://vndb.org/v${vndbId}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium transition-all hover:opacity-80"
+              className="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium transition-all hover:opacity-80"
               style={{ background: MLD.bg, color: MLD.text }}
             >
               v{vndbId}

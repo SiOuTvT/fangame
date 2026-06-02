@@ -85,7 +85,7 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
                 <tr key={u.id} className="hover:bg-accent/50 transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
-                      <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-blue-500 to-blue-500">
+                      <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full bg-primary/80">
                         {u.avatar
                           ? <Image src={u.avatar} alt="" width={28} height={28} className="h-full w-full object-cover" />
                           : <div className="flex h-full w-full items-center justify-center text-xs font-bold text-white">{u.username[0].toUpperCase()}</div>}

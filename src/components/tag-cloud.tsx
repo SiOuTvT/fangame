@@ -43,8 +43,8 @@ export function TagCloud({
           className={[
             "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium leading-none transition-all",
             !activeTag
-              ? "bg-zinc-700 text-zinc-100 ring-1 ring-zinc-600"
-              : "bg-zinc-900 text-zinc-500 ring-1 ring-white/[0.06] hover:bg-zinc-800 hover:text-zinc-300",
+              ? "bg-primary/15 text-primary ring-1 ring-primary/20"
+              : "bg-muted text-muted-foreground ring-1 ring-border hover:bg-accent hover:text-foreground",
           ].join(" ")}
         >
           全部
@@ -71,7 +71,7 @@ export function TagCloud({
         <button
           type="button"
           onClick={() => setExpanded(v => !v)}
-          className="mt-2 flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+          className="mt-2 flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
           {expanded ? "收起" : `展开全部 (${tags.length})`}
           <ChevronDown

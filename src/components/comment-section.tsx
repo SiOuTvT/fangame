@@ -29,7 +29,7 @@ function Avatar({ user }: { user: Comment["user"] }) {
     return <Image src={user.avatar} alt={user.username} width={32} height={32} className="h-8 w-8 rounded-full object-cover" />
   }
   return (
-    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-500 text-xs font-bold text-white">
+    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/80 text-xs font-bold text-primary-foreground">
       {user.username[0].toUpperCase()}
     </div>
   )
@@ -225,7 +225,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
               ref={textareaRef}
               value={content}
               onChange={(e) => { setContent(e.target.value); autoResize(e.target) }}
-              placeholder={isDragging ? "释放以添加图片…" : "写下你的想法…"}
+              placeholder={isDragging ? "释放以添加图片…" : "写下评论…"}
               rows={2}
               className="w-full resize-none bg-transparent px-4 py-3 text-sm text-zinc-200 placeholder:text-zinc-600 outline-none"
               style={{ minHeight: "3.5rem" }}
@@ -290,7 +290,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
               <div className="flex-1" />
 
               <button type="submit" disabled={submitting || (!content.trim() && !selectedFile)}
-                className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-500 to-blue-500 px-4 py-1.5 text-xs font-medium text-white transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed">
+                className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed">
                 <Send className="h-3.5 w-3.5" strokeWidth={1.5} />
                 {submitting ? "发送中…" : "发送"}
               </button>
