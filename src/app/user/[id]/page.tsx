@@ -277,7 +277,6 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                     >
                       <Image className="h-5 w-5 text-muted-foreground" strokeWidth={2} />
                       <span className="text-xs font-medium text-foreground">生成名片</span>
-                      <span className="text-[10px] text-muted-foreground">即将推出</span>
                     </button>
 
                     {/* 勋章墙 */}
