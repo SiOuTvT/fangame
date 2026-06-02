@@ -1,6 +1,7 @@
 "use client"
 
 import { SearchBar } from "@/components/search-bar"
+import { Gamepad2, Home } from "lucide-react"
 import Link from "next/link"
 
 export default function NotFound() {
@@ -8,7 +9,9 @@ export default function NotFound() {
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 px-4 text-center">
       <div className="relative">
         <div className="text-8xl font-bold text-muted-foreground/20 select-none">404</div>
-        <div className="absolute inset-0 flex items-center justify-center text-4xl">🎮</div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Gamepad2 className="h-12 w-12 text-muted-foreground/40" strokeWidth={1.5} />
+        </div>
       </div>
       <h1 className="text-2xl font-semibold text-foreground">迷路了？</h1>
       <p className="max-w-md text-sm text-muted-foreground leading-relaxed">
@@ -21,9 +24,9 @@ export default function NotFound() {
       <div className="flex items-center gap-3">
         <Link
           href="/"
-          className="rounded-xl px-6 py-3 text-sm font-semibold text-primary-foreground bg-primary transition-all hover:opacity-90 btn-spring"
+          className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-primary-foreground bg-primary transition-all hover:opacity-90 btn-spring"
         >
-          🏠 返回首页
+          <Home className="h-4 w-4" /> 返回首页
         </Link>
         <button
           onClick={() => window.history.back()}

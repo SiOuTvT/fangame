@@ -1,7 +1,7 @@
 "use client"
 
 import { GameCard, type GameCardData } from "@/components/game-card"
-import { ChevronDown, Loader2 } from "lucide-react"
+import { ChevronDown, Loader2, RefreshCw } from "lucide-react"
 import { useCallback, useEffect, useRef, useState, useTransition } from "react"
 
 interface Props {
@@ -16,12 +16,14 @@ export function GameGridClient({ initialGames, total, tag, q, nsfw }: Props) {
   const [games, setGames]   = useState(initialGames)
   const [page, setPage]     = useState(1)
   const [pending, startTransition] = useTransition()
+  const [error, setError]   = useState(false)
   const sentinelRef = useRef<HTMLDivElement>(null)
   const loadMoreRef = useRef<(() => void) | null>(null)
 
   const hasMore = games.length < total
 
   const loadMore = useCallback(() => {
+    setError(false)
     startTransition(async () => {
       try {
         const params = new URLSearchParams()
@@ -35,13 +37,14 @@ export function GameGridClient({ initialGames, total, tag, q, nsfw }: Props) {
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const data = await res.json()
         if (!Array.isArray(data?.games)) {
-          console.error("API 返回格式异常:", data)
+          setError(true)
           return
         }
         setGames(prev => [...prev, ...data.games])
         setPage(p => p + 1)
       } catch (err) {
         console.error("加载更多游戏失败:", err)
+        setError(true)
       }
     })
   }, [page, q, tag, nsfw])
@@ -76,8 +79,21 @@ export function GameGridClient({ initialGames, total, tag, q, nsfw }: Props) {
         ))}
       </div>
 
+      {/* 加载失败提示 */}
+      {error && (
+        <div className="mt-6 flex flex-col items-center gap-2">
+          <p className="text-sm text-muted-foreground">加载失败，请检查网络</p>
+          <button
+            onClick={loadMore}
+            className="flex items-center gap-1.5 rounded-lg bg-card px-4 py-2 text-sm text-foreground ring-1 ring-border transition-all hover:bg-accent"
+          >
+            <RefreshCw className="h-4 w-4" /> 重试
+          </button>
+        </div>
+      )}
+
       {/* 无限滚动触发哨兵 + 手动加载 fallback */}
-      {hasMore && (
+      {hasMore && !error && (
         <div ref={sentinelRef} className="mt-8 flex justify-center">
           <button
             onClick={loadMore}

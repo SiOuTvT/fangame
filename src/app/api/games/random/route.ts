@@ -13,8 +13,8 @@ export async function GET(req: NextRequest) {
   const game = await prisma.game.findFirst({
     where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) },
     skip,
-    select: { id: true },
+    select: { id: true, serialId: true },
   })
 
-  return NextResponse.json({ id: game?.id })
+  return NextResponse.json({ id: game?.id, serialId: game?.serialId })
 }

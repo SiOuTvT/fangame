@@ -54,20 +54,23 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
   // 用 cuid 查询完整数据（因为 include 需要 id 字段）
   const user = await prisma.user.findUnique({
     where: { id: resolved.id },
-    include: {
+    select: {
+      id: true, serialId: true, uid: true, username: true, email: true, avatar: true,
+      avatarFrameId: true, composedAvatarUrl: true, banner: true, bio: true,
+      role: true, createdAt: true,
       favorites: {
         include: {
-          game: { select: { id: true, title: true, coverImage: true, isNsfw: true } },
+          game: { select: { id: true, serialId: true, title: true, coverImage: true, isNsfw: true } },
         },
       },
       playStatuses: {
         include: {
-          game: { select: { id: true, title: true, coverImage: true, isNsfw: true } },
+          game: { select: { id: true, serialId: true, title: true, coverImage: true, isNsfw: true } },
         },
       },
       comments: {
         orderBy: { createdAt: "desc" },
-        include: { game: { select: { id: true, title: true } } },
+        include: { game: { select: { id: true, serialId: true, title: true } } },
       },
       _count: {
         select: {
@@ -116,11 +119,11 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
   else if (totalActivity >= 10) lv = 5
   else if (totalActivity >= 3) lv = 3
 
-  const uidDisplay = (user as any).uid || String((user as any).serialId)
+  const uidDisplay = user.uid || String(user.serialId)
 
   return (
     <div className="flex flex-col">
-      <BreadcrumbSetter segment={String((user as any).serialId)} label={user.username} />
+      <BreadcrumbSetter segment={String(user.serialId)} label={user.username} />
       {/* 双栏布局：左窄右宽，两侧等高 */}
       <div className="flex lg:flex-row flex-col items-stretch min-w-0 gap-4 lg:gap-0 flex-1">
 
@@ -143,9 +146,9 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                 <div className={user.banner ? "-mt-22 mb-5" : "mb-5"}>
                   <div className="relative" style={{ width: 130, height: 130 }}>
                     {/* 优先使用合成头像，回退到原始头像 */}
-                    {(user as any).composedAvatarUrl ? (
+                    {user.composedAvatarUrl ? (
                       <SafeAvatar
-                        src={(user as any).composedAvatarUrl}
+                        src={user.composedAvatarUrl}
                         alt={user.username}
                         size={130}
                         className="h-full w-full"
@@ -249,8 +252,8 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                     {/* 更换头像框 */}
                     <div className="rounded-xl bg-secondary/60 px-4 py-2.5">
                       <AvatarFrameSelector
-                        currentFrameId={(user as any).avatarFrameId || null}
-                        userImage={(user as any).composedAvatarUrl || user.avatar}
+                        currentFrameId={user.avatarFrameId || null}
+                        userImage={user.composedAvatarUrl || user.avatar}
                         userName={user.username}
                       />
                     </div>

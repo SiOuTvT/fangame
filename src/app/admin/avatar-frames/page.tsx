@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { api } from "@/lib/api-client"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -37,6 +38,7 @@ export default function AdminAvatarFramesPage() {
   })
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
 
   const loadFrames = useCallback(async () => {
     setLoading(true)
@@ -103,8 +105,6 @@ export default function AdminAvatarFramesPage() {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm("确定删除此头像框？使用该头像框的用户将被自动移除头像框。"))
-      return
     setDeleting(id)
     try {
       await api.delete(`/api/admin/avatar-frames/${id}`)
@@ -201,7 +201,7 @@ export default function AdminAvatarFramesPage() {
                   size="sm"
                   variant="outline"
                   className="flex-1 text-xs border-red-500/30 text-red-400 hover:bg-red-500/10"
-                  onClick={() => handleDelete(frame.id)}
+                  onClick={() => setDeleteTargetId(frame.id)}
                   disabled={deleting === frame.id}
                 >
                   {deleting === frame.id ? "..." : "删除"}
@@ -327,6 +327,16 @@ export default function AdminAvatarFramesPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={!!deleteTargetId}
+        onOpenChange={(open) => { if (!open) setDeleteTargetId(null) }}
+        title="删除头像框"
+        description="确定删除此头像框？使用该头像框的用户将被自动移除头像框。"
+        variant="destructive"
+        confirmText="删除"
+        onConfirm={() => { if (deleteTargetId) handleDelete(deleteTargetId) }}
+      />
     </div>
   )
 }

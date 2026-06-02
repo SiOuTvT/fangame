@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
+import { ConfirmDialog } from "./ui/confirm-dialog"
 import { AdminGameDeleteBtn } from "./admin-game-delete-btn"
 
 type Game = {
@@ -23,6 +24,7 @@ export function AdminGamesTable({ games }: { games: Game[] }) {
   const router = useRouter()
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [deleting, setDeleting] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const allSelected = games.length > 0 && selected.size === games.length
 
@@ -41,7 +43,6 @@ export function AdminGamesTable({ games }: { games: Game[] }) {
 
   async function batchDelete() {
     if (selected.size === 0) return
-    if (!confirm(`确定要删除选中的 ${selected.size} 个游戏吗？此操作不可撤销。`)) return
     setDeleting(true)
     try {
       const res = await fetch("/api/admin/games/batch-delete", {
@@ -70,7 +71,7 @@ export function AdminGamesTable({ games }: { games: Game[] }) {
         <div className="flex items-center gap-3 rounded-xl bg-muted p-3 ring-1 ring-border">
           <span className="text-sm text-foreground">已选 <strong>{selected.size}</strong> 项</span>
           <button
-            onClick={batchDelete}
+            onClick={() => setShowDeleteConfirm(true)}
             disabled={deleting}
             className="flex items-center gap-1.5 rounded-lg bg-destructive/10 px-3 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20 disabled:opacity-50"
           >
@@ -150,6 +151,16 @@ export function AdminGamesTable({ games }: { games: Game[] }) {
           </table>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        title="批量删除游戏"
+        description={`确定要删除选中的 ${selected.size} 个游戏吗？此操作不可撤销。`}
+        variant="destructive"
+        confirmText="删除"
+        onConfirm={batchDelete}
+      />
     </>
   )
 }

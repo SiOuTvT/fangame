@@ -97,7 +97,6 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
             onKeyDown={handleKeyDown}
             onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
             placeholder="搜索游戏名称、原作、标签…"
-            autoFocus
             inputMode="search"
             enterKeyHint="search"
             className="flex-1 bg-transparent text-base text-foreground placeholder:text-muted-foreground outline-none"

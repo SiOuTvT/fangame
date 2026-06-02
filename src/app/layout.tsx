@@ -44,7 +44,6 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const session = await auth()
-  const isAdmin = (session?.user as any)?.role === "ADMIN"
 
   return (
     <html lang="zh-CN" className="h-full antialiased" suppressHydrationWarning>
@@ -65,7 +64,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           zIndex={9999}
         />
         <Providers>
-          <LayoutWrapper isAdmin={isAdmin}>
+          <LayoutWrapper>
             {children}
           </LayoutWrapper>
         </Providers>

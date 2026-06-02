@@ -37,7 +37,7 @@ export function RandomCreatorBtn() {
         const res2 = await fetch("/api/games/random", { cache: "no-store" })
         const data2 = await res2.json()
         if (data2.id) {
-          router.push(`/games/${data2.id}`)
+          router.push(`/games/${data2.serialId ?? data2.id}`)
         } else {
           toast.error("暂无可推荐的内容")
         }

@@ -11,8 +11,10 @@ import {
   ToggleLeft, ToggleRight,
   Trash2, X,
 } from "lucide-react";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { toast } from "sonner";
 
 interface EmMsg {
   id: string; key: string; category: string; title: string
@@ -69,6 +71,7 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
   const [newItem, setNewItem] = useState({ key: "", category: "toast", title: "", subtitle: "", imageUrl: "", emoji: "" })
   const [pending, startTransition] = useTransition()
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const [showSeedConfirm, setShowSeedConfirm] = useState(false)
   const router = useRouter()
 
   const filtered = filter === "all" ? items : items.filter(i => i.category === filter)
@@ -90,7 +93,7 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
       refresh()
     } else {
       const data = await res.json()
-      alert(data.error || "创建失败")
+      toast.error(data.error || "创建失败")
     }
   }
 
@@ -124,7 +127,6 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
 
   /* ── 一键种子 ── */
   const handleSeed = async () => {
-    if (!confirm("将初始化全部预设情感消息（已存在的 key 会跳过），确定？")) return
     for (const s of SEED_DATA) {
       await fetch("/api/admin/emotional-messages", {
         method: "POST",
@@ -153,7 +155,7 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
         ))}
         <div className="ml-auto flex gap-2">
           {items.length === 0 && (
-            <button onClick={handleSeed} disabled={pending}
+            <button onClick={() => setShowSeedConfirm(true)} disabled={pending}
               className="flex items-center gap-1.5 rounded-lg bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-500 transition-all hover:bg-amber-500/20">
               <Sparkles className="h-3.5 w-3.5" /> 初始化预设
             </button>
@@ -304,6 +306,14 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
           })}
         </div>
       )}
+
+      <ConfirmDialog
+        open={showSeedConfirm}
+        onOpenChange={setShowSeedConfirm}
+        title="初始化预设消息"
+        description="将初始化全部预设情感消息（已存在的 key 会跳过），确定？"
+        onConfirm={handleSeed}
+      />
     </div>
   )
 }

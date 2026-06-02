@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth"
+import { getAdminSession } from "@/lib/admin"
 import { cleanupOldComposedAvatar } from "@/lib/avatar-compose"
 import { prisma } from "@/lib/prisma"
 import fs from "fs/promises"
@@ -10,10 +10,7 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth()
-  if (!session?.user?.id || (session.user as any).role !== "ADMIN") {
-    return NextResponse.json({ error: "无权限" }, { status: 403 })
-  }
+  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
 
   const { id } = await params
   const frame = await prisma.avatarFrame.findUnique({ where: { id } })
@@ -29,10 +26,7 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth()
-  if (!session?.user?.id || (session.user as any).role !== "ADMIN") {
-    return NextResponse.json({ error: "无权限" }, { status: 403 })
-  }
+  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
 
   const { id } = await params
   const existing = await prisma.avatarFrame.findUnique({ where: { id } })
@@ -67,10 +61,7 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth()
-  if (!session?.user?.id || (session.user as any).role !== "ADMIN") {
-    return NextResponse.json({ error: "无权限" }, { status: 403 })
-  }
+  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
 
   const { id } = await params
   const existing = await prisma.avatarFrame.findUnique({ where: { id } })

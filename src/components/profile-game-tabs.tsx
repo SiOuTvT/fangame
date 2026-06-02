@@ -4,11 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
-interface Game { id: string; title: string; coverImage: string; isNsfw: boolean }
+interface Game { id: string; serialId?: number; title: string; coverImage: string; isNsfw: boolean }
 interface PlayStatusGame { game: Game; status: string }
 
 interface Props {
-  faveGame: { id: string; title: string; coverImage: string; originalWork: string } | null
+  faveGame: { id: string; serialId?: number; title: string; coverImage: string; originalWork: string } | null
   favGames: Game[]
   playStatusGames: PlayStatusGame[]
 }
@@ -49,7 +49,7 @@ export function ProfileGameTabs({ faveGame, favGames, playStatusGames }: Props) 
             <span className="h-4 w-0.5 rounded-full bg-gradient-to-b from-blue-400 to-blue-400" />
             本命游戏
           </h2>
-          <Link href={`/games/${faveGame.id}`}
+          <Link href={`/games/${faveGame.serialId ?? faveGame.id}`}
             className="flex items-center gap-3 rounded-xl bg-secondary p-3 ring-1 ring-border transition-all hover:bg-accent">
             {faveGame.coverImage ? (
               <Image src={faveGame.coverImage} alt={faveGame.title} width={56} height={70}
@@ -113,7 +113,7 @@ export function ProfileGameTabs({ faveGame, favGames, playStatusGames }: Props) 
         ) : (
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
             {games.slice(0, 12).map(g => (
-              <Link key={g.id} href={`/games/${g.id}`}
+              <Link key={g.id} href={`/games/${g.serialId ?? g.id}`}
                 aria-label={g.title}
                 className="group overflow-hidden rounded-xl bg-secondary/50 ring-1 ring-border transition-all hover:-translate-y-0.5 hover:ring-primary/30">
                 <div className="relative" style={{ aspectRatio: "3/4" }}>

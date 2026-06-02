@@ -8,7 +8,7 @@ import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts"
 import { useOnlineStatus } from "@/hooks/use-online-status"
 import { usePathname } from "next/navigation"
 
-export function LayoutWrapper({ children, isAdmin }: { children: React.ReactNode; isAdmin?: boolean }) {
+export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   useOnlineStatus()
   useKeyboardShortcuts()
@@ -40,7 +40,7 @@ export function LayoutWrapper({ children, isAdmin }: { children: React.ReactNode
           </div>
         )}
       </main>
-      {isAdmin && <MusicPlayer />}
+      <MusicPlayer />
     </BreadcrumbProvider>
   )
 }

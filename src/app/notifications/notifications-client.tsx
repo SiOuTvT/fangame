@@ -10,6 +10,7 @@ import {
   Trash2,
   UserPlus,
 } from "lucide-react"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 
@@ -99,6 +100,7 @@ export default function NotificationsClient({
   const [loadingMore, setLoadingMore] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [selectMode, setSelectMode] = useState(false)
+  const [showClearConfirm, setShowClearConfirm] = useState(false)
 
   useEffect(() => {
     if (unreadCount > 0) {
@@ -164,7 +166,6 @@ export default function NotificationsClient({
   }
 
   async function deleteAll() {
-    if (!confirm("确定要清空所有通知吗？")) return
     setLoading(true)
     try {
       await fetch("/api/notifications", {
@@ -315,7 +316,7 @@ export default function NotificationsClient({
           </div>
           {notifications.length > 0 && !selectMode && (
             <button
-              onClick={deleteAll}
+              onClick={() => setShowClearConfirm(true)}
               disabled={loading}
               className="rounded-lg px-3 py-1.5 text-xs font-medium text-zinc-500 transition-colors hover:text-red-400 light:hover:text-red-600"
             >
@@ -423,6 +424,16 @@ className="mt-1 shrink-0 rounded-lg p-1.5 text-zinc-600 sm:opacity-0 transition-
             </button>
           </div>
         )}
+
+      <ConfirmDialog
+        open={showClearConfirm}
+        onOpenChange={setShowClearConfirm}
+        title="清空通知"
+        description="确定要清空所有通知吗？此操作不可撤销。"
+        variant="destructive"
+        confirmText="清空"
+        onConfirm={deleteAll}
+      />
     </div>
   )
 }

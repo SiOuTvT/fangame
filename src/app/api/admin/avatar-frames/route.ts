@@ -1,13 +1,10 @@
-import { auth } from "@/lib/auth"
+import { getAdminSession } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 
 // GET: 获取所有头像框（管理员）
 export async function GET() {
-  const session = await auth()
-  if (!session?.user?.id || (session.user as any).role !== "ADMIN") {
-    return NextResponse.json({ error: "无权限" }, { status: 403 })
-  }
+  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
 
   const frames = await prisma.avatarFrame.findMany({
     orderBy: { sort: "asc" },
@@ -18,10 +15,7 @@ export async function GET() {
 
 // POST: 创建新头像框
 export async function POST(request: Request) {
-  const session = await auth()
-  if (!session?.user?.id || (session.user as any).role !== "ADMIN") {
-    return NextResponse.json({ error: "无权限" }, { status: 403 })
-  }
+  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
 
   try {
     const body = await request.json()
