@@ -232,7 +232,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
         </div>
         {isLoggedIn && (
           <button onClick={() => setShowNew(true)}
-            className="flex items-center gap-1.5 rounded-xl bg-zinc-800 light:bg-zinc-200 px-4 py-2 text-sm font-medium text-zinc-300 light:text-zinc-700 ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:bg-zinc-700 light:hover:bg-zinc-300 hover:text-white light:hover:text-zinc-900">
+            className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90">
             <Plus className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />发帖
           </button>
         )}
