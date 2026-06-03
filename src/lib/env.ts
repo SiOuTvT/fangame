@@ -25,24 +25,26 @@ const envSchema = z.object({
   // Cloudflare R2 (S3 兼容文件存储)
   R2_ACCOUNT_ID: z
     .string()
-    .min(1, "R2_ACCOUNT_ID 不能为空")
-    .optional(),
+    .optional()
+    .transform(v => v || undefined),
   R2_ACCESS_KEY_ID: z
     .string()
-    .min(1, "R2_ACCESS_KEY_ID 不能为空")
-    .optional(),
+    .optional()
+    .transform(v => v || undefined),
   R2_SECRET_ACCESS_KEY: z
     .string()
-    .min(1, "R2_SECRET_ACCESS_KEY 不能为空")
-    .optional(),
+    .optional()
+    .transform(v => v || undefined),
   R2_BUCKET_NAME: z
     .string()
-    .min(1, "R2_BUCKET_NAME 不能为空")
-    .optional(),
+    .optional()
+    .transform(v => v || undefined),
   R2_PUBLIC_URL: z
     .string()
     .url("R2_PUBLIC_URL 必须是有效的 URL")
-    .optional(),
+    .optional()
+    .or(z.literal(""))
+    .transform(v => v || undefined),
 
   // Upstash Redis（可选，不配置时使用内存缓存）
   UPSTASH_REDIS_REST_URL: z
@@ -63,8 +65,8 @@ const envSchema = z.object({
   // 邮件服务
   RESEND_API_KEY: z
     .string()
-    .min(1, "RESEND_API_KEY 不能为空")
-    .optional(),
+    .optional()
+    .transform(v => v || undefined),
 
   // 运行环境
   NODE_ENV: z
