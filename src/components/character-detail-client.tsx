@@ -71,22 +71,22 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
   return (
     <div>
       {/* Hero */}
-      <div className="mb-8 flex flex-col sm:flex-row items-start gap-6 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 light:from-white light:via-white light:to-zinc-50 p-8 ring-1 ring-white/[0.08] light:ring-black/[0.08] shadow-xl">
+      <div className="mb-8 flex flex-col sm:flex-row items-start gap-6 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 light:from-white light:via-white light:to-zinc-50 p-8 ring-1 ring-border shadow-xl">
         {character.image ? (
-          <div className="relative h-64 w-48 sm:h-80 sm:w-56 shrink-0 overflow-hidden rounded-xl ring-2 ring-white/10 light:ring-black/10 shadow-lg mx-auto sm:mx-0">
+          <div className="relative h-64 w-48 sm:h-80 sm:w-56 shrink-0 overflow-hidden rounded-xl ring-2 ring-border/50 shadow-lg mx-auto sm:mx-0">
             <Image src={character.image} alt={character.name} fill className="object-cover" />
           </div>
         ) : (
-          <div className="flex h-64 w-48 sm:h-80 sm:w-56 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-400 text-5xl font-bold text-white ring-2 ring-white/10 light:ring-black/10 shadow-lg mx-auto sm:mx-0">
+          <div className="flex h-64 w-48 sm:h-80 sm:w-56 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-400 text-5xl font-bold text-white ring-2 ring-border/50 shadow-lg mx-auto sm:mx-0">
             {(character.original || character.name)[0]}
           </div>
         )}
 
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-baseline gap-3 mb-3">
-            <h1 className="text-3xl font-bold text-foreground light:text-foreground">{character.original || character.name}</h1>
+            <h1 className="text-3xl font-bold text-foreground">{character.original || character.name}</h1>
             {character.original && character.name !== character.original && (
-              <span className="text-base text-muted-foreground light:text-muted-foreground">{character.name}</span>
+              <span className="text-base text-muted-foreground">{character.name}</span>
             )}
           </div>
 
@@ -112,25 +112,25 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
           {/* 基本信息 */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1.5 mb-4 text-sm">
             {character.gender && character.gender.length > 0 && (
-              <div><span className="text-muted-foreground light:text-muted-foreground">性别: </span><span className="text-foreground light:text-muted-foreground">{character.gender.map(g => genderMap[g] || g).join(", ")}</span></div>
+              <div><span className="text-muted-foreground">性别: </span><span className="text-foreground">{character.gender.map(g => genderMap[g] || g).join(", ")}</span></div>
             )}
             {character.age && (
-              <div><span className="text-muted-foreground light:text-muted-foreground">年龄: </span><span className="text-foreground light:text-muted-foreground">{character.age}</span></div>
+              <div><span className="text-muted-foreground">年龄: </span><span className="text-foreground">{character.age}</span></div>
             )}
             {character.birthday && (
-              <div><span className="text-muted-foreground light:text-muted-foreground">生日: </span><span className="text-foreground light:text-muted-foreground">{character.birthday[0]}月{character.birthday[1]}日</span></div>
+              <div><span className="text-muted-foreground">生日: </span><span className="text-foreground">{character.birthday[0]}月{character.birthday[1]}日</span></div>
             )}
             {character.bloodType && (
-              <div><span className="text-muted-foreground light:text-muted-foreground">血型: </span><span className="text-foreground light:text-muted-foreground">{character.bloodType}</span></div>
+              <div><span className="text-muted-foreground">血型: </span><span className="text-foreground">{character.bloodType}</span></div>
             )}
             {character.height && (
-              <div><span className="text-muted-foreground light:text-muted-foreground">身高: </span><span className="text-foreground light:text-muted-foreground">{character.height}cm</span></div>
+              <div><span className="text-muted-foreground">身高: </span><span className="text-foreground">{character.height}cm</span></div>
             )}
             {character.weight && (
-              <div><span className="text-muted-foreground light:text-muted-foreground">体重: </span><span className="text-foreground light:text-muted-foreground">{character.weight}kg</span></div>
+              <div><span className="text-muted-foreground">体重: </span><span className="text-foreground">{character.weight}kg</span></div>
             )}
             {character.bust && character.waist && character.hips && (
-              <div className="col-span-2"><span className="text-muted-foreground light:text-muted-foreground">三围: </span><span className="text-foreground light:text-muted-foreground">{character.bust}-{character.waist}-{character.hips}{character.cup ? ` (${character.cup})` : ""}</span></div>
+              <div className="col-span-2"><span className="text-muted-foreground">三围: </span><span className="text-foreground">{character.bust}-{character.waist}-{character.hips}{character.cup ? ` (${character.cup})` : ""}</span></div>
             )}
           </div>
 
@@ -152,7 +152,7 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
       {/* 特征 */}
       {character.traits && character.traits.length > 0 && (
         <section className="mb-6">
-          <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-foreground light:text-foreground">
+          <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-foreground">
             <span className="h-5 w-1 rounded-full bg-gradient-to-b from-pink-300 to-pink-400" />
             角色特征
           </h2>
@@ -171,21 +171,21 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
         const cleaned = character.description.replace(/\[.*?\]/g, "").replace(/\[url=[^\]]*\]([^[]*)\[\/url\]/g, "$1").trim()
         return (
           <section className="mb-6">
-            <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-foreground light:text-foreground">
+            <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-foreground">
             <span className="h-5 w-1 rounded-full bg-gradient-to-b from-pink-300 to-pink-400" />
             角色简介
               {!translated && <TranslateBtn text={cleaned} onTranslated={setTranslated} />}
               {translated && (
                 <button
                   onClick={() => setShowOriginal(!showOriginal)}
-                  className="flex items-center gap-1.5 rounded-lg bg-secondary/80 light:bg-secondary px-3 py-1.5 text-xs font-medium text-foreground light:text-muted-foreground ring-1 ring-white/[0.08] light:ring-black/[0.08] transition-all hover:bg-secondary light:hover:bg-secondary hover:text-white light:hover:text-foreground"
+                  className="flex items-center gap-1.5 rounded-lg bg-secondary/80 px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-border transition-all hover:bg-secondary hover:text-white"
                 >
                   {showOriginal ? "查看翻译" : "查看原文"}
                 </button>
               )}
             </h2>
-            <div className="rounded-2xl bg-card/50 light:bg-secondary p-6 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
-              <p className="text-sm leading-relaxed text-muted-foreground light:text-muted-foreground whitespace-pre-line">
+            <div className="rounded-2xl bg-card/50 p-6 ring-1 ring-border">
+              <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
                 {translated && !showOriginal ? translated : cleaned}
               </p>
             </div>
