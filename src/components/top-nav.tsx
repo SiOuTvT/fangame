@@ -206,7 +206,7 @@ export function TopNav() {
         className={cn(
           "fixed top-0 left-0 right-0 z-50 border-b will-change-transform",
           "pt-[env(safe-area-inset-top)]",
-          "bg-zinc-950/60 backdrop-blur-md border-white/[0.04] light:bg-white/60 light:border-black/[0.04]",
+          "bg-background/60 backdrop-blur-md border-border/50",
           "transition-[box-shadow,border-color] duration-300",
           scrolled
             ? "shadow-[0_1px_3px_rgba(0,0,0,0.2)] border-white/[0.06] light:shadow-[0_1px_3px_rgba(0,0,0,0.06)] light:border-black/[0.06]"
