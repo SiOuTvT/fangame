@@ -1,3 +1,5 @@
+import { getCopy } from "@/lib/copy"
+import { createNotification } from "@/lib/notifications"
 import { prisma } from "@/lib/prisma"
 
 // 条件类型定义
@@ -128,6 +130,17 @@ export async function checkAchievements(userId: string): Promise<{
       where: { id: ach.id },
       data: { unlockCount: { increment: 1 } },
     })
+  }
+
+  // 7. 创建通知
+  for (const ach of newUnlocks) {
+    createNotification({
+      userId,
+      actorId: userId,
+      type: "achievement_unlock",
+      targetType: "achievement",
+      targetId: ach.id,
+    }).catch(() => {})
   }
 
   return newUnlocks.map((ach) => ({

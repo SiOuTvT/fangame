@@ -52,6 +52,13 @@ export const COPY_ENTRIES = [
   // ── 评论 ──
   { key: "comment_placeholder", default: "写下评论…", label: "评论输入框占位符", category: "评论" },
   { key: "comment_login_prompt", default: "登录后发表评论", label: "未登录评论提示", category: "评论" },
+
+  // ── 成就 ──
+  { key: "achievement_unlock_title", default: "成就解锁", label: "通知标题", category: "成就" },
+  { key: "achievement_unlock_body", default: "你解锁了「{name}」！", label: "通知正文（{name}会被替换为成就名）", category: "成就" },
+  { key: "achievement_unlock_toast", default: "解锁新成就", label: "弹窗提示文字", category: "成就" },
+  { key: "achievement_empty", default: "暂无成就，继续探索吧~", label: "成就列表为空", category: "成就" },
+  { key: "achievement_locked", default: "???", label: "未解锁成就显示文字", category: "成就" },
 ] as const
 
 export type CopyKey = (typeof COPY_ENTRIES)[number]["key"]

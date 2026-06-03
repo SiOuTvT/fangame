@@ -176,7 +176,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
         <img
           src={prevImageRef.current}
           alt=""
-          className="absolute inset-0 h-full w-full object-fill"
+          className="absolute inset-0 h-full w-full object-cover"
           draggable={false}
         />
       )}
@@ -184,7 +184,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
       <img
         src={activeImage}
         alt={`${gameTitle} - 预览 ${activeIndex + 1}`}
-        className={`absolute inset-0 h-full w-full object-fill cursor-pointer ${fading ? 'hero-fade-enter' : ''}`}
+        className={`absolute inset-0 h-full w-full object-cover cursor-pointer ${fading ? 'hero-fade-enter' : ''}`}
         style={fading ? { animation: "heroFadeIn 0.35s ease-out" } : undefined}
         draggable={false}
         loading={activeIndex === 0 ? "eager" : "lazy"}

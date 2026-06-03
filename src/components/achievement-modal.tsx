@@ -18,9 +18,11 @@ interface Achievement {
 
 interface Props {
   compact?: boolean
+  emptyText?: string
+  lockedText?: string
 }
 
-export function AchievementModal({ compact }: Props) {
+export function AchievementModal({ compact, emptyText = "暂无成就，继续探索吧~", lockedText = "???" }: Props) {
   const [open, setOpen] = useState(false)
   const [achievements, setAchievements] = useState<Achievement[]>([])
   const [loading, setLoading] = useState(false)
@@ -135,7 +137,7 @@ export function AchievementModal({ compact }: Props) {
                         <Lock className="h-5 w-5 text-muted-foreground" strokeWidth={2} />
                       </div>
                       <div className="text-center">
-                        <p className="text-[11px] font-semibold leading-tight text-muted-foreground">???</p>
+                        <p className="text-[11px] font-semibold leading-tight text-muted-foreground">{lockedText}</p>
                       </div>
                     </div>
                   ))}
