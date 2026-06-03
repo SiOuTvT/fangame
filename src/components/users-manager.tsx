@@ -14,7 +14,7 @@ interface UserItem {
 const ROLE_CONFIG = {
   SUPER_ADMIN: { label: "站长", className: "bg-amber-500/15 text-amber-600 light:text-amber-700 ring-1 ring-amber-500/20" },
   ADMIN: { label: "管理员", className: "bg-blue-500/15 text-blue-600 light:text-blue-700 ring-1 ring-blue-500/20" },
-  USER: { label: "用户", className: "bg-zinc-500/10 text-zinc-500 ring-1 ring-zinc-500/15" },
+  USER: { label: "用户", className: "bg-muted text-muted-foreground ring-1 ring-border" },
 } as const
 
 function getRoleConfig(role: string) {
