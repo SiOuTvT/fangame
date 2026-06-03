@@ -65,9 +65,9 @@ function LoginContent() {
     setError("")
     if (regForm.password !== regForm.confirm) { setError("两次密码不一致"); return }
     if (regForm.password.length < 6) { setError("密码至少6位"); return }
-    setLoading(true)
     const hasTurnstile = !!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
     if (hasTurnstile && !captchaToken) { setError("请完成验证码验证"); return }
+    setLoading(true)
     const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
