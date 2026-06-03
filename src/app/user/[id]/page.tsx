@@ -55,7 +55,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
   const user = await prisma.user.findUnique({
     where: { id: resolved.id },
     select: {
-      id: true, serialId: true, uid: true, username: true, email: true, avatar: true,
+      id: true, serialId: true, uid: true, username: true, avatar: true,
       avatarFrameId: true, composedAvatarUrl: true, banner: true, bio: true,
       role: true, createdAt: true,
       favorites: {
