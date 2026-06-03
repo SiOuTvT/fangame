@@ -245,7 +245,7 @@ export default function NotificationsClient({
               }}
               className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
                 filter === tab.key
-                  ? "bg-white text-black light:bg-zinc-900 light:text-white"
+                  ? "bg-foreground text-background"
                   : "text-muted-foreground hover:bg-secondary hover:text-foreground"
               }`}
             >
