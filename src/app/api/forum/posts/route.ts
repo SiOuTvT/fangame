@@ -17,17 +17,27 @@ function escapeHtml(text: string): string {
   return text.replace(/[&<>"']/g, (m) => map[m])
 }
 
-export async function GET() {
-  const posts = await prisma.forumPost.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 50,
-    include: {
-      user: { select: { id: true, username: true, avatar: true } },
-      _count: { select: { comments: true } },
-    },
-  })
-  return NextResponse.json(
-    posts.map((p) => ({
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url)
+  const page = Math.max(1, parseInt(searchParams.get("page") || "1"))
+  const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "20")))
+  const skip = (page - 1) * limit
+
+  const [posts, total] = await Promise.all([
+    prisma.forumPost.findMany({
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
+      include: {
+        user: { select: { id: true, username: true, avatar: true } },
+        _count: { select: { comments: true } },
+      },
+    }),
+    prisma.forumPost.count(),
+  ])
+
+  return NextResponse.json({
+    posts: posts.map((p) => ({
       id: p.id,
       title: p.title,
       content: p.content,
@@ -37,8 +47,12 @@ export async function GET() {
       createdAt: p.createdAt.toISOString(),
       user: p.user,
       commentCount: p._count.comments,
-    }))
-  )
+    })),
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  })
 }
 
 export async function POST(req: NextRequest) {

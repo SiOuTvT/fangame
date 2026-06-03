@@ -42,8 +42,8 @@ function fmtDate(d: string) {
   return date.toLocaleDateString("zh-CN", { month: "short", day: "numeric" })
 }
 
-export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: {
-  initialPosts: Post[]; isLoggedIn: boolean; currentUser?: User | null; isAdmin?: boolean
+export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, totalPages: initialTotalPages }: {
+  initialPosts: Post[]; isLoggedIn: boolean; currentUser?: User | null; isAdmin?: boolean; totalPages?: number
 }) {
   const [posts, setPosts] = useState(initialPosts)
   const [filter, setFilter] = useState<"all" | "unsolved" | "solved">("all")
@@ -59,6 +59,9 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
   const [showCommentEmoji, setShowCommentEmoji] = useState(false)
   const [confirmAction, setConfirmAction] = useState<{ message: string; onConfirm: () => void } | null>(null)
   const [imageError, setImageError] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(initialTotalPages || 1)
+  const [loadingMore, setLoadingMore] = useState(false)
   const commentInputRef = useRef<HTMLInputElement>(null)
 
   const hasAnyModal = !!confirmAction || showNew || !!activePost
@@ -74,6 +77,25 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
     const res = await fetch(`/api/forum/posts/${id}`)
     if (res.ok) setActivePost(await res.json())
     setLoadingPost(false)
+  }
+
+  async function loadMore() {
+    if (loadingMore || currentPage >= totalPages) return
+    setLoadingMore(true)
+    try {
+      const nextPage = currentPage + 1
+      const res = await fetch(`/api/forum/posts?page=${nextPage}&limit=20`)
+      if (res.ok) {
+        const data = await res.json()
+        setPosts(prev => [...prev, ...data.posts])
+        setCurrentPage(nextPage)
+        setTotalPages(data.totalPages)
+      }
+    } catch (error) {
+      console.error("Failed to load more posts:", error)
+    } finally {
+      setLoadingMore(false)
+    }
   }
 
   // 从 URL 参数自动打开帖子（侧边栏跳转）
@@ -242,7 +264,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
             <p className="py-16 text-center text-sm text-zinc-600 light:text-zinc-400">还没有人发过帖，来开个头吧~</p>
           )}
           {filteredPosts.map(post => (
-            <button key={post.id} 
+            <button key={post.id}
               onClick={() => openPost(post.id)}
               className={cn(
                 "w-full rounded-xl bg-zinc-900 light:bg-white p-4 text-left ring-1 transition-all hover:bg-zinc-800 light:hover:bg-zinc-50",
@@ -265,6 +287,17 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
               </div>
             </button>
           ))}
+
+          {/* 加载更多 */}
+          {currentPage < totalPages && (
+            <button
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="w-full rounded-xl bg-zinc-900/50 light:bg-white/50 py-3 text-sm text-zinc-400 light:text-zinc-500 ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:bg-zinc-800 light:hover:bg-zinc-50 hover:text-zinc-200 light:hover:text-zinc-800 disabled:opacity-50"
+            >
+              {loadingMore ? "加载中..." : "加载更多帖子"}
+            </button>
+          )}
         </div>
 
         {/* 右：帖子详情 */}

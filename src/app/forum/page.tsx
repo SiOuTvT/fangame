@@ -9,18 +9,27 @@ export default async function ForumPage() {
   const session = await auth()
 
   let posts: any[] = []
+  let totalPosts = 0
   try {
-    posts = await prisma.forumPost.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 50,
-      include: {
-        user: { select: { id: true, username: true, avatar: true } },
-        _count: { select: { comments: true } },
-      },
-    })
+    const limit = 20
+    const [fetchedPosts, count] = await Promise.all([
+      prisma.forumPost.findMany({
+        orderBy: { createdAt: "desc" },
+        take: limit,
+        include: {
+          user: { select: { id: true, username: true, avatar: true } },
+          _count: { select: { comments: true } },
+        },
+      }),
+      prisma.forumPost.count(),
+    ])
+    posts = fetchedPosts
+    totalPosts = count
   } catch (error) {
     console.error("[ForumPage] Database query failed:", error)
   }
+
+  const totalPages = Math.ceil(totalPosts / 20)
 
   const initialPosts = posts.map((p) => ({
     id: p.id,
@@ -42,6 +51,7 @@ export default async function ForumPage() {
       isLoggedIn={!!session?.user}
       currentUser={session?.user ? { id: session.user.id!, username: session.user.name ?? "", avatar: session.user.image ?? "" } : null}
       isAdmin={isAdmin}
+      totalPages={totalPages}
     />
   )
 }
