@@ -332,7 +332,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
 
       {/* 移动端全屏详情 */}
       {activePost && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-zinc-950 light:bg-white md:hidden">
+        <div className="fixed inset-0 z-50 flex flex-col bg-background md:hidden">
           <div className="flex items-center gap-3 border-b border-white/[0.06] light:border-black/[0.06] px-4 py-3">
             <button onClick={() => setActivePost(null)} aria-label="返回帖子列表" className="flex h-10 w-10 items-center justify-center rounded-lg text-zinc-400 hover:text-foreground">
               <ChevronLeft className="h-5 w-5" strokeWidth={1.5} aria-hidden="true" />
