@@ -13,6 +13,9 @@ RUN apt-get update -qq && \
 # Copy dependency files
 COPY package.json package-lock.json ./
 
+# 使用国内 npm 镜像加速下载
+RUN npm config set registry https://registry.npmmirror.com
+
 # Install production + dev dependencies (dev needed for build)
 RUN npm ci --no-audit --no-fund
 
