@@ -293,7 +293,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
             <button
               onClick={loadMore}
               disabled={loadingMore}
-              className="w-full rounded-xl bg-zinc-900/50 light:bg-white/50 py-3 text-sm text-muted-foreground ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:bg-secondary hover:text-foreground disabled:opacity-50"
+              className="w-full rounded-xl bg-card/50 py-3 text-sm text-muted-foreground ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:bg-secondary hover:text-foreground disabled:opacity-50"
             >
               {loadingMore ? "加载中..." : "加载更多帖子"}
             </button>
