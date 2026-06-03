@@ -59,7 +59,7 @@ export default function ForgotPasswordPage() {
               )}
 
               <form onSubmit={handleSubmit} className="space-y-3">
-                <div className="flex items-center gap-3 rounded-xl bg-secondary px-4 py-3 ring-1 ring-white/[0.06] light:ring-black/[0.06] focus-within:ring-zinc-600 light:focus-within:ring-zinc-400 transition-all">
+                <div className="flex items-center gap-3 rounded-xl bg-secondary px-4 py-3 ring-1 ring-border focus-within:ring-zinc-600 light:focus-within:ring-zinc-400 transition-all">
                   <Mail className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
                   <input
                     type="email"
