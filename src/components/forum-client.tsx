@@ -293,7 +293,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
             <button
               onClick={loadMore}
               disabled={loadingMore}
-              className="w-full rounded-xl bg-zinc-900/50 light:bg-white/50 py-3 text-sm text-muted-foreground ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:bg-secondary hover:text-zinc-200 light:hover:text-zinc-800 disabled:opacity-50"
+              className="w-full rounded-xl bg-zinc-900/50 light:bg-white/50 py-3 text-sm text-muted-foreground ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:bg-secondary hover:text-foreground disabled:opacity-50"
             >
               {loadingMore ? "加载中..." : "加载更多帖子"}
             </button>
@@ -334,7 +334,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
       {activePost && (
         <div className="fixed inset-0 z-50 flex flex-col bg-zinc-950 light:bg-white md:hidden">
           <div className="flex items-center gap-3 border-b border-white/[0.06] light:border-black/[0.06] px-4 py-3">
-            <button onClick={() => setActivePost(null)} aria-label="返回帖子列表" className="flex h-10 w-10 items-center justify-center rounded-lg text-zinc-400 hover:text-zinc-200 light:hover:text-zinc-800">
+            <button onClick={() => setActivePost(null)} aria-label="返回帖子列表" className="flex h-10 w-10 items-center justify-center rounded-lg text-zinc-400 hover:text-foreground">
               <ChevronLeft className="h-5 w-5" strokeWidth={1.5} aria-hidden="true" />
             </button>
             <span className="flex-1 text-sm font-medium text-foreground line-clamp-1">{activePost.title}</span>
@@ -365,7 +365,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
             <p className="mb-4 text-sm text-foreground">{confirmAction.message}</p>
             <div className="flex justify-end gap-2">
               <button onClick={() => setConfirmAction(null)}
-                className="rounded-lg px-4 py-2 text-sm text-zinc-400 light:text-zinc-600 hover:bg-zinc-800 light:hover:bg-zinc-100 transition-colors">取消</button>
+                className="rounded-lg px-4 py-2 text-sm text-zinc-400 light:text-zinc-600 hover:bg-secondary transition-colors">取消</button>
               <button onClick={() => { confirmAction.onConfirm(); setConfirmAction(null) }}
                 className="rounded-lg bg-red-500/80 px-4 py-2 text-sm text-white hover:bg-red-500 transition-colors">确认</button>
             </div>
@@ -470,7 +470,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                 "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs ring-1 transition-all",
                 post.isSolved
                   ? "bg-emerald-500/10 text-emerald-400 light:text-emerald-600 ring-emerald-500/20 hover:bg-emerald-500/20"
-                  : "bg-zinc-800 light:bg-zinc-100 text-muted-foreground ring-white/[0.06] light:ring-black/[0.06] hover:text-zinc-200 light:hover:text-zinc-800"
+                  : "bg-zinc-800 light:bg-zinc-100 text-muted-foreground ring-white/[0.06] light:ring-black/[0.06] hover:text-foreground"
               )}>
               <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />
               {post.isSolved ? "取消已解决" : "标记已解决"}
@@ -562,7 +562,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                         <div className="grid grid-cols-10 gap-1">
                           {EMOJI_LIST.map((emoji) => (
                             <button key={emoji} type="button" onClick={() => onInsertEmoji(emoji)}
-                              className="flex h-8 w-8 items-center justify-center rounded-lg text-base hover:bg-zinc-800 light:hover:bg-zinc-100 transition-colors active:scale-90">
+                              className="flex h-8 w-8 items-center justify-center rounded-lg text-base hover:bg-secondary transition-colors active:scale-90">
                               {emoji}
                             </button>
                           ))}
@@ -576,7 +576,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                 className="flex-1 rounded-xl bg-zinc-800 light:bg-zinc-100 px-3 py-2 text-xs text-foreground placeholder:text-zinc-600 light:placeholder:text-zinc-400 ring-1 ring-white/[0.06] light:ring-black/[0.06] outline-none focus:ring-white/[0.12] light:focus:ring-black/[0.12] transition-all" />
               <button type="submit" disabled={!commentText.trim() && !commentImagePreview}
                 aria-label="发送评论"
-                className="flex items-center gap-1 rounded-xl bg-zinc-800 light:bg-zinc-200 px-3 py-2 text-xs text-muted-foreground ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:text-zinc-200 light:hover:text-zinc-800 disabled:opacity-40">
+                className="flex items-center gap-1 rounded-xl bg-zinc-800 light:bg-zinc-200 px-3 py-2 text-xs text-muted-foreground ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:text-foreground disabled:opacity-40">
                 <Send className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden="true" />
               </button>
             </form>
