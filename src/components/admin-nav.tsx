@@ -138,7 +138,7 @@ export function AdminNav() {
       {/* ═══════════ 桌面端左侧边栏 ═══════════ */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 hidden h-full flex-col border-r border-border bg-card/95 backdrop-blur-xl transition-all duration-300 ease-in-out md:flex",
+          "fixed left-0 top-0 z-40 hidden h-full flex-col border-r border-border bg-card/95 backdrop-blur-lg transition-all duration-300 ease-in-out md:flex",
           sidebarWidth,
         )}
       >
@@ -227,7 +227,7 @@ export function AdminNav() {
       </aside>
 
       {/* ═══════════ 手机端顶部栏 ═══════════ */}
-      <nav className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-card/95 px-4 backdrop-blur-xl md:hidden">
+      <nav className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-card/95 px-4 backdrop-blur-lg md:hidden">
         <button
           onClick={() => setMobileOpen(true)}
           className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-all"
