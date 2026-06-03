@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import NotificationsClient from "./notifications-client"
 
-export const revalidate = 30
+export const dynamic = "force-dynamic"
 export const metadata = {
   title: "通知中心",
 }
