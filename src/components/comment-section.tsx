@@ -182,10 +182,10 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
 
   return (
     <section>
-      <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-zinc-200 light:text-zinc-800">
+      <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground light:text-foreground">
         <span className="h-4 w-0.5 rounded-full bg-primary" />
         评论
-        <span className="text-xs font-normal text-zinc-500">{comments.length}</span>
+        <span className="text-xs font-normal text-muted-foreground">{comments.length}</span>
       </h2>
 
       {/* 发评论 */}
@@ -196,7 +196,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             className={cn(
-              "rounded-2xl bg-zinc-900/80 light:bg-zinc-100 ring-1 transition-all overflow-hidden",
+              "rounded-2xl bg-card/80 light:bg-secondary ring-1 transition-all overflow-hidden",
               isDragging ? "ring-primary/50 bg-primary/5 light:bg-primary/5" : "ring-white/[0.06] light:ring-black/[0.06] focus-within:ring-white/[0.12] light:focus-within:ring-black/[0.12]"
             )}
           >
@@ -207,7 +207,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={previewUrl} alt="预览" className="h-20 w-20 rounded-lg object-cover ring-1 ring-white/10 light:ring-black/10" />
                   <button type="button" onClick={removePreview}
-                    className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-zinc-700 light:bg-zinc-300 text-zinc-300 light:text-zinc-700 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-red-500/80 hover:text-white"
+                    className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-secondary light:bg-secondary text-foreground light:text-muted-foreground sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-red-500/80 hover:text-white"
                     aria-label="移除图片">
                     <X className="h-3.5 w-3.5" strokeWidth={2} />
                   </button>
@@ -222,7 +222,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
               onChange={(e) => { setContent(e.target.value); autoResize(e.target) }}
               placeholder={isDragging ? "释放以添加图片…" : "写下评论…"}
               rows={2}
-              className="w-full resize-none bg-transparent px-4 py-3 text-sm text-zinc-200 light:text-zinc-800 placeholder:text-zinc-600 light:placeholder:text-zinc-400 outline-none"
+              className="w-full resize-none bg-transparent px-4 py-3 text-sm text-foreground light:text-foreground placeholder:text-muted-foreground light:placeholder:text-muted-foreground outline-none"
               style={{ minHeight: "3.5rem" }}
             />
 
@@ -235,7 +235,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
                   重试
                 </button>
                 <button type="button" onClick={() => setSubmitError(null)}
-                  className="flex h-5 w-5 items-center justify-center rounded text-zinc-500 hover:text-zinc-300 light:hover:text-zinc-600 transition-colors">
+                  className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground hover:text-foreground light:hover:text-muted-foreground transition-colors">
                   <X className="h-3 w-3" />
                 </button>
               </div>
@@ -244,7 +244,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
             {/* 工具栏 */}
             <div className="flex items-center gap-1 border-t border-white/[0.04] light:border-black/[0.04] px-2 py-1.5">
               <button type="button" onClick={() => fileRef.current?.click()}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-zinc-800 light:hover:bg-zinc-200 hover:text-zinc-300 light:hover:text-zinc-600"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary light:hover:bg-secondary hover:text-foreground light:hover:text-muted-foreground"
                 title="上传图片">
                 <ImageIcon className="h-4 w-4" strokeWidth={1.5} />
               </button>
@@ -255,8 +255,8 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
                   className={cn(
                     "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
                     showEmoji
-                      ? "bg-zinc-800 light:bg-zinc-200 text-primary"
-                      : "text-zinc-500 hover:bg-zinc-800 light:hover:bg-zinc-200 hover:text-zinc-300 light:hover:text-zinc-600"
+                      ? "bg-secondary light:bg-secondary text-primary"
+                      : "text-muted-foreground hover:bg-secondary light:hover:bg-secondary hover:text-foreground light:hover:text-muted-foreground"
                   )}
                   title="表情">
                   <Smile className="h-4 w-4" strokeWidth={1.5} />
@@ -264,14 +264,14 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
                 {showEmoji && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setShowEmoji(false)} />
-                    <div className="absolute bottom-10 left-0 z-50 w-72 rounded-xl bg-zinc-900 light:bg-white p-3 ring-1 ring-white/10 light:ring-black/10 shadow-2xl">
+                    <div className="absolute bottom-10 left-0 z-50 w-72 rounded-xl bg-card light:bg-white p-3 ring-1 ring-white/10 light:ring-black/10 shadow-2xl">
                       {EMOJI_CATEGORIES.map((cat) => (
                         <div key={cat.name} className="mb-2 last:mb-0">
-                          <p className="mb-1.5 text-[10px] font-medium text-zinc-600 light:text-zinc-400">{cat.name}</p>
+                          <p className="mb-1.5 text-[10px] font-medium text-muted-foreground light:text-muted-foreground">{cat.name}</p>
                           <div className="grid grid-cols-10 gap-1">
                             {cat.emojis.map((emoji) => (
                               <button key={emoji} type="button" onClick={() => insertEmoji(emoji)}
-                                className="flex h-8 w-8 items-center justify-center rounded-lg text-lg hover:bg-zinc-800 light:hover:bg-zinc-200 transition-colors active:scale-90">
+                                className="flex h-8 w-8 items-center justify-center rounded-lg text-lg hover:bg-secondary light:hover:bg-secondary transition-colors active:scale-90">
                                 {emoji}
                               </button>
                             ))}
@@ -294,7 +294,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
           </div>
         </form>
       ) : (
-        <p className="mb-6 text-sm text-zinc-500">
+        <p className="mb-6 text-sm text-muted-foreground">
           <a href="/login" className="text-primary hover:text-primary/80 transition-colors">登录</a>后发表评论
         </p>
       )}
@@ -307,8 +307,8 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
             className={cn(
               "rounded-lg px-3 py-1 text-xs font-medium transition-colors",
               sortMode === "newest"
-                ? "bg-zinc-800 light:bg-zinc-200 text-zinc-200 light:text-zinc-800"
-                : "text-zinc-500 hover:text-zinc-300 light:hover:text-zinc-600"
+                ? "bg-secondary light:bg-secondary text-foreground light:text-foreground"
+                : "text-muted-foreground hover:text-foreground light:hover:text-muted-foreground"
             )}
           >
             最新
@@ -318,8 +318,8 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
             className={cn(
               "rounded-lg px-3 py-1 text-xs font-medium transition-colors",
               sortMode === "hottest"
-                ? "bg-zinc-800 light:bg-zinc-200 text-zinc-200 light:text-zinc-800"
-                : "text-zinc-500 hover:text-zinc-300 light:hover:text-zinc-600"
+                ? "bg-secondary light:bg-secondary text-foreground light:text-foreground"
+                : "text-muted-foreground hover:text-foreground light:hover:text-muted-foreground"
             )}
           >
             最热
@@ -330,22 +330,22 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
       {/* 评论列表 */}
       <div className="space-y-4">
         {sortedComments.length === 0 && (
-          <p className="py-8 text-center text-sm text-zinc-600 light:text-zinc-400">还没有评论，来说点什么吧~</p>
+          <p className="py-8 text-center text-sm text-muted-foreground light:text-muted-foreground">还没有评论，来说点什么吧~</p>
         )}
         {sortedComments.map((c) => (
           <div key={c.id} className="group flex gap-3 rounded-xl p-2 transition-colors hover:bg-white/[0.02] light:hover:bg-black/[0.02]">
             <Avatar user={c.user} />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs font-semibold text-zinc-300 light:text-zinc-700">{c.user.username}</span>
-                <span className="text-[10px] text-zinc-600 light:text-zinc-400">
+                <span className="text-xs font-semibold text-foreground light:text-muted-foreground">{c.user.username}</span>
+                <span className="text-[10px] text-muted-foreground light:text-muted-foreground">
                   {new Date(c.createdAt).toLocaleDateString("zh-CN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                 </span>
                 {currentUserId === c.user.id && (
                   <div className="flex items-center gap-0.5 ml-auto sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => setDeletingId(c.id)}
-                      className="flex h-8 w-8 items-center justify-center rounded-md text-zinc-600 light:text-zinc-400 hover:bg-red-500/10 hover:text-red-400 transition-colors"
+                      className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground light:text-muted-foreground hover:bg-red-500/10 hover:text-red-400 transition-colors"
                       aria-label="删除评论"
                     >
                       <Trash2 className="h-4 w-4" strokeWidth={1.5} />
@@ -353,7 +353,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
                   </div>
                 )}
               </div>
-              {c.content && <p className="text-sm leading-relaxed text-zinc-400 light:text-zinc-600 whitespace-pre-wrap break-words">{c.content}</p>}
+              {c.content && <p className="text-sm leading-relaxed text-muted-foreground light:text-muted-foreground whitespace-pre-wrap break-words">{c.content}</p>}
               {c.imageUrl && (
                 <a href={c.imageUrl} target="_blank" rel="noopener noreferrer" className="mt-2 block max-w-xs">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -363,7 +363,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
               <button onClick={() => isLoggedIn && likeComment(c.id)}
                 className={cn(
                   "mt-1.5 flex items-center gap-1 rounded-md px-1.5 py-1 -mx-1.5 -my-1 text-[11px] transition-colors",
-                  isLoggedIn ? "text-zinc-600 light:text-zinc-400 hover:text-primary cursor-pointer" : "text-zinc-700 light:text-zinc-300 cursor-default"
+                  isLoggedIn ? "text-muted-foreground light:text-muted-foreground hover:text-primary cursor-pointer" : "text-muted-foreground light:text-foreground cursor-default"
                 )}
                 aria-label={c.likeCount > 0 ? `${c.likeCount} 个赞` : "点赞"}
               >
