@@ -47,7 +47,7 @@ export function AchievementToast({ achievement, onClose }: Props) {
     <div
       className={cn(
         "pointer-events-auto relative w-[320px] h-[90px] overflow-visible rounded-xl",
-        "bg-zinc-900/95 backdrop-blur-xl ring-1 ring-amber-500/20",
+        "bg-card backdrop-blur-xl ring-1 ring-amber-500/20",
         "shadow-[0_8px_32px_rgba(0,0,0,0.4),0_0_20px_rgba(245,158,11,0.08)]",
         "transition-all duration-200 ease-out",
         visible && !exiting
