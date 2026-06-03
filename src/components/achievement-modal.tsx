@@ -174,7 +174,7 @@ function AchievementUnlockCard({ achievement, onClose }: { achievement: Achievem
       className={cn(
         "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60]",
         "w-[340px] h-[100px] overflow-visible rounded-xl",
-        "bg-zinc-900/95 backdrop-blur-xl ring-1 ring-amber-500/25",
+        "bg-card backdrop-blur-xl ring-1 ring-amber-500/25",
         "shadow-[0_8px_40px_rgba(0,0,0,0.5),0_0_30px_rgba(245,158,11,0.1)]",
         "transition-all duration-300 ease-out",
         visible ? "opacity-100 scale-100" : "opacity-0 scale-90"
