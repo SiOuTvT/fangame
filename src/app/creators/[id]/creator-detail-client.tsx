@@ -83,11 +83,11 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
 
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-baseline gap-3 mb-3">
-              <h1 className="text-3xl font-bold text-zinc-100 light:text-zinc-900">
+              <h1 className="text-3xl font-bold text-foreground light:text-foreground">
                 {creator.original || creator.name}
               </h1>
               {creator.original && creator.name !== creator.original && (
-                <span className="text-base text-zinc-500 light:text-zinc-400">{creator.name}</span>
+                <span className="text-base text-muted-foreground light:text-muted-foreground">{creator.name}</span>
               )}
             </div>
 
@@ -120,7 +120,7 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
             </div>
 
             {/* 参与作品数 */}
-            <div className="text-sm text-zinc-500 light:text-zinc-400">
+            <div className="text-sm text-muted-foreground light:text-muted-foreground">
               参与作品: {creator.vns.length} 部
             </div>
           </div>
@@ -136,21 +136,21 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
         if (!cleaned) return null
         return (
           <section className="mb-6">
-            <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-zinc-200 light:text-zinc-800">
+            <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-foreground light:text-foreground">
               <span className="h-5 w-1 rounded-full bg-gradient-to-b from-indigo-300 to-indigo-400" />
               创作者简介
               {!translated && <TranslateBtn text={cleaned} onTranslated={setTranslated} />}
               {translated && (
                 <button
                   onClick={() => setShowOriginal(!showOriginal)}
-                  className="flex items-center gap-1.5 rounded-lg bg-zinc-800/80 light:bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08] transition-all hover:bg-zinc-700 light:hover:bg-zinc-200 hover:text-white light:hover:text-zinc-900"
+                  className="flex items-center gap-1.5 rounded-lg bg-secondary/80 light:bg-secondary px-3 py-1.5 text-xs font-medium text-foreground light:text-muted-foreground ring-1 ring-white/[0.08] light:ring-black/[0.08] transition-all hover:bg-secondary light:hover:bg-secondary hover:text-white light:hover:text-foreground"
                 >
                   {showOriginal ? "查看翻译" : "查看原文"}
                 </button>
               )}
             </h2>
-            <div className="rounded-2xl bg-zinc-900/50 light:bg-zinc-100 p-6 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
-              <p className="text-sm leading-relaxed text-zinc-400 light:text-zinc-600 whitespace-pre-line">
+            <div className="rounded-2xl bg-card/50 light:bg-secondary p-6 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
+              <p className="text-sm leading-relaxed text-muted-foreground light:text-muted-foreground whitespace-pre-line">
                 {translated && !showOriginal ? translated : cleaned}
               </p>
             </div>
@@ -161,7 +161,7 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
       {/* 参与作品列表 */}
       {creator.vns.length > 0 && (
         <section className="mb-6">
-          <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-zinc-200 light:text-zinc-800">
+          <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-foreground light:text-foreground">
             <span className="h-5 w-1 rounded-full bg-gradient-to-b from-indigo-300 to-indigo-400" />
             参与作品
           </h2>
@@ -170,7 +170,7 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
               <Link
                 key={vn.id}
                 href={`/games?vndb=${vn.id}`}
-                className="group overflow-hidden rounded-xl bg-zinc-900 light:bg-white ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:-translate-y-1 hover:ring-white/[0.12] light:hover:ring-black/[0.12] hover:shadow-[0_8px_24px_rgba(0,0,0,0.5)]"
+                className="group overflow-hidden rounded-xl bg-card light:bg-white ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:-translate-y-1 hover:ring-white/[0.12] light:hover:ring-black/[0.12] hover:shadow-[0_8px_24px_rgba(0,0,0,0.5)]"
               >
                 <div className="relative" style={{ aspectRatio: "4/5" }}>
                   {vn.image ? (
@@ -178,7 +178,7 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
                       className="object-cover transition-transform duration-300 group-hover:scale-[1.05]"
                       sizes="(max-width: 640px) 33vw, 16vw" />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-zinc-800 light:bg-zinc-100 text-zinc-600 light:text-zinc-400 text-xs">封面还没上传~</div>
+                    <div className="flex h-full w-full items-center justify-center bg-secondary light:bg-secondary text-muted-foreground light:text-muted-foreground text-xs">封面还没上传~</div>
                   )}
                   {vn.rating ? (
                     <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 rounded-md bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-amber-400 backdrop-blur-sm">
@@ -187,8 +187,8 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
                     </div>
                   ) : null}
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-zinc-950/90 to-transparent p-2">
-                    <p className="line-clamp-2 text-[10px] font-medium leading-tight text-zinc-200 light:text-zinc-800">{vn.original || vn.title}</p>
-                    <p className="mt-0.5 text-[10px] text-zinc-500">{roleLabelMap[vn.role] || vn.role}</p>
+                    <p className="line-clamp-2 text-[10px] font-medium leading-tight text-foreground light:text-foreground">{vn.original || vn.title}</p>
+                    <p className="mt-0.5 text-[10px] text-muted-foreground">{roleLabelMap[vn.role] || vn.role}</p>
                   </div>
                 </div>
               </Link>
