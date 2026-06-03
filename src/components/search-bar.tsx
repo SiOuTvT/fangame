@@ -122,16 +122,14 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
       {/* 搜索建议下拉 */}
       {showSuggestions && suggestions.length > 0 && (
         <div
-          className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-xl py-1 shadow-lg"
-          style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+          className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-xl bg-card py-1 shadow-lg ring-1 ring-border"
         >
           {suggestions.map((s, i) => (
             <Link
               key={s.id}
               href={`/games/${s.serialId}`}
               onClick={() => setShowSuggestions(false)}
-              className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-secondary"
-              style={i === activeIdx ? { background: "var(--secondary)" } : undefined}
+              className={`flex items-center gap-3 px-4 py-3 transition-colors hover:bg-secondary ${i === activeIdx ? "bg-secondary" : ""}`}
             >
               {s.coverImage ? (
                 <Image
