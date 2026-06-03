@@ -365,7 +365,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
             <p className="mb-4 text-sm text-foreground">{confirmAction.message}</p>
             <div className="flex justify-end gap-2">
               <button onClick={() => setConfirmAction(null)}
-                className="rounded-lg px-4 py-2 text-sm text-zinc-400 light:text-zinc-600 hover:bg-secondary transition-colors">取消</button>
+                className="rounded-lg px-4 py-2 text-sm text-muted-foreground hover:bg-secondary transition-colors">取消</button>
               <button onClick={() => { confirmAction.onConfirm(); setConfirmAction(null) }}
                 className="rounded-lg bg-red-500/80 px-4 py-2 text-sm text-white hover:bg-red-500 transition-colors">确认</button>
             </div>
