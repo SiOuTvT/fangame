@@ -84,9 +84,9 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
 
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-baseline gap-3 mb-3">
-            <h1 className="text-3xl font-bold text-zinc-100 light:text-zinc-900">{character.original || character.name}</h1>
+            <h1 className="text-3xl font-bold text-foreground light:text-zinc-900">{character.original || character.name}</h1>
             {character.original && character.name !== character.original && (
-              <span className="text-base text-zinc-500 light:text-zinc-400">{character.name}</span>
+              <span className="text-base text-zinc-500 light:text-muted-foreground">{character.name}</span>
             )}
           </div>
 
@@ -112,25 +112,25 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
           {/* 基本信息 */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1.5 mb-4 text-sm">
             {character.gender && character.gender.length > 0 && (
-              <div><span className="text-zinc-500 light:text-zinc-400">性别: </span><span className="text-zinc-200 light:text-zinc-700">{character.gender.map(g => genderMap[g] || g).join(", ")}</span></div>
+              <div><span className="text-zinc-500 light:text-muted-foreground">性别: </span><span className="text-foreground light:text-zinc-700">{character.gender.map(g => genderMap[g] || g).join(", ")}</span></div>
             )}
             {character.age && (
-              <div><span className="text-zinc-500 light:text-zinc-400">年龄: </span><span className="text-zinc-200 light:text-zinc-700">{character.age}</span></div>
+              <div><span className="text-zinc-500 light:text-muted-foreground">年龄: </span><span className="text-foreground light:text-zinc-700">{character.age}</span></div>
             )}
             {character.birthday && (
-              <div><span className="text-zinc-500 light:text-zinc-400">生日: </span><span className="text-zinc-200 light:text-zinc-700">{character.birthday[0]}月{character.birthday[1]}日</span></div>
+              <div><span className="text-zinc-500 light:text-muted-foreground">生日: </span><span className="text-foreground light:text-zinc-700">{character.birthday[0]}月{character.birthday[1]}日</span></div>
             )}
             {character.bloodType && (
-              <div><span className="text-zinc-500 light:text-zinc-400">血型: </span><span className="text-zinc-200 light:text-zinc-700">{character.bloodType}</span></div>
+              <div><span className="text-zinc-500 light:text-muted-foreground">血型: </span><span className="text-foreground light:text-zinc-700">{character.bloodType}</span></div>
             )}
             {character.height && (
-              <div><span className="text-zinc-500 light:text-zinc-400">身高: </span><span className="text-zinc-200 light:text-zinc-700">{character.height}cm</span></div>
+              <div><span className="text-zinc-500 light:text-muted-foreground">身高: </span><span className="text-foreground light:text-zinc-700">{character.height}cm</span></div>
             )}
             {character.weight && (
-              <div><span className="text-zinc-500 light:text-zinc-400">体重: </span><span className="text-zinc-200 light:text-zinc-700">{character.weight}kg</span></div>
+              <div><span className="text-zinc-500 light:text-muted-foreground">体重: </span><span className="text-foreground light:text-zinc-700">{character.weight}kg</span></div>
             )}
             {character.bust && character.waist && character.hips && (
-              <div className="col-span-2"><span className="text-zinc-500 light:text-zinc-400">三围: </span><span className="text-zinc-200 light:text-zinc-700">{character.bust}-{character.waist}-{character.hips}{character.cup ? ` (${character.cup})` : ""}</span></div>
+              <div className="col-span-2"><span className="text-zinc-500 light:text-muted-foreground">三围: </span><span className="text-foreground light:text-zinc-700">{character.bust}-{character.waist}-{character.hips}{character.cup ? ` (${character.cup})` : ""}</span></div>
             )}
           </div>
 
@@ -152,7 +152,7 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
       {/* 特征 */}
       {character.traits && character.traits.length > 0 && (
         <section className="mb-6">
-          <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-zinc-200 light:text-zinc-800">
+          <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-foreground light:text-zinc-800">
             <span className="h-5 w-1 rounded-full bg-gradient-to-b from-pink-300 to-pink-400" />
             角色特征
           </h2>
@@ -171,7 +171,7 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
         const cleaned = character.description.replace(/\[.*?\]/g, "").replace(/\[url=[^\]]*\]([^[]*)\[\/url\]/g, "$1").trim()
         return (
           <section className="mb-6">
-            <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-zinc-200 light:text-zinc-800">
+            <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-foreground light:text-zinc-800">
             <span className="h-5 w-1 rounded-full bg-gradient-to-b from-pink-300 to-pink-400" />
             角色简介
               {!translated && <TranslateBtn text={cleaned} onTranslated={setTranslated} />}
@@ -185,7 +185,7 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
               )}
             </h2>
             <div className="rounded-2xl bg-zinc-900/50 light:bg-zinc-100 p-6 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
-              <p className="text-sm leading-relaxed text-zinc-400 light:text-zinc-600 whitespace-pre-line">
+              <p className="text-sm leading-relaxed text-muted-foreground light:text-zinc-600 whitespace-pre-line">
                 {translated && !showOriginal ? translated : cleaned}
               </p>
             </div>
