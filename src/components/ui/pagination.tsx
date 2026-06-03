@@ -63,7 +63,7 @@ export function Pagination({ currentPage, totalPages, baseUrl, extraParams }: Pa
       {currentPage > 1 && (
         <Link
           href={buildUrl(baseUrl, currentPage - 1, extraParams)}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground ring-1 ring-border transition-colors hover:bg-accent hover:text-foreground"
+          className="flex h-9 w-9 items-center justify-center rounded-xl text-muted-foreground ring-1 ring-border transition-colors hover:bg-accent hover:text-foreground"
           aria-label="上一页"
         >
           <ChevronLeft className="h-4 w-4" />
@@ -73,16 +73,16 @@ export function Pagination({ currentPage, totalPages, baseUrl, extraParams }: Pa
       {/* 页码 */}
       {pages.map((p, i) =>
         p === "ellipsis" ? (
-          <span key={`e${i}`} className="flex h-8 w-8 items-center justify-center text-muted-foreground">
+          <span key={`e${i}`} className="flex h-9 w-9 items-center justify-center text-muted-foreground">
             <MoreHorizontal className="h-4 w-4" />
           </span>
         ) : (
           <Link
             key={p}
             href={buildUrl(baseUrl, p, extraParams)}
-            className={`flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-sm transition-colors ${
+            className={`flex h-9 min-w-9 items-center justify-center rounded-xl px-2.5 text-sm transition-colors ${
               p === currentPage
-                ? "bg-accent text-foreground font-medium"
+                ? "bg-primary/15 text-primary font-medium ring-1 ring-primary/20"
                 : "text-muted-foreground ring-1 ring-border hover:bg-accent hover:text-foreground"
             }`}
             aria-current={p === currentPage ? "page" : undefined}
@@ -96,7 +96,7 @@ export function Pagination({ currentPage, totalPages, baseUrl, extraParams }: Pa
       {currentPage < totalPages && (
         <Link
           href={buildUrl(baseUrl, currentPage + 1, extraParams)}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground ring-1 ring-border transition-colors hover:bg-accent hover:text-foreground"
+          className="flex h-9 w-9 items-center justify-center rounded-xl text-muted-foreground ring-1 ring-border transition-colors hover:bg-accent hover:text-foreground"
           aria-label="下一页"
         >
           <ChevronRight className="h-4 w-4" />
