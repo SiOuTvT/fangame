@@ -51,7 +51,7 @@ export function VNDBImportManager() {
   }
 
   return (
-    <div className="rounded-xl bg-card light:bg-white p-6 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
+    <div className="rounded-xl bg-card light:bg-white p-6 ring-1 ring-border">
       <div className="mb-4 flex items-center gap-2">
         <Database className="h-5 w-5 text-primary" strokeWidth={2} />
         <h3 className="text-base font-semibold text-foreground light:text-foreground">VNDB 批量导入</h3>
@@ -68,7 +68,7 @@ export function VNDBImportManager() {
         onChange={(e) => setVndbIds(e.target.value)}
         placeholder="输入 VNDB ID..."
         rows={4}
-        className="w-full resize-none rounded-xl bg-secondary light:bg-secondary px-4 py-3 text-sm text-foreground light:text-foreground placeholder:text-muted-foreground light:placeholder:text-muted-foreground ring-1 ring-white/[0.06] light:ring-black/[0.06] outline-none focus:ring-zinc-600 light:focus:ring-zinc-400 transition-all"
+        className="w-full resize-none rounded-xl bg-secondary light:bg-secondary px-4 py-3 text-sm text-foreground light:text-foreground placeholder:text-muted-foreground light:placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all"
       />
 
       <button
