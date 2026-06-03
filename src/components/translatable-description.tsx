@@ -15,7 +15,7 @@ export function TranslatableDescription({ text, className = "" }: { text: string
 
   return (
     <div className={className}>
-      <p className="text-sm leading-relaxed text-zinc-400 light:text-zinc-600 whitespace-pre-line">
+      <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
         {translated && !showOriginal ? translated : cleaned}
       </p>
       <div className="mt-3 flex items-center gap-2">
@@ -23,7 +23,7 @@ export function TranslatableDescription({ text, className = "" }: { text: string
         {translated && (
           <button
             onClick={() => setShowOriginal(!showOriginal)}
-            className="flex items-center gap-1.5 rounded-lg bg-zinc-800/80 light:bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08] transition-all hover:bg-zinc-700 light:hover:bg-zinc-200 hover:text-white light:hover:text-zinc-900"
+            className="flex items-center gap-1.5 rounded-lg bg-secondary/80 px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-foreground"
           >
             {showOriginal ? "查看翻译" : "查看原文"}
           </button>
