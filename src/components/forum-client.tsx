@@ -382,11 +382,11 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
 
       {/* 发帖弹窗 */}
       {showNew && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 light:bg-black/40 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
           <div className="w-full max-w-2xl rounded-2xl bg-card p-6 ring-1 ring-border">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-base font-semibold text-foreground">发布新帖</h2>
-              <button onClick={() => setShowNew(false)} aria-label="关闭" className="text-zinc-500 hover:text-zinc-300 light:hover:text-zinc-700 transition-colors">
+              <button onClick={() => setShowNew(false)} aria-label="关闭" className="text-muted-foreground hover:text-foreground transition-colors">
                 <X className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
               </button>
             </div>
