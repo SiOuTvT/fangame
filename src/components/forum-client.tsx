@@ -393,7 +393,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
             <form onSubmit={submitPost} className="space-y-4">
               <input value={newTitle} onChange={e => setNewTitle(e.target.value)}
                 placeholder="标题（如：求《xxx》下载地址）" maxLength={100} required
-                className="w-full rounded-xl bg-zinc-800 light:bg-zinc-100 px-4 py-3 text-sm text-foreground placeholder:text-zinc-600 light:placeholder:text-zinc-400 ring-1 ring-white/[0.06] light:ring-black/[0.06] outline-none focus:ring-white/[0.12] light:focus:ring-black/[0.12] transition-all" />
+                className="w-full rounded-xl bg-secondary px-4 py-3 text-sm text-foreground placeholder:text-zinc-600 light:placeholder:text-zinc-400 ring-1 ring-white/[0.06] light:ring-black/[0.06] outline-none focus:ring-white/[0.12] light:focus:ring-black/[0.12] transition-all" />
               
               <RichTextEditor
                 content={newContent}
@@ -461,7 +461,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
 
         <div className="mt-4 flex items-center gap-2">
           <button onClick={onLikePost} disabled={!isLoggedIn}
-            className="flex items-center gap-1.5 rounded-lg bg-zinc-800 light:bg-zinc-100 px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:text-primary disabled:opacity-40">
+            className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:text-primary disabled:opacity-40">
             <Heart className="h-3.5 w-3.5" strokeWidth={1.5} />{post.likeCount}
           </button>
           {isAuthor && (
@@ -470,7 +470,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                 "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs ring-1 transition-all",
                 post.isSolved
                   ? "bg-emerald-500/10 text-emerald-400 light:text-emerald-600 ring-emerald-500/20 hover:bg-emerald-500/20"
-                  : "bg-zinc-800 light:bg-zinc-100 text-muted-foreground ring-white/[0.06] light:ring-black/[0.06] hover:text-foreground"
+                  : "bg-secondary text-muted-foreground ring-white/[0.06] light:ring-black/[0.06] hover:text-foreground"
               )}>
               <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />
               {post.isSolved ? "取消已解决" : "标记已解决"}
@@ -573,7 +573,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                 </div>
               </div>
               <input ref={commentInputRef} value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="写下评论…"
-                className="flex-1 rounded-xl bg-zinc-800 light:bg-zinc-100 px-3 py-2 text-xs text-foreground placeholder:text-zinc-600 light:placeholder:text-zinc-400 ring-1 ring-white/[0.06] light:ring-black/[0.06] outline-none focus:ring-white/[0.12] light:focus:ring-black/[0.12] transition-all" />
+                className="flex-1 rounded-xl bg-secondary px-3 py-2 text-xs text-foreground placeholder:text-zinc-600 light:placeholder:text-zinc-400 ring-1 ring-white/[0.06] light:ring-black/[0.06] outline-none focus:ring-white/[0.12] light:focus:ring-black/[0.12] transition-all" />
               <button type="submit" disabled={!commentText.trim() && !commentImagePreview}
                 aria-label="发送评论"
                 className="flex items-center gap-1 rounded-xl bg-zinc-800 light:bg-zinc-200 px-3 py-2 text-xs text-muted-foreground ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:text-foreground disabled:opacity-40">
