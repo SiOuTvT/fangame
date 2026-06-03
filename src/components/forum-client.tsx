@@ -548,7 +548,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                     className={cn(
                       "flex h-8 w-8 items-center justify-center rounded-lg transition-colors shrink-0",
                       showCommentEmoji 
-                        ? "bg-zinc-800 light:bg-zinc-200 text-primary" 
+                        ? "bg-secondary text-primary" 
                         : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                     )}
                     aria-label="表情"
@@ -576,7 +576,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                 className="flex-1 rounded-xl bg-secondary px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-white/[0.12] light:focus:ring-black/[0.12] transition-all" />
               <button type="submit" disabled={!commentText.trim() && !commentImagePreview}
                 aria-label="发送评论"
-                className="flex items-center gap-1 rounded-xl bg-zinc-800 light:bg-zinc-200 px-3 py-2 text-xs text-muted-foreground ring-1 ring-border transition-all hover:text-foreground disabled:opacity-40">
+                className="flex items-center gap-1 rounded-xl bg-secondary px-3 py-2 text-xs text-muted-foreground ring-1 ring-border transition-all hover:text-foreground disabled:opacity-40">
                 <Send className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden="true" />
               </button>
             </form>
