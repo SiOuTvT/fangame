@@ -12,7 +12,7 @@ import {
   LogOut,
   Menu,
   MessageSquare,
-  Monitor,
+  SunMoon,
   Moon,
   Search,
   ShieldAlert,
@@ -209,7 +209,7 @@ export function TopNav() {
           "bg-background/60 backdrop-blur-md border-border/50",
           "transition-[box-shadow,border-color] duration-300",
           scrolled
-            ? "shadow-[0_1px_3px_rgba(0,0,0,0.2)] border-white/[0.06] light:shadow-[0_1px_3px_rgba(0,0,0,0.06)] light:border-black/[0.06]"
+            ? "shadow-md border-border"
             : "shadow-none"
         )}
       >
@@ -264,7 +264,7 @@ export function TopNav() {
             <button onClick={toggleTheme} title={theme === "dark" ? "深色模式" : theme === "light" ? "浅色模式" : "跟随系统"} className="flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
               {theme === "light" ? <Sun className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
                 : theme === "dark" ? <Moon className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
-                : <Monitor className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />}
+                : <SunMoon className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />}
             </button>
 
             {user ? (
