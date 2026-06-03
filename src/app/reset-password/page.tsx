@@ -45,7 +45,7 @@ function ResetForm() {
     setTimeout(() => router.push("/login"), 2000)
   }
 
-  const fieldCls = "flex items-center gap-3 rounded-xl bg-secondary px-4 py-3 ring-1 ring-white/[0.06] light:ring-black/[0.06] focus-within:ring-zinc-600 light:focus-within:ring-zinc-400 transition-all"
+  const fieldCls = "flex items-center gap-3 rounded-xl bg-secondary px-4 py-3 ring-1 ring-border focus-within:ring-primary/30 transition-all"
 
   return (
     <div className="rounded-2xl bg-card p-8 ring-1 ring-foreground/10">
@@ -73,14 +73,14 @@ function ResetForm() {
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className={fieldCls}>
               <Lock className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
-              <input type={showPwd ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="新密码（至少6位）" required className="flex-1 bg-transparent text-sm text-foreground placeholder:text-zinc-600 light:placeholder:text-zinc-400 outline-none" />
-              <button type="button" onClick={() => setShowPwd(v => !v)} className="text-zinc-600 light:text-zinc-400 hover:text-zinc-400 light:hover:text-muted-foreground">
+              <input type={showPwd ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="新密码（至少6位）" required className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none" />
+              <button type="button" onClick={() => setShowPwd(v => !v)} className="text-muted-foreground hover:text-foreground">
                 {showPwd ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
               </button>
             </div>
             <div className={fieldCls}>
               <Lock className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
-              <input type={showPwd ? "text" : "password"} value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="确认新密码" required className="flex-1 bg-transparent text-sm text-foreground placeholder:text-zinc-600 light:placeholder:text-zinc-400 outline-none" />
+              <input type={showPwd ? "text" : "password"} value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="确认新密码" required className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none" />
             </div>
             <button type="submit" disabled={saving}
               className="gradient-accent flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60">
