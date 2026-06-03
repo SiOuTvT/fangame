@@ -4,6 +4,12 @@ import { notFound } from "next/navigation"
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+  try {
+    const character = await vndbClient.getCharacterDetail(id)
+    if (character?.name) {
+      return { title: `${character.name} · 角色详情 · 同人游戏站` }
+    }
+  } catch {}
   return { title: `角色详情 · 同人游戏站` }
 }
 
