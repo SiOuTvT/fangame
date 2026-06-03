@@ -529,7 +529,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                 <img src={commentImagePreview} alt="预览" className="h-16 w-16 rounded-lg object-cover ring-1 ring-white/10 light:ring-black/10" />
                 <button type="button" onClick={onRemoveCommentImage}
                   aria-label="移除图片"
-                  className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-zinc-700 light:bg-zinc-300 text-foreground sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-red-500/80 hover:text-white">
+                  className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-secondary text-foreground sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-red-500/80 hover:text-white">
                   <X className="h-2.5 w-2.5" strokeWidth={2} aria-hidden="true" />
                 </button>
               </div>
