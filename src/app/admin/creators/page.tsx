@@ -72,7 +72,7 @@ export default async function AdminCreatorsPage({
           name="q"
           defaultValue={q}
           placeholder="搜索创作者..."
-          className="w-full rounded-xl border border-border bg-card py-2.5 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-primary/50"
+          className="rounded-xl bg-muted pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring transition-all w-full sm:w-48"
         />
       </form>
 
