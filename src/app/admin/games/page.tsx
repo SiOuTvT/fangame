@@ -41,10 +41,10 @@ export default async function AdminGamesPage({
   const totalPages = Math.ceil(total / limit)
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-lg font-bold text-foreground">游戏管理</h1>
+          <h1 className="text-xl font-bold text-foreground">游戏管理</h1>
           <p className="text-xs text-muted-foreground mt-0.5">共 {total} 个游戏</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
