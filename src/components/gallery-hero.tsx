@@ -176,7 +176,8 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
         <img
           src={prevImageRef.current}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 w-full object-cover"
+          style={{ height: '100%' }}
           draggable={false}
         />
       )}
@@ -184,8 +185,8 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
       <img
         src={activeImage}
         alt={`${gameTitle} - 预览 ${activeIndex + 1}`}
-        className={`absolute inset-0 h-full w-full object-cover cursor-pointer ${fading ? 'hero-fade-enter' : ''}`}
-        style={fading ? { animation: "heroFadeIn 0.35s ease-out" } : undefined}
+        className={`absolute inset-0 w-full object-cover cursor-pointer ${fading ? 'hero-fade-enter' : ''}`}
+        style={{ height: '100%', ...(fading ? { animation: "heroFadeIn 0.35s ease-out" } : {}) }}
         draggable={false}
         loading={activeIndex === 0 ? "eager" : "lazy"}
         onDoubleClick={openLightbox}
@@ -304,12 +305,9 @@ export function GalleryStrip({
           key={i}
           type="button"
           onClick={() => onSelect(i)}
-          className="relative shrink-0 overflow-hidden transition-all duration-200 h-[48px] w-[85px] sm:h-[60px] sm:w-[106px] lg:h-[72px] lg:w-[128px] rounded-lg"
-          style={{
-            outline: i === activeIndex ? `2px solid var(--primary)` : "none",
-            outlineOffset: "-2px",
-            opacity: i === activeIndex ? 1 : 0.45,
-          }}
+          className={`relative shrink-0 overflow-hidden transition-all duration-200 h-[48px] w-[85px] sm:h-[60px] sm:w-[106px] lg:h-[72px] lg:w-[128px] rounded-lg ${
+            i === activeIndex ? "ring-1 sm:ring-2 ring-primary" : "opacity-45 hover:opacity-70"
+          }`}
         >
           <Image
             src={img}
