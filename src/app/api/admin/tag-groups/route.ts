@@ -1,10 +1,14 @@
 import { getAdminSession } from "@/lib/admin"
+import { ensurePresetTagGroups } from "@/lib/preset-tag-groups"
 import { prisma } from "@/lib/prisma"
 import { isValidPosition } from "@/lib/tag-positions"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET() {
   if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
+
+  // 确保预设标签组存在（首次访问时自动创建）
+  await ensurePresetTagGroups()
   const groups = await prisma.tagGroup.findMany({
     orderBy: [{ isPreset: "desc" }, { name: "asc" }],
     include: {
