@@ -55,6 +55,7 @@ interface ResourceTabProps {
   currentUserId?: string
   username?: string
   userAvatar?: string | null
+  resourceTagColor?: string
 }
 
 /* ─── 备注展开收起组件 ─── */
@@ -124,12 +125,14 @@ const ResourceCard = memo(function ResourceCard({
   isGamePublisher,
   onEdit,
   onDelete,
+  resourceTagColor,
 }: {
   resource: ApiResource
   isOwner: boolean
   isGamePublisher: boolean
   onEdit: () => void
   onDelete: () => void
+  resourceTagColor?: string
 }) {
   const [expandedEntries, setExpandedEntries] = useState<Set<number>>(new Set())
   const toggleEntry = useCallback((idx: number) => {
@@ -159,7 +162,12 @@ const ResourceCard = memo(function ResourceCard({
         {allTags.map((tag) => (
           <span
             key={tag}
-            className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-muted text-foreground/80 transition-colors hover:bg-muted/80"
+            className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors"
+            style={resourceTagColor ? {
+              background: `${resourceTagColor}18`,
+              color: resourceTagColor,
+              border: `1px solid ${resourceTagColor}30`,
+            } : undefined}
           >
             {tag}
           </span>
@@ -302,6 +310,7 @@ export function ResourceTab({
   currentUserId,
   username,
   userAvatar,
+  resourceTagColor,
 }: ResourceTabProps) {
   const [resources, setResources] = useState<ApiResource[]>([])
   const [loading, setLoading] = useState(true)
@@ -468,6 +477,7 @@ export function ResourceTab({
                 resource={res}
                 isOwner={isOwner}
                 isGamePublisher={isGamePublisher}
+                resourceTagColor={resourceTagColor}
                 onEdit={() => {
                   setEditingResource(res)
                   setEditOpen(true)
