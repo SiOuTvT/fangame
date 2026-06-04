@@ -23,7 +23,7 @@ export default function GameDetailLoading() {
           <div className="px-2.5 sm:px-5 pt-2.5 sm:pt-5 pb-2">
             <div
               className="w-full animate-pulse rounded-xl bg-muted"
-              style={{ aspectRatio: "17 / 9" }}
+              style={{ aspectRatio: "16 / 10" }}
             />
           </div>
 
