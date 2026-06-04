@@ -171,7 +171,7 @@ export function RichTextEditor({
           type="button"
           onClick={() => editor.chain().focus().toggleBold().run()}
           className={cn(
-            "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
+            "flex h-11 w-11 items-center justify-center rounded-lg transition-colors",
             editor.isActive("bold")
               ? "bg-accent text-accent-foreground"
               : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
@@ -185,7 +185,7 @@ export function RichTextEditor({
           type="button"
           onClick={() => editor.chain().focus().toggleItalic().run()}
           className={cn(
-            "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
+            "flex h-11 w-11 items-center justify-center rounded-lg transition-colors",
             editor.isActive("italic")
               ? "bg-accent text-accent-foreground"
               : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
@@ -199,7 +199,7 @@ export function RichTextEditor({
           type="button"
           onClick={() => editor.chain().focus().toggleUnderline().run()}
           className={cn(
-            "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
+            "flex h-11 w-11 items-center justify-center rounded-lg transition-colors",
             editor.isActive("underline")
               ? "bg-accent text-accent-foreground"
               : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
@@ -213,7 +213,7 @@ export function RichTextEditor({
           type="button"
           onClick={() => editor.chain().focus().toggleStrike().run()}
           className={cn(
-            "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
+            "flex h-11 w-11 items-center justify-center rounded-lg transition-colors",
             editor.isActive("strike")
               ? "bg-accent text-accent-foreground"
               : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
@@ -230,7 +230,7 @@ export function RichTextEditor({
           type="button"
           onClick={() => editor.chain().focus().setTextAlign("left").run()}
           className={cn(
-            "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
+            "flex h-11 w-11 items-center justify-center rounded-lg transition-colors",
             editor.isActive({ textAlign: "left" })
               ? "bg-accent text-accent-foreground"
               : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
@@ -244,7 +244,7 @@ export function RichTextEditor({
           type="button"
           onClick={() => editor.chain().focus().setTextAlign("center").run()}
           className={cn(
-            "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
+            "flex h-11 w-11 items-center justify-center rounded-lg transition-colors",
             editor.isActive({ textAlign: "center" })
               ? "bg-accent text-accent-foreground"
               : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
@@ -258,7 +258,7 @@ export function RichTextEditor({
           type="button"
           onClick={() => editor.chain().focus().setTextAlign("right").run()}
           className={cn(
-            "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
+            "flex h-11 w-11 items-center justify-center rounded-lg transition-colors",
             editor.isActive({ textAlign: "right" })
               ? "bg-accent text-accent-foreground"
               : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
@@ -275,7 +275,7 @@ export function RichTextEditor({
           type="button"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           className={cn(
-            "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
+            "flex h-11 w-11 items-center justify-center rounded-lg transition-colors",
             editor.isActive("bulletList")
               ? "bg-accent text-accent-foreground"
               : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
@@ -289,7 +289,7 @@ export function RichTextEditor({
           type="button"
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           className={cn(
-            "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
+            "flex h-11 w-11 items-center justify-center rounded-lg transition-colors",
             editor.isActive("orderedList")
               ? "bg-accent text-accent-foreground"
               : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
@@ -306,7 +306,7 @@ export function RichTextEditor({
           type="button"
           onClick={addLink}
           className={cn(
-            "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
+            "flex h-11 w-11 items-center justify-center rounded-lg transition-colors",
             editor.isActive("link")
               ? "bg-accent text-accent-foreground"
               : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
@@ -322,7 +322,7 @@ export function RichTextEditor({
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
           className={cn(
-            "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
+            "flex h-11 w-11 items-center justify-center rounded-lg transition-colors",
             "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
             uploading && "opacity-50 cursor-not-allowed"
           )}
