@@ -6,12 +6,13 @@ import { CheckCircle2, ChevronLeft, Heart, ImageIcon, MessageSquare, Plus, Send,
 import Image from "next/image"
 import { useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
+import { ConfirmDialog } from "./ui/confirm-dialog"
 import { RichTextContent } from "./rich-text-content-wrapper"
 import { RichTextEditor } from "./rich-text-editor-wrapper"
 
-interface User { id: string; username: string; avatar: string }
-interface Comment { id: string; content: string; imageUrl: string; likeCount: number; createdAt: string; user: User }
-interface Post { id: string; title: string; content: string; imageUrl: string; likeCount: number; commentCount: number; isSolved: boolean; createdAt: string; user: User; comments?: Comment[] }
+export interface User { id: string; username: string; avatar: string }
+export interface Comment { id: string; content: string; imageUrl: string; likeCount: number; createdAt: string; user: User }
+export interface Post { id: string; title: string; content: string; imageUrl: string; likeCount: number; commentCount: number; isSolved: boolean; createdAt: string; user: User; comments?: Comment[] }
 
 const FILTER_TABS = [
   { key: "all" as const, label: "全部" },
@@ -57,14 +58,16 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
   const [commentImageFile, setCommentImageFile] = useState<File | null>(null)
   const [commentImagePreview, setCommentImagePreview] = useState<string | null>(null)
   const [showCommentEmoji, setShowCommentEmoji] = useState(false)
-  const [confirmAction, setConfirmAction] = useState<{ message: string; onConfirm: () => void } | null>(null)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [confirmMessage, setConfirmMessage] = useState("")
+  const [confirmCallback, setConfirmCallback] = useState<(() => void) | null>(null)
   const [imageError, setImageError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(initialTotalPages || 1)
   const [loadingMore, setLoadingMore] = useState(false)
   const commentInputRef = useRef<HTMLInputElement>(null)
 
-  const hasAnyModal = !!confirmAction || showNew || !!activePost
+  const hasAnyModal = confirmOpen || showNew || !!activePost
   useBodyScrollLock(hasAnyModal)
 
   const filteredPosts = useMemo(() => {
@@ -141,29 +144,27 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
   }
 
   async function deletePost(id: string) {
-    setConfirmAction({
-      message: "确定要删除这个帖子吗？",
-      onConfirm: async () => {
-        const res = await fetch(`/api/forum/posts/${id}`, { method: "DELETE" })
-        if (res.ok) {
-          setPosts(p => p.filter(x => x.id !== id))
-          setActivePost(null)
-        }
-      },
+    setConfirmMessage("确定要删除这个帖子吗？")
+    setConfirmCallback(() => async () => {
+      const res = await fetch(`/api/forum/posts/${id}`, { method: "DELETE" })
+      if (res.ok) {
+        setPosts(p => p.filter(x => x.id !== id))
+        setActivePost(null)
+      }
     })
+    setConfirmOpen(true)
   }
 
   async function deleteComment(id: string) {
-    setConfirmAction({
-      message: "确定要删除这条评论吗？",
-      onConfirm: async () => {
-        const res = await fetch(`/api/forum/comments/${id}`, { method: "DELETE" })
-        if (res.ok) {
-          setActivePost(p => p && { ...p, comments: p.comments.filter(c => c.id !== id) })
-          setPosts(p => p.map(x => x.id === activePost?.id ? { ...x, commentCount: Math.max(0, x.commentCount - 1) } : x))
-        }
-      },
+    setConfirmMessage("确定要删除这条评论吗？")
+    setConfirmCallback(() => async () => {
+      const res = await fetch(`/api/forum/comments/${id}`, { method: "DELETE" })
+      if (res.ok) {
+        setActivePost(p => p && { ...p, comments: p.comments.filter(c => c.id !== id) })
+        setPosts(p => p.map(x => x.id === activePost?.id ? { ...x, commentCount: Math.max(0, x.commentCount - 1) } : x))
+      }
     })
+    setConfirmOpen(true)
   }
 
   async function submitPost(e: React.FormEvent) {
@@ -274,7 +275,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
                 <Avatar user={post.user} size={6} />
                 <span className="text-xs text-muted-foreground">{post.user.username}</span>
                 {post.isSolved && (
-                  <span className="flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-400 text-emerald-500 ring-1 ring-emerald-500/20">
+                  <span className="flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-500 ring-1 ring-emerald-500/20">
                     <CheckCircle2 className="h-2.5 w-2.5" strokeWidth={2} />已解决
                   </span>
                 )}
@@ -338,7 +339,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
               <ChevronLeft className="h-5 w-5" strokeWidth={1.5} aria-hidden="true" />
             </button>
             <span className="flex-1 text-sm font-medium text-foreground line-clamp-1">{activePost.title}</span>
-            {activePost.isSolved && <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400 text-emerald-500" strokeWidth={1.5} />}
+            {activePost.isSolved && <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" strokeWidth={1.5} />}
           </div>
           <div className="flex-1 overflow-y-auto p-4">
             <PostDetail post={activePost} isLoggedIn={isLoggedIn} currentUserId={currentUser?.id} isAdmin={isAdmin}
@@ -359,19 +360,17 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
       )}
 
       {/* 确认弹窗 */}
-      {confirmAction && (
-        <div className="fixed inset-0 z-[60] touch-none flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="w-full max-w-sm rounded-2xl bg-card p-5 ring-1 ring-border">
-            <p className="mb-4 text-sm text-foreground">{confirmAction.message}</p>
-            <div className="flex justify-end gap-2">
-              <button onClick={() => setConfirmAction(null)}
-                className="rounded-lg px-4 py-2 text-sm text-muted-foreground hover:bg-secondary transition-colors">取消</button>
-              <button onClick={() => { confirmAction.onConfirm(); setConfirmAction(null) }}
-                className="rounded-lg bg-red-500/80 px-4 py-2 text-sm text-white hover:bg-red-500 transition-colors">确认</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="确认操作"
+        description={confirmMessage}
+        variant="destructive"
+        confirmText="确认"
+        onConfirm={() => {
+          if (confirmCallback) confirmCallback()
+        }}
+      />
 
       {/* 图片错误提示 */}
       {imageError && (
@@ -447,7 +446,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
             <p className="text-[10px] text-muted-foreground">{fmtDate(post.createdAt)}</p>
           </div>
           {post.isSolved && (
-            <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-400 text-emerald-500 ring-1 ring-emerald-500/20">
+            <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-500 ring-1 ring-emerald-500/20">
               <CheckCircle2 className="h-3 w-3" strokeWidth={2} />已解决
             </span>
           )}
@@ -469,7 +468,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
               className={cn(
                 "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs ring-1 transition-all",
                 post.isSolved
-                  ? "bg-emerald-500/10 text-emerald-400 text-emerald-500 ring-emerald-500/20 hover:bg-emerald-500/20"
+                  ? "bg-emerald-500/10 text-emerald-500 ring-emerald-500/20 hover:bg-emerald-500/20"
                   : "bg-secondary text-muted-foreground ring-border hover:text-foreground"
               )}>
               <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />
@@ -478,7 +477,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
           )}
           {(isAuthor || isAdmin) && (
             <button onClick={onDeletePost}
-              className="flex items-center gap-1.5 rounded-lg bg-red-500/10 px-3 py-1.5 text-xs text-red-400 text-red-500 ring-1 ring-red-500/20 transition-all hover:bg-red-500/20">
+              className="flex items-center gap-1.5 rounded-lg bg-red-500/10 px-3 py-1.5 text-xs text-red-500 ring-1 ring-red-500/20 transition-all hover:bg-red-500/20">
               <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />删除
             </button>
           )}
