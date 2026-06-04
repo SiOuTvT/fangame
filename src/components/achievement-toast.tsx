@@ -61,9 +61,9 @@ export function AchievementToast({ achievement, onClose }: Props) {
       {/* 关闭按钮 */}
       <button
         onClick={handleClose}
-        className="absolute top-1.5 right-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary/50"
+        className="absolute top-0 right-0 z-10 flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary/50"
       >
-        <X className="h-3 w-3" strokeWidth={2.5} />
+        <X className="h-4 w-4" strokeWidth={2.5} />
       </button>
 
       {/* 左侧：角色立绘 */}
