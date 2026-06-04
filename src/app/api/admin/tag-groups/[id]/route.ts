@@ -42,11 +42,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   })
   if (!existing) return NextResponse.json({ error: "标签组不存在" }, { status: 404 })
 
-  // Protect preset groups from deletion
-  if (existing.isPreset) {
-    return NextResponse.json({ error: "系统内置标签组不可删除，只能修改" }, { status: 403 })
-  }
-
+  // 允许删除内置标签组
   if (existing._count.tags > 0) {
     return NextResponse.json({
       error: `该标签组包含 ${existing._count.tags} 个标签，删除后这些标签将变为未分组状态，确认删除？`,
@@ -68,11 +64,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const existing = await prisma.tagGroup.findUnique({ where: { id } })
     if (!existing) return NextResponse.json({ error: "标签组不存在" }, { status: 404 })
 
-    // Protect preset groups from force-delete
-    if (existing.isPreset) {
-      return NextResponse.json({ error: "系统内置标签组不可删除，只能修改" }, { status: 403 })
-    }
-
+    // 允许强制删除内置标签组
     await prisma.tag.updateMany({ where: { groupId: id }, data: { groupId: null } })
     await prisma.tagGroup.delete({ where: { id } })
     return NextResponse.json({ success: true })
