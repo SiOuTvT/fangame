@@ -82,7 +82,7 @@ export default async function AdminForumPage({
                   <div className="min-w-0">
                     <h3 className="truncate text-sm font-semibold text-foreground">
                       {post.isSolved && (
-                        <span className="mr-1 inline-flex items-center rounded bg-green-500/10 px-1.5 py-0.5 text-[10px] font-bold text-green-500">
+                        <span className="mr-1 inline-flex items-center rounded bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-bold text-emerald-500">
                           已解决
                         </span>
                       )}
