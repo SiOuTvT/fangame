@@ -76,6 +76,9 @@ main > * {
 }
 
 /* ═══ 后台侧边栏折叠时，主内容区响应 ═══ */
+.admin-main {
+  transition: padding-left 0.3s ease-in-out;
+}
 @media (min-width: 768px) {
   [data-admin-collapsed="true"] .admin-main {
     padding-left: 68px !important;
