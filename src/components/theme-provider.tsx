@@ -20,7 +20,7 @@ interface ThemeContextType {
 }
 
 const DEFAULT_SETTINGS: FullThemeSettings = {
-  themeColor: "#38BDF8",
+  themeColor: "#e8789a",
   themeRadius: 12,
   themeShadowIntensity: 50,
   themeAlpha: 15,
