@@ -5,7 +5,7 @@ import dynamic from "next/dynamic"
 import Link from "next/link"
 
 const AdminChartsWrapper = dynamic(() => import("@/components/admin-charts-wrapper").then(m => ({ default: m.AdminChartsWrapper })), {
-  loading: () => <div className="h-[200px] animate-pulse rounded-xl bg-muted" />,
+  loading: () => <div className="h-[180px] animate-pulse rounded-xl bg-muted" />,
 })
 
 function getLast14Days() {
@@ -158,7 +158,7 @@ export default async function AdminDashboard() {
                     : <div className="flex h-full w-full items-center justify-center text-[10px] font-bold text-white">{(u.username?.[0] ?? "?").toUpperCase()}</div>}
                 </div>
                 <Link href={`/user/${u.id}`} className="flex-1 truncate text-sm text-muted-foreground hover:text-foreground transition-colors">{u.username}</Link>
-                <span className="shrink-0 text-xs text-muted-foreground/70">{new Date(u.createdAt).toLocaleDateString("zh-CN")}</span>
+                <span className="shrink-0 text-xs text-muted-foreground/70">{u.createdAt.toISOString().slice(0, 10)}</span>
               </div>
             ))}
           </div>

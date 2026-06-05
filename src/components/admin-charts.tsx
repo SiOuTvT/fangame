@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import {
   Bar,
   BarChart,
@@ -9,7 +10,7 @@ import {
   ResponsiveContainer,
   Tooltip,
   XAxis, YAxis
-} from "recharts";
+} from "recharts"
 
 interface StatPoint { date: string; value: number }
 
@@ -45,11 +46,24 @@ export function AdminCharts({ gamesByDay, usersByDay, commentsByDay }: Props) {
   )
 }
 
+function useIsDark() {
+  const [isDark, setIsDark] = useState(true)
+  useEffect(() => {
+    const root = document.documentElement
+    const update = () => setIsDark(!root.classList.contains("light"))
+    update()
+    const observer = new MutationObserver(update)
+    observer.observe(root, { attributes: true, attributeFilter: ["class"] })
+    return () => observer.disconnect()
+  }, [])
+  return isDark
+}
+
 function ChartCard({ title, data, color, type }: {
   title: string; data: StatPoint[]; color: string; type: "line" | "bar"
 }) {
   const total = data.reduce((s, d) => s + d.value, 0)
-  const isDark = typeof document !== "undefined" && !document.documentElement.classList.contains("light")
+  const isDark = useIsDark()
   const tooltipStyle = isDark ? TOOLTIP_STYLE_DARK : TOOLTIP_STYLE_LIGHT
   const gridStroke = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.06)"
   const tickFill = isDark ? "#52525b" : "#71717a"
