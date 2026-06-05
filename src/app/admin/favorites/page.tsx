@@ -46,7 +46,7 @@ export default async function AdminFavoritesPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <Heart className="h-6 w-6 text-primary" />
           <h1 className="text-xl font-bold text-foreground">收藏记录</h1>
@@ -56,7 +56,7 @@ export default async function AdminFavoritesPage({
         </div>
         <form method="get" className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
-          <input name="q" defaultValue={q} placeholder="搜索用户或游戏…"
+          <input name="q" defaultValue={q} placeholder="搜索用户或游戏…" aria-label="搜索用户或游戏"
             className="rounded-xl bg-muted pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring w-full sm:w-48" />
         </form>
       </div>
@@ -75,7 +75,7 @@ export default async function AdminFavoritesPage({
             >
               <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
                 {fav.game.coverImage ? (
-                  <img src={fav.game.coverImage} alt="" className="h-full w-full object-cover" />
+                  <img src={fav.game.coverImage} alt={fav.game.title} className="h-full w-full object-cover" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-muted-foreground">
                     <Heart className="h-5 w-5" />

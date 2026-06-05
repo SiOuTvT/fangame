@@ -46,7 +46,7 @@ export default async function AdminFollowsPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <UserPlus className="h-6 w-6 text-primary" />
           <h1 className="text-xl font-bold text-foreground">关注记录</h1>
@@ -56,7 +56,7 @@ export default async function AdminFollowsPage({
         </div>
         <form method="get" className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
-          <input name="q" defaultValue={q} placeholder="搜索用户名…"
+          <input name="q" defaultValue={q} placeholder="搜索用户名…" aria-label="搜索用户名"
             className="rounded-xl bg-muted pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring w-full sm:w-48" />
         </form>
       </div>

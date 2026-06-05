@@ -71,7 +71,7 @@ export default async function AdminCreatorsPage({
         <input
           name="q"
           defaultValue={q}
-          placeholder="搜索创作者..."
+          placeholder="搜索创作者…" aria-label="搜索创作者"
           className="rounded-xl bg-muted pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring transition-all w-full sm:w-48"
         />
       </form>
@@ -107,7 +107,7 @@ export default async function AdminCreatorsPage({
                 <p className="text-xs text-muted-foreground">
                   {creator.gender && <span>{creator.gender} · </span>}
                   {creator.vndbId && <span>VNDB: {creator.vndbId} · </span>}
-                  {new Date(creator.createdAt).toLocaleDateString("zh-CN")}
+                  {creator._count.games} 个游戏 · {new Date(creator.createdAt).toLocaleDateString("zh-CN")}
                 </p>
               </div>
               <CreatorDeleteBtn id={creator.id} />
