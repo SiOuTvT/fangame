@@ -1,9 +1,11 @@
 ﻿"use client"
 
 import { ImageUpload } from "@/components/image-upload"
+import { useAutoSaveDraft } from "@/hooks/use-auto-save-draft"
+import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { ChevronDown, Loader2, Plus, Trash2, X } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { DESCRIPTION_LANGUAGES, parseDescription, serializeDescription, type LangKey } from "@/lib/parse-description"
 
@@ -34,6 +36,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
   const [tagGroups, setTagGroups] = useState<TagGroup[]>(initialTagGroups)
 
   const [title, setTitle]               = useState(initialData?.title ?? "")
+  const handleTitleChange = (v: string) => { setTitle(v); setFormTouched(true) }
   const [originalWork, setOriginalWork] = useState(initialData?.originalWork ?? "")
   // 多语言简介
   const parsedInitialDesc = parseDescription(initialData?.description ?? "")
@@ -68,6 +71,54 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
 
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
+
+  // ── 自动保存草稿（仅新增模式） ──
+  const { draft, updateDraft, hasRestored, clearDraft } = useAutoSaveDraft({
+    key: "game-form",
+    defaultValue: {
+      title: "", originalWork: "", englishName: "", aliases: "",
+      descLangs: { zh: "", en: "", ja: "", other: "" },
+      vndbId: "", releaseDate: "", studioName: "", gameDuration: "",
+      isNsfw: false, isPublished: true, selectedTags: [] as string[],
+      dlLinks: [{ label: "", url: "" }] as DownloadLink[],
+    },
+    enabled: !isEdit,
+  })
+
+  // 同步表单状态到草稿（防抖保存到 localStorage）
+  useEffect(() => {
+    if (isEdit) return
+    updateDraft({
+      title, originalWork, englishName, aliases,
+      descLangs, vndbId, releaseDate, studioName, gameDuration,
+      isNsfw, isPublished, selectedTags, dlLinks,
+    })
+  }, [isEdit, title, originalWork, englishName, aliases, descLangs, vndbId, releaseDate, studioName, gameDuration, isNsfw, isPublished, selectedTags, dlLinks, updateDraft])
+
+  // 从草稿恢复表单
+  function restoreDraft() {
+    setTitle(draft.title)
+    setOriginalWork(draft.originalWork)
+    setEnglishName(draft.englishName)
+    setAliases(draft.aliases)
+    setDescLangs(draft.descLangs)
+    setVndbId(draft.vndbId)
+    setReleaseDate(draft.releaseDate)
+    setStudioName(draft.studioName)
+    setGameDuration(draft.gameDuration)
+    setIsNsfw(draft.isNsfw)
+    setIsPublished(draft.isPublished)
+    setSelectedTags(draft.selectedTags)
+    setDlLinks(draft.dlLinks.length > 0 ? draft.dlLinks : [{ label: "", url: "" }])
+    setDraftRestored(true)
+  }
+
+  const [draftRestored, setDraftRestored] = useState(false)
+  const showDraftBanner = !isEdit && hasRestored && !draftRestored
+
+  // 表单修改保护：编辑模式下始终保护，新增模式下有内容时保护
+  const [formTouched, setFormTouched] = useState(false)
+  useUnsavedChanges(isEdit || formTouched)
 
   // 翻译状态
   const [translating, setTranslating] = useState(false)
@@ -275,6 +326,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     setSaving(false)
 
     if (!res.ok) { setError(data.error ?? "保存失败"); return }
+    clearDraft()
     router.push("/admin/games")
     router.refresh()
   }
@@ -360,6 +412,23 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
         <div className="rounded-lg bg-red-500/10 px-4 py-2.5 text-sm text-red-400 ring-1 ring-red-500/20">{error}</div>
       )}
 
+      {/* 草稿恢复提示 */}
+      {showDraftBanner && (
+        <div className="flex items-center justify-between gap-3 rounded-lg bg-amber-500/10 px-4 py-2.5 text-sm text-amber-400 ring-1 ring-amber-500/20">
+          <span>检测到未保存的草稿「{draft.title || "无标题"}」，是否恢复？</span>
+          <div className="flex shrink-0 gap-2">
+            <button type="button" onClick={restoreDraft}
+              className="rounded-lg bg-amber-500/20 px-3 py-1 text-xs font-medium text-amber-300 hover:bg-amber-500/30 transition-colors">
+              恢复
+            </button>
+            <button type="button" onClick={() => { clearDraft(); setDraftRestored(true) }}
+              className="rounded-lg px-3 py-1 text-xs font-medium text-amber-400/60 hover:text-amber-300 transition-colors">
+              丢弃
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ── VNDB 一键拉取 ── */}
       <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-3">
         <h2 className="text-sm font-semibold text-foreground">VNDB 数据拉取</h2>
@@ -404,7 +473,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
 
         <div>
           <label className={labelCls}>主推名称（前台卡片展示） *</label>
-          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="前台首页唯一展示的游戏名称" required className={inputCls} />
+          <input value={title} onChange={(e) => handleTitleChange(e.target.value)} placeholder="前台首页唯一展示的游戏名称" required className={inputCls} />
         </div>
         <div>
           <label className={labelCls}>日文官方原名</label>
@@ -807,7 +876,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       {/* 提交 */}
       <div className="flex gap-3">
         <button type="submit" disabled={saving}
-          className="gradient-accent flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90 disabled:opacity-60">
+          className="flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity duration-200 hover:opacity-90 disabled:opacity-60">
           {saving && <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />}
           {saving ? "保存中…" : isEdit ? "保存修改" : "创建游戏"}
         </button>
