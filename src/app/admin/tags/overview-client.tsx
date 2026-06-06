@@ -1,7 +1,8 @@
 "use client"
 
-import { ChevronDown, ExternalLink, FolderInput, Gamepad2, Layers, List, Tags } from "lucide-react"
+import { ChevronDown, ExternalLink, FolderInput, Layers, List, Palette, Tags } from "lucide-react"
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
+import { TAG_POSITIONS } from "@/lib/tag-positions"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
@@ -52,7 +53,6 @@ function ColorEditPopover({
   const [saving, setSaving] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
-  // 点击外部关闭
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) {
@@ -87,7 +87,7 @@ function ColorEditPopover({
   return (
     <div
       ref={ref}
-      className="absolute right-0 top-full mt-2 z-30 rounded-xl bg-card p-4 ring-1 ring-border shadow-xl shadow-black/30 space-y-3"
+      className="absolute left-0 top-full mt-2 z-30 rounded-xl bg-card p-4 ring-1 ring-border shadow-xl shadow-black/30 space-y-3 max-w-[calc(100vw-2rem)]"
       onClick={(e) => e.stopPropagation()}
     >
       <div className="flex flex-wrap gap-1.5">
@@ -159,73 +159,94 @@ export function TagsOverviewClient({
   }, [])
 
   return (
-    <div className="space-y-6">
-      {/* ── 页面标题 ── */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Tags className="h-5 w-5 text-primary" />
-          <h1 className="text-xl font-bold text-foreground">标签组颜色</h1>
-          <span className="text-sm text-muted-foreground">{groups.length} 个标签组</span>
+    <div className="space-y-8">
+      {/* ── 页面标题区 ── */}
+      <div className="flex items-end justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">标签管理</h1>
+          <p className="text-sm text-muted-foreground mt-1">管理各页面的标签分组和颜色</p>
         </div>
         <button
           onClick={() => router.push("/admin/tags/all")}
-          className="flex items-center gap-1.5 rounded-lg bg-secondary text-foreground px-3 py-1.5 text-xs font-medium ring-1 ring-border hover:ring-primary/40 transition-all cursor-pointer"
+          className="flex items-center gap-2 rounded-xl bg-primary/10 text-primary px-4 py-2.5 text-sm font-medium ring-1 ring-primary/20 hover:bg-primary/20 transition-all cursor-pointer"
         >
-          <List className="h-3.5 w-3.5" />
-          全部标签
+          <List className="h-4 w-4" />
+          查看全部标签
         </button>
       </div>
 
-      {/* ── 标签组卡片网格 ── */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {groups.map((g) => (
+      {/* ── 标签组列表 ── */}
+      <div className="space-y-3">
+        {groups.map((g, index) => (
           <div
             key={g.id}
             role="button"
             tabIndex={0}
             onClick={() => router.push(`/admin/tags/${g.id}`)}
             onKeyDown={(e) => e.key === 'Enter' && router.push(`/admin/tags/${g.id}`)}
-            className="group/card relative text-left rounded-xl bg-card p-4 ring-1 ring-border transition-all duration-200 hover:ring-primary/50 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50"
+            className="group relative flex items-center gap-5 rounded-xl bg-card p-5 ring-1 ring-border transition-all duration-200 hover:ring-primary/40 hover:shadow-md cursor-pointer"
           >
-            {/* 顶部：色块 + 组名 */}
-            <div className="flex items-center gap-3 mb-3">
-              <div className="relative">
-                <button
-                  type="button"
-                  className="h-8 w-8 rounded-lg shrink-0 transition-transform duration-200 group-hover/card:scale-110 cursor-pointer"
-                  style={{ background: groupColors[g.id] }}
-                  title="编辑颜色"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setEditingColorId(editingColorId === g.id ? null : g.id)
-                  }}
+            {/* 序号 */}
+            <span className="flex items-center justify-center h-8 w-8 rounded-lg bg-secondary text-xs font-bold text-muted-foreground shrink-0">
+              {index + 1}
+            </span>
+
+            {/* 颜色块 */}
+            <div className="relative">
+              <button
+                type="button"
+                className="h-10 w-10 rounded-xl shrink-0 transition-transform duration-200 group-hover:scale-105 cursor-pointer"
+                style={{ background: groupColors[g.id] }}
+                title="编辑颜色"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setEditingColorId(editingColorId === g.id ? null : g.id)
+                }}
+              />
+              {editingColorId === g.id && (
+                <ColorEditPopover
+                  color={groupColors[g.id]}
+                  groupId={g.id}
+                  onSaved={(c) => handleColorSaved(g.id, c)}
+                  onClose={() => setEditingColorId(null)}
                 />
-                {editingColorId === g.id && (
-                  <ColorEditPopover
-                    color={groupColors[g.id]}
-                    groupId={g.id}
-                    onSaved={(c) => handleColorSaved(g.id, c)}
-                    onClose={() => setEditingColorId(null)}
-                  />
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-semibold text-foreground truncate">{g.name}</h3>
-              </div>
-              <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover/card:opacity-100 transition-opacity" />
+              )}
             </div>
 
-            {/* 统计行 */}
-            <div className="flex items-center gap-4 text-xs">
-              <span className="flex items-center gap-1.5 text-foreground font-medium">
-                <Layers className="h-3.5 w-3.5 text-primary" />
-                {g.tagCount} 个标签
-              </span>
-              <span className="flex items-center gap-1.5 text-muted-foreground">
-                <Gamepad2 className="h-3.5 w-3.5" />
-                {g.totalGames} 次关联
-              </span>
+            {/* 信息 */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-semibold text-foreground">{g.name}</h3>
+                {g.isPreset && (
+                  <span className="text-[10px] text-muted-foreground bg-secondary rounded px-1.5 py-0.5">内置</span>
+                )}
+              </div>
+              {g.description && (
+                <p className="text-xs text-muted-foreground mt-0.5 truncate">{g.description}</p>
+              )}
+              {/* 位置标签 */}
+              {g.positions.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {g.positions.map((pos) => {
+                    const def = TAG_POSITIONS.find((p) => p.key === pos)
+                    return def ? (
+                      <span key={pos} className="text-[10px] bg-secondary/80 rounded-full px-2 py-0.5 text-muted-foreground">
+                        {def.label}
+                      </span>
+                    ) : null
+                  })}
+                </div>
+              )}
             </div>
+
+            {/* 标签数 */}
+            <div className="text-right shrink-0">
+              <span className="text-2xl font-bold text-foreground">{g.tagCount}</span>
+              <p className="text-[11px] text-muted-foreground">个标签</p>
+            </div>
+
+            {/* 箭头 */}
+            <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
           </div>
         ))}
       </div>
@@ -261,7 +282,6 @@ function UngroupedTagsSection({
   const VISIBLE = 12
   const visible = expanded ? tags : tags.slice(0, VISIBLE)
 
-  // 点击外部关闭分配下拉
   useEffect(() => {
     if (!assigningId) return
     function handleClick(e: MouseEvent) {
@@ -299,7 +319,7 @@ function UngroupedTagsSection({
     <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+          <div className="h-2 w-2 rounded-full bg-amber-400" />
           <h2 className="text-sm font-semibold text-foreground">未分组标签</h2>
           <span className="text-xs text-muted-foreground bg-secondary rounded-full px-2 py-0.5">{tags.length} 个</span>
         </div>

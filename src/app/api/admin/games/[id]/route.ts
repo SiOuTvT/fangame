@@ -11,11 +11,15 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
     where: { id },
     include: {
       tags: { select: { tag: true } },
-      creators: { select: { creatorId: true, role: true } },
+      creators: { select: { creatorId: true, role: true, creator: { select: { id: true, vndbId: true, name: true, nameJa: true } } } },
     },
   })
   if (!game) return NextResponse.json({ error: "Not found" }, { status: 404 })
-  return NextResponse.json({ ...game, tags: game.tags.map((t) => t.tag) })
+  return NextResponse.json({
+    ...game,
+    tags: game.tags.map((t) => t.tag),
+    creators: game.creators.map((c) => ({ vndbId: c.creator.vndbId, name: c.creator.name, nameJa: c.creator.nameJa, role: c.role })),
+  })
 }
 
 export async function PUT(req: NextRequest, { params }: Ctx) {
@@ -23,13 +27,35 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
   if (!session) return NextResponse.json({ error: "无权限" }, { status: 403 })
   const { id } = await params
   const body = await req.json()
-  const { title, originalWork, description, coverImage, screenshots, downloadLinks, status, isNsfw, vndbId, isPublished, tagIds, gameCreators, releaseDate, gameDuration, studioName, englishName, aliases } = body
+  const { title, originalWork, description, coverImage, screenshots, downloadLinks, status, isNsfw, vndbId, isPublished, tagIds, gameCreators, creators, releaseDate, gameDuration, studioName, englishName, aliases } = body
 
   if (!title?.trim()) return NextResponse.json({ error: "标题不能为空" }, { status: 400 })
 
   // 先删旧标签和创作者关联，再重建
   await prisma.gameTag.deleteMany({ where: { gameId: id } })
   await prisma.gameCreator.deleteMany({ where: { gameId: id } })
+
+  // 处理创作者：支持 VNDB 拉取的 creators 和手动选择的 gameCreators
+  let creatorConnect: Array<{ creatorId: string; role: string }> = gameCreators || []
+
+  if (creators?.length) {
+    for (const c of creators) {
+      if (!c.name) continue
+      let creator = c.vndbId
+        ? await prisma.creator.findFirst({ where: { vndbId: c.vndbId } })
+        : null
+      if (!creator) {
+        creator = await prisma.creator.create({
+          data: {
+            vndbId: c.vndbId || "",
+            name: c.name,
+            nameJa: c.nameJa || "",
+          },
+        })
+      }
+      creatorConnect.push({ creatorId: creator.id, role: c.role || "other" })
+    }
+  }
 
   // 如果游戏还没有 publisherId，设置为当前编辑的管理员
   const existingGame = await prisma.game.findUnique({
@@ -59,8 +85,8 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
       tags: tagIds?.length
         ? { create: tagIds.map((tagId: string) => ({ tag: { connect: { id: tagId } } })) }
         : undefined,
-      creators: gameCreators?.length
-        ? { create: gameCreators.map((gc: { creatorId: string; role: string }) => ({ creatorId: gc.creatorId, role: gc.role })) }
+      creators: creatorConnect.length
+        ? { create: creatorConnect.map(gc => ({ creatorId: gc.creatorId, role: gc.role })) }
         : undefined,
     },
     include: { tags: { select: { tag: true } }, creators: true },

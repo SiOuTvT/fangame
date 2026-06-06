@@ -7,17 +7,24 @@ export const dynamic = "force-dynamic"
 export default async function AllTagsPage() {
   await requireAdmin()
 
-  const tags = await prisma.tag.findMany({
-    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-    select: {
-      id: true,
-      name: true,
-      color: true,
-      isVisible: true,
-      group: { select: { id: true, name: true, color: true } },
-      _count: { select: { games: true } },
-    },
-  })
+  const [tags, groups] = await Promise.all([
+    prisma.tag.findMany({
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      select: {
+        id: true,
+        name: true,
+        color: true,
+        isVisible: true,
+        groupId: true,
+        group: { select: { id: true, name: true, color: true } },
+        _count: { select: { games: true } },
+      },
+    }),
+    prisma.tagGroup.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true, color: true },
+    }),
+  ])
 
   const mapped = tags.map((t) => ({
     id: t.id,
@@ -25,9 +32,10 @@ export default async function AllTagsPage() {
     color: t.color,
     gameCount: t._count.games,
     isVisible: t.isVisible,
+    groupId: t.groupId,
     groupName: t.group?.name ?? null,
     groupColor: t.group?.color ?? null,
   }))
 
-  return <AllTagsClient tags={mapped} />
+  return <AllTagsClient tags={mapped} groups={groups} />
 }

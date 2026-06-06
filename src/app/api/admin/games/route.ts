@@ -33,9 +33,34 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "无权限" }, { status: 403 })
 
   const body = await req.json()
-  const { title, originalWork, description, coverImage, screenshots, downloadLinks, status, isNsfw, vndbId, isPublished, tagIds, gameCreators, releaseDate, gameDuration, studioName, englishName, aliases } = body
+  const { title, originalWork, description, coverImage, screenshots, downloadLinks, status, isNsfw, vndbId, isPublished, tagIds, gameCreators, creators, releaseDate, gameDuration, studioName, englishName, aliases } = body
 
   if (!title?.trim()) return NextResponse.json({ error: "标题不能为空" }, { status: 400 })
+
+  // 处理创作者：支持 VNDB 拉取的 creators 和手动选择的 gameCreators
+  let creatorConnect: Array<{ creatorId: string; role: string }> = gameCreators || []
+
+  if (creators?.length) {
+    // VNDB 拉取的创作者：自动创建或查找已有的 Creator 记录
+    for (const c of creators) {
+      if (!c.name) continue
+      // 通过 vndbId 查找已有创作者
+      let creator = c.vndbId
+        ? await prisma.creator.findFirst({ where: { vndbId: c.vndbId } })
+        : null
+      // 没有则创建
+      if (!creator) {
+        creator = await prisma.creator.create({
+          data: {
+            vndbId: c.vndbId || "",
+            name: c.name,
+            nameJa: c.nameJa || "",
+          },
+        })
+      }
+      creatorConnect.push({ creatorId: creator.id, role: c.role || "other" })
+    }
+  }
 
   const game = await prisma.game.create({
     data: {
@@ -58,8 +83,8 @@ export async function POST(req: NextRequest) {
       tags: tagIds?.length
         ? { create: tagIds.map((tagId: string) => ({ tag: { connect: { id: tagId } } })) }
         : undefined,
-      creators: gameCreators?.length
-        ? { create: gameCreators.map((gc: { creatorId: string; role: string }) => ({ creatorId: gc.creatorId, role: gc.role })) }
+      creators: creatorConnect.length
+        ? { create: creatorConnect.map(gc => ({ creatorId: gc.creatorId, role: gc.role })) }
         : undefined,
     },
     include: { tags: { select: { tag: true } } },
