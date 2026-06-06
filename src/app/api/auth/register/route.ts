@@ -27,8 +27,13 @@ async function handleRegister(req: NextRequest) {
     }
 
     const hashed = await bcrypt.hash(password, 10)
+
+    // 第一个注册的用户自动成为站长
+    const userCount = await prisma.user.count()
+    const role = userCount === 0 ? "SUPER_ADMIN" : "USER"
+
     const user = await prisma.user.create({
-      data: { username, email, password: hashed },
+      data: { username, email, password: hashed, role },
       select: { id: true, username: true, email: true },
     })
 
