@@ -23,17 +23,10 @@ export const EM_KEYS = {
   FOLLOW_SUCCESS: "follow_success",
   UNFOLLOW_SUCCESS: "unfollow_success",
   COMMENT_SUCCESS: "comment_success",
-  VOTE_SUCCESS: "vote_success",
-  RATING_SUCCESS: "rating_success",
-  REPORT_SUCCESS: "report_success",
   // Empty
   EMPTY_FAVORITES: "empty_favorites",
   EMPTY_COMMENTS: "empty_comments",
-  EMPTY_SEARCH: "empty_search",
   EMPTY_FORUM: "empty_forum",
-  EMPTY_CHECKINS: "empty_checkins",
-  EMPTY_FOLLOWING: "empty_following",
-  EMPTY_FOLLOWERS: "empty_followers",
   EMPTY_NOTIFICATIONS: "empty_notifications",
   EMPTY_PLAY_STATUS: "empty_play_status",
   // Error
