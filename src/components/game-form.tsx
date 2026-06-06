@@ -3,7 +3,7 @@
 import { ImageUpload } from "@/components/image-upload"
 import { useAutoSaveDraft } from "@/hooks/use-auto-save-draft"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
-import { ChevronDown, Loader2, Plus, Trash2, X } from "lucide-react"
+import { ChevronDown, Loader2, Plus, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 
@@ -11,7 +11,6 @@ import { DESCRIPTION_LANGUAGES, parseDescription, serializeDescription, type Lan
 
 interface Tag { id: string; name: string; color: string; groupId?: string | null }
 interface TagGroup { id: string; name: string; color: string; tags: Tag[] }
-interface DownloadLink { label: string; url: string; tags?: string[] }
 
 interface Props {
   tags: Tag[]
@@ -19,7 +18,7 @@ interface Props {
   gameId?: string
   initialData?: {
     title: string; originalWork: string; description: string
-    coverImage: string; screenshots: string[]; downloadLinks: DownloadLink[]
+    coverImage: string; screenshots: string[]
     status: string; isNsfw: boolean; vndbId: string; isPublished: boolean
     tagIds: string[]
     releaseDate?: string; gameDuration?: string; studioName?: string
@@ -47,7 +46,6 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
   }
   const [coverImage, setCoverImage]     = useState(initialData?.coverImage ?? "")
   const [screenshots, setScreenshots]  = useState<string[]>(initialData?.screenshots ?? [])
-  const [dlLinks, setDlLinks]          = useState<DownloadLink[]>(initialData?.downloadLinks ?? [{ label: "", url: "" }])
   const [isNsfw, setIsNsfw]            = useState(initialData?.isNsfw ?? false)
   const [vndbId, setVndbId]            = useState(initialData?.vndbId ?? "")
   const [isPublished, setIsPublished]  = useState(initialData?.isPublished ?? true)
@@ -59,6 +57,11 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
   const [studioName, setStudioName] = useState(initialData?.studioName ?? "")
   const [englishName, setEnglishName] = useState(initialData?.englishName ?? "")
   const [aliases, setAliases] = useState(initialData?.aliases ?? "")
+
+  // 创作者（VNDB 拉取或手动添加）
+  const [creators, setCreators] = useState<Array<{ vndbId: string; name: string; nameJa: string; role: string }>>(
+    (initialData as any)?.creators ?? []
+  )
 
   // 标签搜索
   const [tagSearch, setTagSearch] = useState("")
@@ -80,7 +83,6 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       descLangs: { zh: "", en: "", ja: "", other: "" },
       vndbId: "", releaseDate: "", studioName: "", gameDuration: "",
       isNsfw: false, isPublished: true, selectedTags: [] as string[],
-      dlLinks: [{ label: "", url: "" }] as DownloadLink[],
     },
     enabled: !isEdit,
   })
@@ -91,9 +93,9 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     updateDraft({
       title, originalWork, englishName, aliases,
       descLangs, vndbId, releaseDate, studioName, gameDuration,
-      isNsfw, isPublished, selectedTags, dlLinks,
+      isNsfw, isPublished, selectedTags,
     })
-  }, [isEdit, title, originalWork, englishName, aliases, descLangs, vndbId, releaseDate, studioName, gameDuration, isNsfw, isPublished, selectedTags, dlLinks, updateDraft])
+  }, [isEdit, title, originalWork, englishName, aliases, descLangs, vndbId, releaseDate, studioName, gameDuration, isNsfw, isPublished, selectedTags, updateDraft])
 
   // 从草稿恢复表单
   function restoreDraft() {
@@ -109,7 +111,6 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     setIsNsfw(draft.isNsfw)
     setIsPublished(draft.isPublished)
     setSelectedTags(draft.selectedTags)
-    setDlLinks(draft.dlLinks.length > 0 ? draft.dlLinks : [{ label: "", url: "" }])
     setDraftRestored(true)
   }
 
@@ -225,10 +226,6 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     setSelectedTags((prev) => prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id])
   }
 
-  function updateDl(i: number, field: keyof DownloadLink, val: string) {
-    setDlLinks((prev) => prev.map((dl, idx) => idx === i ? { ...dl, [field]: val } : dl))
-  }
-
   /* ── VNDB 一键拉取 ── */
   async function handleVndbFetch() {
     const id = vndbInputRef.current?.value?.trim()
@@ -288,6 +285,11 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
         }
       }
 
+      // 创作者（脚本、原画、音乐等）
+      if (data.creators?.length) {
+        setCreators(data.creators)
+      }
+
       // 同步更新 VNDB ID
       setVndbId(id)
       setVndbSuccess("VNDB 数据拉取成功！所有字段均可手动修改。")
@@ -307,7 +309,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     const body = {
       title, originalWork, description: serializeDescription(descLangs), coverImage,
       screenshots: screenshots.filter(Boolean),
-      downloadLinks: dlLinks.filter((d) => d.url.trim()),
+      downloadLinks: [],
       isNsfw, vndbId, isPublished,
       tagIds: selectedTags,
       resourceTags: [], // 后台表单不直接编辑资源标签，由前台资源链接管理
@@ -316,6 +318,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       studioName,
       englishName,
       aliases,
+      creators: creators.length ? creators : undefined,
     }
 
     const res = await fetch(
@@ -331,8 +334,8 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     router.refresh()
   }
 
-  const inputCls = "w-full rounded-xl bg-secondary px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border outline-none focus:ring-ring transition-all"
-  const labelCls = "mb-1.5 block text-xs font-medium text-muted-foreground"
+  const inputCls = "w-full rounded-xl bg-muted px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all"
+  const labelCls = "mb-2 block text-sm font-medium text-foreground"
 
   /* 通用多选标签渲染器 — 下拉选择控件 */
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
@@ -431,7 +434,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
 
       {/* ── VNDB 一键拉取 ── */}
       <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-3">
-        <h2 className="text-sm font-semibold text-foreground">VNDB 数据拉取</h2>
+        <h2 className="text-base font-semibold text-foreground">VNDB 数据拉取</h2>
         <p className="text-xs text-muted-foreground">输入 VNDB 编号，一键拉取游戏数据自动填充表单。所有拉取的字段均可手动修改。</p>
         <div className="flex gap-2 items-start">
           <div className="flex-1">
@@ -467,25 +470,27 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
         )}
       </div>
 
-      {/* 基本信息 */}
+      {/* 游戏信息 */}
       <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
-        <h2 className="text-sm font-semibold text-foreground">基本信息</h2>
+        <h2 className="text-base font-semibold text-foreground">游戏信息</h2>
 
-        <div>
-          <label className={labelCls}>主推名称（前台卡片展示） *</label>
-          <input value={title} onChange={(e) => handleTitleChange(e.target.value)} placeholder="前台首页唯一展示的游戏名称" required className={inputCls} />
-        </div>
-        <div>
-          <label className={labelCls}>日文官方原名</label>
-          <input value={originalWork} onChange={(e) => setOriginalWork(e.target.value)} placeholder="日文原名" className={inputCls} />
-        </div>
-        <div>
-          <label className={labelCls}>英文官方名称</label>
-          <input value={englishName} onChange={(e) => setEnglishName(e.target.value)} placeholder="英文名称" className={inputCls} />
-        </div>
-        <div>
-          <label className={labelCls}>搜索别名库（逗号分隔，用于搜索匹配）</label>
-          <textarea value={aliases} onChange={(e) => setAliases(e.target.value)} placeholder="民间别称、其他语言名称，用逗号隔开…" rows={2} className={`${inputCls} resize-none`} />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label className={labelCls}>主推名称（前台卡片展示） *</label>
+            <input value={title} onChange={(e) => handleTitleChange(e.target.value)} placeholder="前台首页唯一展示的游戏名称" required className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>日文官方原名</label>
+            <input value={originalWork} onChange={(e) => setOriginalWork(e.target.value)} placeholder="日文原名" className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>英文官方名称</label>
+            <input value={englishName} onChange={(e) => setEnglishName(e.target.value)} placeholder="英文名称" className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>搜索别名（逗号分隔）</label>
+            <input value={aliases} onChange={(e) => setAliases(e.target.value)} placeholder="民间别称、其他语言名称…" className={inputCls} />
+          </div>
         </div>
         {/* 多语言简介 Tab 切换 */}
         <div>
@@ -647,56 +652,43 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
             {activeDescLang === "en" && " VNDB 拉取的英文简介将自动填入此栏，可点击翻译按钮一键生成中文。"}
           </p>
         </div>
-        <div>
-          <label className={labelCls}>封面图</label>
-          <ImageUpload
-            value={coverImage}
-            onChange={(url) => setCoverImage(url)}
-            aspectRatio={3 / 2}
-            maxSizeMB={5}
-            placeholder="上传游戏封面"
-            className="max-w-[200px]"
-          />
-        </div>
-        <div>
-          <label className={labelCls}>VNDB ID</label>
-          <input value={vndbId} onChange={(e) => setVndbId(e.target.value)} placeholder="如：12345" className={inputCls} />
-        </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div>
-            <label className={labelCls}>发售日期</label>
-            <input
-              type="date"
-              value={releaseDate}
-              onChange={(e) => setReleaseDate(e.target.value)}
-              className={inputCls}
-            />
-          </div>
-          <div>
-            <label className={labelCls}>制作会社</label>
-            <input
-              value={studioName}
-              onChange={(e) => setStudioName(e.target.value)}
-              placeholder="如：Key"
-              className={inputCls}
-            />
-          </div>
-          <div>
-            <label className={labelCls}>游戏时长</label>
-            <input
-              value={gameDuration}
-              onChange={(e) => setGameDuration(e.target.value)}
-              placeholder="如：20-30小时"
-              className={inputCls}
-            />
-          </div>
-        </div>
       </div>
 
       {/* 发布设置 */}
       <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
-        <h2 className="text-sm font-semibold text-foreground">发布设置</h2>
-        <div className="flex flex-wrap gap-4">
+        <h2 className="text-base font-semibold text-foreground">发布设置</h2>
+        <div className="flex gap-5">
+          <div className="shrink-0">
+            <label className={labelCls}>封面图</label>
+            <ImageUpload
+              value={coverImage}
+              onChange={(url) => setCoverImage(url)}
+              aspectRatio={3 / 2}
+              maxSizeMB={5}
+              placeholder="上传封面"
+              className="w-[140px] sm:w-[180px]"
+            />
+          </div>
+          <div className="flex-1 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label className={labelCls}>VNDB ID</label>
+              <input value={vndbId} onChange={(e) => setVndbId(e.target.value)} placeholder="如：12345" className={inputCls} />
+            </div>
+            <div>
+              <label className={labelCls}>发售日期</label>
+              <input type="date" value={releaseDate} onChange={(e) => setReleaseDate(e.target.value)} className={inputCls} />
+            </div>
+            <div>
+              <label className={labelCls}>制作会社</label>
+              <input value={studioName} onChange={(e) => setStudioName(e.target.value)} placeholder="如：Key" className={inputCls} />
+            </div>
+            <div>
+              <label className={labelCls}>游戏时长</label>
+              <input value={gameDuration} onChange={(e) => setGameDuration(e.target.value)} placeholder="如：20-30小时" className={inputCls} />
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-4 pt-2 border-t border-border">
           <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
             <input type="checkbox" checked={isNsfw} onChange={(e) => setIsNsfw(e.target.checked)} className="h-4 w-4 rounded accent-primary" />
             NSFW 内容
@@ -710,7 +702,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
 
       {/* 标签 — 带搜索和复选框，按标签组分类 */}
       <div className="rounded-xl bg-card p-5 ring-1 ring-border">
-        <h2 className="mb-3 text-sm font-semibold text-foreground">标签</h2>
+        <h2 className="mb-3 text-base font-semibold text-foreground">标签</h2>
         {/* 搜索框 */}
         <div className="mb-3">
           <input
@@ -826,29 +818,39 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
         {tags.length === 0 && <p className="mt-2 text-xs text-muted-foreground">暂无标签，请先在标签管理中创建</p>}
       </div>
 
-      {/* 下载链接 */}
+      {/* 创作者 */}
       <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-3">
-        <h2 className="text-sm font-semibold text-foreground">下载链接</h2>
-        {dlLinks.map((dl, i) => (
-          <div key={i} className="flex gap-2">
-            <input value={dl.label} onChange={(e) => updateDl(i, "label", e.target.value)} placeholder="标签（如：百度网盘）" className={`${inputCls} w-36 shrink-0`} />
-            <input value={dl.url} onChange={(e) => updateDl(i, "url", e.target.value)} placeholder="下载地址 URL" className={inputCls} />
-            <button type="button" onClick={() => setDlLinks((p) => p.filter((_, idx) => idx !== i))}
-              className="shrink-0 rounded-xl bg-secondary px-2.5 text-muted-foreground ring-1 ring-border hover:text-red-400 transition-colors duration-200">
-              <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
-            </button>
+        <h2 className="text-base font-semibold text-foreground">创作者</h2>
+        <p className="text-xs text-muted-foreground">VNDB 拉取时自动填充，也可手动管理</p>
+        {creators.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {creators.map((c, i) => (
+              <div
+                key={i}
+                className="inline-flex items-center gap-2 rounded-full bg-secondary/60 px-3 py-1.5 ring-1 ring-border text-xs"
+              >
+                <span className="font-medium text-foreground">{c.name}</span>
+                {c.nameJa && <span className="text-muted-foreground">({c.nameJa})</span>}
+                <span className="text-[10px] text-muted-foreground bg-muted rounded px-1 py-0.5">{c.role}</span>
+                <button
+                  type="button"
+                  onClick={() => setCreators(p => p.filter((_, idx) => idx !== i))}
+                  className="ml-1 text-muted-foreground hover:text-red-400 transition-colors"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
           </div>
-        ))}
-        <button type="button" onClick={() => setDlLinks((p) => [...p, { label: "", url: "" }])}
-          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors duration-200">
-          <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />添加链接
-        </button>
+        ) : (
+          <p className="text-xs text-muted-foreground/60">暂无创作者，使用 VNDB 拉取时会自动填入</p>
+        )}
       </div>
 
       {/* 截图 */}
       <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-3">
-        <h2 className="text-sm font-semibold text-foreground">截图</h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <h2 className="text-base font-semibold text-foreground">截图</h2>
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5">
           {screenshots.map((src, i) => (
             <div key={i} className="group relative">
               <ImageUpload
