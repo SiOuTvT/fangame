@@ -40,17 +40,10 @@ const SEED_DATA: Omit<EmMsg, "id">[] = [
   { key: "follow_success",    category: "toast",   title: "关注成功",     subtitle: "将收到ta的动态通知",    imageUrl: "", emoji: "🤝",   enabled: true },
   { key: "unfollow_success",  category: "toast",   title: "取消关注",     subtitle: "已取消关注",           imageUrl: "", emoji: "👋",   enabled: true },
   { key: "comment_success",   category: "toast",   title: "评论成功",     subtitle: "你的评论已发布",       imageUrl: "", emoji: "💬",   enabled: true },
-  { key: "vote_success",      category: "toast",   title: "投票成功",     subtitle: "感谢你的参与",         imageUrl: "", emoji: "🗳️",  enabled: true },
-  { key: "rating_success",    category: "toast",   title: "评分成功",     subtitle: "感谢你的评价",         imageUrl: "", emoji: "⭐",   enabled: true },
-  { key: "report_success",    category: "toast",   title: "举报成功",     subtitle: "我们会尽快处理",       imageUrl: "", emoji: "📢",   enabled: true },
   // Empty
   { key: "empty_favorites",   category: "empty",   title: "收藏夹空空如也",   subtitle: "去探索好玩的游戏吧",       imageUrl: "", emoji: "💝",   enabled: true },
   { key: "empty_comments",    category: "empty",   title: "还没有评论",       subtitle: "来抢沙发吧~",             imageUrl: "", emoji: "🛋️",  enabled: true },
-  { key: "empty_search",      category: "empty",   title: "未找到结果",       subtitle: "换个关键词试试",           imageUrl: "", emoji: "🔍",   enabled: true },
   { key: "empty_forum",       category: "empty",   title: "论坛暂时没有帖子", subtitle: "来发第一个帖子吧",         imageUrl: "", emoji: "📝",   enabled: true },
-  { key: "empty_checkins",    category: "empty",   title: "还没有签到记录",   subtitle: "每天签到获取积分",         imageUrl: "", emoji: "📅",   enabled: true },
-  { key: "empty_following",   category: "empty",   title: "还没有关注任何人", subtitle: "去看看感兴趣的人吧",       imageUrl: "", emoji: "👀",   enabled: true },
-  { key: "empty_followers",   category: "empty",   title: "还没有粉丝",       subtitle: "分享你的游戏品味吸引关注", imageUrl: "", emoji: "🌱",   enabled: true },
   { key: "empty_notifications", category: "empty", title: "暂无新通知",       subtitle: "有新动态时会通知你",       imageUrl: "", emoji: "🔔",   enabled: true },
   { key: "empty_play_status", category: "empty",   title: "游戏清单空空的",   subtitle: "添加想玩/在玩/玩过的游戏", imageUrl: "", emoji: "🎮",   enabled: true },
   // Error
