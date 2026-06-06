@@ -1,5 +1,6 @@
 "use client"
 
+import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import { Loader2, UserMinus, UserPlus } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -9,9 +10,12 @@ interface Props {
   initialFollowing: boolean
 }
 
+const followMsgKeys = ["follow_success", "unfollow_success"]
+
 export function FollowButton({ targetUserId, initialFollowing }: Props) {
   const [following, setFollowing] = useState(initialFollowing)
   const [loading, setLoading] = useState(false)
+  const { messages: followMsgs } = useEmotionalMessages(followMsgKeys)
 
   const toggle = async () => {
     if (loading) return
@@ -21,7 +25,9 @@ export function FollowButton({ targetUserId, initialFollowing }: Props) {
       const res = await fetch(`/api/follow/${targetUserId}`, { method })
       if (res.ok) {
         setFollowing(!following)
-        toast.success(following ? "已取消关注" : "关注成功")
+        toast.success(following
+          ? (followMsgs.unfollow_success ? `${followMsgs.unfollow_success.emoji} ${followMsgs.unfollow_success.title}` : "已取消关注")
+          : (followMsgs.follow_success ? `${followMsgs.follow_success.emoji} ${followMsgs.follow_success.title}` : "关注成功"))
       } else {
         toast.error("出了点问题，等一下再试试？")
       }
