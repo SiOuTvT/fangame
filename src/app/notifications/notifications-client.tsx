@@ -13,6 +13,7 @@ import {
 } from "lucide-react"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import Link from "next/link"
+import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
 import { useCallback, useEffect, useState } from "react"
 import { timeAgo } from "@/lib/time-ago"
 
@@ -90,6 +91,7 @@ export default function NotificationsClient({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [selectMode, setSelectMode] = useState(false)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
+  const { message: emptyNotifMsg } = useEmotionalMessage("empty_notifications")
 
   useEffect(() => {
     if (unreadCount > 0) {
@@ -343,7 +345,7 @@ export default function NotificationsClient({
             <div className="flex flex-col items-center justify-center py-20">
               <Bell className="mb-4 h-12 w-12 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">
-                {filter === "unread" ? "所有消息都看过了~" : "暂时没有新消息~"}
+                {emptyNotifMsg ? `${emptyNotifMsg.emoji} ${emptyNotifMsg.title}，${emptyNotifMsg.subtitle}` : (filter === "unread" ? "所有消息都看过了~" : "暂时没有新消息~")}
               </p>
             </div>
           ) : (
