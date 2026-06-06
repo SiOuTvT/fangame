@@ -51,6 +51,13 @@ interface VNDBProducer {
   type: string // company, individual
 }
 
+interface VNDBStaff {
+  id: string
+  name: string
+  original?: string
+  role: string // scenario, artist, music, songs, director, etc.
+}
+
 interface VNDBVisualNovel {
   id: string
   title: string
@@ -58,6 +65,7 @@ interface VNDBVisualNovel {
   description: string
   tags: Array<{ id: string; name: string; rating: number }>
   developers: VNDBProducer[]
+  staff?: VNDBStaff[]
   va: Array<{
     character: VNDBCharacter
   }>
@@ -218,7 +226,7 @@ class VNDBClient {
       return await cached(key, async () => {
         const data = await this.sendRequest("vn", {
           filters: ["id", "=", id],
-          fields: "id,title,alttitle,description,tags.id,tags.name,tags.rating,developers.id,developers.name,developers.original,developers.type,va.character.id,va.character.name,va.character.original,va.character.aliases,va.character.description,va.character.image.url,va.character.blood_type,va.character.birthday,va.character.age,va.character.gender,va.character.height,va.character.weight,va.character.bust,va.character.waist,va.character.hips,va.character.cup,va.character.traits.id,va.character.traits.name,va.character.traits.group_id,va.character.traits.group_name,va.character.traits.spoiler",
+          fields: "id,title,alttitle,description,tags.id,tags.name,tags.rating,developers.id,developers.name,developers.original,developers.type,staff.id,staff.name,staff.original,staff.role,va.character.id,va.character.name,va.character.original,va.character.aliases,va.character.description,va.character.image.url,va.character.blood_type,va.character.birthday,va.character.age,va.character.gender,va.character.height,va.character.weight,va.character.bust,va.character.waist,va.character.hips,va.character.cup,va.character.traits.id,va.character.traits.name,va.character.traits.group_id,va.character.traits.group_name,va.character.traits.spoiler",
         })
         
         if (!data.results || data.results.length === 0) {
@@ -629,11 +637,11 @@ class VNDBClient {
     original?: string
     description?: string
     tags?: string[]
-    creators?: Array<{ name: string; role: string }>
+    creators?: Array<{ vndbId: string; name: string; nameJa: string; role: string }>
   } | null> {
     try {
       const vn = await this.getVisualNovel(`v${vndbId}`)
-      
+
       if (!vn) return null
 
       // 提取标签（智能清洗：黑名单过滤 + 翻译 + 去重）
@@ -641,13 +649,16 @@ class VNDBClient {
         (vn.tags || []).map(t => ({ name: t.name, rating: t.rating }))
       ).slice(0, 10)
 
-      // 提取创作者信息
-      const creators = vn.developers
-        ?.map(dev => ({
-          name: dev.original || dev.name,
-          role: "开发者",
+      // 提取创作者信息（staff：脚本、原画、音乐等）
+      const creators = (vn.staff || [])
+        .filter(s => s.id && s.name)
+        .map(s => ({
+          vndbId: s.id.replace("s", ""),
+          name: s.name,
+          nameJa: s.original || "",
+          role: s.role || "other",
         }))
-        .slice(0, 5) || []
+        .slice(0, 20)
 
       return {
         title: vn.title,
