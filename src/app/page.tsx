@@ -160,27 +160,27 @@ export default async function HomePage({
       <h1 className="sr-only">同人游戏站 · 资源大厅</h1>
 
       {/* Hero：品牌卡 + 公告 */}
-      <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-5 mb-10">
+      <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-5 mb-10 items-start">
         {/* 品牌卡 */}
-        <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden min-h-[310px] flex flex-col">
+        <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden min-h-[240px] lg:h-[310px] flex flex-col">
           <div className="flex flex-col flex-1 px-7 py-8 justify-between">
             <div>
-              <h2 className="text-3xl font-bold text-foreground tracking-tight leading-tight">同人游戏站</h2>
-              <p className="text-sm text-muted-foreground mt-2">GalGame 同人世界的一站式入口</p>
+              <h2 className="text-4xl font-bold text-foreground tracking-tight leading-tight">同人游戏站</h2>
+              <p className="text-base text-muted-foreground mt-2">GalGame 同人世界的一站式入口</p>
             </div>
             {/* 统计行 */}
             <div className="flex gap-6">
               <div>
-                <p className="text-2xl font-bold text-foreground leading-none">{total}</p>
-                <p className="text-xs text-muted-foreground mt-1">个游戏</p>
+                <p className="text-3xl font-bold text-foreground leading-none">{total}</p>
+                <p className="text-sm text-muted-foreground mt-1.5">个游戏</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground leading-none">{weekNewGames}</p>
-                <p className="text-xs text-muted-foreground mt-1">本周新增</p>
+                <p className="text-3xl font-bold text-foreground leading-none">{weekNewGames}</p>
+                <p className="text-sm text-muted-foreground mt-1.5">本周新增</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground leading-none">{todayCheckins}</p>
-                <p className="text-xs text-muted-foreground mt-1">今日签到</p>
+                <p className="text-3xl font-bold text-foreground leading-none">{todayCheckins}</p>
+                <p className="text-sm text-muted-foreground mt-1.5">今日签到</p>
               </div>
             </div>
             {/* 按钮行 */}
