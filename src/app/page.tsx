@@ -152,7 +152,7 @@ export default async function HomePage({
       <h1 className="sr-only">同人游戏站 · 资源大厅</h1>
 
       {/* Hero：品牌卡 + 公告 */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-5 mb-10">
+      <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-5 mb-10">
         {/* 品牌卡 */}
         <div className="rounded-2xl bg-card px-6 py-7 ring-1 ring-border flex flex-col justify-center">
           <h2 className="text-[26px] font-bold text-foreground tracking-tight">同人游戏站</h2>
