@@ -113,14 +113,18 @@ export default async function HomePage({
 
   let tags: { id: string; name: string; color: string }[] = []
   let total = 0
+  let todayCheckins = 0
   let announcements: { id: string; title: string; content: string; imageUrl: string; link: string }[] = []
   let hotGames: { id: string; serialId: number; title: string; coverImage: string; status: string; isNsfw: boolean; favoriteCount: number; viewCount: number; downloadCount: number; downloadLinks: string; updatedAt: Date; createdAt: Date; tags: { tag: { name: string; color: string } }[]; resources: { language: string; runType: string; resourceContent: string }[] }[] = []
 
   try {
     const rawTags = await prisma.tag.findMany({ orderBy: { name: "asc" } })
     tags = rawTags.map(t => ({ id: t.id, name: t.name, color: discoverColor }))
-    ;[total, announcements, hotGames] = await Promise.all([
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    ;[total, todayCheckins, announcements, hotGames] = await Promise.all([
       prisma.game.count({ where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) } }),
+      prisma.checkIn.count({ where: { createdAt: { gte: today } } }),
       prisma.announcement.findMany({
         where: { isActive: true },
         orderBy: { createdAt: "desc" },
@@ -156,21 +160,18 @@ export default async function HomePage({
         {/* 品牌卡 */}
         <div className="rounded-2xl bg-card px-6 py-7 ring-1 ring-border flex flex-col justify-center">
           <h2 className="text-[26px] font-bold text-foreground tracking-tight">同人游戏站</h2>
-          <p className="text-sm text-muted-foreground mt-1 mb-3">东方、月姬、Fate 等同人游戏资源一站式体验</p>
-          <div className="flex gap-4 mb-3">
+          <p className="text-sm text-muted-foreground mt-1 mb-3">GalGame 同人世界的一站式入口</p>
+          <div className="flex gap-4 mb-4">
             <div className="text-center">
               <span className="text-xl font-bold text-foreground block">{total}</span>
               <span className="text-[11px] text-muted-foreground">个游戏</span>
             </div>
             <div className="text-center">
-              <span className="text-xl font-bold text-foreground block">{tags.length}</span>
-              <span className="text-[11px] text-muted-foreground">个标签</span>
+              <span className="text-xl font-bold text-foreground block">{todayCheckins}</span>
+              <span className="text-[11px] text-muted-foreground">今日签到</span>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Link href="/search" className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition-all">
-              <Gamepad2 className="h-4 w-4" /> 开始探索
-            </Link>
             <RandomCreatorBtn />
             <RandomCharacterBtn />
           </div>
