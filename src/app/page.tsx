@@ -161,8 +161,8 @@ export default async function HomePage({
 
       {/* Hero：品牌卡 + 公告 */}
       <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-5 mb-10 items-start">
-        {/* 品牌卡 */}
-        <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden min-h-[240px] lg:h-[310px] flex flex-col">
+        {/* 品牌卡 - 仅电脑端显示 */}
+        <div className="hidden lg:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[310px] flex-col">
           <div className="flex flex-col flex-1 px-7 py-8 justify-between">
             <div>
               <h2 className="text-4xl font-bold text-foreground tracking-tight leading-tight">同人游戏站</h2>
