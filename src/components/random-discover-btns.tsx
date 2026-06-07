@@ -50,7 +50,7 @@ export function RandomCreatorBtn() {
     <button
       onClick={go}
       disabled={loading}
-      className="flex items-center justify-center gap-1.5 rounded-lg bg-card/60 px-3 py-2 text-xs text-foreground/70 ring-1 ring-border transition-all hover:bg-card hover:text-foreground disabled:opacity-50 group"
+      className="flex items-center justify-center gap-2 rounded-xl bg-card/60 px-4 py-2.5 text-sm text-foreground/70 ring-1 ring-border transition-all hover:bg-card hover:text-foreground disabled:opacity-50 group"
       title="随机发现同人创作者（脚本家、画师、音乐人等）"
     >
       {loading
@@ -97,7 +97,7 @@ export function RandomCharacterBtn() {
     <button
       onClick={go}
       disabled={loading}
-      className="flex items-center justify-center gap-1.5 rounded-lg bg-card/60 px-3 py-2 text-xs text-foreground/70 ring-1 ring-border transition-all hover:bg-card hover:text-foreground disabled:opacity-50 group"
+      className="flex items-center justify-center gap-2 rounded-xl bg-card/60 px-4 py-2.5 text-sm text-foreground/70 ring-1 ring-border transition-all hover:bg-card hover:text-foreground disabled:opacity-50 group"
       title="随机查看游戏角色（完整角色设定）"
     >
       {loading
