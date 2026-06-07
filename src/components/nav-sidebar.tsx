@@ -81,7 +81,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle, mobileOpen =
       <aside
         className={cn(
           "fixed left-0 top-0 z-50 h-full bg-background border-r border-border overflow-hidden",
-          "lg:top-[52px] lg:h-[calc(100vh-52px)]",
+          "lg:top-[54px] lg:h-[calc(100vh-54px)]",
           "top-0 w-[260px]",
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
@@ -91,7 +91,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle, mobileOpen =
         }}
       >
         {/* 导航列表 - 始终渲染，靠宽度裁切 */}
-        <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-3" style={{ width: expanded ? 260 : 220, height: "calc(100vh - 52px)" }}>
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-3" style={{ width: expanded ? 260 : 220, height: "calc(100vh - 54px)" }}>
           {NAV_SECTIONS.map((section) => (
             <div key={section.label} className="mb-3">
               <p className="px-2 mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 whitespace-nowrap">

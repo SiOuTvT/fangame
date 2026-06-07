@@ -229,7 +229,7 @@ export function TopNav({ navCollapsed, onToggleNav, forumOpen, forumExpanded, on
         {/* 顶部渐变高光线 */}
         <div className={cn("absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/[0.06] to-transparent transition-opacity duration-300", scrolled && "opacity-0")} />
 
-        <div className="mx-auto flex h-[52px] max-w-[1600px] items-center gap-1 px-4 sm:gap-3 sm:px-6">
+        <div className="mx-auto flex h-[54px] max-w-[1600px] items-center gap-1 px-4 sm:gap-3 sm:px-6">
 
           <button
             onClick={onToggleNav}
@@ -358,7 +358,7 @@ export function TopNav({ navCollapsed, onToggleNav, forumOpen, forumExpanded, on
 
       <aside className={cn(
         "fixed z-40 flex flex-col",
-        "top-[calc(52px+env(safe-area-inset-top,0px))] h-[calc(100dvh-52px-env(safe-area-inset-top,0px))]",
+        "top-[calc(54px+env(safe-area-inset-top,0px))] h-[calc(100dvh-54px-env(safe-area-inset-top,0px))]",
         "right-0",
         "bg-background border-l border-border",
       )}
