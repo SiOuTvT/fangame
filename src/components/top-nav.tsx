@@ -212,10 +212,10 @@ export function TopNav({ navCollapsed, onToggleNav, forumOpen, forumExpanded, on
 
           <button
             onClick={onToggleNav}
-            className="flex h-9 w-9 items-center justify-center rounded-lg transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring text-muted-foreground hover:text-foreground hover:bg-muted"
+            className="flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
             aria-label="切换侧边栏"
           >
-            <Menu className="h-[18px] w-[18px]" strokeWidth={2} />
+            <Menu className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
           </button>
 
           <div className="ml-auto flex items-center gap-2">
@@ -318,7 +318,7 @@ export function TopNav({ navCollapsed, onToggleNav, forumOpen, forumExpanded, on
               </div>
             ) : (
               <div className="ml-1">
-                <Link href="/login" className="inline-flex h-10 items-center justify-center rounded-full px-5 text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring text-muted-foreground hover:text-foreground">
+                <Link href="/login" className="inline-flex h-11 items-center justify-center rounded-full px-6 text-base font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring text-muted-foreground hover:text-foreground hover:bg-muted">
                   登录
                 </Link>
               </div>
@@ -337,7 +337,7 @@ export function TopNav({ navCollapsed, onToggleNav, forumOpen, forumExpanded, on
 
       <aside className={cn(
         "fixed z-40 flex flex-col",
-        "top-0 h-full",
+        "top-[calc(54px+env(safe-area-inset-top,0px))] h-[calc(100dvh-54px-env(safe-area-inset-top,0px))]",
         "right-0",
         "bg-background border-l border-border",
       )}
