@@ -114,6 +114,7 @@ export default async function HomePage({
   let tags: { id: string; name: string; color: string }[] = []
   let total = 0
   let todayCheckins = 0
+  let weekNewGames = 0
   let announcements: { id: string; title: string; content: string; imageUrl: string; link: string }[] = []
   let hotGames: { id: string; serialId: number; title: string; coverImage: string; status: string; isNsfw: boolean; favoriteCount: number; viewCount: number; downloadCount: number; downloadLinks: string; updatedAt: Date; createdAt: Date; tags: { tag: { name: string; color: string } }[]; resources: { language: string; runType: string; resourceContent: string }[] }[] = []
 
@@ -122,9 +123,12 @@ export default async function HomePage({
     tags = rawTags.map(t => ({ id: t.id, name: t.name, color: discoverColor }))
     const today = new Date()
     today.setHours(0, 0, 0, 0)
-    ;[total, todayCheckins, announcements, hotGames] = await Promise.all([
+    const weekAgo = new Date(today)
+    weekAgo.setDate(weekAgo.getDate() - 7)
+    ;[total, todayCheckins, weekNewGames, announcements, hotGames] = await Promise.all([
       prisma.game.count({ where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) } }),
       prisma.checkIn.count({ where: { createdAt: { gte: today } } }),
+      prisma.game.count({ where: { isPublished: true, createdAt: { gte: weekAgo } } }),
       prisma.announcement.findMany({
         where: { isActive: true },
         orderBy: { createdAt: "desc" },
