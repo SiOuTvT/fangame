@@ -750,18 +750,6 @@ class VNDBClient {
   }
 
   /**
-   * 映射角色职责
-   */
-  private mapCharacterRole(role: string): string {
-    const roleMap: Record<string, string> = {
-      main: "主角",
-      primary: "主要角色",
-      side: "次要角色",
-    }
-    return roleMap[role] || "角色"
-  }
-
-  /**
    * 清除所有缓存
    */
   async clearCache(): Promise<void> {

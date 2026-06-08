@@ -18,10 +18,11 @@ export type ConditionType =
  * 从今天开始向前回溯，计算连续签到的天数
  */
 async function calculateCheckinStreak(userId: string): Promise<number> {
-  // 获取用户所有签到日期，按日期降序排列
+  // 获取用户最近 60 天的签到日期（连续签到不可能超过注册天数，60 天足够）
   const checkins = await prisma.checkIn.findMany({
     where: { userId },
     orderBy: { date: "desc" },
+    take: 60,
     select: { date: true },
   })
 
@@ -34,8 +35,11 @@ async function calculateCheckinStreak(userId: string): Promise<number> {
   let streak = 0
   let currentDate = new Date(today)
 
+  // 将 Date 转换为 YYYY-MM-DD 字符串用于比较
+  const dateToString = (d: Date) => new Date(d).toISOString().slice(0, 10)
+
   // 如果最新签到不是今天也不是昨天，连续签到中断
-  const latestCheckin = checkins[0].date
+  const latestCheckin = dateToString(checkins[0].date)
   const yesterday = new Date(currentDate)
   yesterday.setDate(yesterday.getDate() - 1)
   const yesterdayStr = yesterday.toISOString().slice(0, 10)
@@ -50,7 +54,7 @@ async function calculateCheckinStreak(userId: string): Promise<number> {
   }
 
   // 创建一个 Set 用于快速查找
-  const checkinDates = new Set(checkins.map(c => c.date))
+  const checkinDates = new Set(checkins.map(c => dateToString(c.date)))
 
   // 从当前日期向前回溯
   while (checkinDates.has(currentDate.toISOString().slice(0, 10))) {

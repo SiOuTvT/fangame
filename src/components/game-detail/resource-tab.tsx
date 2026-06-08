@@ -37,6 +37,7 @@ interface ResourceTabProps {
   username?: string
   userAvatar?: string | null
   resourceTagColor?: string
+  publisherId?: string
 }
 
 /* ─── 备注展开收起组件 ─── */
@@ -292,6 +293,7 @@ export function ResourceTab({
   username,
   userAvatar,
   resourceTagColor,
+  publisherId,
 }: ResourceTabProps) {
   const [resources, setResources] = useState<ApiResource[]>([])
   const [loading, setLoading] = useState(true)
@@ -451,7 +453,7 @@ export function ResourceTab({
         <div className="space-y-3">
           {resources.map((res) => {
             const isOwner = !!currentUserId && res.userId === currentUserId
-            const isGamePublisher = false
+            const isGamePublisher = !!publisherId && !!currentUserId && publisherId === currentUserId
             return (
               <ResourceCard
                 key={res.id}

@@ -368,6 +368,7 @@ export default async function GameDetailPage({
             username={session?.user?.name || undefined}
             userAvatar={session?.user?.image || null}
             resourceTagColor={resourceTagColor}
+            publisherId={game.publisher?.id}
           />
       </div>
 

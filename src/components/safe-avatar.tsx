@@ -52,9 +52,8 @@ export function SafeAvatar({
     )
   }
 
-  // 给 URL 添加时间戳避免浏览器缓存过期头像
-  // 使用 useState 而非 useMemo 中的 Date.now() 来避免 hydration mismatch
-  const cacheBustedSrc = src.includes("?") ? `${src}&v=${src}` : `${src}?v=${src}`
+  // 直接使用原始 URL（缓存由 CDN/浏览器自然管理）
+  const cacheBustedSrc = src
 
   return (
     <img

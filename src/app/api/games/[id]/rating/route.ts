@@ -16,7 +16,7 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   } catch {
     return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
   }
-  if (!score || score < 1 || score > 5) return NextResponse.json({ error: "评分需在1-5之间" }, { status: 400 })
+  if (!Number.isInteger(score) || score < 1 || score > 5) return NextResponse.json({ error: "评分需在1-5之间的整数" }, { status: 400 })
 
   await prisma.gameRating.upsert({
     where:  { gameId_userId: { gameId, userId: session.user.id } },

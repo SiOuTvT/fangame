@@ -56,5 +56,5 @@ export const logger = {
   forum: new Logger('Forum'),
 }
 
-// 默认日志器
-export default Logger
+// Logger 类（供需要自定义 prefix 的场景使用）
+export { Logger }

@@ -62,6 +62,7 @@ export default function GameDetailClient({
   username,
   userAvatar,
   resourceTagColor,
+  publisherId,
 }: {
   description: string
   allDescriptions?: { lang: string; label: string; text: string }[]
@@ -81,6 +82,7 @@ export default function GameDetailClient({
   username?: string
   userAvatar?: string | null
   resourceTagColor?: string
+  publisherId?: string
 }) {
   const [tab, setTab] = useState<"intro" | "resource" | "comments">("intro")
   const [fav, setFav] = useState(isFav)
@@ -267,6 +269,7 @@ export default function GameDetailClient({
                   currentUserId={currentUserId}
                   username={username}
                   userAvatar={userAvatar}
+                  publisherId={publisherId}
                   resourceTagColor={resourceTagColor}
                 />
               </div>

@@ -5,20 +5,6 @@ import { prisma } from "@/lib/prisma"
 import { rateLimits } from "@/lib/rate-limit"
 import { NextRequest, NextResponse } from "next/server"
 
-/**
- * 简单的 HTML 转义函数，防止 XSS 攻击
- */
-function escapeHtml(text: string): string {
-  const map: Record<string, string> = {
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;",
-  }
-  return text.replace(/[&<>"']/g, (m) => map[m])
-}
-
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const page = Math.max(1, parseInt(searchParams.get("page") || "1"))
@@ -70,12 +56,9 @@ async function handleCreatePost(req: NextRequest) {
   if (title.length > 100) return NextResponse.json({ error: "标题不能超过100字" }, { status: 400 })
   if (content.length > 5000) return NextResponse.json({ error: "内容不能超过5000字" }, { status: 400 })
 
-  // XSS 防护：转义 HTML
-  const sanitizedTitle = escapeHtml(title)
-  const sanitizedContent = escapeHtml(content)
-
+  // 存储原始文本（React 渲染时自动转义，无需手动 escapeHtml 避免双重转义）
   const post = await prisma.forumPost.create({
-    data: { userId: session.user.id, title: sanitizedTitle, content: sanitizedContent },
+    data: { userId: session.user.id, title, content },
     include: {
       user: { select: { id: true, username: true, avatar: true } },
       _count: { select: { comments: true } },

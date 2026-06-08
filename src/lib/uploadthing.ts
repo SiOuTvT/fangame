@@ -36,7 +36,7 @@ export const ourFileRouter = {
         where: { id: session.user.id },
         select: { role: true },
       })
-      if (user?.role !== "ADMIN") throw new Error("无权限")
+      if (user?.role !== "ADMIN" && user?.role !== "SUPER_ADMIN") throw new Error("无权限")
       return { userId: session.user.id }
     })
     .onUploadComplete(async ({ file }) => {

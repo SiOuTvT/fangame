@@ -139,34 +139,9 @@ export const idParamSchema = z.object({
   id: z.string().min(1, "ID 不能为空"),
 })
 
-import { NextResponse } from "next/server"
-
-/**
- * 通用 API 响应包装
- */
-export function apiSuccess<T>(data: T, status = 200) {
-  return NextResponse.json({ success: true, data }, { status })
-}
-
-export function apiError(message: string, status = 400, details?: unknown) {
-  return NextResponse.json(
-    { success: false, error: message, ...(details ? { details } : {}) },
-    { status }
-  )
-}
-
-/**
- * Zod 验证错误格式化
- */
-export function formatZodError(error: z.ZodError) {
-  return error.issues.map((issue) => ({
-    field: issue.path.join("."),
-    message: issue.message,
-  }))
-}
-
 /**
  * 安全解析请求体的通用函数
+ * 注意：API 响应请使用 @/lib/api-response 中的工具函数
  */
 export async function parseBody<T extends z.ZodType>(
   req: Request,
