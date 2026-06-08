@@ -80,11 +80,12 @@ export function NavSidebar({ collapsed, expanded = false, onToggle, mobileOpen =
       {/* 侧边栏 */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 h-full bg-background border-r border-border overflow-hidden",
-          "w-[260px]",
+          "fixed left-0 top-0 z-50 h-full overflow-hidden",
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
         style={{
+          background: "var(--sidebar)",
+          borderRight: "1px solid var(--sidebar-border)",
           width: collapsed ? 60 : expanded ? 260 : 220,
           transition: "width 0.3s ease",
         }}
@@ -92,12 +93,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle, mobileOpen =
         {/* 导航列表 - flex column, 底部放折叠按钮 */}
         <nav className="flex flex-col overflow-y-auto overflow-x-hidden px-2 py-3 h-full" style={{ width: collapsed ? 60 : (expanded ? 260 : 220) }}>
           {NAV_SECTIONS.map((section) => (
-            <div key={section.label} className="mb-3">
-              {!collapsed && (
-                <p className="px-2 mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 whitespace-nowrap">
-                  {section.label}
-                </p>
-              )}
+            <div key={section.label} className="mb-2">
               {section.items.map(({ icon: Icon, label, href }) => {
                 const isActive = pathname === href || (href !== "/" && pathname.startsWith(href))
                 return (
@@ -105,15 +101,15 @@ export function NavSidebar({ collapsed, expanded = false, onToggle, mobileOpen =
                     key={href}
                     href={href}
                     className={cn(
-                      "flex items-center rounded-lg py-2 text-sm font-medium transition-all whitespace-nowrap",
-                      collapsed ? "justify-center px-0 mx-auto w-11 h-11" : "gap-3 px-2",
+                      "flex items-center rounded-lg py-2.5 font-medium transition-all whitespace-nowrap",
+                      collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-sm" : "gap-3 px-3 text-[15px]",
                       isActive
                         ? "bg-accent text-foreground"
                         : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
                     )}
                     title={collapsed ? label : undefined}
                   >
-                    <Icon className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />
+                    <Icon className="h-5 w-5 shrink-0" strokeWidth={2} />
                     {!collapsed && <span>{label}</span>}
                   </Link>
                 )
