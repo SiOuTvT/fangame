@@ -20,48 +20,6 @@ const LEFT_COLLAPSED_W = 60 // 左侧栏折叠
 const RIGHT_W = 260         // 右侧栏正常宽度
 const RIGHT_EXPANDED_W = 340 // 右侧栏展开（只开右边时）
 
-/* 两边都开时，内容区在左右之间的基准中心点 */
-function getBaseCenter(sw: number) {
-  return LEFT_W + (sw - LEFT_W - RIGHT_W) / 2
-}
-
-/* ═══════════════════════════════════════════════════
-   内容区偏移计算
-
-   四种状态：
-   1. 两边都开 → 内容在左右之间居中
-   2. 只开左边 → 内容居中后往左靠一点（nudge）
-   3. 只开右边 → 内容和右边的距离保持和两边都开时一样
-   4. 都关     → 内容在页面居中
-   ═══════════════════════════════════════════════════ */
-function calcContentOffset(
-  sw: number,
-  leftW: number,
-  rightW: number,
-  onlyLeft: boolean,
-  onlyRight: boolean,
-): number {
-  const pageCenter = sw / 2
-
-  // 只开右边：保持和右边的距离不变
-  if (onlyRight) {
-    const baseCenter = getBaseCenter(sw)
-    const baseDistFromRight = sw - baseCenter - RIGHT_W
-    const targetCenter = sw - rightW - baseDistFromRight
-    return targetCenter - pageCenter
-  }
-
-  // 其他状态：在可用空间内居中
-  const available = sw - leftW - rightW
-  const center = leftW + available / 2
-  let offset = center - pageCenter
-
-  // 只开左边：往左靠一点
-  if (onlyLeft) offset -= leftW / 5
-
-  return offset
-}
-
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   useOnlineStatus()
@@ -87,10 +45,6 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   // 实际宽度
   const leftWidth = navCollapsed ? LEFT_COLLAPSED_W : (leftExpanded ? LEFT_EXPANDED_W : LEFT_W)
   const rightWidth = forumOpen ? (rightExpanded ? RIGHT_EXPANDED_W : RIGHT_W) : 0
-
-  // 状态标记
-  const onlyLeft = isDesktop && !navCollapsed && !forumOpen
-  const onlyRight = isDesktop && navCollapsed && forumOpen
 
   /* ── 内容区 margin ── */
   const marginLeft = isDesktop ? leftWidth : 0
