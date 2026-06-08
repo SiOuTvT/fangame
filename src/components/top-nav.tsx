@@ -33,9 +33,10 @@ function setCookie(name: string, value: string) {
 interface TopNavProps {
   navCollapsed?: boolean
   onToggleNav?: () => void
+  onToggleForum?: () => void
 }
 
-export function TopNav({ onToggleNav }: TopNavProps) {
+export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
   const router = useRouter()
   const { data: session } = useSession()
   const user = session?.user
