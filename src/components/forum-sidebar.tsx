@@ -31,7 +31,7 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
         style={{
           background: "var(--sidebar)",
           borderLeft: "1px solid var(--sidebar-border)",
-          width: expanded ? 360 : 280,
+          width: expanded ? 340 : 260,
           transform: open ? "translateX(0)" : "translateX(100%)",
           opacity: open ? 1 : 0,
           transition: "transform 0.3s ease, opacity 0.3s ease, width 0.3s ease",
