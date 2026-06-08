@@ -327,49 +327,6 @@ export function TopNav({ navCollapsed, onToggleNav, forumOpen, forumExpanded, on
         </div>
       </header>
 
-      {/* 移动端论坛遮罩 */}
-      {forumOpen && (
-        <div
-          className="fixed inset-0 z-35 backdrop-blur-sm fade-in lg:hidden bg-black/40 touch-none"
-          onClick={onToggleForum}
-        />
-      )}
-
-      <aside className={cn(
-        "fixed z-40 flex flex-col",
-        "top-[calc(54px+env(safe-area-inset-top,0px))] h-[calc(100dvh-54px-env(safe-area-inset-top,0px))]",
-        "right-0",
-        "bg-background border-l border-border",
-      )}
-        style={{
-          width: forumExpanded ? 360 : 280,
-          transform: forumOpen ? "translateX(0)" : "translateX(100%)",
-          opacity: forumOpen ? 1 : 0,
-          transition: "transform 0.3s ease, opacity 0.3s ease, width 0.3s ease",
-          boxShadow: "none",
-        }}
-      >
-        {forumOpen && (
-          <div className="absolute inset-y-0 right-0 w-px bg-gradient-to-b from-border via-transparent to-transparent" />
-        )}
-        <div className="flex items-center justify-between border-b border-border px-5 py-4 bg-muted/50">
-          <span className="text-sm font-semibold text-foreground">论坛动态</span>
-          <button onClick={onToggleForum} className="text-muted-foreground transition-all hover:rotate-90 hover:text-foreground">
-            <X className="h-5 w-5" strokeWidth={2.5} />
-          </button>
-        </div>
-        <div className="border-b border-border p-3 bg-muted/50">
-          <Link href="/forum" onClick={onToggleForum}
-            className="flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-all bg-secondary text-secondary-foreground hover:bg-accent hover:text-foreground">
-            <MessageSquare className="h-5 w-5" strokeWidth={2} />
-            进入求档区
-          </Link>
-        </div>
-        <div className="flex-1 overflow-y-auto p-3">
-          <ForumSidebarPosts />
-        </div>
-      </aside>
-
     </>
   )
 }
