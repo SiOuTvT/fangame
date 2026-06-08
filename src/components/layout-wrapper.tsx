@@ -46,9 +46,30 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const leftWidth = navCollapsed ? LEFT_COLLAPSED_W : (leftExpanded ? LEFT_EXPANDED_W : LEFT_W)
   const rightWidth = forumOpen ? (rightExpanded ? RIGHT_EXPANDED_W : RIGHT_W) : 0
 
-  /* ── 内容区 margin ── */
-  const marginLeft = isDesktop ? leftWidth : 0
-  const marginRight = isDesktop ? rightWidth : 0
+  /* ── 内容区偏移：在页面居中 ── */
+  const [contentOffset, setContentOffset] = useState(0)
+
+  useEffect(() => {
+    if (!isDesktop) { setContentOffset(0); return }
+    const sw = window.innerWidth
+    const available = sw - leftWidth - rightWidth
+    const centerOfAvailable = leftWidth + available / 2
+    const centerOfPage = sw / 2
+    setContentOffset(centerOfAvailable - centerOfPage)
+  }, [isDesktop, leftWidth, rightWidth])
+
+  useEffect(() => {
+    if (!isDesktop) return
+    const onResize = () => {
+      const sw = window.innerWidth
+      const available = sw - leftWidth - rightWidth
+      const centerOfAvailable = leftWidth + available / 2
+      const centerOfPage = sw / 2
+      setContentOffset(centerOfAvailable - centerOfPage)
+    }
+    window.addEventListener("resize", onResize)
+    return () => window.removeEventListener("resize", onResize)
+  }, [isDesktop, leftWidth, rightWidth])
 
   /* ── 切换函数 ── */
   const toggleNav = useCallback(() => {
@@ -86,8 +107,8 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
             className="min-h-screen transition-[margin] duration-300 ease-out"
             style={{ marginLeft, marginRight }}
           >
-            <div className="px-5 pb-8">
-              <div className="mx-auto max-w-[1100px]">
+            <div className="px-4 pb-8">
+              <div className="mx-auto max-w-[1140px]">
                 <div className="sticky top-0 z-30 pt-3 pb-4">
                   <TopNav onToggleNav={toggleNav} onToggleForum={toggleForum} />
                 </div>
@@ -98,7 +119,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
               </div>
             </div>
             <footer role="contentinfo" className="border-t border-border bg-muted/30 py-6 text-center text-xs text-muted-foreground">
-              <div className="mx-auto max-w-[1100px] px-4">
+              <div className="mx-auto max-w-[1140px] px-4">
                 <p>同人游戏站 · 资源大厅</p>
                 <p className="mt-1">本站资源均来自互联网，仅供学习交流使用</p>
                 <div className="mt-3 border-t border-border/50 pt-3 flex items-center justify-center gap-4">
