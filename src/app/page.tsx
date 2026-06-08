@@ -111,21 +111,17 @@ export default async function HomePage({
   }).catch(() => null)
   const discoverColor = discoverGroup?.color || "#a78bfa"
 
-  let tags: { id: string; name: string; color: string }[] = []
   let total = 0
   let todayCheckins = 0
   let weekNewGames = 0
   let announcements: { id: string; title: string; content: string; imageUrl: string; link: string }[] = []
-  let hotGames: { id: string; serialId: number; title: string; coverImage: string; status: string; isNsfw: boolean; favoriteCount: number; viewCount: number; downloadCount: number; downloadLinks: string; updatedAt: Date; createdAt: Date; tags: { tag: { name: string; color: string } }[]; resources: { language: string; runType: string; resourceContent: string }[] }[] = []
 
   try {
-    const rawTags = await prisma.tag.findMany({ orderBy: { name: "asc" } })
-    tags = rawTags.map(t => ({ id: t.id, name: t.name, color: discoverColor }))
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     const weekAgo = new Date(today)
     weekAgo.setDate(weekAgo.getDate() - 7)
-    ;[total, todayCheckins, weekNewGames, announcements, hotGames] = await Promise.all([
+    ;[total, todayCheckins, weekNewGames, announcements] = await Promise.all([
       prisma.game.count({ where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) } }),
       prisma.checkIn.count({ where: { createdAt: { gte: today } } }),
       prisma.game.count({ where: { isPublished: true, createdAt: { gte: weekAgo } } }),
@@ -134,19 +130,6 @@ export default async function HomePage({
         orderBy: { createdAt: "desc" },
         take: 5,
         select: { id: true, title: true, content: true, imageUrl: true, link: true },
-      }),
-      prisma.game.findMany({
-        where: { isPublished: true, isNsfw: false, favoriteCount: { gt: 0 } },
-        orderBy: { favoriteCount: "desc" },
-        take: 8,
-        select: {
-          id: true, serialId: true, title: true, coverImage: true, status: true,
-          isNsfw: true, favoriteCount: true, viewCount: true,
-          downloadCount: true, downloadLinks: true,
-          updatedAt: true, createdAt: true,
-          tags: { select: { tag: { select: { name: true, color: true } } } },
-          resources: { select: { language: true, runType: true, resourceContent: true } },
-        },
       }),
     ])
   } catch (error) {
