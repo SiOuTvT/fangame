@@ -8,14 +8,12 @@ import {
   CalendarCheck,
   LogOut,
   Menu,
-  MessageSquare,
   SunMoon,
   Moon,
   Search,
   ShieldAlert,
   Sun,
   User,
-  X
 } from "lucide-react"
 import { signOut, useSession } from "next-auth/react"
 import Link from "next/link"
@@ -34,12 +32,9 @@ function setCookie(name: string, value: string) {
 interface TopNavProps {
   navCollapsed?: boolean
   onToggleNav?: () => void
-  forumOpen?: boolean
-  forumExpanded?: boolean
-  onToggleForum?: () => void
 }
 
-export function TopNav({ navCollapsed, onToggleNav, forumOpen, forumExpanded, onToggleForum }: TopNavProps) {
+export function TopNav({ onToggleNav }: TopNavProps) {
   const router = useRouter()
   const { data: session } = useSession()
   const user = session?.user
