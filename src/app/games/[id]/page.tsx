@@ -72,7 +72,7 @@ export default async function GameDetailPage({
     redirect(`/games/${resolved.serialId}`)
   }
 
-  // 查询游戏详情
+  // 查询游戏详情（评论只加载前 20 条，其余通过 API 分页加载）
   const game = await prisma.game.findFirst({
     where: { id: resolved.id, isPublished: true },
     include: {
@@ -80,6 +80,7 @@ export default async function GameDetailPage({
       resources: { select: { language: true, runType: true, resourceContent: true } },
       comments: {
         orderBy: { createdAt: "desc" },
+        take: 20,
         include: { user: { select: { id: true, username: true, avatar: true } } },
       },
       creators: {

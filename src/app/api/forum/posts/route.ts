@@ -1,4 +1,4 @@
-import { checkAchievements } from "@/lib/achievements"
+import { checkAchievements, invalidateUserStats } from "@/lib/achievements"
 import { auth } from "@/lib/auth"
 import { logger } from "@/lib/logger"
 import { withRateLimit } from "@/lib/middleware"
@@ -67,7 +67,8 @@ async function handleCreatePost(req: NextRequest) {
       },
     })
 
-    // 异步检查成就解锁（不阻塞响应）
+    // 异步检查成就解锁（不阻塞响应），并清除用户统计缓存
+    invalidateUserStats(session.user.id).catch(() => {})
     checkAchievements(session.user.id).catch(() => {})
 
     return NextResponse.json({

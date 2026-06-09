@@ -1,4 +1,4 @@
-import { checkAchievements } from "@/lib/achievements"
+import { checkAchievements, invalidateUserStats } from "@/lib/achievements"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
@@ -24,7 +24,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     update: { status },
   })
 
-  // 异步检查成就解锁（不阻塞响应）
+  // 异步检查成就解锁（不阻塞响应），并清除用户统计缓存
+  invalidateUserStats(session.user.id).catch(() => {})
   checkAchievements(session.user.id).catch(() => {})
 
   return NextResponse.json({ status })

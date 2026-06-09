@@ -3,6 +3,9 @@ import { logger } from "@/lib/logger"
 import { vndbClient } from "@/lib/vndb"
 import { notFound } from "next/navigation"
 
+// 缓存角色页面 1 小时（VNDB 数据变化不频繁）
+export const revalidate = 3600
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   try {

@@ -1,4 +1,4 @@
-import { checkAchievements } from "@/lib/achievements"
+import { checkAchievements, invalidateUserStats } from "@/lib/achievements"
 import { conflict, ok, serverError, unauthorized } from "@/lib/api-response"
 import { auth } from "@/lib/auth"
 import { logger } from "@/lib/logger"
@@ -29,7 +29,8 @@ async function handleCheckin(_req: NextRequest) {
 
     const total = await prisma.checkIn.count({ where: { userId: session.user.id } })
     logger.user.info(`User ${session.user.id} checked in. Total: ${total}`)
-    // 异步检查成就解锁（不阻塞响应）
+    // 异步检查成就解锁（不阻塞响应），并清除用户统计缓存
+    invalidateUserStats(session.user.id).catch(() => {})
     checkAchievements(session.user.id).catch(() => {})
 
     return ok({ ok: true, total, date: todayStr })

@@ -10,7 +10,7 @@ import { unstable_cache } from "next/cache"
 import Link from "next/link"
 import { Suspense } from "react"
 
-// 缓存标签查询（5 分钟）
+// 缓存标签查询（24 小时，标签修改时通过 revalidateTag("tags") 主动失效）
 const getCachedDiscoverTags = unstable_cache(
   async () => {
     const discoverGroup = await prisma.tagGroup.findUnique({
@@ -25,7 +25,7 @@ const getCachedDiscoverTags = unstable_cache(
     return rawTags.map(t => ({ ...t, color: discoverColor }))
   },
   ["search-page-tags"],
-  { revalidate: 300, tags: ["tags"] }
+  { revalidate: 86400, tags: ["tags"] }
 )
 
 type SortKey = "newest" | "popular" | "mostFaved"

@@ -1,5 +1,6 @@
 import { getAdminSession } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
+import { revalidateTag } from "next/cache"
 import { NextRequest, NextResponse } from "next/server"
 
 type Ctx = { params: Promise<{ id: string }> }
@@ -42,6 +43,7 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
     data: updateData,
     include: { _count: { select: { games: true } } },
   })
+  revalidateTag("tags", "max")
   return NextResponse.json({ ...tag, gameCount: tag._count.games })
 }
 
@@ -64,6 +66,7 @@ export async function DELETE(_req: NextRequest, { params }: Ctx) {
   }
 
   await prisma.tag.delete({ where: { id } })
+  revalidateTag("tags", "max")
   return NextResponse.json({ ok: true })
 }
 
@@ -85,6 +88,7 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
     const tag = await prisma.tag.findUnique({ where: { id } })
     if (!tag) return NextResponse.json({ error: "标签不存在" }, { status: 404 })
     await prisma.tag.delete({ where: { id } })
+    revalidateTag("tags", "max")
     return NextResponse.json({ ok: true })
   }
 
@@ -104,6 +108,7 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
       data: { groupId: groupId || null },
       include: { _count: { select: { games: true } } },
     })
+    revalidateTag("tags", "max")
     return NextResponse.json({ ...updated, gameCount: updated._count.games })
   }
 

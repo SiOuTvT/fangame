@@ -1,5 +1,6 @@
 import { createNotification } from "@/lib/notifications"
 import { prisma } from "@/lib/prisma"
+import { cache, cacheKey } from "@/lib/redis"
 
 // 条件类型定义
 export type ConditionType =
@@ -66,28 +67,61 @@ async function calculateCheckinStreak(userId: string): Promise<number> {
 
 /**
  * 获取用户当前的统计数据
+ * 使用 Redis 缓存（5 分钟），避免每次成就检查都查 8 次数据库
  */
 async function getUserStats(userId: string) {
+  const key = cacheKey("user-stats", userId)
+
+  // 尝试从缓存获取
+  const cached = await cache.get<Awaited<ReturnType<typeof getUserStatsImpl>>>(key)
+  if (cached) return cached
+
+  // 缓存 miss，查数据库
+  const stats = await getUserStatsImpl(userId)
+  if (stats) {
+    await cache.set(key, stats, 300) // 缓存 5 分钟
+  }
+  return stats
+}
+
+/**
+ * 实际查询用户统计（单条 SQL + 连续签到）
+ */
+async function getUserStatsImpl(userId: string) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { createdAt: true },
   })
   if (!user) return null
 
-  const [favoriteCount, commentCount, playCount, checkinCount, forumPostCount, forumLikeReceived, checkinStreak] =
-    await Promise.all([
-      prisma.favorite.count({ where: { userId } }),
-      prisma.comment.count({ where: { userId } }),
-      prisma.playStatus.count({ where: { userId } }),
-      prisma.checkIn.count({ where: { userId } }),
-      prisma.forumPost.count({ where: { userId } }),
-      // 论坛帖子被点赞数
-      prisma.forumPostLike.count({
-        where: { post: { userId } },
-      }),
-      // 计算连续签到天数
-      calculateCheckinStreak(userId),
-    ])
+  // 单条 SQL 查询所有计数（比 6 个独立 COUNT 快）
+  const counts = await prisma.$queryRaw<Array<{
+    favorite_count: bigint
+    comment_count: bigint
+    play_count: bigint
+    checkin_count: bigint
+    forum_post_count: bigint
+    forum_like_received: bigint
+  }>>`
+    SELECT
+      (SELECT COUNT(*) FROM "Favorite" WHERE "userId" = ${userId}) as favorite_count,
+      (SELECT COUNT(*) FROM "Comment" WHERE "userId" = ${userId}) as comment_count,
+      (SELECT COUNT(*) FROM "PlayStatus" WHERE "userId" = ${userId}) as play_count,
+      (SELECT COUNT(*) FROM "CheckIn" WHERE "userId" = ${userId}) as checkin_count,
+      (SELECT COUNT(*) FROM "ForumPost" WHERE "userId" = ${userId}) as forum_post_count,
+      (SELECT COUNT(*) FROM "ForumPostLike" WHERE "postId" IN (SELECT "id" FROM "ForumPost" WHERE "userId" = ${userId})) as forum_like_received
+  `
+
+  const row = counts[0]
+  const favoriteCount = Number(row?.favorite_count ?? 0)
+  const commentCount = Number(row?.comment_count ?? 0)
+  const playCount = Number(row?.play_count ?? 0)
+  const checkinCount = Number(row?.checkin_count ?? 0)
+  const forumPostCount = Number(row?.forum_post_count ?? 0)
+  const forumLikeReceived = Number(row?.forum_like_received ?? 0)
+
+  // 连续签到天数（需要单独计算）
+  const checkinStreak = await calculateCheckinStreak(userId)
 
   // 计算注册天数
   const registerDays = Math.floor(
@@ -112,6 +146,14 @@ async function getUserStats(userId: string) {
 function getStatValue(stats: Awaited<ReturnType<typeof getUserStats>>, conditionType: ConditionType): number {
   if (!stats) return 0
   return stats[conditionType] ?? 0
+}
+
+/**
+ * 清除用户统计缓存（在用户操作后调用）
+ */
+export async function invalidateUserStats(userId: string) {
+  const key = cacheKey("user-stats", userId)
+  await cache.del(key)
 }
 
 /**

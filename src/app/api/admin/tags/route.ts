@@ -1,6 +1,7 @@
 import { getAdminSession } from "@/lib/admin"
 import { ensurePresetTagGroups } from "@/lib/preset-tag-groups"
 import { prisma } from "@/lib/prisma"
+import { revalidateTag } from "next/cache"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET() {
@@ -51,5 +52,6 @@ export async function POST(req: NextRequest) {
       isVisible: isVisible !== false,
     },
   })
+  revalidateTag("tags", "max")
   return NextResponse.json(tag, { status: 201 })
 }

@@ -3,6 +3,9 @@ import { vndbClient } from "@/lib/vndb"
 import { notFound } from "next/navigation"
 import { CreatorDetailClient } from "./creator-detail-client"
 
+// 缓存创作者页面 1 小时（VNDB 数据变化不频繁）
+export const revalidate = 3600
+
 interface ProducerData {
   id: string
   name: string

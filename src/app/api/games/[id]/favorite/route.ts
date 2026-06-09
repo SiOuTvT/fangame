@@ -1,4 +1,4 @@
-import { checkAchievements } from "@/lib/achievements"
+import { checkAchievements, invalidateUserStats } from "@/lib/achievements"
 import { badRequest, ok, serverError, tooManyRequests, unauthorized } from "@/lib/api-response"
 import { auth } from "@/lib/auth"
 import { logger } from "@/lib/logger"
@@ -56,7 +56,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       }
     })
 
-    // 异步检查成就解锁（不阻塞响应）
+    // 异步检查成就解锁（不阻塞响应），并清除用户统计缓存
+    invalidateUserStats(session.user.id).catch(() => {})
     checkAchievements(session.user.id).catch(() => {})
 
     return ok(result)
