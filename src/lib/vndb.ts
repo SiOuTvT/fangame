@@ -386,7 +386,7 @@ class VNDBClient {
           gender: staff.gender as string | undefined,
           vndbId: (staff.id as string).replace("s", ""),
           roles: [],
-          vns: [],
+          vns: [], // VNDB API 不支持查询 staff 的作品列表
         }
       }, this.CACHE_TTL)
     } catch (error) {
