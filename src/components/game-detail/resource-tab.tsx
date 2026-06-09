@@ -529,37 +529,7 @@ export function ResourceTab({
         </div>
       )}
 
-      {/* 制作人员列表 */}
-      {creators.length > 0 && (
-        <div>
-          <h3 className="mb-3 text-sm font-semibold text-foreground">制作人员</h3>
-          <div className="space-y-3">
-            {creators.map((c) => (
-              <a
-                key={`${c.id}-${c.role}`}
-                href={`/creators/${c.id}`}
-                className="flex items-center gap-3 rounded-xl p-3 transition-colors hover:bg-secondary"
-              >
-                {c.avatar ? (
-                  <Image src={c.avatar} alt={c.name} width={40} height={40} className="h-10 w-10 rounded-full object-cover" unoptimized />
-                ) : (
-                  <div
-                    className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold bg-primary text-primary-foreground"
-                  >
-                    {(c.nameJa || c.name)[0]}
-                  </div>
-                )}
-                <div>
-                  <p className="text-sm font-medium text-foreground">{c.nameJa || c.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {roleLabels?.[c.role] ?? c.role}
-                  </p>
-                </div>
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* 制作人员已移至简介 tab */}
     </div>
   )
 }

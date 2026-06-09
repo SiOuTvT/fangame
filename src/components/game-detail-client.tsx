@@ -3,6 +3,7 @@
 import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import DOMPurify from "isomorphic-dompurify"
 import { Building2, Calendar, ChevronDown, Clock, ExternalLink, Gamepad2 } from "lucide-react"
+import Image from "next/image"
 import dynamic from "next/dynamic"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
@@ -260,6 +261,43 @@ export default function GameDetailClient({
                 ) : (
                   <p className="text-sm text-muted-foreground/60 italic">暂无简介</p>
                 )}
+
+                {/* 制作人员网格 */}
+                {creators.length > 0 && (
+                  <div className="mt-6">
+                    <h3 className="mb-3 text-sm font-semibold text-foreground">制作人员</h3>
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+                      {creators.map((c) => (
+                        <a
+                          key={`${c.id}-${c.role}`}
+                          href={`/creators/${c.id}`}
+                          className="flex items-center gap-2.5 rounded-xl bg-card p-3 ring-1 ring-border transition-all hover:ring-primary/40 hover:shadow-sm"
+                        >
+                          {c.avatar ? (
+                            <Image
+                              src={c.avatar}
+                              alt={c.name}
+                              width={36}
+                              height={36}
+                              className="h-9 w-9 shrink-0 rounded-full object-cover"
+                              unoptimized
+                            />
+                          ) : (
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                              {(c.nameJa || c.name)[0]}
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <p className="truncate text-xs font-medium text-foreground">{c.nameJa || c.name}</p>
+                            <p className="truncate text-[10px] text-muted-foreground">
+                              {{ scenario: "脚本", art: "原画", chardesign: "角色设计", director: "导演", music: "音乐", songs: "主题曲" }[c.role] ?? c.role}
+                            </p>
+                          </div>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -268,7 +306,6 @@ export default function GameDetailClient({
               <div role="tabpanel" id="tabpanel-resource" aria-labelledby="tab-resource" data-section="resources">
                 <ResourceTab
                   downloadLinks={downloadLinks}
-                  creators={creators}
                   isLoggedIn={isLoggedIn}
                   isFav={fav}
                   favCount={favCnt}
