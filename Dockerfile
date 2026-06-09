@@ -1,14 +1,9 @@
 # ═══════════════════════════════════════════
-# 🎮 Fangame - Galgame/Visual Novel Community
-# ═══════════════════════════════════════════
 # Stage 1: Dependencies
 # ═══════════════════════════════════════════
 FROM node:20-bookworm-slim AS deps
 
 WORKDIR /app
-
-# 使用国内 Debian 镜像加速 apt 安装
-RUN sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources
 
 # Install system dependencies for sharp and prisma
 RUN apt-get update -qq && \
@@ -21,8 +16,8 @@ RUN npm config set registry https://registry.npmmirror.com
 # Copy dependency files
 COPY package.json package-lock.json ./
 
-# Install all dependencies (--legacy-peer-deps 解决 @uploadthing/react 与 React 19 的冲突)
-RUN npm ci --no-audit --no-fund --legacy-peer-deps
+# Install all dependencies
+RUN npm ci --no-audit --no-fund
 
 # Generate Prisma client
 COPY prisma ./prisma/
@@ -34,9 +29,6 @@ RUN npx prisma generate
 FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
-
-# 使用国内 Debian 镜像
-RUN sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources
 
 # Install openssl for Prisma engine detection
 RUN apt-get update -qq && \
@@ -72,13 +64,12 @@ FROM node:20-bookworm-slim AS runner
 
 WORKDIR /app
 
-# 使用国内 Debian 镜像
-RUN sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources
-
-# Install runtime dependencies (只装 openssl，不需要 curl)
+# Install runtime dependencies
 RUN apt-get update -qq && \
-    apt-get install -y --no-install-recommends openssl && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends \
+      openssl \
+      curl \
+    && rm -rf /var/lib/apt/lists/*
 
 # 使用国内 npm 镜像
 RUN npm config set registry https://registry.npmmirror.com
@@ -113,22 +104,16 @@ RUN chmod +x /docker-entrypoint.sh
 RUN chown -R nextjs:nodejs /app
 
 # Expose port
-EXPOSE 3000
-
-# Labels
-LABEL org.opencontainers.image.title="Fangame"
-LABEL org.opencontainers.image.description="Galgame/Visual Novel Community Platform"
-LABEL org.opencontainers.image.version="1.0.0"
-LABEL org.opencontainers.image.source="https://github.com/your-repo/fangame"
+EXPOSE 80
 
 # Environment variables
 ENV NODE_ENV=production
 ENV HOSTNAME="0.0.0.0"
 ENV NODE_OPTIONS="--max-http-header-size=1048576"
 
-# Health check (使用 node 替代 curl，减少镜像体积)
-HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
-  CMD node -e "fetch('http://localhost:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD curl -f http://localhost:3000/api/health || exit 1
 
 # Start application via entrypoint
 ENTRYPOINT ["/docker-entrypoint.sh"]
