@@ -1,3 +1,4 @@
+import { BreadcrumbSetter } from "@/components/breadcrumb-setter"
 import { CreditsClient } from "@/components/credits-client"
 
 export const metadata = {
@@ -8,6 +9,7 @@ export const metadata = {
 export default function CreditsPage() {
   return (
     <div className="py-6 sm:py-8">
+      <BreadcrumbSetter segment="credits" label="制作组图鉴" />
       <CreditsClient />
     </div>
   )

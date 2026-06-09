@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { Search } from "lucide-react"
+import { Search, Users } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
@@ -31,6 +31,16 @@ const ROLE_LABELS: Record<string, string> = {
   songs: "主题曲",
   director: "导演",
   other: "其他",
+}
+
+const ROLE_COLORS: Record<string, string> = {
+  scenario: "bg-amber-500/15 text-amber-500",
+  art: "bg-pink-500/15 text-pink-500",
+  chardesign: "bg-violet-500/15 text-violet-500",
+  music: "bg-blue-500/15 text-blue-500",
+  songs: "bg-emerald-500/15 text-emerald-500",
+  director: "bg-indigo-500/15 text-indigo-500",
+  other: "bg-muted text-muted-foreground",
 }
 
 const ROLES = [
@@ -86,76 +96,79 @@ export function CreditsClient() {
   }, [searchInput])
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6">
-      {/* 标题区域 - 极简 */}
-      <div className="mb-10">
-        <h1 className="text-2xl font-semibold text-foreground tracking-tight">
-          制作组图鉴
-        </h1>
-        <p className="mt-1.5 text-sm text-muted-foreground">
-          探索作品背后的创作者
-        </p>
+    <div className="space-y-6">
+      {/* 顶部 */}
+      <div>
+        <div className="flex items-center gap-3">
+          <Users className="h-6 w-6 text-primary" />
+          <h1 className="text-xl font-bold text-foreground">制作组图鉴</h1>
+        </div>
+        <p className="mt-1 text-sm text-muted-foreground">探索每部作品背后的创作者</p>
       </div>
 
-      {/* 搜索 + 筛选 - 一行 */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-8">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
-          <input
-            value={searchInput}
-            onChange={e => setSearchInput(e.target.value)}
-            placeholder="搜索..."
-            className="w-full rounded-lg bg-muted/50 pl-9 pr-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border outline-none focus:ring-foreground/20 transition-all"
-          />
-        </div>
-        <div className="flex gap-1 overflow-x-auto">
-          {ROLES.map(r => (
-            <button
-              key={r.key}
-              onClick={() => { setRole(r.key); setPage(1) }}
-              className={cn(
-                "shrink-0 rounded-lg px-3 py-2 text-xs font-medium transition-all",
-                role === r.key
-                  ? "bg-foreground text-background"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
-              )}
-            >
-              {r.label}
-            </button>
-          ))}
-        </div>
+      {/* 搜索框 */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <input
+          value={searchInput}
+          onChange={e => setSearchInput(e.target.value)}
+          placeholder="搜索游戏名或创作者名..."
+          className="w-full rounded-xl bg-muted pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all"
+        />
+      </div>
+
+      {/* 角色筛选 */}
+      <div className="flex flex-wrap gap-2">
+        {ROLES.map(r => (
+          <button
+            key={r.key}
+            onClick={() => { setRole(r.key); setPage(1) }}
+            className={cn(
+              "rounded-full px-3 py-1.5 text-xs font-medium transition-all",
+              role === r.key
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {r.label}
+          </button>
+        ))}
       </div>
 
       {/* 统计 */}
       {!loading && (
-        <p className="text-xs text-muted-foreground mb-6">
-          {total} 个游戏
+        <p className="text-xs text-muted-foreground">
+          共 {total} 个游戏
         </p>
       )}
 
       {/* 游戏列表 */}
       {loading ? (
-        <div className="space-y-1">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="animate-pulse h-20 rounded-lg bg-muted/30" />
+        <div className="space-y-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="animate-pulse rounded-2xl bg-muted h-40" />
           ))}
         </div>
       ) : games.length === 0 ? (
-        <div className="py-20 text-center">
+        <div className="flex flex-col items-center gap-3 py-20">
+          <Users className="h-12 w-12 text-muted-foreground/30" />
           <p className="text-sm text-muted-foreground">暂无数据</p>
         </div>
       ) : (
-        <div className="space-y-1">
+        <div className="space-y-4">
           {games.map(game => (
             <div
               key={game.id}
-              className="group rounded-lg hover:bg-muted/30 transition-colors"
+              className="group rounded-2xl bg-card ring-1 ring-border overflow-hidden transition-all duration-300 hover:ring-primary/30 hover:shadow-lg hover:shadow-primary/5"
             >
-              <div className="flex items-center gap-4 p-3">
-                {/* 封面 */}
-                <Link href={`/games/${game.serialId}`} className="shrink-0">
+              {/* 游戏信息 */}
+              <div className="p-4 sm:p-5">
+                <Link
+                  href={`/games/${game.serialId}`}
+                  className="flex items-center gap-4 group/game"
+                >
                   {game.coverImage ? (
-                    <div className="relative h-14 w-10 rounded overflow-hidden">
+                    <div className="relative h-20 w-14 sm:h-24 sm:w-[68px] rounded-lg overflow-hidden shrink-0 ring-1 ring-border">
                       <Image
                         src={game.coverImage}
                         alt={game.title}
@@ -165,62 +178,65 @@ export function CreditsClient() {
                       />
                     </div>
                   ) : (
-                    <div className="h-14 w-10 rounded bg-muted flex items-center justify-center">
-                      <span className="text-xs text-muted-foreground/50">?</span>
+                    <div className="h-20 w-14 sm:h-24 sm:w-[68px] rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0 ring-1 ring-border">
+                      <span className="text-lg text-primary/40">?</span>
                     </div>
                   )}
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-base sm:text-lg font-semibold text-foreground group-hover/game:text-primary transition-colors truncate">
+                      {game.title}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-muted-foreground">
+                        {game.creators.length} 位创作者
+                      </span>
+                      <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(game.createdAt).getFullYear()}
+                      </span>
+                    </div>
+                  </div>
                 </Link>
+              </div>
 
-                {/* 游戏信息 */}
-                <div className="flex-1 min-w-0">
-                  <Link
-                    href={`/games/${game.serialId}`}
-                    className="text-sm font-medium text-foreground hover:text-primary transition-colors truncate block"
-                  >
-                    {game.title}
-                  </Link>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {game.creators.length} 位创作者
-                  </p>
-                </div>
-
-                {/* 创作者列表 - 横向滚动 */}
-                <div className="hidden sm:flex items-center gap-2 overflow-x-auto max-w-[500px] scrollbar-hide">
-                  {game.creators.slice(0, 6).map(c => (
+              {/* 创作者区域 */}
+              <div className="px-4 sm:px-5 pb-4 sm:pb-5">
+                <div className="flex flex-wrap gap-2">
+                  {game.creators.map(c => (
                     <Link
                       key={`${c.id}-${c.role}`}
                       href={`/creators/${c.id}`}
-                      className="flex items-center gap-1.5 shrink-0 group/creator"
+                      className="flex items-center gap-2 rounded-xl bg-secondary/50 px-3 py-2 ring-1 ring-border transition-all duration-200 hover:bg-accent hover:ring-primary/30 hover:shadow-sm"
                     >
                       {c.avatar ? (
                         <Image
                           src={c.avatar}
                           alt={c.name}
-                          width={20}
-                          height={20}
-                          className="h-5 w-5 rounded-full object-cover"
+                          width={28}
+                          height={28}
+                          className="h-7 w-7 rounded-full object-cover shrink-0"
                           unoptimized
                         />
                       ) : (
-                        <div className="h-5 w-5 rounded-full bg-muted flex items-center justify-center">
-                          <span className="text-[10px] text-muted-foreground">
+                        <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                          <span className="text-xs font-bold text-primary">
                             {(c.nameJa || c.name)[0]}
                           </span>
                         </div>
                       )}
-                      <span className="text-xs text-muted-foreground group-hover/creator:text-foreground transition-colors whitespace-nowrap">
-                        {c.nameJa || c.name}
-                      </span>
-                      <span className="text-[10px] text-muted-foreground/50">
-                        {ROLE_LABELS[c.role] || c.role}
-                      </span>
+                      <div className="min-w-0">
+                        <p className="text-xs font-medium text-foreground truncate max-w-[100px]">
+                          {c.nameJa || c.name}
+                        </p>
+                        <span className={cn(
+                          "inline-block rounded-full px-1.5 py-0.5 text-[10px] font-medium",
+                          ROLE_COLORS[c.role] || ROLE_COLORS.other
+                        )}>
+                          {ROLE_LABELS[c.role] || c.role}
+                        </span>
+                      </div>
                     </Link>
                   ))}
-                  {game.creators.length > 6 && (
-                    <span className="text-xs text-muted-foreground/50">
-                      +{game.creators.length - 6}
-                    </span>
-                  )}
                 </div>
               </div>
             </div>
@@ -230,23 +246,23 @@ export function CreditsClient() {
 
       {/* 分页 */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-8">
+        <div className="flex items-center justify-center gap-2 pt-4">
           <button
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page <= 1}
-            className="rounded-lg px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground disabled:opacity-30 transition-all"
+            className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground ring-1 ring-border hover:bg-accent disabled:opacity-50 transition-all"
           >
-            ←
+            上一页
           </button>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             {page} / {totalPages}
           </span>
           <button
             onClick={() => setPage(p => Math.min(totalPages, p + 1))}
             disabled={page >= totalPages}
-            className="rounded-lg px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground disabled:opacity-30 transition-all"
+            className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground ring-1 ring-border hover:bg-accent disabled:opacity-50 transition-all"
           >
-            →
+            下一页
           </button>
         </div>
       )}
