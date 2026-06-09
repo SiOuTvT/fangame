@@ -44,6 +44,7 @@ export async function GET(req: NextRequest) {
             creator: {
               select: {
                 id: true,
+                vndbId: true,
                 name: true,
                 nameJa: true,
                 avatar: true,
@@ -66,7 +67,7 @@ export async function GET(req: NextRequest) {
       coverImage: g.coverImage,
       createdAt: g.createdAt.toISOString(),
       creators: g.creators.map(c => ({
-        id: c.creator.id,
+        id: c.creator.vndbId ? `s${c.creator.vndbId}` : c.creator.id,
         name: c.creator.name,
         nameJa: c.creator.nameJa,
         avatar: c.creator.avatar,

@@ -373,18 +373,18 @@ class VNDBClient {
           fields: "id,name,original,description,gender",
           results: 1,
         })
-        
+
         if (!data.results || data.results.length === 0) return null
-        
-        const staff = data.results[0]
-        
+
+        const staff = data.results[0] as Record<string, unknown>
+
         return {
-          id: staff.id,
-          name: staff.name,
-          original: staff.original,
-          description: staff.description,
-          gender: staff.gender,
-          vndbId: staff.id.replace("s", ""),
+          id: staff.id as string,
+          name: staff.name as string,
+          original: staff.original as string | undefined,
+          description: staff.description as string | undefined,
+          gender: staff.gender as string | undefined,
+          vndbId: (staff.id as string).replace("s", ""),
           roles: [],
           vns: [],
         }
