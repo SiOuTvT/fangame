@@ -368,10 +368,10 @@ class VNDBClient {
     const key = cacheKey("vndb", "staff_detail", vndbId)
     try {
       return await cached(key, async () => {
-        // 1. 获取 staff 基本信息（含别名）
+        // 1. 获取 staff 基本信息
         const staffData = await this.sendRequest("staff", {
           filters: ["id", "=", `s${vndbId}`],
-          fields: "id,name,original,description,gender,aliases.name",
+          fields: "id,name,original,description,gender",
           results: 1,
         })
 
@@ -379,17 +379,12 @@ class VNDBClient {
 
         const staff = staffData.results[0] as Record<string, unknown>
         const staffName = staff.name as string
-        const staffOriginal = staff.original as string | undefined
-        const aliases = (staff.aliases || []) as Array<{ name: string }>
 
-        // 2. 收集所有可能的搜索名字
-        const searchNames = [staffName]
-        if (staffOriginal && staffOriginal !== staffName) searchNames.push(staffOriginal)
-        for (const alias of aliases) {
-          if (alias.name && !searchNames.includes(alias.name)) searchNames.push(alias.name)
-        }
+        // 2. 用 staff 名字搜索 VN（VNDB 搜索接口按游戏名搜索）
+        // 尝试多个搜索词以提高命中率
+        const searchTerms = [staffName]
+        if (staff.original) searchTerms.push(staff.original as string)
 
-        // 3. 用多个名字搜索 VN，获取其参与的作品
         const vns: Array<{
           id: string
           title: string
@@ -402,10 +397,10 @@ class VNDBClient {
         const roles = new Set<string>()
         const seenVnIds = new Set<string>()
 
-        for (const searchName of searchNames.slice(0, 3)) { // 最多搜 3 个名字
+        for (const term of searchTerms.slice(0, 2)) {
           try {
             const vnData = await this.sendRequest("vn", {
-              filters: ["search", "=", searchName],
+              filters: ["search", "=", term],
               fields: "id,title,staff.id,staff.name,staff.role",
               results: 25,
             })
@@ -431,7 +426,7 @@ class VNDBClient {
               }
             }
           } catch {
-            // 单个名字搜索失败不影响其他名字
+            // 单个搜索失败不影响其他
           }
         }
 
