@@ -27,7 +27,7 @@ interface ApiResource extends SubmittedResource {
 
 interface ResourceTabProps {
   downloadLinks: DownloadLink[]
-  creators: Creator[]
+  creators?: Creator[]
   roleLabels?: Record<string, string>
   isLoggedIn: boolean
   isFav: boolean
@@ -283,8 +283,8 @@ const ResourceCard = memo(function ResourceCard({
 /* ─── 主组件 ─── */
 export function ResourceTab({
   downloadLinks,
-  creators,
-  roleLabels,
+  creators: _creators,
+  roleLabels: _roleLabels,
   isLoggedIn,
   isFav: _isFav,
   favCount: _favCount,
