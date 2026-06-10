@@ -1,9 +1,7 @@
 import { ForumPostDetail } from "@/components/forum-post-detail"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { ChevronRight, Home } from "lucide-react"
 import type { Metadata } from "next"
-import Link from "next/link"
 import { notFound } from "next/navigation"
 
 export const revalidate = 30
@@ -58,19 +56,7 @@ export default async function ForumPostPage({ params }: { params: Promise<{ id: 
   }
 
   return (
-    <div className="mx-auto max-w-3xl">
-      {/* 面包屑 */}
-      <nav className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground">
-        <Link href="/" className="flex items-center gap-1 hover:text-foreground transition-colors">
-          <Home className="h-3.5 w-3.5" strokeWidth={1.5} />
-          <span>首页</span>
-        </Link>
-        <ChevronRight className="h-3 w-3" strokeWidth={1.5} />
-        <Link href="/forum" className="hover:text-foreground transition-colors">求档区</Link>
-        <ChevronRight className="h-3 w-3" strokeWidth={1.5} />
-        <span className="text-foreground truncate max-w-[200px]">{post.title}</span>
-      </nav>
-
+    <div>
       <ForumPostDetail
         post={postData}
         comments={flatComments}

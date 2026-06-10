@@ -10,7 +10,7 @@ import { useBreadcrumb } from "./breadcrumb-context"
  * ⚠️ 不要把没有独立页面的路由（如 games, profile, creators, announcements, characters）加进来
  */
 const ROUTE_NAMES: Record<string, string> = {
-  forum: "求档中心",
+  forum: "求档区",
   collections: "精选合集",
   credits: "制作组图鉴",
   search: "搜索",
@@ -18,6 +18,8 @@ const ROUTE_NAMES: Record<string, string> = {
   register: "注册",
   admin: "管理后台",
   "forgot-password": "找回密码",
+  "reset-password": "重置密码",
+  profile: "个人中心",
   edit: "编辑资料",
   notifications: "消息通知",
   // admin 子页面

@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server"
 import { getToken } from "next-auth/jwt"
+import { NextRequest, NextResponse } from "next/server"
 
 // 生成随机 nonce（16 字节 base64）
 function generateNonce(): string {
@@ -15,12 +15,35 @@ function buildCSP(nonce: string): string {
     ? `script-src 'self' 'unsafe-inline' 'unsafe-eval'`
     : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`
 
+  // 允许的图片来源域名
+  const imgDomains = [
+    "'self'",
+    "data:",
+    "blob:",
+    // Cloudflare R2
+    "*.r2.dev",
+    "*.r2.cloudflarestorage.com",
+    // UploadThing
+    "utfs.io",
+    "uploadthing.com",
+    // VNDB
+    "static.vndb.org",
+    "t.vndb.org",
+    // 头像源
+    "*.gravatar.com",
+    "cdn.libravatar.org",
+    // R2 自定义域名（如有配置）
+    ...(process.env.R2_PUBLIC_URL ? [new URL(process.env.R2_PUBLIC_URL).origin] : []),
+    // 开发环境
+    ...(process.env.NODE_ENV === "development" ? ["localhost"] : []),
+  ]
+
   const directives = [
     `default-src 'self'`,
     scriptSrc,
     // style-src 保留 unsafe-inline：Tailwind CSS 运行时样式注入需要
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
-    `img-src 'self' data: blob: https:`,
+    `img-src ${imgDomains.join(" ")}`,
     `font-src 'self' data: https://fonts.gstatic.com`,
     `connect-src 'self' https://api.vndb.org https://*.ingest.sentry.io https://*.sentry.io wss://*.sentry.io https://*.r2.cloudflarestorage.com`,
     `frame-ancestors 'none'`,

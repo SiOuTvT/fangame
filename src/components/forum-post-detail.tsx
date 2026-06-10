@@ -3,7 +3,8 @@
 import { cn } from "@/lib/utils"
 import { CheckCircle2, Heart, Image as ImageIcon, MessageSquare, Send, Share2, Smile, Trash2, X } from "lucide-react"
 import NextImage from "next/image"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import { useBreadcrumb } from "./breadcrumb-context"
 import { ConfirmDialog } from "./ui/confirm-dialog"
 import { RichTextContent } from "./rich-text-content-wrapper"
 
@@ -60,6 +61,13 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
   const commentInputRef = useRef<HTMLInputElement>(null)
   const commentFileRef = useRef<HTMLInputElement>(null)
   const isAuthor = currentUserId === post.user.id
+
+  // 注入面包屑动态标签
+  const { setDynamicLabel } = useBreadcrumb()
+  useEffect(() => {
+    setDynamicLabel(post.id, post.title)
+    return () => setDynamicLabel(post.id, null)
+  }, [post.id, post.title, setDynamicLabel])
 
   // ── 点赞帖子 ──
   async function likePost() {
