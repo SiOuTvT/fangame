@@ -1,25 +1,36 @@
-import { ThemeText } from "@/components/theme-text"
 import { prisma } from "@/lib/prisma"
-import { ChevronRight } from "lucide-react"
+import { ChevronRight, Layers, Search } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 
 export const revalidate = 120
 export const metadata = { title: "精选合集 · 同人游戏站" }
 
-export default async function CollectionsPage() {
-  // 1. 查所有原作系列及其游戏数量
+export default async function CollectionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>
+}) {
+  const sp = await searchParams
+  const q = sp.q?.trim() || ""
+
+  // 查所有原作系列及其游戏数量
   const groupCounts = await prisma.game.groupBy({
     by: ["originalWork"],
-    where: { isPublished: true, isNsfw: false, NOT: { originalWork: "" } },
+    where: {
+      isPublished: true,
+      isNsfw: false,
+      NOT: { originalWork: "" },
+      ...(q ? { originalWork: { contains: q, mode: "insensitive" } } : {}),
+    },
     _count: { id: true },
     orderBy: { _count: { id: "desc" } },
-    take: 100,
+    take: 50,
   })
 
   const seriesNames = groupCounts.map(g => g.originalWork)
 
-  // 2. 单次查询获取所有系列的游戏（避免 N+1）
+  // 单次查询获取所有系列的游戏
   const allGames = await prisma.game.findMany({
     where: {
       isPublished: true,
@@ -27,10 +38,13 @@ export default async function CollectionsPage() {
       originalWork: { in: seriesNames },
     },
     orderBy: { favoriteCount: "desc" },
-    select: { id: true, serialId: true, title: true, coverImage: true, favoriteCount: true, originalWork: true },
+    select: {
+      id: true, serialId: true, title: true, coverImage: true,
+      favoriteCount: true, originalWork: true,
+    },
   })
 
-  // 3. 按系列分组，每个系列取前 8 个
+  // 按系列分组
   const gamesBySeries = new Map<string, typeof allGames>()
   for (const game of allGames) {
     const list = gamesBySeries.get(game.originalWork) ?? []
@@ -40,69 +54,130 @@ export default async function CollectionsPage() {
     }
   }
 
-  // 4. 按系列排序输出
+  // 按系列排序
   const sorted: [string, typeof allGames][] = groupCounts
     .map(g => [g.originalWork, gamesBySeries.get(g.originalWork) ?? []] as [string, typeof allGames])
     .filter(([, games]) => games.length > 0)
 
   return (
-    <ThemeText className="space-y-8">
+    <div className="space-y-6">
+      {/* 标题 */}
       <div>
-        <h1 className="text-xl font-bold">精选合集</h1>
+        <div className="flex items-center gap-3">
+          <Layers className="h-6 w-6 text-primary" />
+          <h1 className="text-xl font-bold text-foreground">精选合集</h1>
+        </div>
         <p className="mt-1 text-sm text-muted-foreground">按原作系列整理的同人游戏合集</p>
       </div>
 
-      {sorted.length === 0 && (
-        <p className="py-20 text-center text-sm text-muted-foreground">合集正在筹备中，敬请期待~</p>
-      )}
+      {/* 搜索 */}
+      <form className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <input
+          name="q"
+          defaultValue={q}
+          placeholder="搜索系列名..."
+          className="w-full rounded-xl bg-muted pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all"
+        />
+      </form>
 
-      {sorted.map(([originalWork, list]) => (
-        <section key={originalWork}>
-          <div className="mb-3 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="h-4 w-0.5 rounded-full bg-primary" />
-              <h2 className="text-base font-bold">{originalWork}</h2>
-              <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground ring-1 ring-border">
-                {list.length} 个游戏
-              </span>
-            </div>
-            <Link
-              href={`/search?q=${encodeURIComponent(originalWork)}`}
-              className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
-            >
-              查看全部 <ChevronRight className="h-3 w-3" strokeWidth={1.5} />
-            </Link>
-          </div>
+      {/* 统计 */}
+      <p className="text-xs text-muted-foreground">
+        {q ? `找到 ${sorted.length} 个系列` : `共 ${sorted.length} 个系列`}
+      </p>
 
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-            {list.slice(0, 8).map(g => (
-              <Link
-                key={g.id}
-                href={`/games/${g.serialId}`}
-                className="group overflow-hidden rounded-xl bg-card ring-1 ring-border transition-all hover:-translate-y-1 hover:ring-border/80 hover:shadow-[0_8px_24px_rgba(0,0,0,0.15)]"
-                style={{ aspectRatio: "4/5" }}
+      {/* 系列列表 */}
+      {sorted.length === 0 ? (
+        <div className="flex flex-col items-center gap-3 py-20">
+          <Layers className="h-12 w-12 text-muted-foreground/30" />
+          {q && <p className="text-sm text-muted-foreground">没有找到匹配的系列</p>}
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {sorted.map(([originalWork, list]) => {
+            const coverGame = list[0]
+            return (
+              <div
+                key={originalWork}
+                className="rounded-2xl bg-card ring-1 ring-border overflow-hidden transition-all hover:ring-primary/30"
               >
-                <div className="relative h-full w-full">
-                  {g.coverImage ? (
-                    <Image
-                      src={g.coverImage}
-                      alt={g.title}
-                      fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-[1.05]"
-                      sizes="(max-width: 640px) 33vw, (max-width: 1024px) 16vw, 12vw"
-                    />
+                {/* 系列头部 */}
+                <div className="flex items-center gap-4 p-4 sm:p-5">
+                  {/* 系列封面 */}
+                  {coverGame?.coverImage ? (
+                    <div className="relative h-16 w-12 sm:h-20 sm:w-14 rounded-lg overflow-hidden shrink-0 ring-1 ring-border">
+                      <Image
+                        src={coverGame.coverImage}
+                        alt={originalWork}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-muted text-xs text-muted-foreground">封面还没上传~</div>
+                    <div className="h-16 w-12 sm:h-20 sm:w-14 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0 ring-1 ring-border">
+                      <span className="text-lg text-primary/40">?</span>
+                    </div>
                   )}
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2">
-                    <p className="line-clamp-2 text-xs font-medium leading-tight text-white">{g.title}</p>
+
+                  {/* 系列信息 */}
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-base sm:text-lg font-semibold text-foreground truncate">
+                      {originalWork}
+                    </h2>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-muted-foreground">
+                        {list.length} 个游戏
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* 查看全部 */}
+                  <Link
+                    href={`/search?q=${encodeURIComponent(originalWork)}`}
+                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                  >
+                    查看全部 <ChevronRight className="h-3 w-3" strokeWidth={1.5} />
+                  </Link>
+                </div>
+
+                {/* 游戏列表 - 横向滚动 */}
+                <div className="px-4 sm:px-5 pb-4 sm:pb-5 overflow-x-auto scrollbar-hide">
+                  <div className="flex gap-3">
+                    {list.map(g => (
+                      <Link
+                        key={g.id}
+                        href={`/games/${g.serialId}`}
+                        className="group shrink-0 w-[100px] sm:w-[120px]"
+                      >
+                        <div className="relative aspect-[3/4] rounded-lg overflow-hidden ring-1 ring-border mb-2">
+                          {g.coverImage ? (
+                            <Image
+                              src={g.coverImage}
+                              alt={g.title}
+                              fill
+                              className="object-cover transition-transform duration-300 group-hover:scale-105"
+                              sizes="120px"
+                              unoptimized
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-muted text-xs text-muted-foreground">
+                              ?
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-xs font-medium text-foreground truncate group-hover:text-primary transition-colors">
+                          {g.title}
+                        </p>
+                      </Link>
+                    ))}
                   </div>
                 </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      ))}
-    </ThemeText>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
   )
 }
