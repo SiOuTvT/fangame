@@ -4,7 +4,6 @@ import { Bell, CheckCheck, Trash2 } from "lucide-react"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import Image from "next/image"
 import Link from "next/link"
-import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
 import { useCallback, useEffect, useState } from "react"
 import { timeAgo } from "@/lib/time-ago"
 
@@ -62,7 +61,6 @@ export default function NotificationsClient({
   const [nextCursor, setNextCursor] = useState<string | null>(null)
   const [loadingMore, setLoadingMore] = useState(false)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
-  const { message: emptyNotifMsg } = useEmotionalMessage("empty_notifications")
 
   // 进入页面时标记所有为已读
   useEffect(() => {
@@ -184,10 +182,7 @@ export default function NotificationsClient({
       <div className="space-y-1">
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <Bell className="mb-4 h-12 w-12 text-muted-foreground/30" />
-            <p className="text-sm text-muted-foreground">
-              {emptyNotifMsg ? `${emptyNotifMsg.emoji} ${emptyNotifMsg.title}` : "暂时没有新消息~"}
-            </p>
+            <Bell className="h-12 w-12 text-muted-foreground/30" />
           </div>
         ) : (
           notifications.map((n) => {
