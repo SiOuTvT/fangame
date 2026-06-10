@@ -1,13 +1,12 @@
 ﻿"use client"
 
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
-import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
 import { logger } from "@/lib/logger"
 import { cn } from "@/lib/utils"
 import { CheckCircle2, ChevronLeft, Heart, ImageIcon, MessageSquare, Plus, Send, Smile, Trash2, X } from "lucide-react"
 import Image from "next/image"
 import { useSearchParams } from "next/navigation"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { ConfirmDialog } from "./ui/confirm-dialog"
 import { RichTextContent } from "./rich-text-content-wrapper"
 import { RichTextEditor } from "./rich-text-editor-wrapper"
@@ -15,12 +14,6 @@ import { RichTextEditor } from "./rich-text-editor-wrapper"
 export interface User { id: string; username: string; avatar: string }
 export interface Comment { id: string; content: string; imageUrl: string; likeCount: number; createdAt: string; user: User }
 export interface Post { id: string; title: string; content: string; imageUrl: string; likeCount: number; commentCount: number; isSolved: boolean; createdAt: string; user: User; comments?: Comment[] }
-
-const FILTER_TABS = [
-  { key: "all" as const, label: "全部" },
-  { key: "unsolved" as const, label: "未解决" },
-  { key: "solved" as const, label: "已解决" },
-]
 
 // 表情列表
 const EMOJI_LIST = [
@@ -49,7 +42,6 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
   initialPosts: Post[]; isLoggedIn: boolean; currentUser?: User | null; isAdmin?: boolean; totalPages?: number
 }) {
   const [posts, setPosts] = useState(initialPosts)
-  const [filter, setFilter] = useState<"all" | "unsolved" | "solved">("all")
   const [activePost, setActivePost] = useState<(Post & { comments: Comment[] }) | null>(null)
   const [showNew, setShowNew] = useState(false)
   const [newTitle, setNewTitle] = useState("")
@@ -65,18 +57,12 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
   const [confirmCallback, setConfirmCallback] = useState<(() => void) | null>(null)
   const [imageError, setImageError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
-  const { message: emptyForumMsg } = useEmotionalMessage("empty_forum")
   const [totalPages, setTotalPages] = useState(initialTotalPages || 1)
   const [loadingMore, setLoadingMore] = useState(false)
   const commentInputRef = useRef<HTMLInputElement>(null)
 
   const hasAnyModal = confirmOpen || showNew || !!activePost
   useBodyScrollLock(hasAnyModal)
-
-  const filteredPosts = useMemo(() => {
-    if (filter === "all") return posts
-    return posts.filter(p => filter === "solved" ? p.isSolved : !p.isSolved)
-  }, [posts, filter])
 
   const openPost = useCallback(async (id: string) => {
     setLoadingPost(true)
@@ -242,34 +228,15 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
         )}
       </div>
 
-      {/* 筛选 tab — 统一凹槽 + 圆角活动方块 */}
-      <div className="mb-4 inline-flex gap-1 rounded-xl bg-[--tab-trough] p-1"
-        role="tablist"
-        aria-label="帖子筛选">
-        {FILTER_TABS.map(tab => (
-          <button key={tab.key} onClick={() => setFilter(tab.key)}
-            role="tab"
-            aria-selected={filter === tab.key}
-            className="forum-tab-btn flex items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all duration-300 ease-out"
-            data-active={filter === tab.key}
-          >
-            {tab.label}
-            <span className="tab-count ml-1.5 text-[10px]">
-              {tab.key === "all" ? posts.length : tab.key === "solved" ? posts.filter(p => p.isSolved).length : posts.filter(p => !p.isSolved).length}
-            </span>
-          </button>
-        ))}
-      </div>
-
       <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_1.4fr]">
         {/* 左：帖子列表 */}
         <div className="space-y-2">
-          {filteredPosts.length === 0 && (
+          {posts.length === 0 && (
             <p className="py-16 text-center text-sm text-muted-foreground">
-              {emptyForumMsg ? `${emptyForumMsg.emoji} ${emptyForumMsg.title}，${emptyForumMsg.subtitle}` : "还没有人发过帖，来开个头吧~"}
+              还没有人发过帖，来开个头吧~
             </p>
           )}
-          {filteredPosts.map(post => (
+          {posts.map(post => (
             <button key={post.id}
               onClick={() => openPost(post.id)}
               className={cn(
