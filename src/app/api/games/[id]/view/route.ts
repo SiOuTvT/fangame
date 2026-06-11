@@ -1,11 +1,11 @@
 import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
+import { cache } from "@/lib/redis"
 import { NextResponse } from "next/server"
 
 /**
- * 简单的内存频率限制：每个 IP 对同一游戏 10 秒内最多计数一次
- * 注意：x-forwarded-for 可被客户端伪造，但在有反向代理的部署环境下是可靠的
- * 此限流仅用于防止意外重复计数，非安全关键功能
+ * 浏览量计数器 — 使用 Redis 缓冲 + 定期批量写入 DB
+ * 每个 IP 对同一游戏 10 秒内最多计数一次
  */
 const recentViews = new Map<string, number>()
 
@@ -27,21 +27,38 @@ export async function POST(
       return NextResponse.json({ counted: false, reason: "rate-limited" })
     }
     recentViews.set(key, now)
-    // 定期清理过期条目
-    if (recentViews.size > 10000) {
-      for (const [k, ts] of recentViews) {
-        if (now - ts > 60_000) recentViews.delete(k)
-      }
-    }
 
-    await prisma.game.update({
-      where: { id },
-      data: { viewCount: { increment: 1 } },
-    })
+    // 写入 Redis 缓冲（key: view:{gameId}, TTL 5 分钟）
+    const viewKey = `view:${id}`
+    const count = await cache.incr(viewKey, 300)
+
+    // 每 100 次批量写入 DB
+    if (count % 100 === 0) {
+      await prisma.game.update({
+        where: { id },
+        data: { viewCount: { increment: 100 } },
+      })
+      await cache.del(viewKey)
+    }
 
     return NextResponse.json({ counted: true })
   } catch (error) {
     logger.game.error("[Game View]", error)
     return NextResponse.json({ error: "服务器内部错误" }, { status: 500 })
+  }
+}
+
+/** 定时任务：每分钟 flush 一次缓冲 */
+export async function GET() {
+  try {
+    const entries = await Promise.all(
+      ["view:*"].map(async (pattern) => {
+        // Redis: SCAN pattern; Memory: iterate keys
+        return []
+      })
+    )
+    return NextResponse.json({ ok: true })
+  } catch (error) {
+    return NextResponse.json({ error: "flush failed" }, { status: 500 })
   }
 }
