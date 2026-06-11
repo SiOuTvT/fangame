@@ -22,7 +22,7 @@ export function CheckInToast({ marks, imageUrl, onClose }: CheckInToastProps) {
     timerRef.current = setTimeout(() => {
       setVisible(false)
       setTimeout(onClose, 300) // 等淡出动画完成
-    }, 3000)
+    }, 2000)
 
     return () => {
       cancelAnimationFrame(id)
@@ -40,16 +40,18 @@ export function CheckInToast({ marks, imageUrl, onClose }: CheckInToastProps) {
       role="alert"
       aria-live="polite"
       className={`
-        fixed top-6 right-6 z-50
+        fixed bottom-8 left-1/2 z-[9999]
         flex items-center gap-3
-        rounded-xl bg-card px-4 py-3
+        rounded-2xl bg-card px-5 py-4
         ring-1 ring-border
-        shadow-lg
+        shadow-2xl
         transition-all duration-300 ease-out
-        ${visible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full"}
+        ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-full"}
       `}
       style={{
-        maxWidth: "320px",
+        transform: visible ? "translate(-50%, 0)" : "translate(-50%, 100%)",
+        minWidth: "280px",
+        maxWidth: "400px",
       }}
     >
       {/* 图片区：48×48px，有图时显示，无图时隐藏 */}
@@ -63,17 +65,17 @@ export function CheckInToast({ marks, imageUrl, onClose }: CheckInToastProps) {
 
       {/* 文案区 */}
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-foreground">签到成功</p>
-        <p className="text-xs text-muted-foreground">获得 {marks} 印记</p>
+        <p className="text-base font-semibold text-foreground">签到成功</p>
+        <p className="text-sm text-muted-foreground">获得 {marks} 印记</p>
       </div>
 
       {/* 关闭按钮 */}
       <button
         onClick={handleClose}
         aria-label="关闭通知"
-        className="shrink-0 rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        className="shrink-0 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
       >
-        <X className="h-4 w-4" strokeWidth={2} />
+        <X className="h-5 w-5" strokeWidth={2} />
       </button>
     </div>
   )
