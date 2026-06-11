@@ -9,6 +9,20 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim()
 }
 
+/** 相对时间 */
+function relativeTime(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return "刚刚"
+  if (mins < 60) return `${mins}分钟前`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours}小时前`
+  const days = Math.floor(hours / 24)
+  if (days < 30) return `${days}天前`
+  const months = Math.floor(days / 30)
+  return `${months}个月前`
+}
+
 interface Ann {
   id: string
   title: string
@@ -104,12 +118,12 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
         )}
       </div>
 
-      {/* 底部渐变遮罩 */}
+      {/* 底部渐变遮罩（减弱） */}
       <div
         className="absolute inset-x-0 bottom-0 z-[1]"
         style={{
-          height: "80%",
-          background: "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 35%, rgba(0,0,0,0.2) 65%, transparent 100%)",
+          height: "60%",
+          background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)",
         }}
       />
 
@@ -118,39 +132,36 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
         href={href}
         target={ann.link ? "_blank" : undefined}
         rel={ann.link ? "noopener noreferrer" : undefined}
-        className="group absolute inset-0 z-[2] flex flex-col justify-end p-5 sm:p-6 lg:p-8"
+        className="group absolute inset-0 z-[2] flex flex-col justify-end p-4 sm:p-5 lg:p-6"
       >
-        <div className="flex flex-col gap-2 max-w-2xl">
-          {/* 发布者信息 */}
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col max-w-2xl backdrop-blur-md bg-black/40 rounded-xl ring-1 ring-white/[0.08] px-4 py-3 sm:px-5 sm:py-3.5">
+          {/* 发布者行 */}
+          <div className="flex items-center gap-2 mb-2">
             {ann.authorAvatar ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={ann.authorAvatar}
                 alt={ann.authorName || siteName}
-                className="h-6 w-6 rounded-full object-cover ring-1 ring-white/20"
+                className="h-7 w-7 rounded-full object-cover ring-1 ring-white/15"
               />
             ) : (
-              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/20 text-[10px] font-bold text-white/80">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/15 text-[11px] font-bold text-white/90">
                 {(ann.authorName || siteName).charAt(0)}
               </div>
             )}
-            <span className="text-xs font-medium text-white/70">{ann.authorName || siteName}</span>
+            <span className="text-sm font-medium text-white/90">{ann.authorName || siteName}</span>
+            <span className="text-xs text-white/50">· {relativeTime(ann.createdAt)}</span>
           </div>
 
           {/* 标题 + NEW */}
-          <div className="flex items-center gap-2.5">
-            <h3 className="text-xl sm:text-2xl lg:text-[28px] font-bold leading-tight text-white line-clamp-1 drop-shadow-sm">
+          <div className="flex items-center gap-2.5 mb-1">
+            <h3 className="text-2xl sm:text-2xl lg:text-3xl font-bold leading-tight text-white line-clamp-1">
               {ann.title}
             </h3>
             {showNew && (
               <span
-                className="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider"
-                style={{
-                  background: "var(--primary, #e11d48)",
-                  color: "#fff",
-                  opacity: 0.9,
-                }}
+                className="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-white"
+                style={{ background: "var(--primary)" }}
               >
                 NEW
               </span>
@@ -159,13 +170,16 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
 
           {/* 摘要 — 单行省略 */}
           {summary && (
-            <p className="text-sm text-white/60 line-clamp-1 leading-relaxed">
+            <p className="text-sm text-white/70 line-clamp-1 leading-relaxed mb-2.5">
               {summary}
             </p>
           )}
 
           {/* 查看详情 */}
-          <span className="mt-0.5 inline-flex items-center gap-1 text-xs font-medium text-white/40 transition-colors group-hover:text-white/70">
+          <span
+            className="inline-flex items-center gap-1 text-xs font-medium transition-colors"
+            style={{ color: "var(--primary)" }}
+          >
             查看详情
             <span className="inline-block transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
           </span>
