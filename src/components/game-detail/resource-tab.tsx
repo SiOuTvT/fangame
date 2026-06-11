@@ -150,7 +150,7 @@ const ResourceCard = memo(function ResourceCard({
     >
       {/* ── 第一行：胶囊标签流 ── */}
       <div className="px-4 pt-4 pb-2.5 flex flex-wrap items-center gap-2">
-        {allTags.map((tag) => (
+        {allTags.slice(0, 8).map((tag) => (
           <span
             key={tag}
             className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors"
@@ -163,6 +163,9 @@ const ResourceCard = memo(function ResourceCard({
             {tag}
           </span>
         ))}
+        {allTags.length > 8 && (
+          <span className="text-xs text-muted-foreground">+{allTags.length - 8}</span>
+        )}
       </div>
 
       {/* ── 第二行：发布者用户信息栏 ── */}
@@ -335,6 +338,7 @@ export function ResourceTab({
   const [resources, setResources] = useState<ApiResource[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [displayCount, setDisplayCount] = useState(20) // 初始显示 20 条
   const [editingResource, setEditingResource] = useState<ApiResource | null>(null)
   const [editOpen, setEditOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<ApiResource | null>(null)
@@ -519,38 +523,50 @@ export function ResourceTab({
       )}
 
       {/* 用户提交的资源卡片列表 */}
-      {!loading && resources.length > 0 && (
-        <div className="space-y-3">
-          {resources.map((res) => {
-            const isOwner = !!currentUserId && res.userId === currentUserId
-            const isGamePublisher = !!publisherId && !!currentUserId && publisherId === currentUserId
-            return (
-              <ResourceCard
-                key={res.id}
-                resource={res}
-                isOwner={isOwner}
-                isGamePublisher={isGamePublisher}
-                resourceTagColor={resourceTagColor}
-                onEdit={() => {
-                  setEditingResource(res)
-                  setEditOpen(true)
-                }}
-                onDelete={() => {
-                  setDeleteTarget(res)
-                  setDeleteOpen(true)
-                }}
-                onReport={() => {
-                  if (!isLoggedIn) {
-                    toast.error("请先登录")
-                    return
-                  }
-                  setReportTarget(res)
-                  setReportOpen(true)
-                }}
-              />
-            )
-          })}
-        </div>
+      {!loading && !loadError && resources.length > 0 && (
+        <>
+          <div className="space-y-3">
+            {resources.slice(0, displayCount).map((res) => {
+              const isOwner = !!currentUserId && res.userId === currentUserId
+              const isGamePublisher = !!publisherId && !!currentUserId && publisherId === currentUserId
+              return (
+                <ResourceCard
+                  key={res.id}
+                  resource={res}
+                  isOwner={isOwner}
+                  isGamePublisher={isGamePublisher}
+                  resourceTagColor={resourceTagColor}
+                  onEdit={() => {
+                    setEditingResource(res)
+                    setEditOpen(true)
+                  }}
+                  onDelete={() => {
+                    setDeleteTarget(res)
+                    setDeleteOpen(true)
+                  }}
+                  onReport={() => {
+                    if (!isLoggedIn) {
+                      toast.error("请先登录")
+                      return
+                    }
+                    setReportTarget(res)
+                    setReportOpen(true)
+                  }}
+                />
+              )
+            })}
+          </div>
+          {displayCount < resources.length && (
+            <div className="flex justify-center pt-4">
+              <button
+                onClick={() => setDisplayCount(c => c + 20)}
+                className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+              >
+                加载更多（{resources.length - displayCount} 条）
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       {/* 空状态 */}
