@@ -20,10 +20,13 @@ export function GameGridClient({ initialGames, total, tag, q, nsfw }: Props) {
   const [error, setError]   = useState(false)
   const sentinelRef = useRef<HTMLDivElement>(null)
   const loadMoreRef = useRef<(() => void) | null>(null)
+  const isLoadingRef = useRef(false)
 
   const hasMore = games.length < total
 
   const loadMore = useCallback(() => {
+    if (isLoadingRef.current) return
+    isLoadingRef.current = true
     setError(false)
     startTransition(async () => {
       try {
@@ -46,6 +49,8 @@ export function GameGridClient({ initialGames, total, tag, q, nsfw }: Props) {
       } catch (err) {
         logger.game.error("加载更多游戏失败", err)
         setError(true)
+      } finally {
+        isLoadingRef.current = false
       }
     })
   }, [page, q, tag, nsfw])
@@ -62,7 +67,7 @@ export function GameGridClient({ initialGames, total, tag, q, nsfw }: Props) {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore && !pending) {
+        if (entries[0].isIntersecting && hasMore && !pending && !isLoadingRef.current) {
           loadMoreRef.current?.()
         }
       },
