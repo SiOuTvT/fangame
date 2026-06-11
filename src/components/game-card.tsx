@@ -95,8 +95,7 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
               onError={handleNextImageError}
               loading="lazy"
               decoding="async"
-              quality={65}
-              placeholder="empty"
+              quality={75}
             />
           )
         ) : (
