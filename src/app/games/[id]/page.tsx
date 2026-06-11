@@ -9,6 +9,7 @@ import { auth } from "@/lib/auth"
 import { getAllDescriptions, getDescriptionText } from "@/lib/parse-description"
 import { safeParse } from "@/lib/parse-utils"
 import { prisma } from "@/lib/prisma"
+import { cache, cacheKey } from "@/lib/redis"
 import { isNumericId } from "@/lib/serial-id"
 import { Download, Eye, Heart } from "lucide-react"
 import Image from "next/image"
@@ -94,14 +95,23 @@ export default async function GameDetailPage({
 
   const tags = game.tags.map((t) => t.tag)
 
-  // 获取"资源标签"组颜色（用于资源下载区）
+  // 获取"资源标签"组颜色（用于资源下载区）— 使用缓存避免每次查询 DB
   let resourceTagColor = "#22c55e"
   try {
-    const group = await prisma.tagGroup.findFirst({
-      where: { id: "preset_resource_tab" },
-      select: { color: true },
-    })
-    if (group?.color) resourceTagColor = group.color
+    const cacheKeyResource = cacheKey("tagGroup", "resource", "color")
+    const cachedColor = await cache.get<string>(cacheKeyResource)
+    if (cachedColor) {
+      resourceTagColor = cachedColor
+    } else {
+      const group = await prisma.tagGroup.findFirst({
+        where: { id: "preset_resource_tab" },
+        select: { color: true },
+      })
+      if (group?.color) {
+        resourceTagColor = group.color
+        await cache.set(cacheKeyResource, group.color, 3600) // 缓存 1 小时
+      }
+    }
   } catch {}
 
   // 从所有资源中收集去重的 resourceTags（语言、运行方式、资源内容）

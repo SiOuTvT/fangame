@@ -18,6 +18,7 @@ const SUPER_ADMIN_PATHS = [
   "/admin/users",
   "/admin/avatar-frames",
   "/admin/site-settings",
+  "/admin/pages",
   "/admin/achievements",
   "/admin/copy",
   "/admin/theme",
