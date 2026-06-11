@@ -112,6 +112,13 @@ export default async function HomePage({
   const dateStr = today.toISOString().slice(0, 10)
   const statsCacheKey = cacheKey("homepage:stats", dateStr, nsfw ? "1" : "0")
 
+  // 全局去重 Map，防止并发请求同时 miss 缓存
+  const globalCachePending = (globalThis as Record<string, unknown>)[ Symbol.for("homepage:stats:pending") ] as Map<string, Promise<typeof statsResponse>> | undefined
+  if (!globalCachePending) {
+    ;(globalThis as Record<string, unknown>)[ Symbol.for("homepage:stats:pending") ] = new Map()
+  }
+  const pendingMap = (globalThis as Record<string, unknown>)[ Symbol.for("homepage:stats:pending") ] as Map<string, Promise<typeof statsResponse>>
+
   try {
     const weekAgo = new Date(today)
     weekAgo.setDate(weekAgo.getDate() - 7)
@@ -122,23 +129,33 @@ export default async function HomePage({
       ;({ total, todayCheckins, weekNewGames } = cached)
       announcements = cached.announcements
     } else {
-      ;[total, todayCheckins, weekNewGames, announcements] = await Promise.all([
-        prisma.game.count({ where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) } }),
-        prisma.checkIn.count({ where: { createdAt: { gte: today } } }),
-        prisma.game.count({ where: { isPublished: true, createdAt: { gte: weekAgo } } }),
-        prisma.announcement.findMany({
-          where: {
-            isActive: true,
-            AND: [
-              { OR: [{ startAt: null }, { startAt: { lte: new Date() } }] },
-              { OR: [{ endAt: null }, { endAt: { gte: new Date() } }] },
-            ],
-          },
-          orderBy: { createdAt: "desc" },
-          take: 5,
-          select: { id: true, title: true, content: true, imageUrl: true, link: true, createdAt: true, authorName: true, authorAvatar: true },
-        }).then((anns) => anns.map((a) => ({ ...a, createdAt: a.createdAt.toISOString() }))),
-      ])
+      // 检查是否有正在进行的请求
+      let pending = pendingMap.get(statsCacheKey)
+      if (!pending) {
+        // 发起新请求
+        pending = Promise.all([
+          prisma.game.count({ where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) } }),
+          prisma.checkIn.count({ where: { createdAt: { gte: today } } }),
+          prisma.game.count({ where: { isPublished: true, createdAt: { gte: weekAgo } } }),
+          prisma.announcement.findMany({
+            where: {
+              isActive: true,
+              AND: [
+                { OR: [{ startAt: null }, { startAt: { lte: new Date() } }] },
+                { OR: [{ endAt: null }, { endAt: { gte: new Date() } }] },
+              ],
+            },
+            orderBy: { createdAt: "desc" },
+            take: 5,
+            select: { id: true, title: true, content: true, imageUrl: true, link: true, createdAt: true, authorName: true, authorAvatar: true },
+          }).then((anns) => anns.map((a) => ({ ...a, createdAt: a.createdAt.toISOString() }))),
+        ]).finally(() => {
+          pendingMap.delete(statsCacheKey)
+        })
+        pendingMap.set(statsCacheKey, pending)
+      }
+      const statsResponse = await pending
+      ;[total, todayCheckins, weekNewGames, announcements] = statsResponse
       // 缓存 5 分钟
       await cache.set(statsCacheKey, { total, todayCheckins, weekNewGames, announcements }, 300)
     }
