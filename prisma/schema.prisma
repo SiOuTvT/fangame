@@ -52,6 +52,7 @@ model User {
   commentLikes     CommentLike[]
   achievements     UserAchievement[]
   resourceReports  ResourceReport[]
+  auditLogs        AuditLog[]
 
   @@index([role])
   @@index([avatarFrameId])
@@ -366,11 +367,12 @@ model GameLog {
 model AuditLog {
   id        String   @id @default(cuid())
   userId    String
-  action    String   // delete_post / ban_user / update_settings / approve_game / reject_game / etc
-  target    String   @default("") // target entity id or description
-  detail    String   @default("") // human-readable detail
+  action    String
+  target    String   @default("")
+  detail    String   @default("")
   ip        String   @default("")
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([action])

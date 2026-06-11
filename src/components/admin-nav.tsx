@@ -4,7 +4,7 @@ import type { UserRole } from "@/lib/admin"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import {
-  ArrowLeft, Award, CalendarCheck, ChevronLeft, ChevronRight, ClipboardCheck, Flag, FolderTree, Frame, Gamepad2, Heart,
+  ArrowLeft, Award, CalendarCheck, ChevronLeft, ChevronRight, ClipboardCheck, FileText, Flag, FolderTree, Frame, Gamepad2, Heart,
   LayoutDashboard, Megaphone, Menu, MessageSquare, Moon, Music, Palette,
   PenTool, Search, Settings, SmilePlus, Sun, Tag, Type, UserPlus, Users, X,
 } from "lucide-react"
@@ -63,6 +63,7 @@ const navGroups: NavGroup[] = [
       { icon: Award, label: "成就", href: "/admin/achievements", minRole: "SUPER_ADMIN" },
       { icon: Type, label: "文案", href: "/admin/copy", minRole: "SUPER_ADMIN" },
       { icon: Palette, label: "主题设置", href: "/admin/theme", minRole: "SUPER_ADMIN" },
+      { icon: FileText, label: "审计日志", href: "/admin/audit-logs", minRole: "ADMIN" },
     ],
   },
 ]
