@@ -3,11 +3,13 @@
 import { cn } from "@/lib/utils"
 import {
   Compass,
+  Flame,
   Home,
   Layers,
   Tag,
   Users,
 } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
@@ -32,6 +34,14 @@ interface ForumPost {
   createdAt: string
 }
 
+interface HotGame {
+  id: string
+  serialId: number
+  title: string
+  coverImage: string | null
+  favoriteCount: number
+}
+
 interface NavSidebarProps {
   collapsed: boolean
   expanded?: boolean
@@ -44,6 +54,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
   const pathname = usePathname()
   const router = useRouter()
   const [forumPosts, setForumPosts] = useState<ForumPost[]>([])
+  const [hotGames, setHotGames] = useState<HotGame[]>([])
   const [randomLoading, setRandomLoading] = useState(false)
 
   const handleRandomDiscover = useCallback(async () => {
@@ -65,6 +76,13 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
     fetch("/api/forum/posts")
       .then(r => r.json())
       .then(data => setForumPosts((data || []).slice(0, 5)))
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    fetch("/api/games?sort=popular&limit=8")
+      .then(r => r.json())
+      .then(data => setHotGames((data.games || []).slice(0, 8)))
       .catch(() => {})
   }, [])
 
@@ -167,6 +185,40 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
               >
                 查看全部 →
               </Link>
+            </div>
+          )}
+
+          {/* 热门游戏 */}
+          {hotGames.length > 0 && !collapsed && (
+            <div className="border-t border-border pt-3 mt-3">
+              <p className="px-2 mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 whitespace-nowrap flex items-center gap-1">
+                <Flame className="h-3 w-3" strokeWidth={2} />热门游戏
+              </p>
+              <div className="space-y-0.5">
+                {hotGames.map((game, i) => (
+                  <Link
+                    key={game.id}
+                    href={`/games/${game.serialId}`}
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-accent/40 transition-colors group"
+                  >
+                    <span className={cn(
+                      "w-4 text-[10px] font-bold text-right shrink-0",
+                      i < 3 ? "text-amber-400" : "text-muted-foreground/50"
+                    )}>{i + 1}</span>
+                    {game.coverImage ? (
+                      <Image src={game.coverImage} alt="" width={28} height={36} className="h-9 w-7 rounded object-cover shrink-0" unoptimized />
+                    ) : (
+                      <div className="h-9 w-7 rounded bg-muted shrink-0 flex items-center justify-center">
+                        <Flame className="h-3 w-3 text-muted-foreground/30" />
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs text-foreground truncate group-hover:text-primary transition-colors">{game.title}</p>
+                      <p className="text-[10px] text-muted-foreground">{game.favoriteCount} 收藏</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
           )}
         </nav>

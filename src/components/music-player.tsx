@@ -2,11 +2,13 @@
 
 import { cn } from "@/lib/utils";
 import { Music2, Pause, Play, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 
 interface Track { id: string; title: string; url: string }
 
 export function MusicPlayer() {
+  const { data: session } = useSession()
   const audioRef              = useRef<HTMLAudioElement>(null)
   const [tracks, setTracks]   = useState<Track[]>([])
   const [cur, setCur]         = useState(0)
@@ -15,14 +17,17 @@ export function MusicPlayer() {
   const [expanded, setExpanded] = useState(false)
   const [progress, setProgress] = useState(0)
 
+  const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "SUPER_ADMIN"
+
   useEffect(() => {
+    if (!isAdmin) return
     const controller = new AbortController()
     fetch("/api/music", { signal: controller.signal })
       .then(r => r.json())
       .then(data => { if (Array.isArray(data) && data.length) setTracks(data) })
       .catch(() => {})
     return () => controller.abort()
-  }, [])
+  }, [isAdmin])
 
   // 切换曲目时加载
   useEffect(() => {
