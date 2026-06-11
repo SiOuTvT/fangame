@@ -8,14 +8,15 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
   if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
   const { id } = await params
 
-  let isActive: boolean
-  try {
-    const body = await req.json()
-    isActive = body.isActive
-  } catch {
-    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
-  }
-  const m = await prisma.music.update({ where: { id }, data: { isActive }, select: { id: true, isActive: true } })
+  const body = await req.json().catch(() => ({}))
+  const data: Record<string, unknown> = {}
+  if ("isActive" in body) data.isActive = body.isActive
+  if (typeof body.title === "string" && body.title.trim()) data.title = body.title.trim()
+  if (typeof body.url === "string" && body.url.trim()) data.url = body.url.trim()
+
+  if (Object.keys(data).length === 0) return NextResponse.json({ error: "没有要更新的字段" }, { status: 400 })
+
+  const m = await prisma.music.update({ where: { id }, data })
   return NextResponse.json(m)
 }
 

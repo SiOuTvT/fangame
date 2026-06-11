@@ -18,7 +18,8 @@ function stripHtml(html: string): string {
 
 interface Ann {
   id: string; title: string; content: string; imageUrl: string;
-  link: string; isActive: boolean; sortOrder: number; createdAt: string
+  link: string; isActive: boolean; sortOrder: number;
+  startAt: string | null; endAt: string | null; createdAt: string
 }
 
 export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
@@ -29,6 +30,8 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
 
   useUnsavedChanges(title.trim() !== "" || content.trim() !== "")
   const [link, setLink] = useState("")
+  const [startAt, setStartAt] = useState("")
+  const [endAt, setEndAt] = useState("")
   const [adding, setAdding] = useState(false)
   const [error, setError] = useState("")
   const [expandedId, setExpandedId] = useState<string | null>(null)
@@ -70,8 +73,9 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
     setContent(ann.content)
     setImageUrl(ann.imageUrl)
     setLink(ann.link)
+    setStartAt(ann.startAt ? new Date(ann.startAt).toISOString().slice(0, 16) : "")
+    setEndAt(ann.endAt ? new Date(ann.endAt).toISOString().slice(0, 16) : "")
     setError("")
-    // Scroll to form
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
@@ -81,6 +85,8 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
     setContent("")
     setImageUrl("")
     setLink("")
+    setStartAt("")
+    setEndAt("")
     setError("")
   }
 
@@ -96,7 +102,12 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
     const res = await fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: title.trim(), content: content.trim(), imageUrl, link: link.trim() }),
+      body: JSON.stringify({
+        title: title.trim(), content: content.trim(),
+        imageUrl, link: link.trim(),
+        startAt: startAt || undefined,
+        endAt: endAt || undefined,
+      }),
     })
     const data = await res.json()
     setAdding(false)
@@ -109,7 +120,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
     } else {
       setAnns((prev) => [{ ...data, createdAt: data.createdAt }, ...prev])
       clearDraft()
-      setTitle(""); setContent(""); setImageUrl(""); setLink("")
+      setTitle(""); setContent(""); setImageUrl(""); setLink(""); setStartAt(""); setEndAt("")
     }
   }
 
@@ -240,6 +251,19 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
           </div>
 
           <input value={link} onChange={(e) => setLink(e.target.value)} placeholder="跳转链接（选填）" className={inputCls} />
+
+          {/* 定时发布 */}
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <p className="mb-1 text-[10px] text-muted-foreground">定时上线（选填）</p>
+              <input type="datetime-local" value={startAt} onChange={(e) => setStartAt(e.target.value)} className={inputCls} />
+            </div>
+            <div>
+              <p className="mb-1 text-[10px] text-muted-foreground">定时下线（选填）</p>
+              <input type="datetime-local" value={endAt} onChange={(e) => setEndAt(e.target.value)} className={inputCls} />
+            </div>
+          </div>
+
           <div className="flex items-center gap-2">
             <button type="submit" disabled={adding}
               className="flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:opacity-90 disabled:opacity-60">

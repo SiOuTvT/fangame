@@ -309,17 +309,19 @@ model GameReport {
 }
 
 model Announcement {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   title        String
   content      String
-  imageUrl     String   @default("")
-  link         String   @default("")
-  authorName   String   @default("")
-  authorAvatar String   @default("")
-  isActive     Boolean  @default(true)
-  sortOrder    Int      @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  imageUrl     String    @default("")
+  link         String    @default("")
+  authorName   String    @default("")
+  authorAvatar String    @default("")
+  isActive     Boolean   @default(true)
+  startAt      DateTime?
+  endAt        DateTime?
+  sortOrder    Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@index([sortOrder])
 }

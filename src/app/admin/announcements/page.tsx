@@ -33,6 +33,8 @@ export default async function AdminAnnouncementsPage({
     link: a.link ?? "",
     isActive: a.isActive,
     sortOrder: a.sortOrder,
+    startAt: a.startAt?.toISOString() ?? null,
+    endAt: a.endAt?.toISOString() ?? null,
     createdAt: a.createdAt.toISOString(),
   }))
 

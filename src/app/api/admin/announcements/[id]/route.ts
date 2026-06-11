@@ -22,6 +22,8 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
   if (body.content) data.content = (body.content as string).trim()
   if ("imageUrl" in body) data.imageUrl = (body.imageUrl as string)?.trim() ?? ""
   if ("link" in body) data.link = (body.link as string)?.trim() ?? ""
+  if ("startAt" in body) data.startAt = body.startAt ? new Date(body.startAt as string) : null
+  if ("endAt" in body) data.endAt = body.endAt ? new Date(body.endAt as string) : null
 
   const ann = await prisma.announcement.update({ where: { id }, data })
   return NextResponse.json(ann)

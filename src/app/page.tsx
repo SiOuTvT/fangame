@@ -127,7 +127,13 @@ export default async function HomePage({
         prisma.checkIn.count({ where: { createdAt: { gte: today } } }),
         prisma.game.count({ where: { isPublished: true, createdAt: { gte: weekAgo } } }),
         prisma.announcement.findMany({
-          where: { isActive: true },
+          where: {
+            isActive: true,
+            AND: [
+              { OR: [{ startAt: null }, { startAt: { lte: new Date() } }] },
+              { OR: [{ endAt: null }, { endAt: { gte: new Date() } }] },
+            ],
+          },
           orderBy: { createdAt: "desc" },
           take: 5,
           select: { id: true, title: true, content: true, imageUrl: true, link: true, createdAt: true, authorName: true, authorAvatar: true },

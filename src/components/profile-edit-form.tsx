@@ -41,6 +41,18 @@ export function ProfileEditForm({ user }: Props) {
     return data.url
   }
 
+  async function handleBannerUpload(file: File): Promise<string> {
+    if (file.size > 10 * 1024 * 1024) {
+      throw new Error("封面太大啦，最多 10MB 哦")
+    }
+    const formData = new FormData()
+    formData.append("file", file)
+    const res = await fetch("/api/upload", { method: "POST", body: formData })
+    const data = await res.json()
+    if (!res.ok || !data.url) throw new Error(data.error || "上传失败了，再试试？")
+    return data.url
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError("")
@@ -60,6 +72,7 @@ export function ProfileEditForm({ user }: Props) {
         username: username.trim(),
         bio: bio.trim(),
         avatar: avatarData,
+        banner: bannerData,
         oldPassword: oldPassword || undefined,
         newPassword: newPassword || undefined,
       }),
@@ -132,6 +145,23 @@ export function ProfileEditForm({ user }: Props) {
             <p className="mt-1 text-sm text-muted-foreground">UID: {user.uid}</p>
             <p className="mt-2 text-xs text-muted-foreground">点击头像就可以换啦 · JPG/PNG/WebP · 最大 5MB</p>
           </div>
+        </div>
+
+        {/* Banner上传 */}
+        <div className="px-5 sm:px-6 pb-5 sm:pb-6">
+          <label className="block mb-2 text-xs font-semibold text-muted-foreground">
+            个人封面
+          </label>
+          <ImageUpload
+            value={bannerData}
+            onChange={setBannerData}
+            uploadFunction={handleBannerUpload}
+            aspectRatio={3}
+            maxSizeMB={10}
+            shape="rounded"
+            placeholder="上传封面图"
+          />
+          <p className="mt-2 text-[10px] text-muted-foreground">推荐尺寸 900×300 · JPG/PNG/WebP · 最大 10MB · 不填就用默认背景</p>
         </div>
 
         {/* 分隔线 */}

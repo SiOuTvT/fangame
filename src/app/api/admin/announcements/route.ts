@@ -36,13 +36,15 @@ export async function POST(req: NextRequest) {
   const session = await getAdminSession()
   if (!session) return NextResponse.json({ error: "无权限" }, { status: 403 })
 
-  let title: string | undefined, content: string | undefined, imageUrl: string | undefined, link: string | undefined
+  let title: string | undefined, content: string | undefined, imageUrl: string | undefined, link: string | undefined, startAt: string | undefined, endAt: string | undefined
   try {
     const body = await req.json()
     title = body.title as string | undefined
     content = body.content as string | undefined
     imageUrl = body.imageUrl as string | undefined
     link = body.link as string | undefined
+    startAt = body.startAt as string | undefined
+    endAt = body.endAt as string | undefined
   } catch {
     return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
   }
@@ -62,6 +64,8 @@ export async function POST(req: NextRequest) {
       link: link?.trim() ?? "",
       authorName: adminUser?.username ?? "",
       authorAvatar: adminUser?.avatar ?? "",
+      startAt: startAt ? new Date(startAt) : null,
+      endAt: endAt ? new Date(endAt) : null,
     },
   })
   return NextResponse.json(ann, { status: 201 })
