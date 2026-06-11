@@ -155,7 +155,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
 
           {/* 标题 + NEW */}
           <div className="flex items-center gap-2.5 mb-1">
-            <h3 className="text-2xl sm:text-2xl lg:text-3xl font-bold leading-tight text-white/70 line-clamp-1 transition-colors group-hover:text-white">
+            <h3 className="text-2xl sm:text-2xl lg:text-3xl font-bold leading-tight text-white line-clamp-1 transition-colors [--tc:var(--primary)] group-hover:text-[color:var(--tc)]">
               {ann.title}
             </h3>
             {showNew && (
@@ -177,7 +177,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
 
           {/* 查看详情 */}
           <span
-            className="inline-flex items-center gap-1 text-xs font-medium text-white/50 transition-all group-hover:underline [--cta:var(--primary)] group-hover:text-[color:var(--cta)]"
+            className="inline-flex items-center gap-1 text-xs font-medium text-white transition-all group-hover:underline [--cta:var(--primary)] group-hover:text-[color:var(--cta)]"
           >
             查看详情
             <span className="inline-block transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
