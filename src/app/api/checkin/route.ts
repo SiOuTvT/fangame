@@ -28,12 +28,25 @@ async function handleCheckin(_req: NextRequest) {
     await prisma.checkIn.create({ data: { userId: session.user.id, date: today } })
 
     const total = await prisma.checkIn.count({ where: { userId: session.user.id } })
-    logger.user.info(`User ${session.user.id} checked in. Total: ${total}`)
+
+    // 随机生成印记数量（0-5，按概率分布）
+    // 0=2%, 1=8%, 2=15%, 3=25%, 4=30%, 5=20%
+    const rand = Math.random() * 100
+    let marks = 0
+    if (rand < 2) marks = 0
+    else if (rand < 10) marks = 1
+    else if (rand < 25) marks = 2
+    else if (rand < 50) marks = 3
+    else if (rand < 80) marks = 4
+    else marks = 5
+
+    logger.user.info(`User ${session.user.id} checked in. Total: ${total}, Marks: ${marks}`)
+
     // 异步检查成就解锁（不阻塞响应），并清除用户统计缓存
     invalidateUserStats(session.user.id).catch(() => {})
     checkAchievements(session.user.id).catch(() => {})
 
-    return ok({ ok: true, total, date: todayStr })
+    return ok({ ok: true, total, date: todayStr, marks })
   } catch (error) {
     logger.user.error("Check-in failed", error, { userId: session.user.id })
     return serverError("签到失败，请稍后重试")
