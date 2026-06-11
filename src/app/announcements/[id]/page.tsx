@@ -1,6 +1,6 @@
 import { RichTextContent } from "@/components/rich-text-content-wrapper"
 import { prisma } from "@/lib/prisma"
-import { ArrowLeft, ExternalLink } from "lucide-react"
+import { ArrowLeft, ArrowRight, ExternalLink } from "lucide-react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
@@ -14,61 +14,126 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function AnnouncementPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+
   const ann = await prisma.announcement.findFirst({ where: { id, isActive: true } })
   if (!ann) notFound()
+
+  const [prev, next] = await Promise.all([
+    prisma.announcement.findFirst({
+      where: { isActive: true, createdAt: { lt: ann.createdAt } },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, title: true },
+    }),
+    prisma.announcement.findFirst({
+      where: { isActive: true, createdAt: { gt: ann.createdAt } },
+      orderBy: { createdAt: "asc" },
+      select: { id: true, title: true },
+    }),
+  ])
 
   const createdDate = new Date(ann.createdAt)
   const updatedDate = new Date(ann.updatedAt)
   const isEdited = createdDate.getTime() !== updatedDate.getTime()
 
   const formatDate = (d: Date) =>
-    d.toLocaleString("zh-CN", { year: "numeric", month: "long", day: "numeric" })
+    d.toLocaleDateString("zh-CN", { year: "numeric", month: "long", day: "numeric" })
 
   return (
-    <div className="w-full">
-      <Link href="/" className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
+    <div className="mx-auto max-w-2xl">
+      {/* 返回 */}
+      <Link
+        href="/"
+        className="mb-8 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+      >
         <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
         返回首页
       </Link>
 
-      {/* 完整封面图（未裁剪） */}
+      {/* 封面图 */}
       {ann.imageUrl && (
-        <div className="mb-6 overflow-hidden rounded-2xl">
+        <div className="mb-8 overflow-hidden rounded-xl">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={ann.imageUrl}
             alt={ann.title}
-            className="w-full object-contain"
+            className="w-full object-cover"
+            style={{ maxHeight: 360 }}
           />
         </div>
       )}
 
-      <h1 className="text-2xl font-bold leading-tight text-foreground">{ann.title}</h1>
-      <div className="mt-2 flex flex-col gap-0.5">
-        <p className="text-xs text-muted-foreground">
-          发布于：{formatDate(createdDate)}
-        </p>
+      {/* 元信息 */}
+      <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+        {ann.authorAvatar ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={ann.authorAvatar}
+            alt={ann.authorName}
+            className="h-5 w-5 rounded-full object-cover"
+          />
+        ) : (
+          <div className="h-5 w-5 rounded-full bg-muted" />
+        )}
+        <span className="font-medium text-foreground/80">{ann.authorName}</span>
+        <span className="text-muted-foreground/30">·</span>
+        <time dateTime={ann.createdAt.toISOString()}>{formatDate(createdDate)}</time>
         {isEdited && (
-          <p className="text-xs text-muted-foreground/70">
-            最后更新：{formatDate(updatedDate)}
-          </p>
+          <>
+            <span className="text-muted-foreground/30">·</span>
+            <span className="text-muted-foreground/50">编辑于 {formatDate(updatedDate)}</span>
+          </>
         )}
       </div>
 
-      <div className="mt-6 text-sm leading-relaxed text-muted-foreground">
+      {/* 标题 */}
+      <h1 className="mb-6 text-2xl font-bold leading-snug text-foreground sm:text-3xl">
+        {ann.title}
+      </h1>
+
+      {/* 正文 */}
+      <div
+        className="text-[15px] leading-[1.85] text-foreground/80 sm:text-base"
+        style={{ maxWidth: "65ch" }}
+      >
         <RichTextContent html={ann.content} />
       </div>
 
+      {/* 外部链接 */}
       {ann.link && (
         <a
           href={ann.link}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-8 inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-foreground ring-1 ring-border transition-all hover:bg-accent/80"
+          className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:underline"
+          style={{ color: "var(--primary)" }}
         >
           查看详情
-          <ExternalLink className="h-4 w-4" strokeWidth={1.5} />
+          <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.5} />
         </a>
+      )}
+
+      {/* 上下篇 */}
+      {(prev || next) && (
+        <div className="mt-12 flex flex-col gap-3 border-t border-border pt-6 sm:flex-row sm:justify-between">
+          {prev ? (
+            <Link
+              href={`/announcements/${prev.id}`}
+              className="group flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <ArrowLeft className="h-3.5 w-3.5 shrink-0 transition-transform group-hover:-translate-x-0.5" strokeWidth={1.5} />
+              <span className="truncate">{prev.title}</span>
+            </Link>
+          ) : <div />}
+          {next && (
+            <Link
+              href={`/announcements/${next.id}`}
+              className="group flex items-center justify-end gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground sm:text-right"
+            >
+              <span className="truncate">{next.title}</span>
+              <ArrowRight className="h-3.5 w-3.5 shrink-0 transition-transform group-hover:translate-x-0.5" strokeWidth={1.5} />
+            </Link>
+          )}
+        </div>
       )}
     </div>
   )
