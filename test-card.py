@@ -1,48 +1,63 @@
 from playwright.sync_api import sync_playwright
 
 with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
+    browser = p.chromium.launch(headless=False)
     context = browser.new_context()
     page = context.new_page()
 
-    logs = []
-    errors = []
-    page.on("console", lambda msg: logs.append(f"[{msg.type}] {msg.text}"))
-    page.on("pageerror", lambda exc: errors.append(str(exc)))
+    page.on("console", lambda msg: print(f"CONSOLE [{msg.type}] {msg.text}"))
+    page.on("pageerror", lambda exc: print(f"PAGE ERROR: {exc}"))
 
-    # Check network for JS loading
-    failed_requests = []
-    page.on("requestfailed", lambda req: failed_requests.append(f"{req.url} - {req.failure}"))
+    # Login
+    page.goto("http://localhost:3000/login", wait_until="networkidle", timeout=30000)
+    page.wait_for_timeout(2000)
+    page.get_by_placeholder("用户名或邮箱").fill("SiOuTvT")
+    page.get_by_placeholder("密码").fill("siyu5098582")
+    page.click('button:has-text("登 录")')
+    page.wait_for_timeout(5000)
 
-    print("Loading /user/1 ...")
+    # User page
     page.goto("http://localhost:3000/user/1", wait_until="networkidle", timeout=30000)
     page.wait_for_timeout(5000)
 
-    print(f"\nFailed requests: {len(failed_requests)}")
-    for r in failed_requests[:5]:
-        print(f"  {r}")
+    # Simulate real user click with dispatchEvent (mousedown+mouseup+click)
+    page.evaluate("""
+        (() => {
+            const buttons = document.querySelectorAll('button');
+            let btn = null;
+            for (const b of buttons) {
+                if (b.textContent.includes('生成名片')) {
+                    btn = b;
+                    break;
+                }
+            }
+            if (!btn) return;
+            const rect = btn.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            const opts = { bubbles: true, cancelable: true, clientX: cx, clientY: cy };
+            btn.dispatchEvent(new MouseEvent('mousedown', opts));
+            btn.dispatchEvent(new MouseEvent('mouseup', opts));
+            btn.dispatchEvent(new MouseEvent('click', opts));
+        })()
+    """)
 
-    print(f"\nConsole logs: {len(logs)}")
-    for l in logs[:10]:
-        print(f"  {l}")
+    page.wait_for_timeout(8000)
 
-    print(f"\nPage errors: {len(errors)}")
-    for e in errors[:10]:
-        print(f"  {e}")
+    print("\n=== Checking result ===")
+    state = page.evaluate("""
+        (() => {
+            const buttons = document.querySelectorAll('button');
+            for (const b of buttons) {
+                const t = b.textContent || '';
+                if (t.includes('生成名片') || t.includes('生成中')) {
+                    return { text: t.trim(), disabled: b.disabled };
+                }
+            }
+            return { text: 'not found' };
+        })()
+    """)
+    print(f"Button state: {state}")
 
-    # Check if React is working
-    react_works = page.evaluate("() => typeof window.__NEXT_DATA__ !== 'undefined' || typeof window.__next_f !== 'undefined'")
-    print(f"\nReact/Next.js detected: {react_works}")
-
-    # Check for any script errors
-    scripts = page.locator("script[src]").all()
-    print(f"\nScript tags: {len(scripts)}")
-
-    # Check body content
-    body_text = page.locator("body").text_content()
-    has_card = "生成名片" in (body_text or "")
-    has_edit = "编辑资料" in (body_text or "")
-    print(f"\nBody has '生成名片': {has_card}")
-    print(f"Body has '编辑资料': {has_edit}")
-
+    page.wait_for_timeout(3000)
     browser.close()

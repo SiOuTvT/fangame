@@ -27,15 +27,18 @@ function getRoleLabel(role: string) {
 
 export function CardGenerateBtn({ data }: { data: CardData }) {
   const [generating, setGenerating] = useState(false)
+  const generatingRef = useRef(false)
   const abortRef = useRef(false)
-
-  console.log("[CardGenerateBtn] mounted, data:", data.username)
+  const dataRef = useRef(data)
+  dataRef.current = data
 
   const generate = useCallback(async () => {
-    if (generating) return
+    if (generatingRef.current) return
+    generatingRef.current = true
     setGenerating(true)
     abortRef.current = false
 
+    const d = dataRef.current
     const log = (step: string) => console.log(`[名片] ${step}`)
 
     try {
@@ -45,32 +48,25 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
       canvas.width = W * 2
       canvas.height = H * 2
       let ctx = canvas.getContext("2d")
-      if (!ctx) { toast.error("浏览器不支持 Canvas"); setGenerating(false); return }
-      ctx = ctx! // TypeScript narrow
+      if (!ctx) { toast.error("浏览器不支持 Canvas"); return }
+      ctx = ctx!
       ctx.scale(2, 2)
       log("canvas created")
 
-      // ── 头像 ──
-      const avatarSrc = data.composedAvatarUrl || data.avatar
+      // 头像加载
+      const avatarSrc = d.composedAvatarUrl || d.avatar
       let avatarImg: HTMLImageElement | null = null
       if (avatarSrc) {
         log("loading avatar: " + avatarSrc)
         try {
-          avatarImg = await Promise.race([
-            loadImageSafe(avatarSrc),
-            new Promise<never>((_, reject) => setTimeout(() => reject(new Error("avatar timeout")), 8000)),
-          ])
+          avatarImg = await loadImageSafe(avatarSrc)
           log("avatar loaded")
         } catch (e) {
-          log("avatar failed: " + (e instanceof Error ? e.message : e))
+          log("avatar failed: " + e)
         }
       }
 
-      if (abortRef.current) { setGenerating(false); return }
-
       log("drawing background...")
-      await new Promise(r => setTimeout(r, 0)) // 让浏览器喘口气
-
       const R = 20
       const ctx2 = ctx!
       function roundRect(x: number, y: number, w: number, h: number, r: number) {
@@ -94,7 +90,6 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
       ctx.fillStyle = bg
       ctx.fill()
 
-      // ── 光晕装饰 ──
       const glow1 = ctx.createRadialGradient(W * 0.75, H * 0.15, 0, W * 0.75, H * 0.15, 280)
       glow1.addColorStop(0, "rgba(168, 85, 247, 0.07)")
       glow1.addColorStop(1, "transparent")
@@ -107,13 +102,12 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
       ctx.fillStyle = glow2
       ctx.fillRect(0, 0, W, H)
 
-      // ── 边框 ──
       roundRect(0.5, 0.5, W - 1, H - 1, R)
       ctx.strokeStyle = "rgba(255,255,255,0.06)"
       ctx.lineWidth = 1
       ctx.stroke()
 
-      // ── 头像绘制 ──
+      // 头像
       const acx = 80, acy = 105, ar = 48
       let avatarOk = false
 
@@ -128,13 +122,10 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
           ctx.restore()
           avatarOk = true
           log("avatar drawn")
-        } catch {
-          // 头像绘制失败
-        }
+        } catch { /* ignore */ }
       }
 
       if (!avatarOk) {
-        // Fallback: 渐变圆 + 首字母
         ctx.save()
         ctx.beginPath()
         ctx.arc(acx, acy, ar, 0, Math.PI * 2)
@@ -149,40 +140,34 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
         ctx.font = "bold 30px 'Noto Sans SC', 'PingFang SC', sans-serif"
         ctx.textAlign = "center"
         ctx.textBaseline = "middle"
-        ctx.fillText(data.username[0]?.toUpperCase() || "?", acx, acy + 1)
+        ctx.fillText(d.username[0]?.toUpperCase() || "?", acx, acy + 1)
         ctx.restore()
       }
 
-      // 头像光环
       ctx.strokeStyle = "rgba(232, 120, 154, 0.4)"
       ctx.lineWidth = 2
       ctx.beginPath()
       ctx.arc(acx, acy, ar + 2, 0, Math.PI * 2)
       ctx.stroke()
 
-      await new Promise(r => setTimeout(r, 0))
       log("drawing text...")
       const textX = acx + ar + 20
       ctx.textAlign = "start"
       ctx.textBaseline = "alphabetic"
 
-      // 用户名
       ctx.fillStyle = "#ffffff"
       ctx.font = "bold 26px 'Noto Sans SC', 'PingFang SC', sans-serif"
-      ctx.fillText(data.username, textX, acy - 8)
+      ctx.fillText(d.username, textX, acy - 8)
 
-      // UID
       ctx.fillStyle = "rgba(255,255,255,0.3)"
       ctx.font = "12px 'Noto Sans SC', 'PingFang SC', sans-serif"
-      ctx.fillText(`UID: ${data.uid}`, textX, acy + 16)
+      ctx.fillText(`UID: ${d.uid}`, textX, acy + 16)
 
-      // 角色标签
-      const roleLabel = getRoleLabel(data.role)
+      const roleLabel = getRoleLabel(d.role)
       if (roleLabel) {
         ctx.font = "11px 'Noto Sans SC', 'PingFang SC', sans-serif"
         const tw = ctx.measureText(roleLabel).width
-        const rx = textX + ctx.measureText(`UID: ${data.uid}`).width + 16
-        // 胶囊背景
+        const rx = textX + ctx.measureText(`UID: ${d.uid}`).width + 16
         roundRect(rx, acy + 6, tw + 14, 18, 9)
         ctx.fillStyle = "rgba(232, 120, 154, 0.15)"
         ctx.fill()
@@ -190,24 +175,21 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
         ctx.strokeStyle = "rgba(232, 120, 154, 0.3)"
         ctx.lineWidth = 0.5
         ctx.stroke()
-        // 文字
         ctx.fillStyle = "rgba(232, 120, 154, 0.9)"
         ctx.textAlign = "center"
         ctx.fillText(roleLabel, rx + (tw + 14) / 2, acy + 18)
       }
 
-      // ── 简介 ──
       ctx.textAlign = "start"
-      if (data.bio) {
+      if (d.bio) {
         ctx.fillStyle = "rgba(255,255,255,0.4)"
         ctx.font = "13px 'Noto Sans SC', 'PingFang SC', sans-serif"
-        const lines = wrapText(ctx, data.bio, W - 120)
+        const lines = wrapText(ctx, d.bio, W - 120)
         lines.slice(0, 2).forEach((line, i) => {
           ctx.fillText(line, 50, 170 + i * 20)
         })
       }
 
-      await new Promise(r => setTimeout(r, 0))
       log("drawing stats...")
       ctx.strokeStyle = "rgba(255,255,255,0.05)"
       ctx.lineWidth = 1
@@ -216,30 +198,26 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
       ctx.lineTo(W - 50, 220)
       ctx.stroke()
 
-      // ── 统计数据 ──
       const stats = [
-        { label: "收藏", value: data.favCount },
-        { label: "关注者", value: data.followerCount },
-        { label: "关注中", value: data.followingCount },
-        { label: "评论", value: data.commentCount },
+        { label: "收藏", value: d.favCount },
+        { label: "关注者", value: d.followerCount },
+        { label: "关注中", value: d.followingCount },
+        { label: "评论", value: d.commentCount },
       ]
       const colW = (W - 100) / 4
       const statsY = 260
 
       stats.forEach((s, i) => {
         const cx = 50 + i * colW + colW / 2
-
         ctx.textAlign = "center"
         ctx.fillStyle = "rgba(255,255,255,0.3)"
         ctx.font = "12px 'Noto Sans SC', 'PingFang SC', sans-serif"
         ctx.fillText(s.label, cx, statsY)
-
         ctx.fillStyle = "#ffffff"
         ctx.font = "bold 30px 'Noto Sans SC', 'PingFang SC', sans-serif"
         ctx.fillText(formatNum(s.value), cx, statsY + 42)
       })
 
-      await new Promise(r => setTimeout(r, 0))
       log("drawing bottom...")
       ctx.strokeStyle = "rgba(255,255,255,0.05)"
       ctx.beginPath()
@@ -247,11 +225,10 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
       ctx.lineTo(W - 50, 345)
       ctx.stroke()
 
-      // ── 底部信息 ──
       ctx.textAlign = "start"
       ctx.fillStyle = "rgba(255,255,255,0.2)"
       ctx.font = "12px 'Noto Sans SC', 'PingFang SC', sans-serif"
-      const joinDate = new Date(data.createdAt).toLocaleDateString("zh-CN", {
+      const joinDate = new Date(d.createdAt).toLocaleDateString("zh-CN", {
         year: "numeric", month: "long", day: "numeric",
       })
       ctx.fillText(`加入于 ${joinDate}`, 50, 375)
@@ -261,7 +238,6 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
       ctx.font = "11px 'Noto Sans SC', 'PingFang SC', sans-serif"
       ctx.fillText("同人游戏站 · fangame", W - 50, 375)
 
-      // ── 底部装饰线 ──
       const lineGrad = ctx.createLinearGradient(0, 0, W, 0)
       lineGrad.addColorStop(0, "rgba(232, 120, 154, 0)")
       lineGrad.addColorStop(0.35, "rgba(232, 120, 154, 0.5)")
@@ -270,21 +246,17 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
       ctx.fillStyle = lineGrad
       ctx.fillRect(0, H - 3, W, 3)
 
-      if (abortRef.current) { setGenerating(false); return }
-
       log("converting to blob...")
-      await new Promise(r => setTimeout(r, 0))
-      // ── 下载 ──
       const blob = await new Promise<Blob | null>((resolve) =>
         canvas.toBlob(resolve, "image/png")
       )
-      if (!blob) { toast.error("生成失败"); setGenerating(false); return }
+      if (!blob) { toast.error("生成失败"); return }
 
       log("downloading...")
       const url = URL.createObjectURL(blob)
       const a = document.createElement("a")
       a.href = url
-      a.download = `${data.username}_名片.png`
+      a.download = `${d.username}_名片.png`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -295,13 +267,18 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
       console.error("[名片生成]", e)
       toast.error("生成失败：" + (e instanceof Error ? e.message : "未知错误"))
     } finally {
+      generatingRef.current = false
       setGenerating(false)
     }
-  }, [generating, data])
+  }, [])
 
   return (
     <button
-      onClick={() => { console.log("[名片] clicked", data); generate(); }}
+      onClick={() => {
+        console.log("[名片] clicked")
+        generate()
+      }}
+      type="button"
       disabled={generating}
       className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition-all hover:bg-secondary disabled:opacity-60"
     >
@@ -317,12 +294,9 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
   )
 }
 
-// ── 工具函数 ──
-
 function loadImageSafe(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image()
-    // 开发阶段绕过 CORS：fetch 下载 blob → blob URL 视为同源
     fetch(src)
       .then(res => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`)

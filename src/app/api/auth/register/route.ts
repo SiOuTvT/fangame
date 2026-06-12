@@ -54,3 +54,4 @@ async function handleRegister(req: NextRequest) {
 
 export const POST = (req: NextRequest) =>
   withRateLimit(handleRegister, rateLimits.register, "register")(req)
+
