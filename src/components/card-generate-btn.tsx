@@ -1,7 +1,7 @@
 "use client"
 
 import { Download, Loader2 } from "lucide-react"
-import { useCallback, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import { toast } from "sonner"
 
 interface CardData {
@@ -22,262 +22,177 @@ interface CardData {
 function getRoleLabel(role: string) {
   if (role === "SUPER_ADMIN") return "站长"
   if (role === "ADMIN") return "管理员"
-  return null
+  return ""
+}
+
+function formatNum(n: number): string {
+  if (n >= 10000) return (n / 10000).toFixed(1).replace(/\.0$/, "") + "w"
+  if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, "") + "k"
+  return String(n)
 }
 
 export function CardGenerateBtn({ data }: { data: CardData }) {
   const [generating, setGenerating] = useState(false)
-  const generatingRef = useRef(false)
-  const abortRef = useRef(false)
-  const dataRef = useRef(data)
-  dataRef.current = data
+  const svgRef = useRef<string>("")
+  const avatarDataUrlRef = useRef<string>("")
 
-  const generate = useCallback(async () => {
-    if (generatingRef.current) return
-    generatingRef.current = true
-    setGenerating(true)
-    abortRef.current = false
+  async function preloadAvatar(): Promise<string> {
+    if (avatarDataUrlRef.current) return avatarDataUrlRef.current
 
-    const d = dataRef.current
-    const log = (step: string) => console.log(`[名片] ${step}`)
+    const src = data.composedAvatarUrl || data.avatar
+    if (!src) return ""
 
     try {
-      log("start")
-      const W = 900, H = 500
-      const canvas = document.createElement("canvas")
-      canvas.width = W * 2
-      canvas.height = H * 2
-      let ctx = canvas.getContext("2d")
-      if (!ctx) { toast.error("浏览器不支持 Canvas"); return }
-      ctx = ctx!
-      ctx.scale(2, 2)
-      log("canvas created")
-
-      // 头像加载
-      const avatarSrc = d.composedAvatarUrl || d.avatar
-      let avatarImg: HTMLImageElement | null = null
-      if (avatarSrc) {
-        log("loading avatar: " + avatarSrc)
-        try {
-          avatarImg = await loadImageSafe(avatarSrc)
-          log("avatar loaded")
-        } catch (e) {
-          log("avatar failed: " + e)
-        }
-      }
-
-      log("drawing background...")
-      const R = 20
-      const ctx2 = ctx!
-      function roundRect(x: number, y: number, w: number, h: number, r: number) {
-        ctx2.beginPath()
-        ctx2.moveTo(x + r, y)
-        ctx2.lineTo(x + w - r, y)
-        ctx2.arcTo(x + w, y, x + w, y + r, r)
-        ctx2.lineTo(x + w, y + h - r)
-        ctx2.arcTo(x + w, y + h, x + w - r, y + h, r)
-        ctx2.lineTo(x + r, y + h)
-        ctx2.arcTo(x, y + h, x, y + h - r, r)
-        ctx2.lineTo(x, y + r)
-        ctx2.arcTo(x, y, x + r, y, r)
-        ctx2.closePath()
-      }
-
-      roundRect(0, 0, W, H, R)
-      const bg = ctx.createLinearGradient(0, 0, W, H)
-      bg.addColorStop(0, "#0f0f14")
-      bg.addColorStop(1, "#12121a")
-      ctx.fillStyle = bg
-      ctx.fill()
-
-      const glow1 = ctx.createRadialGradient(W * 0.75, H * 0.15, 0, W * 0.75, H * 0.15, 280)
-      glow1.addColorStop(0, "rgba(168, 85, 247, 0.07)")
-      glow1.addColorStop(1, "transparent")
-      ctx.fillStyle = glow1
-      ctx.fillRect(0, 0, W, H)
-
-      const glow2 = ctx.createRadialGradient(W * 0.15, H * 0.85, 0, W * 0.15, H * 0.85, 240)
-      glow2.addColorStop(0, "rgba(232, 120, 154, 0.05)")
-      glow2.addColorStop(1, "transparent")
-      ctx.fillStyle = glow2
-      ctx.fillRect(0, 0, W, H)
-
-      roundRect(0.5, 0.5, W - 1, H - 1, R)
-      ctx.strokeStyle = "rgba(255,255,255,0.06)"
-      ctx.lineWidth = 1
-      ctx.stroke()
-
-      // 头像
-      const acx = 80, acy = 105, ar = 48
-      let avatarOk = false
-
-      if (avatarImg) {
-        try {
-          ctx.save()
-          ctx.beginPath()
-          ctx.arc(acx, acy, ar, 0, Math.PI * 2)
-          ctx.closePath()
-          ctx.clip()
-          ctx.drawImage(avatarImg, acx - ar, acy - ar, ar * 2, ar * 2)
-          ctx.restore()
-          avatarOk = true
-          log("avatar drawn")
-        } catch { /* ignore */ }
-      }
-
-      if (!avatarOk) {
-        ctx.save()
-        ctx.beginPath()
-        ctx.arc(acx, acy, ar, 0, Math.PI * 2)
-        ctx.closePath()
-        ctx.clip()
-        const grad = ctx.createLinearGradient(acx - ar, acy - ar, acx + ar, acy + ar)
-        grad.addColorStop(0, "#e8789a")
-        grad.addColorStop(1, "#a855f7")
-        ctx.fillStyle = grad
-        ctx.fillRect(acx - ar, acy - ar, ar * 2, ar * 2)
-        ctx.fillStyle = "#fff"
-        ctx.font = "bold 30px 'Noto Sans SC', 'PingFang SC', sans-serif"
-        ctx.textAlign = "center"
-        ctx.textBaseline = "middle"
-        ctx.fillText(d.username[0]?.toUpperCase() || "?", acx, acy + 1)
-        ctx.restore()
-      }
-
-      ctx.strokeStyle = "rgba(232, 120, 154, 0.4)"
-      ctx.lineWidth = 2
-      ctx.beginPath()
-      ctx.arc(acx, acy, ar + 2, 0, Math.PI * 2)
-      ctx.stroke()
-
-      log("drawing text...")
-      const textX = acx + ar + 20
-      ctx.textAlign = "start"
-      ctx.textBaseline = "alphabetic"
-
-      ctx.fillStyle = "#ffffff"
-      ctx.font = "bold 26px 'Noto Sans SC', 'PingFang SC', sans-serif"
-      ctx.fillText(d.username, textX, acy - 8)
-
-      ctx.fillStyle = "rgba(255,255,255,0.3)"
-      ctx.font = "12px 'Noto Sans SC', 'PingFang SC', sans-serif"
-      ctx.fillText(`UID: ${d.uid}`, textX, acy + 16)
-
-      const roleLabel = getRoleLabel(d.role)
-      if (roleLabel) {
-        ctx.font = "11px 'Noto Sans SC', 'PingFang SC', sans-serif"
-        const tw = ctx.measureText(roleLabel).width
-        const rx = textX + ctx.measureText(`UID: ${d.uid}`).width + 16
-        roundRect(rx, acy + 6, tw + 14, 18, 9)
-        ctx.fillStyle = "rgba(232, 120, 154, 0.15)"
-        ctx.fill()
-        roundRect(rx, acy + 6, tw + 14, 18, 9)
-        ctx.strokeStyle = "rgba(232, 120, 154, 0.3)"
-        ctx.lineWidth = 0.5
-        ctx.stroke()
-        ctx.fillStyle = "rgba(232, 120, 154, 0.9)"
-        ctx.textAlign = "center"
-        ctx.fillText(roleLabel, rx + (tw + 14) / 2, acy + 18)
-      }
-
-      ctx.textAlign = "start"
-      if (d.bio) {
-        ctx.fillStyle = "rgba(255,255,255,0.4)"
-        ctx.font = "13px 'Noto Sans SC', 'PingFang SC', sans-serif"
-        const lines = wrapText(ctx, d.bio, W - 120)
-        lines.slice(0, 2).forEach((line, i) => {
-          ctx.fillText(line, 50, 170 + i * 20)
-        })
-      }
-
-      log("drawing stats...")
-      ctx.strokeStyle = "rgba(255,255,255,0.05)"
-      ctx.lineWidth = 1
-      ctx.beginPath()
-      ctx.moveTo(50, 220)
-      ctx.lineTo(W - 50, 220)
-      ctx.stroke()
-
-      const stats = [
-        { label: "收藏", value: d.favCount },
-        { label: "关注者", value: d.followerCount },
-        { label: "关注中", value: d.followingCount },
-        { label: "评论", value: d.commentCount },
-      ]
-      const colW = (W - 100) / 4
-      const statsY = 260
-
-      stats.forEach((s, i) => {
-        const cx = 50 + i * colW + colW / 2
-        ctx.textAlign = "center"
-        ctx.fillStyle = "rgba(255,255,255,0.3)"
-        ctx.font = "12px 'Noto Sans SC', 'PingFang SC', sans-serif"
-        ctx.fillText(s.label, cx, statsY)
-        ctx.fillStyle = "#ffffff"
-        ctx.font = "bold 30px 'Noto Sans SC', 'PingFang SC', sans-serif"
-        ctx.fillText(formatNum(s.value), cx, statsY + 42)
+      const res = await fetch(src)
+      if (!res.ok) return ""
+      const blob = await res.blob()
+      const dataUrl = await new Promise<string>((resolve) => {
+        const reader = new FileReader()
+        reader.onloadend = () => resolve(reader.result as string)
+        reader.readAsDataURL(blob)
       })
+      avatarDataUrlRef.current = dataUrl
+      return dataUrl
+    } catch {
+      return ""
+    }
+  }
 
-      log("drawing bottom...")
-      ctx.strokeStyle = "rgba(255,255,255,0.05)"
-      ctx.beginPath()
-      ctx.moveTo(50, 345)
-      ctx.lineTo(W - 50, 345)
-      ctx.stroke()
+  async function generate() {
+    if (generating) return
+    setGenerating(true)
 
-      ctx.textAlign = "start"
-      ctx.fillStyle = "rgba(255,255,255,0.2)"
-      ctx.font = "12px 'Noto Sans SC', 'PingFang SC', sans-serif"
-      const joinDate = new Date(d.createdAt).toLocaleDateString("zh-CN", {
+    try {
+      const W = 900, H = 500
+      const avatarDataUrl = await preloadAvatar()
+      const joinDate = new Date(data.createdAt).toLocaleDateString("zh-CN", {
         year: "numeric", month: "long", day: "numeric",
       })
-      ctx.fillText(`加入于 ${joinDate}`, 50, 375)
+      const roleLabel = getRoleLabel(data.role)
+      const initials = data.username[0]?.toUpperCase() || "?"
+      const bio = data.bio ? data.bio.slice(0, 80) : ""
 
-      ctx.textAlign = "right"
-      ctx.fillStyle = "rgba(255,255,255,0.12)"
-      ctx.font = "11px 'Noto Sans SC', 'PingFang SC', sans-serif"
-      ctx.fillText("同人游戏站 · fangame", W - 50, 375)
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="${W}" y2="${H}">
+      <stop offset="0" stop-color="#0f0f14"/>
+      <stop offset="1" stop-color="#12121a"/>
+    </linearGradient>
+    <radialGradient id="glow1" cx="${W * 0.75}" cy="${H * 0.15}" r="280" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="rgba(168, 85, 247, 0.07)"/>
+      <stop offset="1" stop-color="transparent"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="${W * 0.15}" cy="${H * 0.85}" r="240" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="rgba(232, 120, 154, 0.05)"/>
+      <stop offset="1" stop-color="transparent"/>
+    </radialGradient>
+    <linearGradient id="accentLine" x1="0" y1="0" x2="${W}" y2="0">
+      <stop offset="0" stop-color="rgba(232, 120, 154, 0)"/>
+      <stop offset="0.35" stop-color="rgba(232, 120, 154, 0.5)"/>
+      <stop offset="0.65" stop-color="rgba(168, 85, 247, 0.5)"/>
+      <stop offset="1" stop-color="rgba(168, 85, 247, 0)"/>
+    </linearGradient>
+    <linearGradient id="avatarGrad" x1="32" y1="57" x2="128" y2="153">
+      <stop offset="0" stop-color="#e8789a"/>
+      <stop offset="1" stop-color="#a855f7"/>
+    </linearGradient>
+    <clipPath id="avatarClip">
+      <circle cx="80" cy="105" r="48"/>
+    </clipPath>
+  </defs>
 
-      const lineGrad = ctx.createLinearGradient(0, 0, W, 0)
-      lineGrad.addColorStop(0, "rgba(232, 120, 154, 0)")
-      lineGrad.addColorStop(0.35, "rgba(232, 120, 154, 0.5)")
-      lineGrad.addColorStop(0.65, "rgba(168, 85, 247, 0.5)")
-      lineGrad.addColorStop(1, "rgba(168, 85, 247, 0)")
-      ctx.fillStyle = lineGrad
-      ctx.fillRect(0, H - 3, W, 3)
+  <!-- 背景 -->
+  <rect x="0" y="0" width="${W}" height="${H}" rx="20" fill="url(#bg)"/>
+  <rect x="0" y="0" width="${W}" height="${H}" rx="20" fill="url(#glow1)"/>
+  <rect x="0" y="0" width="${W}" height="${H}" rx="20" fill="url(#glow2)"/>
+  <rect x="0.5" y="0.5" width="${W - 1}" height="${H - 1}" rx="20" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
 
-      log("converting to blob...")
-      const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob(resolve, "image/png")
-      )
-      if (!blob) { toast.error("生成失败"); return }
+  <!-- 头像 -->
+  ${avatarDataUrl
+    ? `<image href="${avatarDataUrl}" x="32" y="57" width="96" height="96" clip-path="url(#avatarClip)" preserveAspectRatio="xMidYMid slice"/>`
+    : `<circle cx="80" cy="105" r="48" fill="url(#avatarGrad)"/>
+       <text x="80" y="109" text-anchor="middle" fill="#ffffff" font-size="30" font-weight="bold" font-family="sans-serif">${initials}</text>`
+  }
+  <circle cx="80" cy="105" r="50" fill="none" stroke="rgba(232, 120, 154, 0.4)" stroke-width="2"/>
 
-      log("downloading...")
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = `${d.username}_名片.png`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
+  <!-- 用户名 + UID + 角色标签 -->
+  <text x="148" y="98" fill="#ffffff" font-size="26" font-weight="bold" font-family="sans-serif">${escapeXml(data.username)}</text>
+  <text x="148" y="122" fill="rgba(255,255,255,0.3)" font-size="12" font-family="sans-serif">UID: ${data.uid}</text>
+  ${roleLabel
+    ? `<rect x="236" y="111" width="60" height="18" rx="9" fill="rgba(232, 120, 154, 0.15)" stroke="rgba(232, 120, 154, 0.3)" stroke-width="0.5"/>
+       <text x="266" y="124" text-anchor="middle" fill="rgba(232, 120, 154, 0.9)" font-size="11" font-family="sans-serif">${roleLabel}</text>`
+    : ""}
+
+  <!-- 简介 -->
+  ${bio ? `<text x="50" y="170" fill="rgba(255,255,255,0.4)" font-size="13" font-family="sans-serif">${escapeXml(bio)}</text>` : ""}
+
+  <!-- 分割线 -->
+  <line x1="50" y1="220" x2="${W - 50}" y2="220" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+
+  <!-- 统计数据 -->
+  <text x="${W / 2}" y="260" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="12" font-family="sans-serif">
+    ${["收藏", "关注者", "关注中", "评论"].map((l, i) => `<tspan x="${50 + i * 200 + 100}" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="12" font-family="sans-serif">${l}</tspan>`).join("")}
+  </text>
+  <text y="302">
+    ${[data.favCount, data.followerCount, data.followingCount, data.commentCount].map((v, i) => `<tspan x="${50 + i * 200 + 100}" text-anchor="middle" fill="#ffffff" font-size="30" font-weight="bold" font-family="sans-serif">${formatNum(v)}</tspan>`).join("")}
+  </text>
+
+  <!-- 分割线 -->
+  <line x1="50" y1="345" x2="${W - 50}" y2="345" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+
+  <!-- 底部信息 -->
+  <text x="50" y="375" fill="rgba(255,255,255,0.2)" font-size="12" font-family="sans-serif">加入于 ${joinDate}</text>
+  <text x="${W - 50}" y="375" text-anchor="end" fill="rgba(255,255,255,0.12)" font-size="11" font-family="sans-serif">同人游戏站 · fangame</text>
+
+  <!-- 底部装饰线 -->
+  <rect x="0" y="${H - 3}" width="${W}" height="3" fill="url(#accentLine)"/>
+</svg>`
+
+      svgRef.current = svg
+
+      // SVG → blob → download
+      const img = new Image()
+      const svgBlob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" })
+      const url = URL.createObjectURL(svgBlob)
+
+      await new Promise<void>((resolve) => {
+        img.onload = () => {
+          const canvas = document.createElement("canvas")
+          canvas.width = W * 2
+          canvas.height = H * 2
+          const ctx = canvas.getContext("2d")!
+          ctx.scale(2, 2)
+          ctx.drawImage(img, 0, 0)
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const downloadUrl = URL.createObjectURL(blob)
+              const a = document.createElement("a")
+              a.href = downloadUrl
+              a.download = `${data.username}_名片.png`
+              document.body.appendChild(a)
+              a.click()
+              document.body.removeChild(a)
+              URL.revokeObjectURL(downloadUrl)
+            }
+            URL.revokeObjectURL(url)
+            resolve()
+          }, "image/png")
+        }
+        img.src = url
+      })
 
       toast.success("名片已生成")
     } catch (e) {
       console.error("[名片生成]", e)
-      toast.error("生成失败：" + (e instanceof Error ? e.message : "未知错误"))
+      toast.error("生成失败")
     } finally {
-      generatingRef.current = false
       setGenerating(false)
     }
-  }, [])
+  }
 
   return (
     <button
-      onClick={() => {
-        console.log("[名片] clicked")
-        generate()
-      }}
+      onClick={generate}
       type="button"
       disabled={generating}
       className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition-all hover:bg-secondary disabled:opacity-60"
@@ -294,42 +209,6 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
   )
 }
 
-function loadImageSafe(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    fetch(src)
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
-        return res.blob()
-      })
-      .then(blob => {
-        img.onload = () => resolve(img)
-        img.onerror = () => reject(new Error(`Failed to load blob: ${src}`))
-        img.src = URL.createObjectURL(blob)
-      })
-      .catch(err => reject(err instanceof Error ? err : new Error(`Fetch failed: ${src}`)))
-  })
-}
-
-function formatNum(n: number): string {
-  if (n >= 10000) return (n / 10000).toFixed(1).replace(/\.0$/, "") + "w"
-  if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, "") + "k"
-  return String(n)
-}
-
-function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
-  const lines: string[] = []
-  let current = ""
-  for (const char of text) {
-    const test = current + char
-    if (ctx.measureText(test).width > maxWidth && current) {
-      lines.push(current + "…")
-      current = ""
-      break
-    } else {
-      current = test
-    }
-  }
-  if (current) lines.push(current)
-  return lines
+function escapeXml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
 }
