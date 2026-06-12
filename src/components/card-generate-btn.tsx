@@ -322,10 +322,18 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
 function loadImageSafe(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image()
-    img.crossOrigin = "anonymous"
-    img.onload = () => resolve(img)
-    img.onerror = () => reject(new Error(`Failed to load: ${src}`))
-    img.src = src
+    // 开发阶段绕过 CORS：fetch 下载 blob → blob URL 视为同源
+    fetch(src)
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        return res.blob()
+      })
+      .then(blob => {
+        img.onload = () => resolve(img)
+        img.onerror = () => reject(new Error(`Failed to load blob: ${src}`))
+        img.src = URL.createObjectURL(blob)
+      })
+      .catch(err => reject(err instanceof Error ? err : new Error(`Fetch failed: ${src}`)))
   })
 }
 
