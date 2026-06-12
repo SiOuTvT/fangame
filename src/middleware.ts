@@ -44,7 +44,7 @@ function buildCSP(nonce: string): string {
     // style-src 保留 unsafe-inline：Tailwind CSS 运行时样式注入需要
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
     `img-src ${imgDomains.join(" ")}`,
-    `font-src 'self' data: https://fonts.gstatic.com`,
+    `font-src 'self' data: https://fonts.gstatic.com https://fonts.gstatic.font.im`,
     `connect-src 'self' https://api.vndb.org https://*.ingest.sentry.io https://*.sentry.io wss://*.sentry.io https://*.r2.cloudflarestorage.com`,
     `frame-ancestors 'none'`,
     `base-uri 'self'`,
