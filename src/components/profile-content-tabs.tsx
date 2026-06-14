@@ -29,6 +29,10 @@ const tabs: { key: TabKey; label: string; icon: React.ElementType }[] = [
   { key: "play", label: "足迹", icon: Gamepad2 },
 ]
 
+// 情感消息 key 常量，避免每次渲染传入新数组
+const FAV_MSG_KEYS = ["empty_favorites", "empty_play_status"] as const
+const PLAY_MSG_KEY = "empty_play_status" as const
+
 export function ProfileContentTabs({ favGames, playStatusGames, comments }: Props) {
   const [active, setActive] = useState<TabKey>("favorites")
   const [collections, setCollections] = useState<CollectionData[]>([])
@@ -122,7 +126,7 @@ function FavoritesTab({ defaultFolderGames, collections, onOpenFolder, showCreat
   showCreateFolder: boolean; setShowCreateFolder: (v: boolean) => void; newFolderName: string; setNewFolderName: (v: string) => void
   onCreateFolder: () => void; onDeleteFolder: (id: string) => void; loading: boolean; creating: boolean
 }) {
-  const { messages: favMsgs } = useEmotionalMessages(["empty_favorites", "empty_play_status"])
+  const { messages: favMsgs } = useEmotionalMessages(FAV_MSG_KEYS)
 
   return (
     <div className="space-y-3">
@@ -252,7 +256,7 @@ function CommentsTab({ comments }: { comments: CommentLite[] }) {
 }
 
 function PlayTab({ playStatusGames }: { playStatusGames: { game: GameLite; status: string }[] }) {
-  const { message: playMsg } = useEmotionalMessage("empty_play_status")
+  const { message: playMsg } = useEmotionalMessage(PLAY_MSG_KEY)
   if (playStatusGames.length === 0) return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <Eye className="h-10 w-10 text-muted-foreground/30 mb-3" />
