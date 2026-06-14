@@ -24,7 +24,8 @@ export function PagesManager({ initial }: Props) {
 
   function startEdit(key: string) {
     setEditingKey(key)
-    setDraft(contents[key] || "")
+    // 从 initial 获取内容，如果没有则使用空字符串
+    setDraft(initial[key] ?? "")
   }
 
   function cancelEdit() {
