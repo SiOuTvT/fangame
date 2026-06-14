@@ -21,7 +21,7 @@ const NAV_SECTIONS = [
       { icon: Home, label: "首页", href: "/" },
       { icon: Users, label: "制作组图鉴", href: "/credits" },
       { icon: Layers, label: "精选合集", href: "/collections" },
-      { icon: Tag, label: "标签浏览", href: "/search?showTags=1" },
+      { icon: Tag, label: "标签浏览", href: "/tags" },
     ],
   },
 ]
