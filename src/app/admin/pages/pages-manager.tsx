@@ -1,10 +1,10 @@
 "use client"
 
 import { RichTextContent } from "@/components/rich-text-content-wrapper"
-import { RichTextEditor } from "@/components/rich-text-editor-wrapper"
 import { Loader2, Pencil, Save, X } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
+import { StructuredEditor } from "./structured-editor"
 
 const PAGES = [
   { key: "page_about", label: "关于", href: "/about" },
@@ -24,7 +24,6 @@ export function PagesManager({ initial }: Props) {
 
   function startEdit(key: string) {
     setEditingKey(key)
-    // 从 initial 获取内容，如果没有则使用空字符串
     setDraft(initial[key] ?? "")
   }
 
@@ -88,7 +87,7 @@ export function PagesManager({ initial }: Props) {
 
           <div className="p-5">
             {editingKey === page.key ? (
-              <RichTextEditor content={draft} onChange={setDraft} placeholder="输入页面内容..." />
+              <StructuredEditor html={draft} onChange={setDraft} />
             ) : (
               <div className="prose prose-sm dark:prose-invert max-w-none text-foreground">
                 {contents[page.key] ? (
