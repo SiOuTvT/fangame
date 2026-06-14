@@ -20,13 +20,20 @@ async function loadMessages(): Promise<EmMsg[]> {
   if (cachedMessages) return cachedMessages
   if (fetchPromise) return fetchPromise
 
-  fetchPromise = fetch("/api/emotional-messages")
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 10000)
+  fetchPromise = fetch("/api/emotional-messages", { signal: controller.signal })
     .then((res) => (res.ok ? res.json() : []))
     .then((data) => {
+      clearTimeout(timeoutId)
       cachedMessages = data
       return data
     })
-    .catch(() => [])
+    .catch(() => {
+      clearTimeout(timeoutId)
+      fetchPromise = null
+      return []
+    })
 
   return fetchPromise
 }
@@ -77,7 +84,7 @@ export function useEmotionalMessages(keys: string[]) {
       setLoading(false)
     })
     return () => { cancelled = true }
-  }, [keysKey, keys])
+  }, [keysKey])
 
   return { messages, loading }
 }
