@@ -205,3 +205,6 @@ export const api = {
 /** 便捷别名 */
 export const apiGet = <T>(url: string, opts?: ApiClientOptions) => api.get<T>(url, opts)
 export const apiPost = <T>(url: string, body?: unknown, opts?: ApiClientOptions) => api.post<T>(url, body, opts)
+export const apiPut = <T>(url: string, body?: unknown, opts?: ApiClientOptions) => api.put<T>(url, body, opts)
+export const apiPatch = <T>(url: string, body?: unknown, opts?: ApiClientOptions) => api.patch<T>(url, body, opts)
+export const apiDelete = <T>(url: string, opts?: ApiClientOptions) => api.delete<T>(url, opts)
