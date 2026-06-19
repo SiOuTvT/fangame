@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { MicroRichEditor } from "@/components/micro-rich-editor"
 import { Plus, X, ArrowUp, ArrowDown, Type, List, Pilcrow, LayoutTemplate, ExternalLink } from "lucide-react"
 
 interface Block {
@@ -263,8 +264,9 @@ function BlockEditor({
   onMove: (dir: "up" | "down") => void
   onToggleSmallCardLayout?: (index: number) => void
 }) {
-  const isCard = block.type === "card" || block.type === "qa"
-  const data = isCard ? JSON.parse(block.content) : null
+  const isCard = block.type === "card" || block.type === "qa" || block.type === "small-card"
+  const isLinkCard = block.type === "link-card"
+  const data = isCard || isLinkCard ? JSON.parse(block.content) : null
 
   return (
     <div className="group relative rounded-xl border border-border bg-card transition-all hover:shadow-sm">
@@ -316,30 +318,39 @@ function BlockEditor({
             <div className="flex items-center justify-center w-7 h-7 rounded-md bg-blue-500/10 text-blue-500 flex-shrink-0 mt-0.5">
               <Pilcrow className="h-4 w-4" />
             </div>
-            <Textarea
-              value={block.content}
-              onChange={e => onUpdate({ content: e.target.value })}
-              placeholder="输入段落内容..."
-              className="flex-1 border-0 bg-transparent px-2 focus-visible:ring-0 resize-none"
-              rows={3}
-            />
+            <div className="flex-1">
+              <MicroRichEditor
+                content={block.content}
+                onChange={html => onUpdate({ content: html })}
+                placeholder="输入段落内容..."
+              />
+            </div>
           </div>
         )}
 
         {block.type === "list" && (
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-7 h-7 rounded-md bg-green-500/10 text-green-500">
-                <List className="h-4 w-4" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center w-7 h-7 rounded-md bg-green-500/10 text-green-500">
+                  <List className="h-4 w-4" />
+                </div>
+                <select
+                  value={block.content}
+                  onChange={e => onUpdate({ content: e.target.value })}
+                  className="text-xs border border-border rounded-md px-2 py-1.5 bg-background"
+                >
+                  <option value="ul">无序列表</option>
+                  <option value="ol">有序列表</option>
+                </select>
               </div>
-              <select
-                value={block.content}
-                onChange={e => onUpdate({ content: e.target.value })}
-                className="text-xs border border-border rounded-md px-2 py-1.5 bg-background"
+              <button
+                onClick={() => onUpdate({ items: [...(block.items || []), ""] })}
+                className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-muted-foreground hover:text-green-500 hover:bg-green-500/10 transition-colors"
+                title="添加列表项"
               >
-                <option value="ul">无序列表</option>
-                <option value="ol">有序列表</option>
-              </select>
+                <Plus className="h-3 w-3" /> 添加
+              </button>
             </div>
             <div className="space-y-1.5 pl-9">
               {block.items?.map((item, i) => (
@@ -362,11 +373,15 @@ function BlockEditor({
                       if (newItems?.length) onUpdate({ items: newItems })
                     }}
                     className="p-1 hover:bg-red-500/10 rounded text-muted-foreground hover:text-red-500 opacity-0 hover:opacity-100"
+                    title="删除此项"
                   >
                     <X className="h-3 w-3" />
                   </button>
                 </div>
               ))}
+              {(!block.items || block.items.length === 0) && (
+                <p className="text-xs text-muted-foreground italic">暂无列表项，点击"添加"按钮开始</p>
+              )}
             </div>
           </div>
         )}
@@ -389,12 +404,10 @@ function BlockEditor({
                   placeholder="问题..."
                   className="h-8 border-0 bg-transparent px-0 focus-visible:ring-0 font-medium"
                 />
-                <Textarea
-                  value={data?.a || ""}
-                  onChange={e => onUpdate({ content: JSON.stringify({ ...(data || {}), a: e.target.value }) })}
+                <MicroRichEditor
+                  content={data?.a || ""}
+                  onChange={html => onUpdate({ content: JSON.stringify({ ...(data || {}), a: html }) })}
                   placeholder="答案..."
-                  className="border-0 bg-transparent px-0 focus-visible:ring-0 resize-none"
-                  rows={2}
                 />
               </div>
             ) : block.type === "small-card" ? (
@@ -413,12 +426,10 @@ function BlockEditor({
                     {data?.isGrid ? "切换为竖向" : "切换为网格"}
                   </button>
                 </div>
-                <Textarea
-                  value={data?.desc || ""}
-                  onChange={e => onUpdate({ content: JSON.stringify({ ...(data || {}), desc: e.target.value }) })}
+                <MicroRichEditor
+                  content={data?.desc || ""}
+                  onChange={html => onUpdate({ content: JSON.stringify({ ...(data || {}), desc: html }) })}
                   placeholder="小卡片描述（可选）..."
-                  className="border-0 bg-transparent px-0 focus-visible:ring-0 resize-none"
-                  rows={2}
                 />
                 <p className="text-xs text-muted-foreground">
                   {data?.isGrid ? "网格布局：一行两个（半行一个）" : "竖向布局：一行一个"}
@@ -432,12 +443,10 @@ function BlockEditor({
                   placeholder="卡片标题..."
                   className="h-8 border-0 bg-transparent px-0 focus-visible:ring-0 font-semibold"
                 />
-                <Textarea
-                  value={data?.desc || ""}
-                  onChange={e => onUpdate({ content: JSON.stringify({ ...(data || {}), desc: e.target.value }) })}
+                <MicroRichEditor
+                  content={data?.desc || ""}
+                  onChange={html => onUpdate({ content: JSON.stringify({ ...(data || {}), desc: html }) })}
                   placeholder="卡片描述..."
-                  className="border-0 bg-transparent px-0 focus-visible:ring-0 resize-none"
-                  rows={2}
                 />
               </div>
             )}
