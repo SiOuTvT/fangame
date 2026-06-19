@@ -20,14 +20,17 @@ function GameGridSkeleton() {
   )
 }
 
-async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: boolean }) {
+async function GameGridServer({ tag, q, nsfw, page }: { tag: string; q: string; nsfw: boolean; page: number }) {
   const where = buildGameSearchFilter({ q, tag, nsfw })
+  const GAMES_PER_PAGE = 24
+  const skip = (page - 1) * GAMES_PER_PAGE
 
   const [games, total] = await Promise.all([
     prisma.game.findMany({
       where,
       orderBy: { createdAt: "desc" },
-      take: 24,
+      skip,
+      take: GAMES_PER_PAGE,
       select: {
         id: true, serialId: true, title: true, coverImage: true, status: true,
         isNsfw: true, favoriteCount: true, viewCount: true,
@@ -94,12 +97,15 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; tag?: string; nsfw?: string }>
+  searchParams: Promise<{ q?: string; tag?: string; nsfw?: string; page?: string }>
 }) {
   const sp        = await searchParams
   const q         = sp.q?.trim() || ""
   const activeTag = sp.tag || "全部"
   const nsfw      = sp.nsfw === "1"
+  const page      = Math.max(1, parseInt(sp.page || "1"))
+  const GAMES_PER_PAGE = 24
+  const skip      = (page - 1) * GAMES_PER_PAGE
 
   let total = 0
   let todayCheckins = 0
