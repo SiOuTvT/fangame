@@ -3,7 +3,7 @@
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { ChevronLeft, ChevronRight, Maximize2, Pause, Play, X } from "lucide-react"
 import Image from "next/image"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState, memo } from "react"
 
 interface GalleryHeroProps {
   screenshots: string[]
@@ -82,9 +82,12 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
       if (e.key === "ArrowLeft") goPrev()
       if (e.key === "ArrowRight") goNext()
     }
-    window.addEventListener("keydown", handler)
-    return () => window.removeEventListener("keydown", handler)
-  }, [goPrev, goNext])
+    // 仅在组件挂载且可见时监听键盘事件
+    if (screenshots.length > 1) {
+      window.addEventListener("keydown", handler)
+      return () => window.removeEventListener("keydown", handler)
+    }
+  }, [goPrev, goNext, screenshots.length])
 
   // Lightbox 状态
   const [lightboxOpen, setLightboxOpen] = useState(false)
@@ -95,20 +98,23 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
 
   const activeImage = galleryImages[activeIndex] ?? ""
 
-  // Track previous image for crossfade using state (not ref) to avoid render-time ref access
-  const [prevImage, setPrevImage] = useState(activeImage)
+  // Track previous image for crossfade - 使用 ref 避免额外状态渲染
+  const prevImageRef = useRef<string>("")
   const [fading, setFading] = useState(false)
+  const [displayImage, setDisplayImage] = useState(activeImage)
+
+  // 当 activeImage 变化时，触发淡入动画
   useEffect(() => {
     if (!activeImage) return
-    if (prevImage !== activeImage) {
+    if (prevImageRef.current !== activeImage) {
       setFading(true)
-      const timer = setTimeout(() => {
-        setPrevImage(activeImage)
-        setFading(false)
-      }, 350)
+      setDisplayImage(activeImage)
+      prevImageRef.current = activeImage
+      // 动画完成后重置 fading 状态
+      const timer = setTimeout(() => setFading(false), 350)
       return () => clearTimeout(timer)
     }
-  }, [activeImage, prevImage])
+  }, [activeImage])
 
   if (galleryImages.length === 0) {
     return (
@@ -174,10 +180,10 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
 
     <div className="group relative h-full w-full overflow-hidden">
       {/* Previous image underneath for crossfade */}
-      {fading && prevImage && prevImage !== activeImage && (
+      {fading && prevImageRef.current && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={prevImage}
+          src={prevImageRef.current}
           alt=""
           className="absolute inset-0 w-full object-cover"
           style={{ height: '100%' }}
@@ -186,7 +192,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
       )}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={activeImage}
+        src={displayImage}
         alt={`${gameTitle} - 预览 ${activeIndex + 1}`}
         className={`absolute inset-0 w-full object-cover cursor-pointer ${fading ? 'hero-fade-enter' : ''}`}
         style={{ height: '100%', ...(fading ? { animation: "heroFadeIn 0.35s ease-out" } : {}) }}
@@ -273,6 +279,49 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
  * 画廊缩略图条 — 100px 锁高
  * 横向排列的小缩略图，点击联动巨幕
  */
+
+// 独立缩略图组件，使用 memo 避免不必要的重新渲染
+const ThumbnailButton = memo(function ThumbnailButton({
+  screenshot,
+  gameTitle,
+  index,
+  isActive,
+  onSelect,
+}: {
+  screenshot: string
+  gameTitle: string
+  index: number
+  isActive: boolean
+  onSelect: (index: number) => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(index)}
+      className={`relative shrink-0 overflow-hidden transition-all duration-200 h-[48px] w-[85px] sm:h-[60px] sm:w-[106px] lg:h-[72px] lg:w-[128px] rounded-lg ${
+        isActive ? "ring-1 sm:ring-2 ring-primary" : "opacity-45 hover:opacity-70"
+      }`}
+    >
+      <Image
+        src={screenshot}
+        alt={`${gameTitle} 缩略图 ${index + 1}`}
+        fill
+        className="object-cover"
+        draggable={false}
+        sizes="(max-width: 640px) 85px, (max-width: 1024px) 106px, 128px"
+        quality={50}
+        loading="lazy"
+        decoding="async"
+      />
+      {!isActive && (
+        <div className="absolute inset-0 bg-black/20 transition-opacity duration-200 hover:opacity-0" />
+      )}
+    </button>
+  )
+})
+
+ThumbnailButton.displayName = "ThumbnailButton"
+
 export function GalleryStrip({
   screenshots,
   gameTitle,
@@ -285,6 +334,11 @@ export function GalleryStrip({
   onSelect: (index: number) => void
 }) {
   const barRef = useRef<HTMLDivElement>(null)
+
+  // 使用 useCallback 稳定 onSelect 引用，避免父组件重渲染时触发子组件更新
+  const handleSelect = useCallback((index: number) => {
+    onSelect(index)
+  }, [onSelect])
 
   useEffect(() => {
     if (!barRef.current) return
@@ -302,29 +356,14 @@ export function GalleryStrip({
   return (
     <div ref={barRef} className="flex h-full items-center gap-1.5 sm:gap-2 overflow-x-auto px-2 sm:px-3 scrollbar-hide" style={{ scrollBehavior: "smooth", overscrollBehaviorX: "contain", overscrollBehaviorY: "none" }}>
       {screenshots.map((img, i) => (
-        <button
+        <ThumbnailButton
           key={i}
-          type="button"
-          onClick={() => onSelect(i)}
-          className={`relative shrink-0 overflow-hidden transition-all duration-200 h-[48px] w-[85px] sm:h-[60px] sm:w-[106px] lg:h-[72px] lg:w-[128px] rounded-lg ${
-            i === activeIndex ? "ring-1 sm:ring-2 ring-primary" : "opacity-45 hover:opacity-70"
-          }`}
-        >
-          <Image
-            src={img}
-            alt={`${gameTitle} 缩略图 ${i + 1}`}
-            fill
-            className="object-cover"
-            draggable={false}
-            sizes="(max-width: 640px) 85px, (max-width: 1024px) 106px, 128px"
-            quality={50}
-            loading="lazy"
-            decoding="async"
-          />
-          {i !== activeIndex && (
-            <div className="absolute inset-0 bg-black/20 transition-opacity duration-200 hover:opacity-0" />
-          )}
-        </button>
+          screenshot={img}
+          gameTitle={gameTitle}
+          index={i}
+          isActive={i === activeIndex}
+          onSelect={handleSelect}
+        />
       ))}
     </div>
   )
