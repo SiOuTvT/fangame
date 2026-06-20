@@ -5,6 +5,10 @@ import { ChevronLeft, ChevronRight, Maximize2, Pause, Play, X } from "lucide-rea
 import Image from "next/image"
 import { useCallback, useEffect, useRef, useState, memo } from "react"
 
+// 检测是否为触摸设备
+const isTouchDevice = typeof window !== 'undefined' &&
+  ('ontouchstart' in window || navigator.maxTouchPoints > 0)
+
 interface GalleryHeroProps {
   screenshots: string[]
   gameTitle: string
@@ -103,6 +107,22 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
   const [fading, setFading] = useState(false)
   const [displayImage, setDisplayImage] = useState(activeImage)
 
+  // 预加载前后图片
+  useEffect(() => {
+    if (!galleryImages.length) return
+    const preloadCount = 1
+    for (let i = 1; i <= preloadCount; i++) {
+      const nextIdx = (activeIndex + i) % galleryImages.length
+      const prevIdx = (activeIndex - i + galleryImages.length) % galleryImages.length
+      ;[nextIdx, prevIdx].forEach(idx => {
+        if (galleryImages[idx]) {
+          const img = new Image()
+          img.src = galleryImages[idx]
+        }
+      })
+    }
+  }, [activeIndex, galleryImages])
+
   // 当 activeImage 变化时，触发淡入动画
   useEffect(() => {
     if (!activeImage) return
@@ -198,7 +218,20 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
         style={{ height: '100%', ...(fading ? { animation: "heroFadeIn 0.35s ease-out" } : {}) }}
         draggable={false}
         loading={activeIndex === 0 ? "eager" : "lazy"}
-        onDoubleClick={openLightbox}
+        // 触摸设备使用单击，非触摸设备使用双击
+        onPointerUp={(e) => {
+          // 使用 onPointerUp 替代 onDoubleClick 加速响应
+          // 通过 pointerType 判断输入方式：触摸设备单击，鼠标双击
+          if (e.pointerType === 'touch' || isTouchDevice) {
+            openLightbox()
+          }
+        }}
+        onDoubleClick={() => {
+          // 鼠标双击打开（非触摸设备）
+          if (!isTouchDevice) {
+            openLightbox()
+          }
+        }}
       />
 
       {/* 底部渐变遮罩 */}
