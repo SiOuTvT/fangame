@@ -7,7 +7,6 @@ import { Calendar, Eye, FolderHeart, Gamepad2, MessageSquare, Plus, Trash2, X } 
 import Image from "next/image"
 import Link from "next/link"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { createPortal } from "react-dom"
 
 interface GameLite {
   id: string; serialId?: number; title: string; coverImage?: string; isNsfw?: boolean; originalWork?: string
@@ -168,10 +167,28 @@ export function ProfileContentTabs({ favGames = [], playStatusGames = [], commen
         {active === "play" && <PlayTab playStatusGames={playStatusGames} />}
       </div>
 
-      {modalCollection && createPortal(
-        <FolderModal name={modalCollection.name} games={modalCollection.favorites?.map(f => f.game) ?? []} onClose={() => setModalCollection(null)} />,
-        document.body
-      )}
+      {/* 收藏夹弹窗 - 预渲染 DOM，使用 inert 和 CSS 控制显示/隐藏 */}
+      <div
+        inert={!modalCollection}
+        aria-hidden={!modalCollection}
+        className={`fixed inset-0 z-50 ${modalCollection ? "" : "pointer-events-none"}`}
+      >
+        <div
+          className={`absolute inset-0 bg-black/45 backdrop-blur-sm transition-opacity duration-300 ${modalCollection ? "opacity-100" : "opacity-0"}`}
+          onClick={() => setModalCollection(null)}
+        />
+        <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-8">
+          <div className={`relative flex max-h-[80vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border shadow-2xl transition-transform duration-300 ${modalCollection ? "scale-100" : "scale-95"}`}>
+            {modalCollection && (
+              <FolderModalContent
+                name={modalCollection.name}
+                games={modalCollection.favorites?.map(f => f.game) ?? []}
+                onClose={() => setModalCollection(null)}
+              />
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -256,43 +273,38 @@ function CollectionCard({ id, name, gameCount, coverGames, onOpen, onDelete, isD
   )
 }
 
-function FolderModal({ name, games, onClose }: { name: string; games: GameLite[]; onClose: () => void }) {
-  const overlayRef = useRef<HTMLDivElement>(null)
+// 收藏夹弹窗内容组件 - 使用 memo 避免不必要的重渲染
+const FolderModalContent = memo(function FolderModalContent({ name, games, onClose }: { name: string; games: GameLite[]; onClose: () => void }) {
   return (
-    <div ref={overlayRef} onClick={(e) => { if (e.target === overlayRef.current) onClose() }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8"
-      style={{ backgroundColor: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}>
-      <div className="relative flex max-h-[80vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border"
-        style={{ boxShadow: "0 25px 60px rgba(0,0,0,0.25)" }}>
-        <div className="flex items-center justify-between border-b border-border px-6 py-4">
-          <div className="flex items-center gap-3">
-            <FolderHeart className="h-5 w-5 text-primary" strokeWidth={2} />
-            <h2 className="text-base font-bold text-foreground">{name}</h2>
-            <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">{games.length} 部</span>
-          </div>
-          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground"><X className="h-4 w-4" strokeWidth={2.5} /></button>
+    <>
+      <div className="flex items-center justify-between border-b border-border px-6 py-4">
+        <div className="flex items-center gap-3">
+          <FolderHeart className="h-5 w-5 text-primary" strokeWidth={2} />
+          <h2 className="text-base font-bold text-foreground">{name}</h2>
+          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">{games.length} 部</span>
         </div>
-        <div className="flex-1 overflow-y-auto p-5" style={{ maxHeight: "calc(80vh - 72px)" }}>
-          {games.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <FolderHeart className="h-12 w-12 text-muted-foreground/20 mb-3" /><p className="text-sm text-muted-foreground">这个收藏夹还是空的</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
-              {games.map((g) => (
-                <Link key={g.id} href={`/games/${g.serialId ?? g.id}`} className="group" onClick={onClose}>
-                  {g.coverImage ? <Image src={g.coverImage} alt={g.title} width={120} height={160} className="aspect-[3/4] w-full rounded-lg object-cover" unoptimized />
-                    : <div className="flex aspect-[3/4] w-full items-center justify-center rounded-lg bg-muted"><FolderHeart className="h-6 w-6" /></div>}
-                  <p className="mt-1.5 text-[11px] font-medium text-foreground truncate">{g.title}</p>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
+        <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground"><X className="h-4 w-4" strokeWidth={2.5} /></button>
       </div>
-    </div>
+      <div className="flex-1 overflow-y-auto p-5 max-h-[calc(80vh-72px)]">
+        {games.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <FolderHeart className="h-12 w-12 text-muted-foreground/20 mb-3" /><p className="text-sm text-muted-foreground">这个收藏夹还是空的</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
+            {games.map((g) => (
+              <Link key={g.id} href={`/games/${g.serialId ?? g.id}`} className="group" onClick={onClose}>
+                {g.coverImage ? <Image src={g.coverImage} alt={g.title} width={120} height={160} className="aspect-[3/4] w-full rounded-lg object-cover" unoptimized />
+                  : <div className="flex aspect-[3/4] w-full items-center justify-center rounded-lg bg-muted"><FolderHeart className="h-6 w-6" /></div>}
+                <p className="mt-1.5 text-[11px] font-medium text-foreground truncate">{g.title}</p>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
   )
-}
+})
 
 function CommentsTab({ comments }: { comments: CommentLite[] }) {
   if (comments.length === 0) return <div className="flex flex-col items-center justify-center py-12 text-center"><MessageSquare className="h-10 w-10 text-muted-foreground/30 mb-3" /><p className="text-sm text-muted-foreground">还没有发表评论</p></div>

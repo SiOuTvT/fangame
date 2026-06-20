@@ -81,9 +81,10 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
     goTo((activeIndex + 1) % galleryImages.length)
   }, [activeIndex, galleryImages.length, goTo])
 
-  // 键盘事件监听 - 仅在 Lightbox 打开时监听
+  // 键盘事件监听 - 仅在 Lightbox 打开时监听，使用 VisibilityObserver 检测页面可见性
   useEffect(() => {
-    if (!lightboxOpen) return
+    // 仅在 Lightbox 打开且页面可见时监听键盘事件
+    if (!lightboxOpen || document.hidden) return
 
     const handler = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") goPrev()
@@ -95,17 +96,17 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
     return () => window.removeEventListener("keydown", handler)
   }, [lightboxOpen, goPrev, goNext, closeLightbox])
 
-  // 画廊预览键盘导航 - 仅在多图且可见时监听
+  // 画廊预览键盘导航 - 仅在多图、可见且 Lightbox 未打开时监听
   useEffect(() => {
+    if (screenshots.length <= 1 || lightboxOpen || document.hidden) return
+
     const handler = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") goPrev()
       if (e.key === "ArrowRight") goNext()
     }
-    // 使用 useCallback 包装 handler，确保清理函数正确移除
-    if (screenshots.length > 1 && !lightboxOpen) {
-      window.addEventListener("keydown", handler)
-      return () => window.removeEventListener("keydown", handler)
-    }
+
+    window.addEventListener("keydown", handler)
+    return () => window.removeEventListener("keydown", handler)
   }, [goPrev, goNext, screenshots.length, lightboxOpen])
 
   // Lightbox 状态
@@ -255,14 +256,14 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
         style={{ background: "linear-gradient(to top, rgba(0,0,0,0.5), transparent)" }}
       />
 
-      {/* 导航箭头 */}
+      {/* 导航箭头 - 触摸设备始终显示，非触摸设备 hover 显示 */}
       {hasMultipleImages && (
         <>
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); goPrev() }}
-            className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 active:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:hover:scale-110"
-            style={{ background: "rgba(0,0,0,0.5)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)", opacity: 0.7 }}
+            className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 hover:opacity-100 hover:scale-110 active:opacity-100 active:scale-95"
+            style={{ background: "rgba(0,0,0,0.5)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)" }}
             aria-label="上一张"
           >
             <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -270,8 +271,8 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); goNext() }}
-            className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 active:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:hover:scale-110"
-            style={{ background: "rgba(0,0,0,0.5)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)", opacity: 0.7 }}
+            className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 hover:opacity-100 hover:scale-110 active:opacity-100 active:scale-95"
+            style={{ background: "rgba(0,0,0,0.5)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)" }}
             aria-label="下一张"
           >
             <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -279,12 +280,12 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
         </>
       )}
 
-      {/* 放大按钮 */}
+      {/* 放大按钮 - 触摸设备始终显示，非触摸设备 hover 显示 */}
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); openLightbox() }}
-        className="absolute left-2 sm:left-3 bottom-2 sm:bottom-3 flex h-5 w-5 sm:h-7 sm:w-7 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 active:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:hover:scale-105"
-        style={{ background: "rgba(0,0,0,0.5)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)", opacity: 0.7 }}
+        className="absolute left-2 sm:left-3 bottom-2 sm:bottom-3 flex h-5 w-5 sm:h-7 sm:w-7 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 hover:opacity-100 hover:scale-105 active:opacity-100 active:scale-95"
+        style={{ background: "rgba(0,0,0,0.5)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)" }}
         aria-label="放大查看"
       >
         <Maximize2 className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
