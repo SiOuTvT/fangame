@@ -23,11 +23,39 @@ const Avatar = memo(function Avatar({ user, size = 6 }: { user: User; size?: num
   return <div className={`${s} rounded-full bg-primary/80 flex items-center justify-center text-[10px] font-bold text-primary-foreground shrink-0`}>{user.username[0].toUpperCase()}</div>
 })
 
-const EMOJI_LIST = [
+const EMOJI_LIST = useMemo(() => [
   "😀", "😂", "🤣", "😍", "🥰", "😘", "😋", "🤔", "😎", "🥺",
   "😭", "😤", "🤯", "🥳", "🤩", "😴", "🤮", "👻", "💀", "🤡",
   "👍", "👎", "❤️", "🔥", "⭐", "🎉", "🎮", "🎵", "✨", "💯",
-]
+], [])
+
+// 表情面板组件 - 使用 memo 避免不必要的重渲染
+const EmojiPanel = memo(function EmojiPanel({ onSelect, onClose }: { onSelect: (emoji: string) => void; onClose: () => void }) {
+  return (
+    <>
+      <div className="fixed inset-0 z-40" onClick={onClose} aria-hidden="true" />
+      <div
+        className="absolute bottom-10 left-0 z-50 w-64 max-w-[calc(100vw-2rem)] rounded-xl bg-card p-3 ring-1 ring-border shadow-2xl"
+        role="dialog"
+        aria-label="表情选择器"
+      >
+        <div className="grid grid-cols-10 gap-1">
+          {EMOJI_LIST.map((emoji) => (
+            <button
+              key={emoji}
+              type="button"
+              onClick={() => onSelect(emoji)}
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-base hover:bg-secondary transition-colors active:scale-90"
+              aria-label={`插入表情 ${emoji}`}
+            >
+              {emoji}
+            </button>
+          ))}
+        </div>
+      </div>
+    </>
+  )
+})
 
 interface PostDetailModalProps {
   post: (Post & { comments: Comment[] }) | null
@@ -67,6 +95,19 @@ export function PostDetailModal({
   const [editingComment, setEditingComment] = useState<string | null>(null)
   const [editCommentText, setEditCommentText] = useState("")
   const commentFileRef = useRef<HTMLInputElement>(null)
+
+  // Esc 键关闭表情面板
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && showCommentEmoji) {
+        setShowCommentEmoji(false)
+      }
+    }
+    if (showCommentEmoji) {
+      window.addEventListener("keydown", handleEsc)
+      return () => window.removeEventListener("keydown", handleEsc)
+    }
+  }, [showCommentEmoji])
 
   if (!post) return null
 
@@ -299,7 +340,9 @@ export function PostDetailModal({
                     <input ref={commentFileRef} type="file" accept="image/*" className="hidden" onChange={handleCommentImage} />
 
                     <div className="relative">
-                      <button type="button" onClick={() => setShowCommentEmoji(!showCommentEmoji)}
+                      <button
+                        type="button"
+                        onClick={() => setShowCommentEmoji(!showCommentEmoji)}
                         className={cn(
                           "flex h-11 w-11 items-center justify-center rounded-lg transition-colors shrink-0",
                           showCommentEmoji
@@ -307,23 +350,21 @@ export function PostDetailModal({
                             : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                         )}
                         aria-label="表情"
-                        aria-expanded={showCommentEmoji}>
+                        aria-expanded={showCommentEmoji}
+                      >
                         <Smile className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden="true" />
                       </button>
+
+                      {/* 表情选择器 */}
                       {showCommentEmoji && (
-                        <>
-                          <div className="fixed inset-0 z-40" onClick={() => setShowCommentEmoji(false)} />
-                          <div className="absolute bottom-10 left-0 z-50 w-64 max-w-[calc(100vw-2rem)] rounded-xl bg-card p-3 ring-1 ring-border shadow-2xl">
-                            <div className="grid grid-cols-10 gap-1">
-                              {EMOJI_LIST.map((emoji) => (
-                                <button key={emoji} type="button" onClick={() => insertCommentEmoji(emoji)}
-                                  className="flex h-8 w-8 items-center justify-center rounded-lg text-base hover:bg-secondary transition-colors active:scale-90">
-                                  {emoji}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        </>
+                        <EmojiPanel
+                          onSelect={(emoji) => {
+                            insertCommentEmoji(emoji)
+                            setShowCommentEmoji(false)
+                            commentInputRef.current?.focus()
+                          }}
+                          onClose={() => setShowCommentEmoji(false)}
+                        />
                       )}
                     </div>
                   </div>
