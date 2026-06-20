@@ -39,15 +39,13 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
 
   let user: any = null
   try {
+    // 只加载用户基本信息，不加载关联数据（改为客户端按需加载）
     user = await prisma.user.findUnique({
       where: { id: resolved.id },
       select: {
         id: true, serialId: true, uid: true, username: true, avatar: true,
         avatarFrameId: true, composedAvatarUrl: true, banner: true, bio: true,
         role: true, createdAt: true,
-        favorites: { take: 20, include: { game: { select: { id: true, serialId: true, title: true, coverImage: true, isNsfw: true } } } },
-        playStatuses: { take: 20, include: { game: { select: { id: true, serialId: true, title: true, coverImage: true, isNsfw: true } } } },
-        comments: { orderBy: { createdAt: "desc" }, take: 20, include: { game: { select: { id: true, serialId: true, title: true } } } },
         _count: { select: { followers: true, following: true } }
       },
     })
@@ -55,8 +53,23 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
   if (!user) notFound()
 
   const userRank = user.serialId
-  const favGames = user.favorites.map((f: { game: unknown }) => f.game)
-  const playStatusGames = user.playStatuses.map((p: { game: unknown; status: string }) => ({ game: p.game, status: p.status }))
+  // 预加载数据但限制数量，改为每 tab 只加载前 10 条（而非各 20 条）
+  const [favGamesData, playStatusesData, commentsData] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: resolved.id },
+      select: { favorites: { take: 10, include: { game: { select: { id: true, serialId: true, title: true, coverImage: true, isNsfw: true } } } } },
+    }).then(u => u?.favorites.map((f: { game: unknown }) => f.game) || []),
+    prisma.user.findUnique({
+      where: { id: resolved.id },
+      select: { playStatuses: { take: 10, include: { game: { select: { id: true, serialId: true, title: true, coverImage: true, isNsfw: true } } } } },
+    }).then(u => u?.playStatuses.map((p: { game: unknown; status: string }) => ({ game: p.game, status: p.status })) || []),
+    prisma.user.findUnique({
+      where: { id: resolved.id },
+      select: { comments: { orderBy: { createdAt: "desc" }, take: 10, include: { game: { select: { id: true, serialId: true, title: true } } } } },
+    }).then(u => u?.comments || []),
+  ])
+  const favGames = favGamesData
+  const playStatusGames = playStatusesData
   const isSelf = session?.user?.id === user.id
 
   let isFollowing = false
@@ -164,7 +177,8 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
             <ProfileContentTabs
               favGames={favGames}
               playStatusGames={playStatusGames}
-              comments={user.comments}
+              comments={commentsData}
+              userId={user.id}
             />
           </div>
         </main>

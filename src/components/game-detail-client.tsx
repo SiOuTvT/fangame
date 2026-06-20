@@ -4,7 +4,7 @@ import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import { Building2, Calendar, Clock, ExternalLink, Flag, Gamepad2 } from "lucide-react"
 import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { ArchiveCard } from "./game-detail/archive-card"
 import { IntroTab } from "./game-detail/intro-tab"
@@ -127,19 +127,24 @@ export default function GameDetailClient({
     }
   }, [gameId, reportSubmitting])
 
-  // Sliding block animation - 用 useLayoutEffect 避免布局抖动
-  useLayoutEffect(() => {
-    const container = containerRef.current
-    const slider = sliderRef.current
-    if (!container || !slider) return
-    const idx = TABS.findIndex(t => t.key === tab)
-    const buttons = container.querySelectorAll<HTMLButtonElement>('[data-tab-btn]')
-    const btn = buttons[idx]
-    if (!btn) return
-    const containerRect = container.getBoundingClientRect()
-    const btnRect = btn.getBoundingClientRect()
-    slider.style.width = `${btnRect.width}px`
-    slider.style.transform = `translateX(${btnRect.left - containerRect.left - 2}px)`
+  // Sliding block animation - 使用 requestAnimationFrame 替代 useLayoutEffect 避免强制同步布局
+  useEffect(() => {
+    const updateSlider = () => {
+      requestAnimationFrame(() => {
+        const container = containerRef.current
+        const slider = sliderRef.current
+        if (!container || !slider) return
+        const idx = TABS.findIndex(t => t.key === tab)
+        const buttons = container.querySelectorAll<HTMLButtonElement>('[data-tab-btn]')
+        const btn = buttons[idx]
+        if (!btn) return
+        const containerRect = container.getBoundingClientRect()
+        const btnRect = btn.getBoundingClientRect()
+        slider.style.width = `${btnRect.width}px`
+        slider.style.transform = `translateX(${btnRect.left - containerRect.left - 2}px)`
+      })
+    }
+    updateSlider()
   }, [tab])
 
   // 监听下载按钮切换 Tab 事件

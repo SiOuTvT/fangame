@@ -19,7 +19,8 @@ interface CollectionData {
   id: string; name: string; description: string; isDefault: boolean; sortOrder: number; favorites: { game: GameLite }[]
 }
 interface Props {
-  favGames: GameLite[]; playStatusGames: { game: GameLite; status: string }[]; comments: CommentLite[]
+  favGames?: GameLite[]; playStatusGames?: { game: GameLite; status: string }[]; comments?: CommentLite[]
+  userId: string
 }
 type TabKey = "favorites" | "comments" | "play"
 
@@ -33,7 +34,7 @@ const tabs: { key: TabKey; label: string; icon: React.ElementType }[] = [
 const FAV_MSG_KEYS = ["empty_favorites", "empty_play_status"] as const
 const PLAY_MSG_KEY = "empty_play_status" as const
 
-export function ProfileContentTabs({ favGames, playStatusGames, comments }: Props) {
+export function ProfileContentTabs({ favGames = [], playStatusGames = [], comments = [], userId }: Props) {
   const [active, setActive] = useState<TabKey>("favorites")
   const [collections, setCollections] = useState<CollectionData[]>([])
   const [collectionsLoading, setCollectionsLoading] = useState(true)
@@ -42,6 +43,48 @@ export function ProfileContentTabs({ favGames, playStatusGames, comments }: Prop
   const [modalCollection, setModalCollection] = useState<CollectionData | null>(null)
   const [creating, setCreating] = useState(false)
   const [loadError, setLoadError] = useState(false)
+
+  // 客户端按需加载数据
+  const [loadedFav, setLoadedFav] = useState(favGames.length > 0)
+  const [loadedPlay, setLoadedPlay] = useState(playStatusGames.length > 0)
+  const [loadedComments, setLoadedComments] = useState(comments.length > 0)
+  const [localFav, setLocalFav] = useState<GameLite[]>(favGames)
+  const [localPlay, setLocalPlay] = useState<{ game: GameLite; status: string }[]>(playStatusGames)
+  const [localComments, setLocalComments] = useState<CommentLite[]>(comments)
+
+  const loadFavorites = useCallback(async () => {
+    if (loadedFav) return
+    try {
+      const data = await apiGet<{ success: boolean; data: { favorites: GameLite[] } }>(`/api/profile/${userId}/favorites`)
+      setLocalFav(data.data?.favorites ?? [])
+      setLoadedFav(true)
+    } catch { setLoadError(true) }
+  }, [userId, loadedFav])
+
+  const loadPlayStatus = useCallback(async () => {
+    if (loadedPlay) return
+    try {
+      const data = await apiGet<{ success: boolean; data: { playStatuses: { game: GameLite; status: string }[] } }>(`/api/profile/${userId}/play-status`)
+      setLocalPlay(data.data?.playStatuses ?? [])
+      setLoadedPlay(true)
+    } catch { setLoadError(true) }
+  }, [userId, loadedPlay])
+
+  const loadComments = useCallback(async () => {
+    if (loadedComments) return
+    try {
+      const data = await apiGet<{ success: boolean; data: { comments: CommentLite[] } }>(`/api/profile/${userId}/comments`)
+      setLocalComments(data.data?.comments ?? [])
+      setLoadedComments(true)
+    } catch { setLoadError(true) }
+  }, [userId, loadedComments])
+
+  // 切换 tab 时加载对应数据
+  useEffect(() => {
+    if (active === "favorites") loadFavorites()
+    else if (active === "play") loadPlayStatus()
+    else if (active === "comments") loadComments()
+  }, [active, loadFavorites, loadPlayStatus, loadComments])
 
   const loadCollections = useCallback(async () => {
     setLoadError(false)
@@ -74,7 +117,7 @@ export function ProfileContentTabs({ favGames, playStatusGames, comments }: Prop
     try { await apiDelete(`/api/collections/${id}`); await loadCollections() } catch { alert("删除失败，请重试") }
   }
 
-  const defaultFolderGames = favGames.filter(g => {
+  const defaultFolderGames = localFav.filter(g => {
     return !collections.some(c => c.favorites?.some(f => f.game.id === g.id))
   })
 
