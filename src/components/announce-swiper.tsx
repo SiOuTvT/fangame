@@ -49,15 +49,16 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
   const len = announcements.length
   const scrollRef = useRef<HTMLDivElement>(null)
   const [imgError, setImgError] = useState(false)
+  const componentVisibleRef = useRef(false)
 
   useEffect(() => { setImgError(false) }, [cur])
   const [paused, setPaused] = useState(false)
 
-  // 视差滚动
+  // 视差滚动优化：仅在组件可见时监听
   useEffect(() => {
     let ticking = false
     const handleScroll = () => {
-      if (!ticking) {
+      if (!ticking && componentVisibleRef.current) {
         ticking = true
         requestAnimationFrame(() => {
           const img = scrollRef.current?.querySelector("img")
@@ -68,8 +69,24 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
         })
       }
     }
+
+    // 使用 IntersectionObserver 检测组件可见性
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        componentVisibleRef.current = entry.isIntersecting
+      },
+      { threshold: 0 }
+    )
+
+    if (scrollRef.current) {
+      observer.observe(scrollRef.current)
+    }
+
     window.addEventListener("scroll", handleScroll, { passive: true })
-    return () => window.removeEventListener("scroll", handleScroll)
+    return () => {
+      observer.disconnect()
+      window.removeEventListener("scroll", handleScroll)
+    }
   }, [])
 
   const next = useCallback(() => setCur((i) => (i + 1) % len), [len])

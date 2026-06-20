@@ -97,9 +97,14 @@ export function ForumClient({
       const res = await fetch(`/api/forum/posts?${params}`)
       if (res.ok) {
         const data = await res.json()
-        setPosts(prev => [...prev, ...data.posts])
-        setCurrentPage(nextPage)
-        setTotalPages(data.totalPages)
+        if (data.posts && data.posts.length > 0) {
+          setPosts(prev => [...prev, ...data.posts])
+          setCurrentPage(nextPage)
+          setTotalPages(data.totalPages)
+        } else {
+          // 无更多数据，直接设置到最后一页
+          setCurrentPage(totalPages)
+        }
       }
     } catch (error) {
       logger.forum.error("Failed to load more posts", error)

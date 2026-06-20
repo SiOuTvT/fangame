@@ -44,7 +44,7 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
     setImgError(true)
   }, [])
 
-  // src 变化时重置
+  // src 变化时重置状态
   const coverSrc = game.coverImage
   const [prevSrc, setPrevSrc] = useState(coverSrc)
   if (coverSrc !== prevSrc) {
@@ -61,6 +61,10 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
   const rawTags = game.resourceTags ?? []
   // 兼容旧格式 string[] 和新格式 {name, color}[]
   const paramTags = rawTags.map(t => typeof t === "string" ? { name: t, color: "" } : t)
+
+  // 根据网格布局计算更精确的 sizes
+  // 移动端：2 列 = 50vw, 平板：3 列 = 33vw, 桌面：4 列 = 25vw
+  const sizes = "(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
 
   return (
     <Link
@@ -91,11 +95,12 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
               alt={game.title}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              sizes={sizes}
               onError={handleNextImageError}
               loading="lazy"
               decoding="async"
-              quality={75}
+              quality={85}
+              priority={game.serialId !== undefined && game.serialId <= 4}
             />
           )
         ) : (
