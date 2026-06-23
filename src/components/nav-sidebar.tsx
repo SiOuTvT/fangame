@@ -94,7 +94,8 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
     if (mobileOpen && onMobileToggle) {
       onMobileToggle()
     }
-  }, [pathname, mobileOpen, onMobileToggle])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname])
 
   return (
     <>
