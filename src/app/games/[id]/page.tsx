@@ -14,6 +14,7 @@ import { isNumericId } from "@/lib/serial-id"
 import { Download, Eye, Heart } from "lucide-react"
 import Image from "next/image"
 import { notFound, redirect } from "next/navigation"
+import { cache as reactCache } from "react"
 
 /**
  * 游戏详情页 — 支持两种 URL 格式：
@@ -21,15 +22,15 @@ import { notFound, redirect } from "next/navigation"
  *   /games/clxxx     (cuid，旧格式 → 301 重定向到 serialId URL)
  */
 
-// ── 查找游戏：优先 serialId，回退 cuid ──────────────────────────────
-async function resolveGame(id: string) {
+// ── 查找游戏：优先 serialId，回退 cuid（React cache 去重，generateMetadata 和页面共享） ──
+const resolveGame = reactCache(async function resolveGame(id: string) {
   if (isNumericId(id)) {
     const numId = parseInt(id, 10)
     if (isNaN(numId) || numId <= 0) return null
     return prisma.game.findUnique({ where: { serialId: numId }, select: { id: true, serialId: true } })
   }
   return prisma.game.findUnique({ where: { id }, select: { id: true, serialId: true } })
-}
+})
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -62,10 +63,9 @@ export default async function GameDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const session = await auth()
 
-  // 查找游戏
-  const resolved = await resolveGame(id)
+  // auth 和 resolveGame 无依赖，并行执行
+  const [session, resolved] = await Promise.all([auth(), resolveGame(id)])
   if (!resolved) notFound()
 
   // 如果是 cuid 格式访问 → 301 重定向到 serialId URL
@@ -94,25 +94,32 @@ export default async function GameDetailPage({
   if (!game) notFound()
 
   const tags = game.tags.map((t) => t.tag)
+  const tagNames = tags.map((t) => t.name)
 
-  // 获取"资源标签"组颜色（用于资源下载区）— 使用缓存避免每次查询 DB
-  let resourceTagColor = "#22c55e"
-  try {
-    const cacheKeyResource = cacheKey("tagGroup", "resource", "color")
-    const cachedColor = await cache.get<string>(cacheKeyResource)
-    if (cachedColor) {
-      resourceTagColor = cachedColor
-    } else {
-      const group = await prisma.tagGroup.findFirst({
-        where: { id: "preset_resource_tab" },
-        select: { color: true },
-      })
-      if (group?.color) {
-        resourceTagColor = group.color
-        await cache.set(cacheKeyResource, group.color, 3600) // 缓存 1 小时
-      }
-    }
-  } catch {}
+  // 获取"资源标签"组颜色 + 收藏状态，并行执行
+  const [resourceTagColor, isFav] = await Promise.all([
+    (async () => {
+      try {
+        const cacheKeyResource = cacheKey("tagGroup", "resource", "color")
+        const cachedColor = await cache.get<string>(cacheKeyResource)
+        if (cachedColor) return cachedColor
+        const group = await prisma.tagGroup.findFirst({
+          where: { id: "preset_resource_tab" },
+          select: { color: true },
+        })
+        if (group?.color) {
+          await cache.set(cacheKeyResource, group.color, 3600)
+          return group.color
+        }
+      } catch {}
+      return "#22c55e"
+    })(),
+    session?.user?.id
+      ? prisma.favorite.findUnique({
+          where: { userId_gameId: { userId: session.user.id, gameId: resolved.id } },
+        }).then(f => !!f)
+      : Promise.resolve(false),
+  ])
 
   // 从所有资源中收集去重的 resourceTags（语言、运行方式、资源内容）
   const resourceTags: string[] = [...new Set(
@@ -127,7 +134,6 @@ export default async function GameDetailPage({
   )]
 
   // 相关游戏推荐：按共同标签匹配 - 使用缓存
-  const tagNames = tags.map((t) => t.name)
   const relatedCacheKey = cacheKey("related", resolved.id, tagNames.sort().join(","))
   let relatedGames: { id: string; serialId: number; title: string; coverImage: string; originalWork: string }[]
 
@@ -153,14 +159,6 @@ export default async function GameDetailPage({
   }
   const screenshots = safeParse<string[]>(game.screenshots, [])
   const downloadLinks = safeParse<{ label: string; url: string }[]>(game.downloadLinks, [])
-
-  let isFav = false
-  if (session?.user?.id) {
-    const fav = await prisma.favorite.findUnique({
-      where: { userId_gameId: { userId: session.user.id, gameId: resolved.id } },
-    })
-    isFav = !!fav
-  }
 
   const creators = game.creators.map((gc) => ({
     id: gc.creator.id,
