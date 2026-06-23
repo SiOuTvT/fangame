@@ -1388,6 +1388,8 @@ a[href]:active {
 /* ═══ 个人中心：局部滚动条美化 ═══ */
 .profile-scroll-area,
 .folder-scroll-area {
+  overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }

@@ -135,14 +135,14 @@ export function ProfileContentTabs({ userId }: Props) {
 
   return (
     <div className="flex flex-col">
-      <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm px-4 pt-4 pb-2 sm:px-5 sm:pt-5 border-b border-border">
+      <div className="sticky top-0 z-10 bg-card px-4 pt-4 pb-2 sm:px-5 sm:pt-5">
         <div className="flex gap-1 rounded-xl px-1 py-1">
           {tabs.map((tab) => {
             const Icon = tab.icon; const isActive = active === tab.key
             return (
               <button key={tab.key} onClick={() => setActive(tab.key)}
                 className="relative flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-semibold transition-all duration-300 ease-out"
-                style={{ backgroundColor: isActive ? "var(--tab-active)" : "transparent", color: isActive ? "var(--tab-active-text)" : "var(--tab-inactive-text)", boxShadow: isActive ? "0 1px 3px rgba(0,0,0,0.12)" : "none", fontWeight: isActive ? 700 : 500 }}>
+                style={{ backgroundColor: isActive ? "var(--tab-active)" : "transparent", color: isActive ? "var(--tab-active-text)" : "var(--tab-inactive-text)", fontWeight: isActive ? 700 : 500 }}>
                 <Icon className="h-3.5 w-3.5" strokeWidth={2} />
                 {tab.label}
                 {tab.key === "comments" && localComments.length > 0 && <span className="ml-0.5 rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold text-primary leading-none">{localComments.length}</span>}
@@ -152,7 +152,7 @@ export function ProfileContentTabs({ userId }: Props) {
         </div>
       </div>
 
-      <div className="p-4 sm:p-5 profile-scroll-area" style={{ overflowY: 'auto', overflowX: 'hidden' }}>
+      <div className="p-4 sm:p-5 profile-scroll-area">
         {active === "favorites" && (
           <FavoritesTab defaultFolderGames={defaultFolderGames} collections={collections}
             onOpenFolder={(col) => setModalCollection(col)}
@@ -215,7 +215,7 @@ function FavoritesTab({ defaultFolderGames, collections, onOpenFolder, showCreat
           </div>
         </div>
       ) : (
-        <button onClick={() => setShowCreateFolder(true)} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-muted-foreground/20 bg-secondary/20 px-4 py-3.5 text-sm font-medium text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-primary">
+        <button onClick={() => setShowCreateFolder(true)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-secondary/20 px-4 py-3.5 text-sm font-medium text-muted-foreground hover:bg-primary/5 hover:text-primary transition-colors">
           <Plus className="h-4 w-4" strokeWidth={2.5} />创建新收藏夹
         </button>
       )}

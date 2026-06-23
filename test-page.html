@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>测试横线位置</title>
+<style>
+:root {
+  --card: #151518;
+  --border: rgba(255, 255, 255, 0.08);
+}
+body {
+  background: #08080a;
+  margin: 0;
+  font-family: sans-serif;
+}
+.container {
+  display: flex;
+  gap: 0;
+}
+aside {
+  width: 380px;
+  flex-shrink: 0;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  margin-bottom: 16px;
+  padding: 20px;
+}
+.main {
+  flex: 1;
+  background: var(--card);
+  border-radius: 16px;
+  min-height: 400px;
+}
+/* 模拟 sticky 导航栏 */
+.sticky-nav {
+  position: sticky;
+  top: 0;
+  background: var(--card);
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.content {
+  padding: 16px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <aside>
+    <div class="card" style="height: 200px;">
+      <h3>用户信息卡片</h3>
+    </div>
+    <div class="card" style="height: 100px;">
+      <h3>统计卡片</h3>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="sticky-nav">Sticky 导航栏</div>
+    <div class="content">
+      <p>内容区域</p>
+      <p>内容区域</p>
+      <p>内容区域</p>
+    </div>
+  </main>
+</div>
+</body>
+</html>
