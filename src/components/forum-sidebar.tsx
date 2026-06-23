@@ -80,12 +80,11 @@ function ForumSidebarPosts() {
     <div className="space-y-1.5">
       {posts.map(p => (
         <Link key={p.id} href={`/forum?post=${p.id}`}
-          className="block rounded-lg p-2.5 transition-all hover:border-primary/20"
-          style={{ background: "#141416", border: "1px solid rgba(255,255,255,0.04)" }}>
+          className="block rounded-lg p-2 lg:p-2.5 bg-muted/40 ring-1 ring-border/50 transition-all hover:ring-primary/20">
           <p className="line-clamp-2 text-xs font-medium text-foreground leading-relaxed">{p.title}</p>
-          <div className="flex items-center gap-2 mt-1.5">
+          <div className="flex items-center gap-1.5 mt-1">
             {p.isSolved !== undefined && (
-              <span className={`text-[9px] px-1.5 py-0.5 rounded ${p.isSolved ? "bg-emerald-500/15 text-emerald-400" : "bg-primary/10 text-primary"}`}>
+              <span className={`text-[9px] px-1 py-0.5 rounded ${p.isSolved ? "bg-emerald-500/15 text-emerald-400" : "bg-primary/10 text-primary"}`}>
                 {p.isSolved ? "已解决" : "未解决"}
               </span>
             )}
