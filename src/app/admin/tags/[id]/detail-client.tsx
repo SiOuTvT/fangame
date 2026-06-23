@@ -105,13 +105,13 @@ export function TagGroupDetailClient({
   // 点击外部关闭编辑面板
   useEffect(() => {
     if (!editingTag) return
-    function handleClick(e: MouseEvent) {
+    function handleClick(e: PointerEvent) {
       if (editPanelRef.current && !editPanelRef.current.contains(e.target as Node)) {
         setEditingTag(null)
       }
     }
-    document.addEventListener("mousedown", handleClick)
-    return () => document.removeEventListener("mousedown", handleClick)
+    document.addEventListener("pointerdown", handleClick)
+    return () => document.removeEventListener("pointerdown", handleClick)
   }, [editingTag])
 
   // 过滤

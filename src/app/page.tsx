@@ -35,7 +35,6 @@ async function GameGridServer({ tag, q, nsfw, page }: { tag: string; q: string; 
         id: true, serialId: true, title: true, coverImage: true, status: true,
         isNsfw: true, favoriteCount: true, viewCount: true,
         downloadCount: true,
-        downloadLinks: true,
         updatedAt: true, createdAt: true,
         tags: { select: { tag: { select: { name: true, color: true } } } },
         resources: { select: { language: true, runType: true, resourceContent: true } },

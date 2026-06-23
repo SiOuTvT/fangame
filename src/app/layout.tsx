@@ -3,8 +3,25 @@ import { Providers } from "@/components/providers"
 import { ThemeScript } from "@/components/theme-script"
 import { checkSecurity } from "@/lib/security-check"
 import type { Metadata, Viewport } from "next"
+import { Noto_Sans_SC, Noto_Serif_SC } from "next/font/google"
 import NextTopLoader from "nextjs-toploader"
 import "./globals.css"
+
+const notoSansSC = Noto_Sans_SC({
+  weight: ["300", "400", "500", "700"],
+  variable: "--font-noto-sans-sc",
+  display: "swap",
+  preload: true,
+  subsets: ["latin"],
+})
+
+const notoSerifSC = Noto_Serif_SC({
+  weight: ["400", "600", "700"],
+  variable: "--font-noto-serif-sc",
+  display: "swap",
+  preload: false,
+  subsets: ["latin"],
+})
 
 // 启动时安全检查（仅开发环境输出警告）
 checkSecurity()
@@ -47,14 +64,8 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 
   return (
-    <html lang="zh-CN" className="h-full antialiased" suppressHydrationWarning>
+    <html lang="zh-CN" className={`h-full antialiased ${notoSansSC.variable} ${notoSerifSC.variable}`} suppressHydrationWarning>
       <head>
-        {/* 字体引入：Noto Serif SC (标题) + Noto Sans SC (正文) */}
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap"
-          rel="stylesheet"
-        />
         <ThemeScript />
       </head>
       <body className="min-h-full overflow-x-hidden bg-background text-foreground">

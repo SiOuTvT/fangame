@@ -54,13 +54,13 @@ function ColorEditPopover({
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    function handleClick(e: MouseEvent) {
+    function handleClick(e: PointerEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) {
         onClose()
       }
     }
-    document.addEventListener("mousedown", handleClick)
-    return () => document.removeEventListener("mousedown", handleClick)
+    document.addEventListener("pointerdown", handleClick)
+    return () => document.removeEventListener("pointerdown", handleClick)
   }, [onClose])
 
   async function handleSave() {
@@ -284,13 +284,13 @@ function UngroupedTagsSection({
 
   useEffect(() => {
     if (!assigningId) return
-    function handleClick(e: MouseEvent) {
+    function handleClick(e: PointerEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setAssigningId(null)
       }
     }
-    document.addEventListener("mousedown", handleClick)
-    return () => document.removeEventListener("mousedown", handleClick)
+    document.addEventListener("pointerdown", handleClick)
+    return () => document.removeEventListener("pointerdown", handleClick)
   }, [assigningId])
 
   async function handleAssign(tagId: string) {

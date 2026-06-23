@@ -19,12 +19,12 @@ async function handleGet() {
       return ok(cached)
     }
 
-    // 查询用户所有签到的印记总和
-    const checkIns = await prisma.checkIn.findMany({
+    // 使用 Prisma aggregate 直接求和，避免加载全部记录
+    const result = await prisma.checkIn.aggregate({
       where: { userId },
-      select: { marks: true },
+      _sum: { marks: true },
     })
-    const totalMarks = checkIns.reduce((sum, c) => sum + (c.marks || 0), 0)
+    const totalMarks = result._sum.marks ?? 0
 
     // 缓存 5 分钟
     await cache.set(cacheKeyUserStats, { totalMarks }, 300)

@@ -9,6 +9,15 @@ import { NextResponse } from "next/server"
  */
 const recentViews = new Map<string, number>()
 
+// 定期清理过期条目，防止内存无限增长
+const VIEW_TTL = 10_000
+setInterval(() => {
+  const now = Date.now()
+  for (const [key, ts] of recentViews) {
+    if (now - ts > VIEW_TTL) recentViews.delete(key)
+  }
+}, 60_000)
+
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> }

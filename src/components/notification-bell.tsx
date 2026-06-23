@@ -9,7 +9,7 @@ export function NotificationBell() {
 
   const fetchUnreadCount = useCallback(async () => {
     try {
-      const res = await fetch("/api/notifications")
+      const res = await fetch("/api/notifications/unread-count")
       if (!res.ok) return
       const data = await res.json()
       setUnreadCount(data.unreadCount ?? 0)

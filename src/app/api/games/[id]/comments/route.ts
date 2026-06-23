@@ -105,6 +105,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         user: { select: { id: true, username: true, avatar: true } },
         replies: {
           orderBy: { createdAt: "asc" },
+          take: 10,
           select: {
             id: true,
             content: true,

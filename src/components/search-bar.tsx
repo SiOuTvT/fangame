@@ -36,13 +36,13 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
 
   // Click outside to close suggestions
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
+    function handleClickOutside(e: PointerEvent) {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
         setShowSuggestions(false)
       }
     }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
+    document.addEventListener("pointerdown", handleClickOutside)
+    return () => document.removeEventListener("pointerdown", handleClickOutside)
   }, [])
 
   const fetchSuggestions = useCallback(async (q: string) => {

@@ -217,33 +217,29 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
     <div className="group relative h-full w-full overflow-hidden">
       {/* Previous image underneath for crossfade */}
       {fading && prevImageRef.current && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        <Image
           src={prevImageRef.current}
           alt=""
-          className="absolute inset-0 w-full object-cover"
-          style={{ height: '100%' }}
+          fill
+          className="object-cover"
           draggable={false}
         />
       )}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Image
         src={displayImage}
         alt={`${gameTitle} - 预览 ${activeIndex + 1}`}
-        className={`absolute inset-0 w-full object-cover cursor-pointer ${fading ? 'hero-fade-enter' : ''}`}
-        style={{ height: '100%', ...(fading ? { animation: "heroFadeIn 0.35s ease-out" } : {}) }}
+        fill
+        className={`object-cover cursor-pointer ${fading ? 'hero-fade-enter' : ''}`}
+        style={fading ? { animation: "heroFadeIn 0.35s ease-out" } : undefined}
         draggable={false}
         loading={activeIndex === 0 ? "eager" : "lazy"}
-        // 触摸设备使用单击，非触摸设备使用双击
+        unoptimized
         onPointerUp={(e) => {
-          // 使用 onPointerUp 替代 onDoubleClick 加速响应
-          // 通过 pointerType 判断输入方式：触摸设备单击，鼠标双击
           if (e.pointerType === 'touch' || isTouchDevice) {
             openLightbox()
           }
         }}
         onDoubleClick={() => {
-          // 鼠标双击打开（非触摸设备）
           if (!isTouchDevice) {
             openLightbox()
           }

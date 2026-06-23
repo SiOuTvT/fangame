@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import { Heart, MessageSquare } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { memo } from "react"
 import type { User, Post } from "../forum-client"
@@ -21,9 +22,9 @@ function fmtDate(d: string) {
 }
 
 const Avatar = memo(function Avatar({ user, size = 6 }: { user: User; size?: number }) {
-  const s = `h-${size} w-${size}`
-  if (user.avatar) return <img src={user.avatar} alt={user.username} className={`${s} rounded-full object-cover shrink-0`} width={size * 4} height={size * 4} />
-  return <div className={`${s} rounded-full bg-primary/80 flex items-center justify-center text-[10px] font-bold text-primary-foreground shrink-0`}>{user.username[0].toUpperCase()}</div>
+  const px = size * 4
+  if (user.avatar) return <Image src={user.avatar} alt={user.username} width={px} height={px} className={`h-${size} w-${size} rounded-full object-cover shrink-0`} unoptimized />
+  return <div className={`h-${size} w-${size} rounded-full bg-primary/80 flex items-center justify-center text-[10px] font-bold text-primary-foreground shrink-0`}>{user.username[0].toUpperCase()}</div>
 })
 
 export const ForumPostItem = memo(function ForumPostItem({ post }: ForumPostItemProps) {

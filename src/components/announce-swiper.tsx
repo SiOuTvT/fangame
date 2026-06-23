@@ -1,6 +1,7 @@
 "use client"
 
 import { ChevronLeft, ChevronRight, ImageIcon } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { useCallback, useEffect, useRef, useState } from "react"
 
@@ -115,12 +116,12 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
       {/* 背景图 */}
       <div className="absolute inset-0 overflow-hidden">
         {ann.imageUrl && !imgError ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             key={ann.imageUrl}
             src={ann.imageUrl}
             alt={ann.title}
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700"
+            fill
+            className="object-cover transition-transform duration-700"
             style={{ transform: "scale(1.1)" }}
             loading={cur === 0 ? "eager" : "lazy"}
             decoding="async"
@@ -155,11 +156,13 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
           {/* 发布者行 */}
           <div className="flex items-center gap-2 mb-2">
             {ann.authorAvatar ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 src={ann.authorAvatar}
                 alt={ann.authorName || siteName}
+                width={28}
+                height={28}
                 className="h-7 w-7 rounded-full object-cover ring-1 ring-white/15"
+                unoptimized
               />
             ) : (
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/15 text-[11px] font-bold text-white/90">

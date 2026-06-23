@@ -34,7 +34,10 @@ export async function GET(req: NextRequest) {
       orderBy: [orderBy, { createdAt: "desc" } as const],
       skip,
       take: limit,
-      include: {
+      select: {
+        id: true, title: true, content: true, imageUrl: true,
+        likeCount: true, isSolved: true, isPinned: true, isLocked: true,
+        category: true, viewCount: true, updatedAt: true, createdAt: true,
         user: { select: { id: true, username: true, avatar: true } },
         _count: { select: { comments: true } },
       },

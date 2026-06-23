@@ -55,7 +55,7 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
           </Link>
         </div>
         <div className="flex-1 overflow-y-auto p-3">
-          <ForumSidebarPosts />
+          {open && <ForumSidebarPosts />}
         </div>
       </aside>
     </>

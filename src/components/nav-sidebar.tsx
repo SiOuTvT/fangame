@@ -12,7 +12,7 @@ import {
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 const NAV_SECTIONS = [
   {
@@ -56,6 +56,23 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
   const [forumPosts, setForumPosts] = useState<ForumPost[]>([])
   const [hotGames, setHotGames] = useState<HotGame[]>([])
   const [randomLoading, setRandomLoading] = useState(false)
+  const dataFetched = useRef(false)
+
+  // 桌面端立即加载，移动端等侧边栏首次打开时再加载
+  useEffect(() => {
+    if (dataFetched.current) return
+    const isDesktop = window.matchMedia("(min-width: 1024px)").matches
+    if (!isDesktop && !mobileOpen) return
+    dataFetched.current = true
+    fetch("/api/forum/posts")
+      .then(r => r.json())
+      .then(data => setForumPosts((data || []).slice(0, 5)))
+      .catch(() => {})
+    fetch("/api/games?sort=popular&limit=8")
+      .then(r => r.json())
+      .then(data => setHotGames((data.games || []).slice(0, 8)))
+      .catch(() => {})
+  }, [mobileOpen])
 
   const handleRandomDiscover = useCallback(async () => {
     if (randomLoading) return
@@ -71,20 +88,6 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
       setRandomLoading(false)
     }
   }, [randomLoading, router])
-
-  useEffect(() => {
-    fetch("/api/forum/posts")
-      .then(r => r.json())
-      .then(data => setForumPosts((data || []).slice(0, 5)))
-      .catch(() => {})
-  }, [])
-
-  useEffect(() => {
-    fetch("/api/games?sort=popular&limit=8")
-      .then(r => r.json())
-      .then(data => setHotGames((data.games || []).slice(0, 8)))
-      .catch(() => {})
-  }, [])
 
   // 关闭移动端侧边栏当路由变化
   useEffect(() => {

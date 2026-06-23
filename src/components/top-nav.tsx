@@ -99,11 +99,25 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
     return () => mq.removeEventListener("change", handler)
   }, [])
 
+  // 签到状态：先从 sessionStorage 读取当日缓存，过期才请求
   useEffect(() => {
+    const today = new Date().toISOString().slice(0, 10)
+    try {
+      const cached = sessionStorage.getItem("checkin_status")
+      if (cached) {
+        const { date, checkedIn: val } = JSON.parse(cached)
+        if (date === today) { setCheckedIn(val); return }
+      }
+    } catch {}
+
     const controller = new AbortController()
     fetch("/api/checkin", { signal: controller.signal })
       .then(r => r.json())
-      .then(data => setCheckedIn(data.data?.checkedIn ?? false))
+      .then(data => {
+        const val = data.data?.checkedIn ?? false
+        setCheckedIn(val)
+        try { sessionStorage.setItem("checkin_status", JSON.stringify({ date: today, checkedIn: val })) } catch {}
+      })
       .catch(() => setCheckedIn(false))
     return () => controller.abort()
   }, [])
@@ -162,13 +176,13 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
   }, [user?.image, localAvatar])
 
   useEffect(() => {
-    function handleMouseDown(e: MouseEvent) {
+    function handlePointerDown(e: PointerEvent) {
       if (userRef.current && !userRef.current.contains(e.target as Node)) {
         setUserOpen(false)
       }
     }
-    document.addEventListener("mousedown", handleMouseDown)
-    return () => document.removeEventListener("mousedown", handleMouseDown)
+    document.addEventListener("pointerdown", handlePointerDown)
+    return () => document.removeEventListener("pointerdown", handlePointerDown)
   }, [])
 
   function toggleTheme() {
@@ -231,7 +245,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
   return (
     <>
       <header
-        className="flex h-14 items-center rounded-xl border backdrop-blur-2xl transition-all duration-200"
+        className="flex h-14 items-center rounded-xl border transition-all duration-200 lg:backdrop-blur-2xl"
         style={{
           background: "color-mix(in srgb, var(--surface-float) 70%, transparent)",
           borderColor: scrolled ? "var(--surface-float-border)" : "var(--border)",

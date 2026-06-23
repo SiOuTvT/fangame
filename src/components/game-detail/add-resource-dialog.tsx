@@ -98,17 +98,17 @@ function PopoverSelect({ label, icon, options, value, onChange }: {
   // 点击外部关闭
   useEffect(() => {
     if (!open) return
-    function handleClick(e: MouseEvent) {
+    function handleClick(e: PointerEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false)
       }
     }
     const timer = setTimeout(() => {
-      document.addEventListener("mousedown", handleClick)
+      document.addEventListener("pointerdown", handleClick)
     }, 0)
     return () => {
       clearTimeout(timer)
-      document.removeEventListener("mousedown", handleClick)
+      document.removeEventListener("pointerdown", handleClick)
     }
   }, [open])
 
