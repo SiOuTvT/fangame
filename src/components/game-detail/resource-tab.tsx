@@ -141,10 +141,10 @@ const ResourceCard = memo(function ResourceCard({
 
   return (
     <div
-      className={`relative rounded-xl border overflow-hidden transition-all duration-200 hover:shadow-md ${
+      className={`relative rounded-2xl ring-1 overflow-hidden transition-all duration-200 hover:shadow-md ${
         resource.isReported
-          ? "border-amber-300/50 bg-amber-50/5 dark:bg-amber-950/10 hover:border-amber-300/70"
-          : "border-foreground/10 bg-card hover:border-foreground/20"
+          ? "ring-amber-300/50 bg-amber-50/5 dark:bg-amber-950/10 hover:ring-amber-300/70"
+          : "ring-border bg-card hover:ring-foreground/20"
       }`}
       style={{ boxShadow: "var(--card-shadow)" }}
     >

@@ -8,8 +8,21 @@ export const revalidate = 300
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const ann = await prisma.announcement.findUnique({ where: { id, isActive: true }, select: { title: true } })
-  return { title: ann ? `${ann.title} · 同人游戏站` : "公告" }
+  const ann = await prisma.announcement.findUnique({
+    where: { id, isActive: true },
+    select: { title: true, content: true, imageUrl: true },
+  })
+  if (!ann) return { title: "公告 · 同人游戏站" }
+  const description = ann.content.replace(/<[^>]+>/g, "").slice(0, 160)
+  return {
+    title: `${ann.title} · 同人游戏站`,
+    description,
+    openGraph: {
+      title: ann.title,
+      description,
+      ...(ann.imageUrl && { images: [{ url: ann.imageUrl }] }),
+    },
+  }
 }
 
 export default async function AnnouncementPage({ params }: { params: Promise<{ id: string }> }) {
