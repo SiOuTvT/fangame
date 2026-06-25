@@ -374,8 +374,8 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={commentImagePreview} alt="预览" className="h-16 w-16 rounded-lg object-cover ring-1 ring-border" />
                   <button type="button" onClick={() => { setCommentImageFile(null); setCommentImagePreview(null) }}
-                    className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/80 hover:text-white">
-                    <X className="h-3 w-3" strokeWidth={2} />
+                    className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-secondary text-foreground sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-red-500/80 hover:text-white">
+                    <X className="h-3.5 w-3.5" strokeWidth={2} />
                   </button>
                 </div>
               )}

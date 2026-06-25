@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
   const [posts, total] = await Promise.all([
     prisma.forumPost.findMany({
       where,
-      orderBy: [orderBy, { createdAt: "desc" } as const],
+      orderBy: [{ isPinned: "desc" }, orderBy, { createdAt: "desc" } as const],
       skip,
       take: limit,
       select: {

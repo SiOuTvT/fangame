@@ -7,6 +7,13 @@ import Link from "next/link"
 import { memo } from "react"
 import type { User, Post } from "../forum-client"
 
+const CATEGORY_LABELS: Record<string, string> = {
+  discussion: "讨论",
+  help: "求档",
+  resource: "资源",
+  offtopic: "杂谈",
+}
+
 interface ForumPostItemProps {
   post: Omit<Post, "comments">
 }
@@ -45,7 +52,7 @@ export const ForumPostItem = memo(function ForumPostItem({ post }: ForumPostItem
           post.category === "help" ? "bg-amber-500/10 text-amber-400" :
           post.category === "resource" ? "bg-emerald-500/10 text-emerald-400" :
           "bg-purple-500/10 text-purple-400"
-        )}>{post.category}</span>
+        )}>{CATEGORY_LABELS[post.category] || post.category}</span>
       </div>
       <p className="mt-3 line-clamp-2 text-base font-semibold text-foreground leading-relaxed">{post.title}</p>
       <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">

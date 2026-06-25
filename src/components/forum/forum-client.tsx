@@ -41,6 +41,15 @@ export function ForumClient({
   // 筛选状态
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "")
   const [activeCategory, setActiveCategory] = useState(searchParams.get("category") || "")
+  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery)
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // 搜索防抖 350ms
+  const handleSearchChange = useCallback((q: string) => {
+    setSearchQuery(q)
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current)
+    searchTimerRef.current = setTimeout(() => setDebouncedSearch(q), 350)
+  }, [])
 
   // 模态框状态
   const [showNewPost, setShowNewPost] = useState(false)
@@ -80,8 +89,8 @@ export function ForumClient({
 
   // 筛选变化时重新获取
   useEffect(() => {
-    fetchPosts(1, true, activeCategory, searchQuery)
-  }, [fetchPosts, activeCategory, searchQuery])
+    fetchPosts(1, true, activeCategory, debouncedSearch)
+  }, [fetchPosts, activeCategory, debouncedSearch])
 
   // 加载更多
   const loadMore = useCallback(async () => {
@@ -93,7 +102,7 @@ export function ForumClient({
       params.set("page", String(nextPage))
       params.set("limit", "20")
       if (activeCategory) params.set("category", activeCategory)
-      if (searchQuery) params.set("search", searchQuery)
+      if (debouncedSearch) params.set("search", debouncedSearch)
       const res = await fetch(`/api/forum/posts?${params}`)
       if (res.ok) {
         const data = await res.json()
@@ -177,7 +186,7 @@ export function ForumClient({
       <ForumFilters
         searchQuery={searchQuery}
         activeCategory={activeCategory}
-        onSearchChange={setSearchQuery}
+        onSearchChange={handleSearchChange}
         onCategoryChange={setActiveCategory}
       />
 
