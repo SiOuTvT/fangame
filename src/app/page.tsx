@@ -192,7 +192,7 @@ export default async function HomePage({
 
       {/* Hero：品牌卡 + 公告 */}
       <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-5 mb-2 lg:mb-3 items-start">
-        {/* 品牌卡 - 平板和电脑端显示 */}
+        {/* 品牌卡 - 桌面端：完整卡片 */}
         <div className="hidden md:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[310px] flex-col">
           <div className="flex flex-col flex-1 px-7 py-8 justify-between">
             <div>
@@ -215,6 +215,34 @@ export default async function HomePage({
               </div>
             </div>
             {/* 按钮行 */}
+            <div className="flex gap-2">
+              <RandomCreatorBtn />
+              <RandomCharacterBtn />
+            </div>
+          </div>
+        </div>
+
+        {/* 品牌卡 - 移动端：紧凑横排 */}
+        <div className="flex md:hidden rounded-2xl bg-card ring-1 ring-border overflow-hidden">
+          <div className="flex flex-col flex-1 px-4 py-4 gap-3">
+            <div className="flex items-baseline gap-3">
+              <h2 className="text-xl font-bold text-foreground tracking-tight">同人游戏站</h2>
+              <p className="text-xs text-muted-foreground">GalGame 同人世界的一站式入口</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-lg font-bold text-foreground">{total}</span>
+                <span className="text-xs text-muted-foreground">游戏</span>
+              </div>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-lg font-bold text-foreground">{weekNewGames}</span>
+                <span className="text-xs text-muted-foreground">本周新增</span>
+              </div>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-lg font-bold text-foreground">{todayCheckins}</span>
+                <span className="text-xs text-muted-foreground">今日签到</span>
+              </div>
+            </div>
             <div className="flex gap-2">
               <RandomCreatorBtn />
               <RandomCharacterBtn />

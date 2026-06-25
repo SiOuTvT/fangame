@@ -81,7 +81,7 @@ export function ArchiveCard({
                     key={i}
                     href={`/games?tag=${encodeURIComponent(tag.name)}`}
                     className="inline-flex shrink-0 items-center rounded-md px-2 py-0.5 text-[11px] font-semibold transition-opacity hover:opacity-80"
-                    style={{ background: tag.color || "var(--secondary)", color: "#fff" }}
+                    style={{ background: tag.color || "var(--secondary)", color: tag.color ? "#fff" : "var(--foreground)" }}
                   >
                     {tag.name}
                   </Link>

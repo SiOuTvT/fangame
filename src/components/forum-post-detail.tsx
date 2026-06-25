@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils"
 import { CheckCircle2, Edit3, Heart, Image as ImageIcon, MessageSquare, Send, Share2, Smile, Trash2, X } from "lucide-react"
 import NextImage from "next/image"
 import { useEffect, useRef, useState } from "react"
+import { toast } from "sonner"
 import { useBreadcrumb } from "./breadcrumb-context"
 import { ConfirmDialog } from "./ui/confirm-dialog"
 import { RichTextContent } from "./rich-text-content-wrapper"
@@ -140,8 +141,8 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
     fd.append("content", text)
     if (commentImageFile) fd.append("image", commentImageFile)
     const res = await fetch(`/api/forum/posts/${post.id}/comments`, { method: "POST", body: fd })
-    const data = await res.json()
     if (res.ok) {
+      const data = await res.json()
       setComments(cs => [...cs, data])
       setPost(p => ({ ...p, commentCount: p.commentCount + 1 }))
       setCommentText("")
@@ -149,6 +150,9 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
       setCommentImageFile(null)
       setShowEmoji(false)
       setReplyTo(null)
+    } else {
+      const err = await res.json().catch(() => null)
+      toast.error(err?.error || "评论发送失败，请稍后再试")
     }
     setSubmitting(false)
   }

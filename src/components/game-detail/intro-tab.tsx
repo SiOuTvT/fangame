@@ -39,7 +39,7 @@ export function IntroTab({
                 </div>
               )}
               <div
-                className="prose prose-invert max-w-none leading-relaxed"
+                className="prose dark:prose-invert max-w-none leading-relaxed"
                 style={{ fontSize: "15px", lineHeight: "1.9", color: "var(--foreground)" }}
                 dangerouslySetInnerHTML={{
                   __html: DOMPurify.sanitize(d.text, {
@@ -57,7 +57,7 @@ export function IntroTab({
         </div>
       ) : description ? (
         <div
-          className="prose prose-invert max-w-none leading-relaxed"
+          className="prose dark:prose-invert max-w-none leading-relaxed"
           style={{ fontSize: "15px", lineHeight: "1.9", color: "var(--foreground)" }}
           dangerouslySetInnerHTML={{
             __html: DOMPurify.sanitize(description, {
