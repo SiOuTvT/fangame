@@ -26,7 +26,7 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
       {/* 移动端遮罩 */}
       {open && (
         <div
-          className="fixed inset-0 z-35 backdrop-blur-sm fade-in lg:hidden bg-black/40 touch-none"
+          className="fixed inset-0 z-30 backdrop-blur-sm fade-in lg:hidden bg-black/40 touch-none"
           onClick={onToggle}
         />
       )}
@@ -40,7 +40,7 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
         style={{
           background: "var(--sidebar)",
           borderLeft: "1px solid var(--sidebar-border)",
-          width: isMobile ? 200 : expanded ? 340 : 260,
+          width: isMobile ? "min(75vw, 260px)" : expanded ? 340 : 260,
           transform: open ? "translateX(0)" : "translateX(100%)",
         }}
       >

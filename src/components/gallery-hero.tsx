@@ -88,6 +88,26 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
   const openLightbox = useCallback(() => setLightboxOpen(true), [])
   const closeLightbox = useCallback(() => setLightboxOpen(false), [])
 
+  // 滑动手势支持
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null)
+  const didSwipeRef = useRef(false)
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+    didSwipeRef.current = false
+  }, [])
+  const handleSwipeEnd = useCallback((e: React.TouchEvent) => {
+    if (!touchStartRef.current || !hasMultipleImages) return
+    const dx = e.changedTouches[0].clientX - touchStartRef.current.x
+    const dy = e.changedTouches[0].clientY - touchStartRef.current.y
+    touchStartRef.current = null
+    // 水平滑动超过 50px 且横向位移大于纵向
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+      didSwipeRef.current = true
+      if (dx < 0) goNext()
+      else goPrev()
+    }
+  }, [hasMultipleImages, goNext, goPrev])
+
   // 键盘事件监听 - 仅在 Lightbox 打开时监听，使用 VisibilityObserver 检测页面可见性
   useEffect(() => {
     // 仅在 Lightbox 打开且页面可见时监听键盘事件
@@ -167,11 +187,13 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
       <div
         className="fixed inset-0 z-[100] touch-none flex items-center justify-center bg-black/90 backdrop-blur-sm"
         onClick={closeLightbox}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleSwipeEnd}
       >
         <button
           type="button"
           onClick={closeLightbox}
-          className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+          className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
           aria-label="关闭"
         >
           <X className="h-5 w-5" />
@@ -181,7 +203,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); goPrev() }}
-            className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+            className="absolute left-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
             aria-label="上一张"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -201,7 +223,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); goNext() }}
-            className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+            className="absolute right-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
             aria-label="下一张"
           >
             <ChevronRight className="h-5 w-5" />
@@ -214,7 +236,10 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
       </div>
     )}
 
-    <div className="group relative h-full w-full overflow-hidden">
+    <div className="group relative h-full w-full overflow-hidden"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleSwipeEnd}
+    >
       {/* Previous image underneath for crossfade */}
       {fading && prevImageRef.current && (
         <Image
@@ -235,7 +260,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
         loading={activeIndex === 0 ? "eager" : "lazy"}
         sizes="(max-width: 768px) 100vw, 60vw"
         onPointerUp={(e) => {
-          if (e.pointerType === 'touch' || isTouchDevice) {
+          if ((e.pointerType === 'touch' || isTouchDevice) && !didSwipeRef.current) {
             openLightbox()
           }
         }}
