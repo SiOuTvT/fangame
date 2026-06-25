@@ -214,14 +214,11 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
     fetch("/api/checkin", { method: "POST" })
       .then(r => r.json())
       .then(data => {
-        console.log('[签到] API 返回:', data)
         // 成功响应
         if (data.success && data.data) {
           const d = data.data as { ok?: boolean; alreadyDone?: boolean; marks?: number; total?: number }
-          console.log('[签到] data:', d, 'marks:', d.marks)
           if (d.ok) {
             setCheckedIn(true)
-            console.log('[签到] 设置 toastMarks =', d.marks)
             setToastMarks(d.marks ?? 0)
             return
           }

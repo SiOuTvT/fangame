@@ -54,9 +54,10 @@ export default async function CollectionsPage({
     }
   }
 
-  // 按系列排序
-  const sorted: [string, typeof allGames][] = groupCounts
-    .map(g => [g.originalWork, gamesBySeries.get(g.originalWork) ?? []] as [string, typeof allGames])
+  // 按系列排序，附带真实游戏数量
+  const countMap = new Map(groupCounts.map(g => [g.originalWork, g._count.id]))
+  const sorted: [string, typeof allGames, number][] = groupCounts
+    .map(g => [g.originalWork, gamesBySeries.get(g.originalWork) ?? [], countMap.get(g.originalWork) ?? 0] as [string, typeof allGames, number])
     .filter(([, games]) => games.length > 0)
 
   return (
@@ -77,8 +78,11 @@ export default async function CollectionsPage({
           name="q"
           defaultValue={q}
           placeholder="搜索系列名..."
-          className="w-full rounded-xl bg-muted pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all"
+          className="w-full rounded-xl bg-muted pl-10 pr-10 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all"
         />
+        <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground transition-colors" aria-label="搜索">
+          <ChevronRight className="h-4 w-4" strokeWidth={2} />
+        </button>
       </form>
 
       {/* 统计 */}
@@ -94,7 +98,7 @@ export default async function CollectionsPage({
         </div>
       ) : (
         <div className="space-y-6">
-          {sorted.map(([originalWork, list]) => {
+          {sorted.map(([originalWork, list, realCount]) => {
             const coverGame = list[0]
             return (
               <div
@@ -127,7 +131,7 @@ export default async function CollectionsPage({
                     </h2>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-xs text-muted-foreground">
-                        {list.length} 个游戏
+                        {realCount} 个游戏
                       </span>
                     </div>
                   </div>

@@ -2,6 +2,8 @@ import { ForumPostDetail } from "@/components/forum-post-detail"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import type { Metadata } from "next"
+import { ChevronLeft } from "lucide-react"
+import Link from "next/link"
 import { notFound } from "next/navigation"
 
 export const revalidate = 30
@@ -57,6 +59,10 @@ export default async function ForumPostPage({ params }: { params: Promise<{ id: 
 
   return (
     <div>
+      <Link href="/forum" className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
+        <ChevronLeft className="h-4 w-4" strokeWidth={1.5} />
+        返回求档区
+      </Link>
       <ForumPostDetail
         post={postData}
         comments={flatComments}
