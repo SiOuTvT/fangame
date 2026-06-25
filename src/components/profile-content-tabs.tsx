@@ -7,6 +7,7 @@ import { Calendar, Eye, FolderHeart, Gamepad2, MessageSquare, Plus, Trash2, X } 
 import Image from "next/image"
 import Link from "next/link"
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { toast } from "sonner"
 
 interface GameLite {
   id: string; serialId?: number; title: string; coverImage?: string; isNsfw?: boolean; originalWork?: string
@@ -105,14 +106,14 @@ export function ProfileContentTabs({ userId }: Props) {
       setShowCreateFolder(false)
       await loadCollections()
     } catch {
-      alert("创建收藏夹失败，请重试")
+      toast.error("创建收藏夹失败，请重试")
     } finally {
       setCreating(false)
     }
   }
 
   async function handleDeleteCollection(id: string) {
-    try { await apiDelete(`/api/collections/${id}`); await loadCollections() } catch { alert("删除失败，请重试") }
+    try { await apiDelete(`/api/collections/${id}`); await loadCollections() } catch { toast.error("删除失败，请重试") }
   }
 
   // 使用 Set 缓存已收藏 ID，将复杂度从 O(n*m) 降为 O(n)

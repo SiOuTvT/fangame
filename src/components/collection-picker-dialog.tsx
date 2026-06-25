@@ -10,6 +10,7 @@ import {
 import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api-client"
 import { Check, Folder, FolderPlus, Loader2 } from "lucide-react"
 import { useEffect, useState } from "react"
+import { toast } from "sonner"
 
 interface Collection {
   id: string
@@ -61,10 +62,10 @@ export function CollectionPickerDialog({
         setShowCreate(false)
         handleSelect(col.data.id)
       } else {
-        alert("创建收藏集失败")
+        toast.error("创建收藏集失败")
       }
     } catch {
-      alert("创建收藏集失败，请重试")
+      toast.error("创建收藏集失败，请重试")
     } finally {
       setCreating(false)
     }

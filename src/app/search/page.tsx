@@ -111,9 +111,26 @@ async function SearchResults({
 }: {
   q: string; tag: string; sort: SortKey; nsfw: boolean; page?: number
 }) {
-  // 没有搜索词和标签时不显示结果
+  // 没有搜索词和标签时显示推荐游戏
   if (!q && !tag) {
-    return null
+    const recommended = await getCachedRecommendedGames(nsfw)
+    if (!recommended.length) return null
+    const games = recommended.map((g) => ({
+      ...g,
+      coverImage: g.coverImage ?? "",
+      downloadLinks: parseDlLinks(g.downloadLinks),
+      tags: g.tags.map((t) => t.tag),
+    }))
+    return (
+      <>
+        <p className="mb-4 text-xs text-muted-foreground">🔥 热门推荐</p>
+        <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 md:grid-cols-4 items-stretch">
+          {games.map((game) => (
+            <GameCard key={game.id} game={game} />
+          ))}
+        </div>
+      </>
+    )
   }
 
   const limit = 24

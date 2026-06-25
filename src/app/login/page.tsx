@@ -96,8 +96,8 @@ function LoginContent() {
     { key: "confirm" as const, icon: CheckCircle2, type: "password", placeholder: "确认密码", autoComplete: "new-password" },
   ]
 
-  const inputCls = "flex items-center gap-3 rounded-xl bg-secondary px-4 py-3 border border-border focus-within:border-primary/30 transition-all"
-  const inputInnerCls = "flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+  const inputCls = "flex items-center gap-3 rounded-xl bg-secondary px-4 py-3 border border-border focus-within:border-primary/30 focus-within:ring-2 focus-within:ring-primary/15 transition-all"
+  const inputInnerCls = "flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none min-h-[44px]"
 
   return (
     <div className="flex min-h-[100dvh] items-center justify-center p-4">
@@ -194,7 +194,7 @@ function LoginContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:opacity-60"
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:opacity-60 min-h-[44px]"
               >
                 {loading && <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />}
                 {loading ? "登录中…" : "登 录"}
@@ -224,7 +224,7 @@ function LoginContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:opacity-60"
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:opacity-60 min-h-[44px]"
               >
                 {loading && <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />}
                 {loading ? "注册中…" : "注 册"}

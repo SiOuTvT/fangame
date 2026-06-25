@@ -217,24 +217,13 @@ export default async function GameDetailPage({
 
           {/* ─── 左侧：单一整体大卡片 ─── */}
           <div
-            className="flex flex-col min-w-0"
-            style={{
-              minHeight: "auto",
-              borderRadius: "16px",
-              background: "var(--card)",
-              border: "1px solid var(--border)",
-              boxShadow: "var(--card-shadow)",
-              overflow: "hidden",
-            }}
+            className="flex flex-col min-w-0 rounded-2xl bg-card ring-1 ring-border overflow-hidden"
+            style={{ boxShadow: "var(--card-shadow)" }}
           >
             {/* ①号位：封面图 16:10，融入卡片顶部 */}
             <div className="shrink-0 min-w-0">
               <div
-                className="relative overflow-hidden w-full"
-                  style={{
-                  aspectRatio: "16 / 10",
-                  borderRadius: "12px 12px 0 0",
-                }}
+                className="relative overflow-hidden w-full aspect-[16/10] rounded-t-xl"
               >
                 {game.coverImage ? (
                   <SafeImage
@@ -261,8 +250,8 @@ export default async function GameDetailPage({
               {/* ① 游戏标题 */}
               <div className="mb-1">
                 <h1
-                  className="font-bold leading-tight"
-                  style={{ fontSize: "clamp(16px, 2.2vw, 24px)", color: "var(--foreground)" }}
+                  className="font-bold leading-tight text-foreground"
+                  style={{ fontSize: "clamp(16px, 2.2vw, 24px)" }}
                 >
                   {game.title}
                 </h1>
@@ -336,15 +325,15 @@ export default async function GameDetailPage({
 
               {/* ⑤ 人气数据 */}
               <div className="flex items-center gap-4 mt-auto pt-3">
-                <span className="flex items-center gap-1.5 text-xs" style={{ color: "var(--muted-foreground)" }}>
+                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Eye className="w-3.5 h-3.5" />
                   <span className="font-bold tabular-nums">{game.viewCount}</span>
                 </span>
-                <span className="flex items-center gap-1.5 text-xs" style={{ color: "var(--muted-foreground)" }}>
+                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Download className="w-3.5 h-3.5" />
                   <span className="font-bold tabular-nums">{game.downloadCount}</span>
                 </span>
-                <span className="flex items-center gap-1.5 text-xs" style={{ color: "var(--muted-foreground)" }}>
+                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Heart className="w-3.5 h-3.5" />
                   <span className="font-bold tabular-nums">{game.favoriteCount}</span>
                 </span>
