@@ -86,9 +86,9 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
           width: collapsed ? 60 : expanded ? 240 : mobileOpen ? 180 : 200,
         }}
       >
-        <nav className="flex flex-col overflow-y-auto overflow-x-hidden h-full px-2 py-3 lg:py-3">
+        <nav className="flex flex-col gap-1 overflow-y-auto overflow-x-hidden h-full px-2 py-3 lg:py-3">
           {NAV_SECTIONS.map((section) => (
-            <div key={section.label} className="mb-2">
+            <div key={section.label}>
               {section.items.map(({ icon: Icon, label, href }) => {
                 const isActive = pathname === href || (href !== "/" && pathname.startsWith(href))
                 return (
@@ -113,7 +113,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
           ))}
 
           {/* 随机发现 */}
-          <div className="mb-2">
+          <div>
             <button
               onClick={handleRandomDiscover}
               disabled={randomLoading}

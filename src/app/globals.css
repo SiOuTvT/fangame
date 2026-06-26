@@ -2,6 +2,14 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* ── 全局可交互元素鼠标指针 ── */
+a, button, select, summary,
+input[type="submit"], input[type="button"],
+[role="button"], [role="tab"], [role="link"],
+label:has(input[type="radio"]), label:has(input[type="checkbox"]) {
+  cursor: pointer;
+}
+
 /* 全局移动端溢出保护 */
 html {
   /* clip 替代 hidden：不创建滚动容器，避免 Radix RemoveScroll 锁定视口滚动 */
