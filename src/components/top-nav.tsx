@@ -258,12 +258,12 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
             className="flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
             aria-label="切换侧边栏"
           >
-            <Menu className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
+            <Menu className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2.5} />
           </button>
 
           <div className="ml-auto flex items-center gap-2">
             <Link href="/search" className="flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
-              <Search className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
+              <Search className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2.5} />
             </Link>
 
             {user && <NotificationBell />}
@@ -273,13 +273,13 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
               className="flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
               title="论坛"
             >
-              <MessageSquare className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
+              <MessageSquare className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2.5} />
             </button>
 
             <button onClick={toggleTheme} title={theme === "dark" ? "深色模式" : theme === "light" ? "浅色模式" : "跟随系统"} className="flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
-              {theme === "light" ? <Sun className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
-                : theme === "dark" ? <Moon className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
-                : <SunMoon className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />}
+              {theme === "light" ? <Sun className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2.5} />
+                : theme === "dark" ? <Moon className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2.5} />
+                : <SunMoon className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2.5} />}
             </button>
 
             {user ? (
