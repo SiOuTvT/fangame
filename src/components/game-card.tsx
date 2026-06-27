@@ -151,7 +151,7 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
             {paramTags.map((tag, i) => (
               <span
                 key={`p-${i}`}
-                className="inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-medium shrink-0"
+                className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold shrink-0"
                 style={{
                   background: tag.color ? `${tag.color}18` : undefined,
                   color: tag.color || undefined,

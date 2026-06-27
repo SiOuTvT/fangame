@@ -47,7 +47,7 @@ export const ForumPostItem = memo(function ForumPostItem({ post }: ForumPostItem
           <span className="text-[10px] text-muted-foreground/50">(已编辑)</span>
         )}
         <span className={cn(
-          "ml-auto text-[10px] px-2 py-0.5 rounded-full font-medium",
+          "ml-auto text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0",
           post.category === "discussion" ? "bg-blue-500/10 text-blue-400" :
           post.category === "help" ? "bg-amber-500/10 text-amber-400" :
           post.category === "resource" ? "bg-emerald-500/10 text-emerald-400" :
