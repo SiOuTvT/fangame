@@ -5,6 +5,7 @@ import { Eye, Heart, MessageSquare } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { memo } from "react"
+import { Tag } from "@/components/ui/tag"
 import type { User, Post } from "../forum-client"
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -46,13 +47,13 @@ export const ForumPostItem = memo(function ForumPostItem({ post }: ForumPostItem
         {post.updatedAt !== post.createdAt && (
           <span className="text-[10px] text-muted-foreground/50">(已编辑)</span>
         )}
-        <span className={cn(
-          "ml-auto text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0",
+        <Tag variant="badge" className={cn(
+          "ml-auto",
           post.category === "discussion" ? "bg-blue-500/10 text-blue-400" :
           post.category === "help" ? "bg-amber-500/10 text-amber-400" :
           post.category === "resource" ? "bg-emerald-500/10 text-emerald-400" :
           "bg-purple-500/10 text-purple-400"
-        )}>{CATEGORY_LABELS[post.category] || post.category}</span>
+        )}>{CATEGORY_LABELS[post.category] || post.category}</Tag>
       </div>
       <p className="mt-3 line-clamp-2 text-base font-semibold text-foreground leading-relaxed">{post.title}</p>
       <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">

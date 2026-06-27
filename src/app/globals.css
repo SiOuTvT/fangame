@@ -30,8 +30,8 @@ body {
   touch-action: manipulation;
 }
 
-/* 全局图片防溢出 — 轮播 / fill 模式下也生效 */
-img {
+/* 富文本内容中的图片防溢出（仅用户/管理员生成的 HTML 内容） */
+.rich-text-content img {
   max-width: 100%;
   height: auto;
 }

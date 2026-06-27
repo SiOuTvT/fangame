@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import { TagGroupWithTags } from "@/types/tags-browser"
-import Link from "next/link"
+import { ColorTag } from "@/components/ui/tag"
 import { useState } from "react"
 
 interface TagCategoryProps {
@@ -42,24 +42,20 @@ export function TagCategory({ group }: TagCategoryProps) {
         )}
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1 sm:gap-1.5">
         {displayTags.map((tag) => (
-          <Link
+          <ColorTag
             key={tag.id}
+            variant="content"
+            color={tag.color}
             href={`/search?tag=${encodeURIComponent(tag.name)}`}
-            className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium transition-all hover:scale-105 hover:shadow-sm"
-            style={{
-              backgroundColor: `${tag.color}18`,
-              color: tag.color,
-              border: `1px solid ${tag.color}30`,
-            }}
             title={`${tag.gameCount} 个游戏`}
           >
             {tag.name}
             <span className="ml-1 text-[10px] opacity-60">
               {tag.gameCount}
             </span>
-          </Link>
+          </ColorTag>
         ))}
       </div>
     </div>

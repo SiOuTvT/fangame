@@ -19,6 +19,6 @@ export function RichTextContent({ html }: { html: string }) {
   })
 
   return (
-    <div dangerouslySetInnerHTML={{ __html: clean }} />
+    <div className="rich-text-content" dangerouslySetInnerHTML={{ __html: clean }} />
   )
 }

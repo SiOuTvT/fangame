@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import { TagInfo } from "@/types/tags-browser"
-import Link from "next/link"
+import { ColorTag } from "@/components/ui/tag"
 import { useMemo } from "react"
 
 interface TagCloudProps {
@@ -54,28 +54,21 @@ export function TagCloud({ tags, maxTags = 30 }: TagCloudProps) {
       <h2 className="text-lg font-bold text-foreground mb-4">
         🔥 热门标签
       </h2>
-      <div className="flex flex-wrap gap-x-3 gap-y-2">
+      <div className="flex flex-wrap gap-x-2 gap-y-1.5 sm:gap-x-3 sm:gap-y-2">
         {displayTags.map((tag) => (
-          <Link
+          <ColorTag
             key={tag.id}
+            variant="cloud"
+            color={tag.color}
             href={`/search?tag=${encodeURIComponent(tag.name)}`}
-            className={cn(
-              "inline-flex items-center rounded-full px-3 py-1.5 transition-all hover:scale-105 hover:shadow-md",
-              getFontSize(tag.gameCount),
-              getOpacity(tag.gameCount)
-            )}
-            style={{
-              backgroundColor: `${tag.color}18`,
-              color: tag.color,
-              border: `1px solid ${tag.color}30`,
-            }}
+            className={cn(getFontSize(tag.gameCount), getOpacity(tag.gameCount))}
             title={`${tag.gameCount} 个游戏`}
           >
             {tag.name}
             <span className="ml-1.5 text-[10px] opacity-60">
               ({tag.gameCount})
             </span>
-          </Link>
+          </ColorTag>
         ))}
       </div>
       {tags.length > maxTags && (

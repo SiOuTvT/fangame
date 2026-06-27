@@ -3,6 +3,7 @@
 import { Download, Eye, Heart, ImageOff } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { Tag, TagGroup } from "@/components/ui/tag"
 import { memo, useCallback, useState } from "react"
 
 export interface GameCardData {
@@ -147,21 +148,13 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
 
         {/* 第3行：标签 */}
         {paramTags.length > 0 && (
-          <div className="game-card-tags flex flex-wrap items-center gap-1.5 flex-shrink-0">
+          <TagGroup className="game-card-tags flex-shrink-0">
             {paramTags.map((tag, i) => (
-              <span
-                key={`p-${i}`}
-                className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold shrink-0"
-                style={{
-                  background: tag.color ? `${tag.color}18` : undefined,
-                  color: tag.color || undefined,
-                  border: tag.color ? `1px solid ${tag.color}30` : undefined,
-                }}
-              >
+              <Tag key={`p-${i}`} color={tag.color || undefined}>
                 {tag.name}
-              </span>
+              </Tag>
             ))}
-          </div>
+          </TagGroup>
         )}
       </div>
     </Link>

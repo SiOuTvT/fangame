@@ -1,7 +1,7 @@
 "use client"
 
 import { Building2, Calendar, ChevronDown, Clock, ExternalLink, Gamepad2 } from "lucide-react"
-import Link from "next/link"
+import { Tag } from "@/components/ui/tag"
 
 export function ArchiveCard({
   releaseDate,
@@ -73,17 +73,16 @@ export function ArchiveCard({
           {gameTags && gameTags.length > 0 && (
             <div className="flex items-start gap-2.5">
               <Gamepad2 className="h-4 w-4 shrink-0 mt-0.5 text-muted-foreground" />
-              <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+              <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 min-w-0">
                 <span className="text-xs shrink-0 text-muted-foreground">游戏标签</span>
               {gameTags.map((tag, i) => (
-                  <Link
+                  <Tag
                     key={i}
+                    color={tag.color || undefined}
                     href={`/games?tag=${encodeURIComponent(tag.name)}`}
-                    className="inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-xs font-semibold transition-opacity hover:opacity-80"
-                    style={{ background: tag.color ? `${tag.color}20` : "var(--secondary)", color: tag.color || "var(--foreground)" }}
                   >
                     {tag.name}
-                  </Link>
+                  </Tag>
                 ))}
               </div>
             </div>

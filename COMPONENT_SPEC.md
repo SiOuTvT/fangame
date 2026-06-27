@@ -16,14 +16,29 @@
 
 ---
 
-## 2. 标签 / Badge 尺寸（统一 2 档）
+## 2. 标签系统（Tag Design System）
 
-| 档位 | 样式 | 用途 |
-|------|------|------|
-| 标准 | `rounded-full px-2.5 py-1 text-xs font-semibold` | 游戏标签、分类标签、状态标签 |
-| 紧凑 | `rounded-full px-2 py-0.5 text-[10px] font-medium` | 统计行内标签、计数 badge |
+使用统一组件 `@/components/ui/tag`，三种变体：
 
-颜色方案：`background: ${color}20`，`color: ${color}`（淡色背景 + 原色文字）。
+### content — 内容标签
+- 圆角：`rounded-lg`
+- 手机：`px-2 py-0.5 text-xs font-semibold`，gap `1`(4px)
+- 桌面：`px-2.5 py-1 text-xs font-semibold`，gap `1.5`(6px)
+- 用途：游戏标签、论坛分类、资源标签、角色标签、ArchiveCard 标签
+
+### cloud — 标签云 / 标签浏览
+- 圆角：`rounded-full`
+- 手机：`px-2.5 py-0.5 text-xs font-medium`
+- 桌面：`px-3 py-1 text-xs font-medium`
+- 用途：标签浏览页、热门标签、标签分类页
+
+### badge — 状态 / 计数徽章
+- 圆角：`rounded-full`
+- `px-1.5 py-px text-[10px] font-bold`
+- 用途：NEW、通知数字、数量标记、论坛分类标签
+
+颜色方案：content/cloud 使用 `color + 9%` 背景 + `color` 文字 + `color + 19%` 边框。
+badge 使用 `color + 12%` 背景 + `color` 文字。
 禁止使用实色背景 + 白字。
 
 ---

@@ -1,6 +1,7 @@
 "use client"
 
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { Tag, TagGroup } from "@/components/ui/tag"
 import { timeAgo } from "@/lib/time-ago"
 import { AlertTriangle, ChevronDown, ChevronUp, Download, Loader2, Pencil, Trash2 } from "lucide-react"
 import Image from "next/image"
@@ -149,24 +150,16 @@ const ResourceCard = memo(function ResourceCard({
       style={{ boxShadow: "var(--card-shadow)" }}
     >
       {/* ── 第一行：胶囊标签流 ── */}
-      <div className="px-4 pt-4 pb-2.5 flex flex-wrap items-center gap-2">
+      <TagGroup className="px-4 pt-4 pb-2.5">
         {allTags.slice(0, 8).map((tag) => (
-          <span
-            key={tag}
-            className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors"
-            style={resourceTagColor ? {
-              background: `${resourceTagColor}18`,
-              color: resourceTagColor,
-              border: `1px solid ${resourceTagColor}30`,
-            } : undefined}
-          >
+          <Tag key={tag} color={resourceTagColor || undefined}>
             {tag}
-          </span>
+          </Tag>
         ))}
         {allTags.length > 8 && (
           <span className="text-xs text-muted-foreground">+{allTags.length - 8}</span>
         )}
-      </div>
+      </TagGroup>
 
       {/* ── 第二行：发布者用户信息栏 ── */}
       <div className="flex items-center gap-3.5 px-4 pb-2.5">

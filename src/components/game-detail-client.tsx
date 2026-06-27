@@ -9,6 +9,7 @@ import { toast } from "sonner"
 import { ArchiveCard } from "./game-detail/archive-card"
 import { IntroTab } from "./game-detail/intro-tab"
 import { ReportDialog } from "./game-detail/report-dialog"
+import { Tag } from "@/components/ui/tag"
 
 /** 资源 Tab — 懒加载 */
 const ResourceTab = dynamic(() => import("./game-detail/resource-tab").then(m => ({ default: m.ResourceTab })), {
@@ -390,9 +391,7 @@ export default function GameDetailClient({
                 <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1.5 min-w-0">
                   <span className="text-sm font-medium shrink-0 text-muted-foreground">游戏标签：</span>
                   {gameTags.map((tag, i) => (
-                    <span key={i} className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold" style={{ background: tag.color ? `${tag.color}20` : "var(--secondary)", color: tag.color || "var(--foreground)" }}>
-                      {tag.name}
-                    </span>
+                    <Tag key={i} color={tag.color || undefined}>{tag.name}</Tag>
                   ))}
                 </div>
               </div>
