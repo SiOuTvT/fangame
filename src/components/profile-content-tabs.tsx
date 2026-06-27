@@ -251,7 +251,7 @@ function CollectionCard({ id, name, gameCount, coverGames, onOpen, onDelete, isD
         <button onClick={onOpen} className="flex items-center gap-2.5 min-w-0 text-left">
           <FolderHeart className="h-5 w-5 text-primary/80 shrink-0" strokeWidth={2} />
           <span className="text-sm font-semibold text-foreground truncate">{name}</span>
-          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground shrink-0">{gameCount} 部</span>
+          <Tag variant="badge" className="bg-muted text-muted-foreground">{gameCount} 部</Tag>
         </button>
         {!isDefault && onDelete && (
           <button onClick={(e) => { e.stopPropagation(); onDelete() }} className="flex items-center justify-center rounded-lg p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500" title="删除收藏夹">
@@ -284,7 +284,7 @@ const FolderModalContent = memo(function FolderModalContent({ name, games, onClo
         <div className="flex items-center gap-3">
           <FolderHeart className="h-5 w-5 text-primary" strokeWidth={2} />
           <h2 className="text-base font-bold text-foreground">{name}</h2>
-          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">{games.length} 部</span>
+          <Tag variant="badge" className="bg-muted text-muted-foreground">{games.length} 部</Tag>
         </div>
         <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground"><X className="h-4 w-4" strokeWidth={2.5} /></button>
       </div>
@@ -354,7 +354,7 @@ function PlayTab({ playStatusGames }: { playStatusGames: { game: GameLite; statu
         <Link key={game.id} href={`/games/${game.serialId ?? game.id}`} className="group flex items-center gap-3 rounded-xl bg-secondary/40 p-3 hover:bg-secondary/70">
           {game.coverImage ? <Image src={game.coverImage} alt={game.title} width={36} height={48} className="h-12 w-9 rounded-md object-cover" unoptimized /> : <div className="flex h-12 w-9 items-center justify-center rounded-md bg-muted"><Gamepad2 className="h-4 w-4" /></div>}
           <div className="flex-1 min-w-0"><p className="text-sm font-medium text-foreground truncate">{game.title}</p></div>
-          <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${colors[status] || "bg-muted text-muted-foreground"}`}>{status}</span>
+          <Tag variant="badge" className={colors[status] || "bg-muted text-muted-foreground"}>{status}</Tag>
         </Link>
       ))}
     </div>

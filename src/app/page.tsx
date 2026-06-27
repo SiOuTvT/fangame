@@ -258,7 +258,7 @@ export default async function HomePage({
 
       {/* 游戏网格 */}
       <section>
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-3 sm:mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold tracking-wide text-foreground">
             {q ? `「${q}」的搜索结果` : activeTag === "全部" ? "最新资源" : `# ${activeTag}`}
           </h2>

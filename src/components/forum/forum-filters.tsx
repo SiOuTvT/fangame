@@ -37,7 +37,7 @@ export function ForumFilters({
       </div>
 
       {/* 分类标签 */}
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-1 sm:gap-1.5">
         <button
           onClick={() => onCategoryChange("")}
           className={cn(

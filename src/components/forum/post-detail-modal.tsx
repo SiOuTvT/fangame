@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect, memo } from "react"
 import Image from "next/image"
 import { CheckCircle2, ChevronLeft, Edit3, Heart, ImageIcon, MessageSquare, Send, Smile, Trash2, X } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Tag } from "@/components/ui/tag"
 import { RichTextContent } from "../rich-text-content-wrapper"
 import type { Post, Comment, User } from "./forum-client-root"
 
@@ -237,9 +238,9 @@ export function PostDetailModal({
                 </p>
               </div>
               {post.isSolved && (
-                <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-500 ring-1 ring-emerald-500/20">
+                <Tag color="#10b981" className="gap-1">
                   <CheckCircle2 className="h-3 w-3" strokeWidth={2} />已解决
-                </span>
+                </Tag>
               )}
             </div>
 

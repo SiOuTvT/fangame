@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils"
 import { MessageSquare, X } from "lucide-react"
 import Link from "next/link"
+import { Tag } from "@/components/ui/tag"
 import { useEffect, useState } from "react"
 
 interface ForumSidebarProps {
@@ -93,9 +94,9 @@ function ForumSidebarPosts() {
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground">{p.user.username}</span>
             {p.isSolved !== undefined && (
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${p.isSolved ? "bg-emerald-500/10 text-emerald-500" : "bg-amber-500/10 text-amber-500"}`}>
+              <Tag variant="badge" color={p.isSolved ? "#10b981" : "#f59e0b"}>
                 {p.isSolved ? "已解决" : "未解决"}
-              </span>
+              </Tag>
             )}
           </div>
         </Link>

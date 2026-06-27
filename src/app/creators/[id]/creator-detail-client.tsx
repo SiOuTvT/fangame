@@ -3,6 +3,7 @@
 import { TranslateBtn } from "@/components/translate-btn"
 import { Database, Loader2, RefreshCw, Star, User } from "lucide-react"
 import Image from "next/image"
+import { Tag, TagGroup } from "@/components/ui/tag"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -94,28 +95,20 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
             <div className="flex flex-wrap gap-2 mb-4">
               {/* 角色标签 */}
               {creator.roles.map(role => (
-                <span
-                  key={role}
-                  className="rounded-full bg-indigo-400/15 px-3 py-1 text-xs font-medium text-indigo-400 ring-1 ring-indigo-400/25"
-                >
+                <Tag key={role} color="#818cf8">
                   {roleLabelMap[role] || role}
-                </span>
+                </Tag>
               ))}
               {genderLabel && (
-                <span className="rounded-full bg-indigo-400/10 px-3 py-1 text-xs font-medium text-indigo-300 ring-1 ring-indigo-400/20">
+                <Tag color="#818cf8">
                   {genderLabel}
-                </span>
+                </Tag>
               )}
               {creator.vndbId && (
-                <a
-                  href={`https://vndb.org/s${creator.vndbId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 rounded-full bg-indigo-400/10 px-3 py-1 text-xs font-medium text-indigo-300 ring-1 ring-indigo-400/20 transition-all hover:bg-indigo-400/20 hover:text-indigo-200"
-                >
+                <Tag color="#818cf8" href={`https://vndb.org/s${creator.vndbId}`}>
                   <Database className="h-3 w-3" strokeWidth={2} />
                   VNDB · s{creator.vndbId}
-                </a>
+                </Tag>
               )}
             </div>
 

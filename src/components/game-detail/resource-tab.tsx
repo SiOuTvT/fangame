@@ -186,10 +186,10 @@ const ResourceCard = memo(function ResourceCard({
       {/* ── 失效标记 ── */}
       {resource.isReported && (
         <div className="px-4 pb-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+          <Tag color="#f59e0b" className="gap-1.5">
             <AlertTriangle className="w-3 h-3" />
             链接已失效
-          </span>
+          </Tag>
         </div>
       )}
 

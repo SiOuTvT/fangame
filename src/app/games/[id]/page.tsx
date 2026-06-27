@@ -11,6 +11,7 @@ import { safeParse } from "@/lib/parse-utils"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { isNumericId } from "@/lib/serial-id"
+import { Tag, TagGroup } from "@/components/ui/tag"
 import { Download, Eye, Heart } from "lucide-react"
 import Image from "next/image"
 import { notFound, redirect } from "next/navigation"
@@ -261,28 +262,18 @@ export default async function GameDetailPage({
               </div>
 
               {/* ② 标签行（SFW/NSFW + 资源标签） */}
-              <div className="flex flex-wrap items-center gap-2 mt-2.5 mb-2">
+              <TagGroup className="mt-2.5 mb-2">
                 {/* SFW/NSFW 标识 */}
-                <span
-                    className="inline-block text-[12px] font-bold px-2 py-0.5 rounded"
-                  style={{
-                    color: game.isNsfw ? "var(--clr-rose)" : "var(--clr-blue)",
-                    background: game.isNsfw ? "rgba(231,76,111,0.1)" : "rgba(52,152,219,0.1)",
-                  }}
-                >
+                <Tag color={game.isNsfw ? "#d87070" : undefined} className={game.isNsfw ? "" : "bg-blue-500/10 text-blue-500 border-blue-500/20"}>
                   {game.isNsfw ? "NSFW" : "SFW"}
-                </span>
+                </Tag>
                 {/* 资源标签（语言/运行方式/资源内容，来自 GameResource）— 颜色跟随主题色 */}
                 {resourceTags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="game-card-tag inline-block text-[13px] font-medium px-2.5 py-1 rounded-md max-w-[96px] truncate"
-                    title={tag}
-                  >
+                  <Tag key={tag} className="game-card-tag max-w-[96px] truncate" title={tag}>
                     {tag}
-                  </span>
+                  </Tag>
                 ))}
-              </div>
+              </TagGroup>
 
               {/* ③ 功能按钮行（紧凑模式，等宽三列） */}
               <div className="mb-2">

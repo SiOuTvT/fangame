@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils"
 import { Award, Lock, X } from "lucide-react"
 import Image from "next/image"
+import { Tag } from "@/components/ui/tag"
 import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 
@@ -80,9 +81,9 @@ export function AchievementModal({ compact, emptyText: _emptyText = "暂无成�
               <div className="flex items-center gap-2.5">
                 <Award className="h-5 w-5 text-amber-400" />
                 <h2 className="text-base font-bold text-foreground">成就</h2>
-                <span className="rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-400">
+                <Tag color="#f59e0b">
                   {unlocked.length}
-                </span>
+                </Tag>
               </div>
               <button
                 onClick={() => { setOpen(false); setSelected(null) }}
@@ -227,9 +228,9 @@ function AchievementUnlockCard({ achievement, onClose }: { achievement: Achievem
           <p className="text-[11px] text-muted-foreground leading-tight line-clamp-2 flex-1">
             {achievement.description}
           </p>
-          <span className="shrink-0 rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-bold text-amber-400 tabular-nums">
+          <Tag variant="badge" color="#f59e0b" className="tabular-nums">
             +{achievement.points}
-          </span>
+          </Tag>
         </div>
       </div>
     </div>

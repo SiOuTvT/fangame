@@ -16,6 +16,7 @@ import {
     Zap,
 } from "lucide-react"
 import { useState } from "react"
+import { Tag } from "@/components/ui/tag"
 
 interface Medal {
   id: string
@@ -188,9 +189,9 @@ export function ProfileMedalModal({ favCount, playCount, commentCount, totalLeve
               <div className="flex items-center gap-2.5">
                 <Award className="h-5 w-5 text-amber-400" />
                 <h2 className="text-base font-bold text-foreground">勋章墙</h2>
-                <span className="rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-400">
+                <Tag color="#f59e0b">
                   {earnedMedals.length}
-                </span>
+                </Tag>
               </div>
               <button
                 onClick={() => setOpen(false)}

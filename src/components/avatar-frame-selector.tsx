@@ -3,6 +3,7 @@
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { logger } from "@/lib/logger"
 import { cn } from "@/lib/utils"
+import { Tag } from "@/components/ui/tag"
 import { X } from "lucide-react"
 import Image from "next/image"
 import { useSession } from "next-auth/react"
@@ -85,9 +86,9 @@ export function AvatarFrameSelector({
           <span className="text-xl leading-none">🎭</span>
           <span className="text-xs font-medium text-foreground">头像框</span>
           {frames.length > 0 && (
-            <span className="rounded-full bg-purple-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-purple-400">
+            <Tag variant="badge" color="#a855f7">
               {frames.length}
-            </span>
+            </Tag>
           )}
         </button>
       ) : (
