@@ -1,6 +1,7 @@
 ﻿"use client"
 
 import { ImageUpload } from "@/components/image-upload"
+import { Tag } from "@/components/ui/tag"
 import { useAutoSaveDraft } from "@/hooks/use-auto-save-draft"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { Loader2, Plus, X } from "lucide-react"
@@ -671,19 +672,18 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
         </div>
         {/* 已选标签展示 */}
         {selectedTags.length > 0 && (
-          <div className="mb-3 flex flex-wrap gap-1.5">
+          <div className="mb-3 flex flex-wrap gap-1 sm:gap-1.5">
             {selectedTags.map(id => {
               const tag = tags.find(t => t.id === id)
               if (!tag) return null
               return (
-                <span key={id} className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium"
-                  style={{ color: tag.color, background: `${tag.color}18` }}>
+                <Tag key={id} color={tag.color} className="gap-1">
                   {tag.name}
                   <button type="button" onClick={() => toggleTag(id)}
                     className="hover:text-red-400 transition-colors cursor-pointer">
                     <X className="w-3 h-3" />
                   </button>
-                </span>
+                </Tag>
               )
             })}
           </div>

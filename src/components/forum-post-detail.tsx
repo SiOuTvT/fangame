@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils"
 import { CheckCircle2, Edit3, Heart, Image as ImageIcon, MessageSquare, Send, Share2, Smile, Trash2, X } from "lucide-react"
 import NextImage from "next/image"
+import { Tag } from "@/components/ui/tag"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { useBreadcrumb } from "./breadcrumb-context"
@@ -220,14 +221,14 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
               </p>
             </div>
             {post.isSolved && (
-              <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-500 ring-1 ring-emerald-500/20">
+              <Tag color="#10b981" className="gap-1">
                 <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={2} />已解决
-              </span>
+              </Tag>
             )}
             {post.isLocked && (
-              <span className="flex items-center gap-1 rounded-full bg-rose-500/10 px-2.5 py-1 text-xs font-medium text-rose-500 ring-1 ring-rose-500/20">
+              <Tag color="#f43f5e" className="gap-1">
                 🔒 已锁定
-              </span>
+              </Tag>
             )}
           </div>
         </div>
