@@ -64,7 +64,8 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
         requestAnimationFrame(() => {
           const img = scrollRef.current?.querySelector("img")
           if (img) {
-            img.style.transform = `translateY(${window.scrollY * 0.15}px) scale(1.1)`
+            const safeY = Math.max(0, window.scrollY)
+            img.style.transform = `translateY(${safeY * 0.15}px) scale(1.1)`
           }
           ticking = false
         })
