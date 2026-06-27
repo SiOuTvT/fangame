@@ -68,7 +68,7 @@ export function AchievementModal({ compact, emptyText: _emptyText = "暂无成�
 
       {/* 弹窗 */}
       {open && createPortal(
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => { setOpen(false); setSelected(null) }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 cursor-pointer" onClick={() => { setOpen(false); setSelected(null) }}>
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
           <div
             className="relative w-full max-w-lg max-h-[80vh] overflow-auto rounded-2xl bg-card ring-1 ring-border animate-in fade-in zoom-in-95 duration-200"

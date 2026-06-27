@@ -68,7 +68,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
       {/* 移动端遮罩 */}
       <div
         className={cn(
-          "fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity duration-300 lg:hidden",
+          "fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity duration-300 lg:hidden cursor-pointer",
           mobileOpen ? "opacity-100" : "pointer-events-none opacity-0"
         )}
         onClick={onMobileToggle}

@@ -33,7 +33,7 @@ const EMOJI_LIST = [
 const EmojiPanel = memo(function EmojiPanel({ onSelect, onClose }: { onSelect: (emoji: string) => void; onClose: () => void }) {
   return (
     <>
-      <div className="fixed inset-0 z-40" onClick={onClose} aria-hidden="true" />
+      <div className="fixed inset-0 z-40 cursor-pointer" onClick={onClose} aria-hidden="true" />
       <div
         className="absolute bottom-10 left-0 z-50 w-64 max-w-[calc(100vw-2rem)] rounded-xl bg-card p-3 ring-1 ring-border shadow-2xl"
         role="dialog"

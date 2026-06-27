@@ -413,7 +413,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
                   </button>
                   {showEmoji && (
                     <>
-                      <div className="fixed inset-0 z-40" onClick={() => setShowEmoji(false)} />
+                      <div className="fixed inset-0 z-40 cursor-pointer" onClick={() => setShowEmoji(false)} />
                       <div className="absolute bottom-11 left-0 z-50 w-72 rounded-xl bg-card p-3 ring-1 ring-border shadow-2xl">
                         <div className="grid grid-cols-10 gap-1">
                           {EMOJI_LIST.map((emoji) => (

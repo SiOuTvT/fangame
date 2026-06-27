@@ -100,7 +100,7 @@ export function AvatarFrameSelector({
       )}
 
       {open && createPortal(
-        <div className="fixed inset-0 z-[100] touch-none flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setOpen(false)}>
+        <div className="fixed inset-0 z-[100] touch-none flex items-center justify-center bg-black/50 backdrop-blur-sm cursor-pointer" onClick={() => setOpen(false)}>
           <div
             className="mx-4 w-full max-w-md rounded-2xl bg-card ring-1 ring-border overflow-hidden"
             style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.3)" }}

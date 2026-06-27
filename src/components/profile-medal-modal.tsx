@@ -174,7 +174,7 @@ export function ProfileMedalModal({ favCount, playCount, commentCount, totalLeve
 
       {/* 弹窗 */}
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setOpen(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 cursor-pointer" onClick={() => setOpen(false)}>
           {/* 遮罩 */}
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
           {/* 内容 */}

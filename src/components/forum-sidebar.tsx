@@ -26,7 +26,7 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
       {/* 移动端遮罩 */}
       {open && (
         <div
-          className="fixed inset-0 z-[32] backdrop-blur-sm fade-in lg:hidden bg-black/40 touch-none"
+          className="fixed inset-0 z-[32] backdrop-blur-sm fade-in lg:hidden bg-black/40 touch-none cursor-pointer"
           onClick={onToggle}
         />
       )}
