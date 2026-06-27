@@ -2,6 +2,7 @@
 
 import { Database, Loader2, RefreshCw } from "lucide-react"
 import Image from "next/image"
+import { Tag, TagGroup } from "@/components/ui/tag"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -90,24 +91,23 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2 mb-4">
+          <TagGroup className="mb-4">
             {character.role && (
-              <span className="rounded-full bg-pink-400/15 px-3 py-1 text-xs font-medium text-pink-400 ring-1 ring-pink-400/25">
+              <Tag color="#f472b6">
                 {roleMap[character.role] || character.role}
-              </span>
+              </Tag>
             )}
             {character.vnTitle && (
-              <span className="rounded-full bg-pink-400/10 px-3 py-1 text-xs font-medium text-pink-300 ring-1 ring-pink-400/20">
+              <Tag color="#f472b6">
                 {character.vnTitle}
-              </span>
+              </Tag>
             )}
             {vndbId && (
-              <a href={`https://vndb.org/${vndbId}`} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-1.5 rounded-full bg-pink-400/10 px-3 py-1 text-xs font-medium text-pink-300 ring-1 ring-pink-400/20 transition-all hover:bg-pink-400/20 hover:text-pink-200">
+              <Tag color="#f472b6" href={`https://vndb.org/${vndbId}`}>
                 <Database className="h-3 w-3" strokeWidth={2} />VNDB · {vndbId}
-              </a>
+              </Tag>
             )}
-          </div>
+          </TagGroup>
 
           {/* 基本信息 */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1.5 mb-4 text-sm">
@@ -156,13 +156,13 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
             <span className="h-5 w-1 rounded-full bg-gradient-to-b from-pink-300 to-pink-400" />
             角色特征
           </h2>
-          <div className="flex flex-wrap gap-2">
+          <TagGroup>
             {character.traits.map((trait, i) => (
-              <span key={i} className="rounded-full bg-pink-400/10 px-3 py-1 text-xs font-medium text-pink-300 ring-1 ring-pink-400/20">
+              <Tag key={i} color="#f472b6">
                 {trait.name}
-              </span>
+              </Tag>
             ))}
-          </div>
+          </TagGroup>
         </section>
       )}
 

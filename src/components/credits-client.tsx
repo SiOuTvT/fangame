@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils"
 import { Search, Users } from "lucide-react"
 import Image from "next/image"
+import { Tag } from "@/components/ui/tag"
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 
@@ -228,12 +229,9 @@ export function CreditsClient() {
                         <p className="text-xs font-medium text-foreground truncate max-w-[100px]">
                           {c.nameJa || c.name}
                         </p>
-                        <span className={cn(
-                          "inline-block rounded-full px-1.5 py-0.5 text-[10px] font-medium",
-                          ROLE_COLORS[c.role] || ROLE_COLORS.other
-                        )}>
+                        <Tag variant="badge" className={ROLE_COLORS[c.role] || ROLE_COLORS.other}>
                           {ROLE_LABELS[c.role] || c.role}
-                        </span>
+                        </Tag>
                       </div>
                     </Link>
                   ))}
