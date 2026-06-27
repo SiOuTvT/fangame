@@ -321,8 +321,7 @@ export default function GameDetailClient({
         </div>
 
         {/* ─── 右侧: 档案卡片 300px (仅桌面端显示) ─── */}
-        <div className="hidden lg:block w-[360px] shrink-0 rounded-2xl p-6 bg-card ring-1 ring-border"
-          style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+        <div className="hidden lg:block w-[360px] shrink-0 rounded-2xl p-6 bg-card ring-1 ring-border card-shadow">
 
           {/* 档案行列表 */}
           <div className="space-y-3.5">
