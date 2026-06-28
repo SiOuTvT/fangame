@@ -29,6 +29,7 @@
     "@tiptap/starter-kit": "^2.11.5",
     "@types/dompurify": "^3.0.5",
     "@uploadthing/react": "^6.6.0",
+    "@vercel/blob": "^2.5.0",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
