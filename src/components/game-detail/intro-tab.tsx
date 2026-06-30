@@ -338,27 +338,26 @@ export function ArchiveCard({
             </div>
           ))}
 
-          {/* 游戏标签 — 第一行内联，后续换行全宽，与信息行同 gap */}
+          {/* 游戏标签 — 图标固定左侧，文字和标签从同一位置换行 */}
           {gameTags && gameTags.length > 0 && (
-            <div className="flex flex-wrap items-start gap-1.5 sm:gap-2">
-              <span className="inline-flex items-center gap-3 text-sm text-muted-foreground shrink-0 leading-[22px]">
-                <Gamepad2 className="h-4 w-4 shrink-0" />
-                游戏标签
-              </span>
-              {gameTags.map((tag, i) => (
-                <span
-                  key={i}
-                  className="inline-flex items-center rounded-md px-2 text-sm font-medium shrink-0 leading-[22px]"
-                  style={{
-                    background: tag.color ? `${tag.color}18` : "var(--secondary)",
-                    color: tag.color || "var(--foreground)",
-                    border: tag.color ? `1px solid ${tag.color}30` : "1px solid var(--border)",
-                    lineHeight: "22px",
-                  }}
-                >
-                  {tag.name}
-                </span>
-              ))}
+            <div className="flex gap-3">
+              <Gamepad2 className="h-4 w-4 shrink-0 text-muted-foreground mt-[1px]" />
+              <div className="flex flex-wrap items-start gap-1.5 sm:gap-2 flex-1 min-w-0">
+                <span className="text-sm text-muted-foreground shrink-0 leading-[22px]">游戏标签</span>
+                {gameTags.map((tag, i) => (
+                  <span
+                    key={i}
+                    className="inline-flex items-center rounded-md px-2 text-sm font-medium shrink-0 leading-[22px]"
+                    style={{
+                      background: tag.color ? `${tag.color}18` : "var(--secondary)",
+                      color: tag.color || "var(--foreground)",
+                      border: tag.color ? `1px solid ${tag.color}30` : "1px solid var(--border)",
+                    }}
+                  >
+                    {tag.name}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
         </div>
