@@ -250,7 +250,7 @@ export default async function GameDetailPage({
 
               {/* ① 游戏标题 */}
               <div className="mb-1 sm:mb-1.5">
-                <h1 className="font-bold leading-tight text-foreground text-lg sm:text-2xl">
+                <h1 className="font-bold leading-tight text-foreground text-xl sm:text-2xl">
                   {game.title}
                 </h1>
                 {game.originalWork && (
@@ -292,10 +292,10 @@ export default async function GameDetailPage({
                   </div>
                 )}
                 <div className="min-w-0">
-                  <p className="text-sm sm:text-[15px] font-medium sm:font-semibold text-foreground/80 sm:text-foreground truncate">
+                  <p className="text-[15px] sm:text-base font-medium sm:font-semibold text-foreground/80 sm:text-foreground truncate">
                     {game.publisher ? game.publisher.username : "本站发布"}
                   </p>
-                  <p className="text-[11px] sm:text-xs text-muted-foreground/50 sm:text-muted-foreground/70">{timeAgo}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground/50 sm:text-muted-foreground/70">{timeAgo}</p>
                 </div>
                 <div className="ml-auto shrink-0">
                   <GameDetailTopClient
@@ -311,16 +311,16 @@ export default async function GameDetailPage({
 
               {/* ④ 人气数据 */}
               <div className="flex items-center gap-4 sm:gap-5 pt-3 sm:pt-4 mt-2 sm:mt-3 border-t border-border/40">
-                <span className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
-                  <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="flex items-center gap-1.5 text-sm sm:text-[15px] text-muted-foreground">
+                  <Eye className="w-4 h-4" />
                   <span className="font-bold tabular-nums">{game.viewCount}</span>
                 </span>
-                <span className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
-                  <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="flex items-center gap-1.5 text-sm sm:text-[15px] text-muted-foreground">
+                  <Download className="w-4 h-4" />
                   <span className="font-bold tabular-nums">{game.downloadCount}</span>
                 </span>
-                <span className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
-                  <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="flex items-center gap-1.5 text-sm sm:text-[15px] text-muted-foreground">
+                  <Heart className="w-4 h-4" />
                   <span className="font-bold tabular-nums">{game.favoriteCount}</span>
                 </span>
               </div>
