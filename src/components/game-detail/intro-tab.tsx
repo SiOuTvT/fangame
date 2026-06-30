@@ -3,8 +3,97 @@
 import DOMPurify from "isomorphic-dompurify"
 import { Building2, Calendar, ChevronDown, Clock, ExternalLink, Gamepad2, Users } from "lucide-react"
 import Image from "next/image"
-import { useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Tag } from "@/components/ui/tag"
+
+/* ═══════════════════════════════════════════════
+   语言优先级：中文 > English > 日本語 > 其他
+   ═══════════════════════════════════════════════ */
+const LANG_PRIORITY = ["zh", "en", "ja", "other"]
+
+function getDefaultLang(descriptions: { lang: string }[]): string {
+  for (const lang of LANG_PRIORITY) {
+    if (descriptions.some((d) => d.lang === lang)) return lang
+  }
+  return descriptions[0]?.lang ?? ""
+}
+
+/* ═══════════════════════════════════════════════
+   Sanitize 配置（复用）
+   ═══════════════════════════════════════════════ */
+const SANITIZE_CONFIG = {
+  ALLOWED_TAGS: ["p", "br", "strong", "em", "u", "s", "a", "img", "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol", "li", "blockquote", "code", "pre", "hr", "div", "span"],
+  ALLOWED_ATTR: ["href", "src", "alt", "title", "target", "rel", "class"],
+  ALLOW_DATA_ATTR: false,
+}
+
+function DescriptionContent({ html }: { html: string }) {
+  return (
+    <div
+      className="prose dark:prose-invert max-w-none leading-relaxed"
+      style={{ fontSize: "15px", lineHeight: "1.9", color: "var(--foreground)" }}
+      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html, SANITIZE_CONFIG) }}
+    />
+  )
+}
+
+/* ═══════════════════════════════════════════════
+   语言 Segmented Tab
+   ═══════════════════════════════════════════════ */
+function LangTabs({
+  descriptions,
+  activeLang,
+  onChange,
+}: {
+  descriptions: { lang: string; label: string }[]
+  activeLang: string
+  onChange: (lang: string) => void
+}) {
+  const barRef = useRef<HTMLDivElement>(null)
+
+  // 横向滚动到激活项
+  useEffect(() => {
+    if (!barRef.current) return
+    const active = barRef.current.querySelector(`[data-lang="${activeLang}"]`) as HTMLElement | null
+    if (active) {
+      const bar = barRef.current
+      const left = active.offsetLeft - bar.offsetWidth / 2 + active.offsetWidth / 2
+      bar.scrollTo({ left, behavior: "smooth" })
+    }
+  }, [activeLang])
+
+  return (
+    <div
+      ref={barRef}
+      className="flex items-center gap-1 overflow-x-auto scrollbar-hide"
+      role="tablist"
+      aria-label="简介语言切换"
+    >
+      {descriptions.map((d) => {
+        const isActive = d.lang === activeLang
+        return (
+          <button
+            key={d.lang}
+            type="button"
+            role="tab"
+            data-lang={d.lang}
+            aria-selected={isActive}
+            onClick={() => onChange(d.lang)}
+            className={`
+              shrink-0 rounded-lg px-3 py-1 text-xs font-medium transition-all duration-150
+              ${isActive
+                ? "bg-primary/15 text-primary ring-1 ring-primary/25"
+                : "text-muted-foreground hover:text-foreground ring-1 ring-border hover:ring-foreground/20"
+              }
+            `}
+          >
+            {d.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
 
 /* ═══════════════════════════════════════════════
    IntroTab — 游戏简介 + 制作人员
@@ -26,60 +115,74 @@ export function IntroTab({
     aliases?: string[]
   }[]
 }) {
+  const hasMultiple = allDescriptions && allDescriptions.length > 1
+  const [activeLang, setActiveLang] = useState(() =>
+    allDescriptions ? getDefaultLang(allDescriptions) : ""
+  )
+  const [fading, setFading] = useState(false)
+
+  const switchLang = useCallback(
+    (lang: string) => {
+      if (lang === activeLang) return
+      setFading(true)
+      // 淡出 → 切换 → 淡入
+      setTimeout(() => {
+        setActiveLang(lang)
+        setFading(false)
+      }, 150)
+    },
+    [activeLang]
+  )
+
+  // 单语言或无 allDescriptions 时直接渲染
+  if (!allDescriptions || allDescriptions.length === 0) {
+    return (
+      <div role="tabpanel" id="tabpanel-intro" aria-labelledby="tab-intro">
+        {description ? (
+          <DescriptionContent html={description} />
+        ) : (
+          <p className="text-sm text-muted-foreground/60 italic">暂无简介</p>
+        )}
+        {creators.length > 0 && (
+          <div className="mt-5">
+            <CollapsibleCard
+              icon={<Users className="h-4 w-4 opacity-60" />}
+              label="制作人员"
+              count={creators.length}
+              defaultOpen={creators.length <= 5}
+            >
+              <CreatorsGrid creators={creators} />
+            </CollapsibleCard>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  const activeDesc = allDescriptions.find((d) => d.lang === activeLang) ?? allDescriptions[0]
+
   return (
     <div role="tabpanel" id="tabpanel-intro" aria-labelledby="tab-intro">
-      {/* 游戏简介 */}
-      {allDescriptions && allDescriptions.length > 0 ? (
-        <div className="space-y-5">
-          {allDescriptions.map((d, idx) => (
-            <div key={d.lang}>
-              {allDescriptions.length > 1 && (
-                <div className="mb-2">
-                  <span
-                    className="inline-block rounded-md px-1.5 py-0.5 text-[10px] font-medium"
-                    style={{
-                      background: "rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.1)",
-                      color: "var(--muted-foreground)",
-                    }}
-                  >
-                    {d.label}
-                  </span>
-                </div>
-              )}
-              <div
-                className="prose dark:prose-invert max-w-none leading-relaxed"
-                style={{ fontSize: "15px", lineHeight: "1.9", color: "var(--foreground)" }}
-                dangerouslySetInnerHTML={{
-                  __html: DOMPurify.sanitize(d.text, {
-                    ALLOWED_TAGS: ["p", "br", "strong", "em", "u", "s", "a", "img", "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol", "li", "blockquote", "code", "pre", "hr", "div", "span"],
-                    ALLOWED_ATTR: ["href", "src", "alt", "title", "target", "rel", "class"],
-                    ALLOW_DATA_ATTR: false,
-                  }),
-                }}
-              />
-              {idx < allDescriptions.length - 1 && (
-                <div className="mt-4 border-t border-border/50" />
-              )}
-            </div>
-          ))}
+      {/* 语言切换 Tab — 仅多语言时显示 */}
+      {hasMultiple && (
+        <div className="mb-4">
+          <LangTabs
+            descriptions={allDescriptions}
+            activeLang={activeLang}
+            onChange={switchLang}
+          />
         </div>
-      ) : description ? (
-        <div
-          className="prose dark:prose-invert max-w-none leading-relaxed"
-          style={{ fontSize: "15px", lineHeight: "1.9", color: "var(--foreground)" }}
-          dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(description, {
-              ALLOWED_TAGS: ["p", "br", "strong", "em", "u", "s", "a", "img", "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol", "li", "blockquote", "code", "pre", "hr", "div", "span"],
-              ALLOWED_ATTR: ["href", "src", "alt", "title", "target", "rel", "class"],
-              ALLOW_DATA_ATTR: false,
-            }),
-          }}
-        />
-      ) : (
-        <p className="text-sm text-muted-foreground/60 italic">暂无简介</p>
       )}
 
-      {/* 制作人员折叠卡片 — 与游戏档案统一风格 */}
+      {/* 简介内容 — 淡入淡出 */}
+      <div
+        className="transition-opacity duration-150 ease-out"
+        style={{ opacity: fading ? 0 : 1 }}
+      >
+        <DescriptionContent html={activeDesc.text} />
+      </div>
+
+      {/* 制作人员折叠卡片 */}
       {creators.length > 0 && (
         <div className="mt-5">
           <CollapsibleCard
@@ -88,36 +191,7 @@ export function IntroTab({
             count={creators.length}
             defaultOpen={creators.length <= 5}
           >
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-              {creators.map((c) => (
-                <a
-                  key={`${c.id}-${c.role}`}
-                  href={`/creators/${c.id}`}
-                  className="flex items-center gap-2.5 rounded-xl bg-secondary/40 p-2.5 transition-all hover:bg-secondary/70"
-                >
-                  {c.avatar ? (
-                    <Image
-                      src={c.avatar}
-                      alt={c.name}
-                      width={32}
-                      height={32}
-                      className="h-8 w-8 shrink-0 rounded-full object-cover"
-                      unoptimized
-                    />
-                  ) : (
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                      {(c.nameJa || c.name)[0]}
-                    </div>
-                  )}
-                  <div className="min-w-0">
-                    <p className="truncate text-xs font-medium text-foreground">{c.nameJa || c.name}</p>
-                    <p className="truncate text-[10px] text-muted-foreground">
-                      {{ scenario: "脚本", art: "原画", chardesign: "角色设计", director: "导演", music: "音乐", songs: "主题曲" }[c.role] ?? c.role}
-                    </p>
-                  </div>
-                </a>
-              ))}
-            </div>
+            <CreatorsGrid creators={creators} />
           </CollapsibleCard>
         </div>
       )}
@@ -125,10 +199,52 @@ export function IntroTab({
   )
 }
 
+/* ═══════════════════════════════════════════════
+   CreatorsGrid — 制作人员网格
+   ═══════════════════════════════════════════════ */
+
+function CreatorsGrid({
+  creators,
+}: {
+  creators: { id: string; role: string; name: string; avatar?: string | null; nameJa?: string | null }[]
+}) {
+  return (
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+      {creators.map((c) => (
+        <a
+          key={`${c.id}-${c.role}`}
+          href={`/creators/${c.id}`}
+          className="flex items-center gap-2.5 rounded-xl bg-secondary/40 p-2.5 transition-all hover:bg-secondary/70"
+        >
+          {c.avatar ? (
+            <Image
+              src={c.avatar}
+              alt={c.name}
+              width={32}
+              height={32}
+              className="h-8 w-8 shrink-0 rounded-full object-cover"
+              unoptimized
+            />
+          ) : (
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+              {(c.nameJa || c.name)[0]}
+            </div>
+          )}
+          <div className="min-w-0">
+            <p className="truncate text-xs font-medium text-foreground">{c.nameJa || c.name}</p>
+            <p className="truncate text-[10px] text-muted-foreground">
+              {{ scenario: "脚本", art: "原画", chardesign: "角色设计", director: "导演", music: "音乐", songs: "主题曲" }[c.role] ?? c.role}
+            </p>
+          </div>
+        </a>
+      ))}
+    </div>
+  )
+}
+
 
 /* ═══════════════════════════════════════════════
    ArchiveCard — 游戏档案折叠卡片（手机端）
-   使用 CollapsibleCard 统一风格
    ═══════════════════════════════════════════════ */
 
 export function ArchiveCard({
@@ -215,7 +331,6 @@ export function ArchiveCard({
 
 /* ═══════════════════════════════════════════════
    CollapsibleCard — 统一折叠卡片组件
-   制作人员、游戏档案共用此组件
    ═══════════════════════════════════════════════ */
 
 function CollapsibleCard({
@@ -241,7 +356,6 @@ function CollapsibleCard({
 
   return (
     <div className="rounded-2xl bg-card border border-border overflow-hidden">
-      {/* 触发按钮 */}
       <button
         type="button"
         onClick={toggle}
@@ -258,7 +372,6 @@ function CollapsibleCard({
         />
       </button>
 
-      {/* 内容区 — 条件渲染 + fade 动画 */}
       {isOpen && (
         <div className="border-t border-border px-4 py-3 animate-fade-in-up">
           {children}
