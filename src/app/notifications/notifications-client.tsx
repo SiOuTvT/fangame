@@ -84,6 +84,8 @@ export default function NotificationsClient({
   const [nextCursor, setNextCursor] = useState<string | null>(null)
   const [loadingMore, setLoadingMore] = useState(false)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
+  const [showReadConfirm, setShowReadConfirm] = useState(false)
+  const [singleDeleteId, setSingleDeleteId] = useState<string | null>(null)
 
   // 进入页面时标记所有为已读
   useEffect(() => {
@@ -186,7 +188,7 @@ export default function NotificationsClient({
             全部已读
           </button>
           <button
-            onClick={deleteRead}
+            onClick={() => setShowReadConfirm(true)}
             className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground ring-1 ring-border hover:bg-accent hover:text-foreground transition-all"
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -255,7 +257,7 @@ export default function NotificationsClient({
 
                 {/* 删除按钮 */}
                 <button
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); deleteNotifications([n.id]) }}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSingleDeleteId(n.id) }}
                   className="shrink-0 rounded-lg p-1.5 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
@@ -287,6 +289,24 @@ export default function NotificationsClient({
         variant="destructive"
         confirmText="清空"
         onConfirm={deleteAll}
+      />
+      <ConfirmDialog
+        open={showReadConfirm}
+        onOpenChange={setShowReadConfirm}
+        title="清除已读通知"
+        description="确定要清除所有已读通知吗？删了就找不回来了。"
+        variant="destructive"
+        confirmText="清除"
+        onConfirm={() => { deleteRead(); setShowReadConfirm(false) }}
+      />
+      <ConfirmDialog
+        open={singleDeleteId !== null}
+        onOpenChange={(open) => { if (!open) setSingleDeleteId(null) }}
+        title="删除通知"
+        description="确定要删除这条通知吗？"
+        variant="destructive"
+        confirmText="删除"
+        onConfirm={() => { if (singleDeleteId) { deleteNotifications([singleDeleteId]); setSingleDeleteId(null) } }}
       />
     </div>
   )

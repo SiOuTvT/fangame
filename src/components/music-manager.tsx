@@ -22,6 +22,7 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
   const [adding, setAdding] = useState(false)
   const [error, setError]   = useState("")
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [playlistDeleteId, setPlaylistDeleteId] = useState<string | null>(null)
   const [playingId, setPlayingId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editTitle, setEditTitle] = useState("")
@@ -213,7 +214,7 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
                 </button>
               )}
               <button onClick={() => setEditingPlaylist(pl.id)} className="text-muted-foreground hover:text-foreground"><Pencil className="h-2.5 w-2.5" /></button>
-              <button onClick={() => deletePlaylist(pl.id)} className="text-muted-foreground hover:text-red-400"><X className="h-2.5 w-2.5" /></button>
+              <button onClick={() => setPlaylistDeleteId(pl.id)} className="text-muted-foreground hover:text-red-400"><X className="h-2.5 w-2.5" /></button>
             </div>
           ))}
         </div>
@@ -324,6 +325,15 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
         confirmText="删除"
         variant="destructive"
         onConfirm={confirmDelete}
+      />
+      <ConfirmDialog
+        open={!!playlistDeleteId}
+        onOpenChange={v => !v && setPlaylistDeleteId(null)}
+        title="删除播放列表"
+        description="确定要删除该播放列表吗？列表中的音乐不会被删除，但列表本身将无法恢复。"
+        confirmText="删除"
+        variant="destructive"
+        onConfirm={() => { if (playlistDeleteId) { deletePlaylist(playlistDeleteId); setPlaylistDeleteId(null) } }}
       />
     </div>
   )

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Plus, Trash2, Loader2 } from "lucide-react"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 interface Log { id: string; content: string; createdAt: string }
 
@@ -9,6 +10,7 @@ export function GameLogManager({ gameId }: { gameId: string }) {
   const [logs, setLogs]     = useState<Log[]>([])
   const [content, setContent] = useState("")
   const [adding, setAdding] = useState(false)
+  const [logToDelete, setLogToDelete] = useState<string | null>(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -63,13 +65,22 @@ export function GameLogManager({ gameId }: { gameId: string }) {
               {new Date(log.createdAt).toLocaleDateString("zh-CN")}
             </span>
             <p className="flex-1 text-xs text-muted-foreground">{log.content}</p>
-            <button onClick={() => remove(log.id)}
+            <button onClick={() => setLogToDelete(log.id)}
               className="shrink-0 text-muted-foreground transition-colors hover:text-red-400">
               <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
             </button>
           </div>
         ))}
       </div>
+      <ConfirmDialog
+        open={logToDelete !== null}
+        onOpenChange={(open) => { if (!open) setLogToDelete(null) }}
+        title="删除日志"
+        description="确定要删除这条更新日志吗？删了就找不回来了。"
+        variant="destructive"
+        confirmText="删除"
+        onConfirm={() => { if (logToDelete) { remove(logToDelete); setLogToDelete(null) } }}
+      />
     </div>
   )
 }
