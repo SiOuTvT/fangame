@@ -41,7 +41,7 @@ export function ForumFilters({
         <button
           onClick={() => onCategoryChange("")}
           className={cn(
-            "rounded-lg px-3 py-1.5 text-xs font-medium transition-all ring-1",
+            "rounded-lg px-3 py-2 text-xs font-medium transition-all ring-1 min-h-[36px]",
             !activeCategory ? "bg-primary text-primary-foreground ring-primary" : "bg-card text-muted-foreground ring-border hover:text-foreground"
           )}
         >
@@ -52,7 +52,7 @@ export function ForumFilters({
             key={cat.value}
             onClick={() => onCategoryChange(cat.value)}
             className={cn(
-              "rounded-lg px-3 py-1.5 text-xs font-medium transition-all ring-1",
+              "rounded-lg px-3 py-2 text-xs font-medium transition-all ring-1 min-h-[36px]",
               activeCategory === cat.value ? "bg-primary text-primary-foreground ring-primary" : "bg-card text-muted-foreground ring-border hover:text-foreground"
             )}
           >

@@ -283,7 +283,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); goPrev() }}
-            className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-black/50 text-white border border-white/15 backdrop-blur-md transition-all duration-200 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 hover:opacity-100 hover:scale-110 active:opacity-100 active:scale-95"
+            className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-black/50 text-white border border-white/15 backdrop-blur-md transition-all duration-200 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 hover:opacity-100 hover:scale-110 active:opacity-100 active:scale-95"
             aria-label="上一张"
           >
             <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -291,7 +291,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); goNext() }}
-            className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-black/50 text-white border border-white/15 backdrop-blur-md transition-all duration-200 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 hover:opacity-100 hover:scale-110 active:opacity-100 active:scale-95"
+            className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-black/50 text-white border border-white/15 backdrop-blur-md transition-all duration-200 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 hover:opacity-100 hover:scale-110 active:opacity-100 active:scale-95"
             aria-label="下一张"
           >
             <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -303,10 +303,10 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); openLightbox() }}
-        className="absolute left-2 sm:left-3 bottom-2 sm:bottom-3 flex h-5 w-5 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-black/50 text-white border border-white/15 backdrop-blur-md transition-all duration-200 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 hover:opacity-100 hover:scale-105 active:opacity-100 active:scale-95"
+        className="absolute left-2 sm:left-3 bottom-2 sm:bottom-3 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-black/50 text-white border border-white/15 backdrop-blur-md transition-all duration-200 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 hover:opacity-100 hover:scale-105 active:opacity-100 active:scale-95"
         aria-label="放大查看"
       >
-        <Maximize2 className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+        <Maximize2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
       </button>
 
       {/* 右上角控件 */}

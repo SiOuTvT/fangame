@@ -58,7 +58,7 @@ const variantStyles: Record<TagVariant, string> = {
     // 手机端: px-2.5 py-0.5, 桌面端: px-3 py-1
     "inline-flex items-center shrink-0",
     "rounded-md",
-    "px-2.5 py-0.5 sm:px-3 sm:py-1",
+    "px-2.5 py-1.5 sm:px-3 sm:py-2 min-h-[36px]",
     "text-xs font-medium",
     "transition-all hover:scale-[1.03]",
   ),

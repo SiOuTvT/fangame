@@ -93,7 +93,7 @@ export function GameDetailTopClient({
             disabled={!isLoggedIn || unfavoriting}
             className={cn(
               btnBase,
-              "p-1 sm:p-2.5 rounded-xl ring-1",
+              "p-2.5 sm:p-2.5 rounded-xl ring-1",
               fav
                 ? "bg-primary/10 ring-primary/20 text-primary"
                 : "bg-card ring-border text-muted-foreground hover:text-foreground hover:ring-foreground/20"
@@ -113,7 +113,7 @@ export function GameDetailTopClient({
           {/* 分享 */}
           <button
             onClick={handleShare}
-            className={cn(btnBase, "p-1 sm:p-2.5 rounded-xl bg-card ring-1 ring-border text-muted-foreground hover:text-foreground hover:ring-foreground/20")}
+            className={cn(btnBase, "p-2.5 sm:p-2.5 rounded-xl bg-card ring-1 ring-border text-muted-foreground hover:text-foreground hover:ring-foreground/20")}
           >
             <Share2 className="w-4 h-4 sm:w-[18px] sm:h-[18px]" strokeWidth={2} />
           </button>
@@ -121,7 +121,7 @@ export function GameDetailTopClient({
           {/* 下载 */}
           <button
             onClick={handleDownloadClick}
-            className={cn(btnBase, "py-1 px-2 sm:py-2.5 sm:px-3.5 rounded-xl text-xs font-medium")}
+            className={cn(btnBase, "py-1.5 px-2 sm:py-2.5 sm:px-3.5 rounded-xl text-xs font-medium")}
             style={{
               background: "rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.75)",
               color: "var(--primary-foreground)",
