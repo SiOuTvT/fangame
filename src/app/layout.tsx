@@ -3,24 +3,16 @@ import { Providers } from "@/components/providers"
 import { ThemeScript } from "@/components/theme-script"
 import { checkSecurity } from "@/lib/security-check"
 import type { Metadata, Viewport } from "next"
-import { Noto_Sans_SC, Noto_Serif_SC } from "next/font/google"
+import { Noto_Sans_SC } from "next/font/google"
 import NextTopLoader from "nextjs-toploader"
 import "./globals.css"
 
 const notoSans = Noto_Sans_SC({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "700"],
+  weight: ["400", "700"],
   display: "swap",
   variable: "--font-sans",
   preload: true,
-})
-
-const notoSerif = Noto_Serif_SC({
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
-  display: "swap",
-  variable: "--font-serif",
-  preload: false,
 })
 
 // 启动时安全检查（仅开发环境输出警告）
@@ -69,7 +61,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 
   return (
-    <html lang="zh-CN" className={`h-full antialiased ${notoSans.variable} ${notoSerif.variable}`} suppressHydrationWarning>
+    <html lang="zh-CN" className={`h-full antialiased ${notoSans.variable}`} suppressHydrationWarning>
       <head>
         <ThemeScript />
       </head>
