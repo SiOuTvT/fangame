@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { applyThemeColor } from "@/lib/theme-colors"
-import { Check, Palette, RotateCcw, Save } from "lucide-react"
+import { Check, Database, FileText, Palette, RotateCcw, Save } from "lucide-react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -286,7 +286,7 @@ export function ThemeEditor({ initialSettings, onSave }: ThemeEditorProps) {
           {/* 当前生效主题 */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">💾 当前生效主题</CardTitle>
+              <CardTitle className="text-base flex items-center gap-2"><Database className="h-4 w-4" strokeWidth={2} /> 当前生效主题</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-3">
@@ -308,7 +308,7 @@ export function ThemeEditor({ initialSettings, onSave }: ThemeEditorProps) {
           {hasChanges && (
             <Card className="border-amber-500/30">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">📝 待保存变更</CardTitle>
+                <CardTitle className="text-base flex items-center gap-2"><FileText className="h-4 w-4" strokeWidth={2} /> 待保存变更</CardTitle>
               </CardHeader>
               <CardContent className="space-y-1.5">
                 {draft.themeColor !== initialSettings.themeColor && (

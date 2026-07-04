@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "@prisma/client"
 import { unstable_cache } from "next/cache"
-import { Clock, Heart, TrendingUp, X } from "lucide-react"
+import { Clock, Flame, Heart, Search, TrendingUp, X } from "lucide-react"
 import Link from "next/link"
 import { Suspense } from "react"
 
@@ -134,7 +134,7 @@ async function SearchResults({
     }))
     return (
       <>
-        <p className="mb-4 text-xs text-muted-foreground">🔥 热门推荐</p>
+        <p className="mb-4 text-xs text-muted-foreground flex items-center gap-1.5"><Flame className="h-3.5 w-3.5" strokeWidth={2} /> 热门推荐</p>
         <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 md:grid-cols-4 items-stretch">
           {games.map((game) => (
             <GameCard key={game.id} game={game} />
@@ -182,7 +182,7 @@ async function SearchResults({
     return (
       <div className="py-12 text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-          <span className="text-3xl">🔍</span>
+          <Search className="h-8 w-8 text-muted-foreground/40" strokeWidth={1.5} />
         </div>
         <p className="text-sm font-medium text-foreground">
           {q ? `没有找到与「${q}」相关的游戏` : "没有符合条件的游戏"}
@@ -197,7 +197,7 @@ async function SearchResults({
         )}
         {recommended.length > 0 && (
           <div className="mt-8 text-left">
-            <h3 className="mb-3 text-sm font-semibold text-foreground">🔥 热门推荐</h3>
+            <h3 className="mb-3 text-sm font-semibold text-foreground flex items-center gap-1.5"><Flame className="h-4 w-4" strokeWidth={2} /> 热门推荐</h3>
             <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 md:grid-cols-4 items-stretch">
               {recommended.map((game) => (
                 <GameCard key={game.id} game={game} />

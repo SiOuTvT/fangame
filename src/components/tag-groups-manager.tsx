@@ -2,7 +2,7 @@
 
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { TAG_POSITIONS } from "@/lib/tag-positions"
-import { ChevronDown, ChevronRight, Loader2, Pencil, Plus, Search, Trash2, X } from "lucide-react"
+import { AlertTriangle, ChevronDown, ChevronRight, Loader2, Lock, Pencil, Plus, Search, Trash2, X } from "lucide-react"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import { ColorPicker } from "./color-picker"
@@ -504,8 +504,8 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                       autoFocus
                     />
                     {group.isPreset && (
-                      <span className="text-[10px] text-amber-400/80 bg-amber-500/10 rounded-full px-2 py-0.5 ring-1 ring-amber-500/20">
-                        🔒 内置
+                      <span className="text-[10px] text-amber-400/80 bg-amber-500/10 rounded-full px-2 py-0.5 ring-1 ring-amber-500/20 flex items-center gap-1">
+                        <Lock className="w-3 h-3" strokeWidth={2} /> 内置
                       </span>
                     )}
                   </div>
@@ -747,8 +747,8 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
         if (ungroupedTags.length === 0) return null
         return (
           <div className="rounded-xl bg-card ring-1 ring-border p-4">
-            <h3 className="text-sm font-medium text-muted-foreground mb-2">
-              ⚠️ 未分组标签（{ungroupedTags.length}）
+            <h3 className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-1.5">
+              <AlertTriangle className="h-4 w-4" strokeWidth={2} /> 未分组标签（{ungroupedTags.length}）
             </h3>
             <div className="flex flex-wrap gap-2">
             {ungroupedTags.map((tag) => (

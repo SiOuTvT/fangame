@@ -1,15 +1,18 @@
 "use client"
 
 import { useState, useCallback, useEffect, useRef, memo } from "react"
-import { Loader2, Plus, X } from "lucide-react"
+import { Loader2, Plus, X, MessageCircle, HelpCircle, Package, Coffee } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { RichTextEditor } from "../rich-text-editor-wrapper"
+import type { ComponentType, SVGProps } from "react"
 
-const CATEGORIES = [
-  { value: "discussion", label: "讨论", icon: "💬" },
-  { value: "help", label: "求档", icon: "🔍" },
-  { value: "resource", label: "资源", icon: "📦" },
-  { value: "offtopic", label: "杂谈", icon: "☕" },
+type IconType = ComponentType<SVGProps<SVGSVGElement>>
+
+const CATEGORIES: { value: string; label: string; icon: IconType }[] = [
+  { value: "discussion", label: "讨论", icon: MessageCircle },
+  { value: "help", label: "求档", icon: HelpCircle },
+  { value: "resource", label: "资源", icon: Package },
+  { value: "offtopic", label: "杂谈", icon: Coffee },
 ]
 
 interface NewPostModalProps {
@@ -63,19 +66,22 @@ export function NewPostModal({ isOpen, onClose, onSubmit }: NewPostModalProps) {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* 分类选择 */}
           <div className="flex gap-2">
-            {CATEGORIES.map(cat => (
+            {CATEGORIES.map(cat => {
+              const Icon = cat.icon
+              return (
               <button
                 key={cat.value}
                 type="button"
                 onClick={() => setCategory(cat.value)}
                 className={cn(
-                  "rounded-lg px-3 py-1.5 text-xs font-medium transition-all ring-1",
+                  "rounded-lg px-3 py-1.5 text-xs font-medium transition-all ring-1 flex items-center gap-1.5",
                   category === cat.value ? "bg-primary text-primary-foreground ring-primary" : "bg-secondary text-muted-foreground ring-border"
                 )}
               >
-                {cat.icon} {cat.label}
+                <Icon className="w-3.5 h-3.5" strokeWidth={2} /> {cat.label}
               </button>
-            ))}
+              )
+            })}
           </div>
 
           {/* 标题输入 */}

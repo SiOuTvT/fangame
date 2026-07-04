@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils"
 import { TagInfo } from "@/types/tags-browser"
 import { ColorTag } from "@/components/ui/tag"
+import { Flame } from "lucide-react"
 import { useMemo } from "react"
 
 interface TagCloudProps {
@@ -51,8 +52,8 @@ export function TagCloud({ tags, maxTags = 30 }: TagCloudProps) {
 
   return (
     <div className="bg-card rounded-2xl p-6 ring-1 ring-border">
-      <h2 className="text-lg font-bold text-foreground mb-4">
-        🔥 热门标签
+      <h2 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+        <Flame className="h-5 w-5" strokeWidth={2} /> 热门标签
       </h2>
       <div className="flex flex-wrap gap-x-2 gap-y-1.5 sm:gap-x-3 sm:gap-y-2">
         {displayTags.map((tag) => (

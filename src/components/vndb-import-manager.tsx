@@ -30,7 +30,7 @@ export function VNDBImportManager() {
         .filter(id => /^\d+$/.test(id))
 
       if (ids.length === 0) {
-        setMessage("❌ 未找到有效的 VNDB ID")
+        setMessage("未找到有效的 VNDB ID")
         setImporting(false)
         return
       }
@@ -44,14 +44,14 @@ export function VNDBImportManager() {
       const data = await res.json()
 
       if (res.ok) {
-        setMessage(`✅ ${data.message}`)
+        setMessage(data.message)
         setResults(data.results)
         setVndbIds("")
       } else {
-        setMessage(`❌ ${data.error}`)
+        setMessage(data.error || "导入失败")
       }
     } catch {
-      setMessage("❌ 导入失败，请稍后重试")
+      setMessage("导入失败，请稍后重试")
     } finally {
       setImporting(false)
     }

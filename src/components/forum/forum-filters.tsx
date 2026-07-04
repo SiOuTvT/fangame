@@ -1,13 +1,16 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { Search } from "lucide-react"
+import { HelpCircle, MessageCircle, Package, Coffee, Search } from "lucide-react"
+import type { ComponentType, SVGProps } from "react"
 
-const CATEGORIES = [
-  { value: "discussion", label: "讨论", icon: "💬" },
-  { value: "help", label: "求档", icon: "🔍" },
-  { value: "resource", label: "资源", icon: "📦" },
-  { value: "offtopic", label: "杂谈", icon: "☕" },
+type IconType = ComponentType<SVGProps<SVGSVGElement>>
+
+const CATEGORIES: { value: string; label: string; icon: IconType }[] = [
+  { value: "discussion", label: "讨论", icon: MessageCircle },
+  { value: "help", label: "求档", icon: HelpCircle },
+  { value: "resource", label: "资源", icon: Package },
+  { value: "offtopic", label: "杂谈", icon: Coffee },
 ]
 
 interface ForumFiltersProps {
@@ -47,18 +50,21 @@ export function ForumFilters({
         >
           全部
         </button>
-        {CATEGORIES.map(cat => (
+        {CATEGORIES.map(cat => {
+          const Icon = cat.icon
+          return (
           <button
             key={cat.value}
             onClick={() => onCategoryChange(cat.value)}
             className={cn(
-              "rounded-lg px-3 py-2 text-xs font-medium transition-all ring-1 min-h-[36px]",
+              "rounded-lg px-3 py-2 text-xs font-medium transition-all ring-1 min-h-[36px] flex items-center gap-1.5",
               activeCategory === cat.value ? "bg-primary text-primary-foreground ring-primary" : "bg-card text-muted-foreground ring-border hover:text-foreground"
             )}
           >
-            {cat.icon} {cat.label}
+            <Icon className="w-3.5 h-3.5" strokeWidth={2} /> {cat.label}
           </button>
-        ))}
+          )
+        })}
       </div>
     </div>
   )

@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { Eye, Heart, MessageSquare } from "lucide-react"
+import { Eye, Heart, Lock, MessageSquare, Pin } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { memo } from "react"
@@ -60,8 +60,8 @@ export const ForumPostItem = memo(function ForumPostItem({ post }: ForumPostItem
         <span className="flex items-center gap-1.5"><Heart className="w-4 h-4" strokeWidth={1.5} />{post.likeCount}</span>
         <span className="flex items-center gap-1.5"><MessageSquare className="w-4 h-4" strokeWidth={1.5} />{post.commentCount}</span>
         <span className="flex items-center gap-1.5"><Eye className="w-4 h-4" strokeWidth={1.5} />{post.viewCount}</span>
-        {post.isPinned && <span className="text-amber-400">📌 置顶</span>}
-        {post.isLocked && <span className="text-red-400">🔒 已锁定</span>}
+        {post.isPinned && <span className="text-amber-400 flex items-center gap-1"><Pin className="w-3.5 h-3.5" strokeWidth={2} /> 置顶</span>}
+        {post.isLocked && <span className="text-red-400 flex items-center gap-1"><Lock className="w-3.5 h-3.5" strokeWidth={2} /> 已锁定</span>}
       </div>
     </Link>
   )

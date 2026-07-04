@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { CheckCircle2, Edit3, Heart, Image as ImageIcon, MessageSquare, Send, Share2, Smile, Trash2, X } from "lucide-react"
+import { CheckCircle2, Edit3, Heart, Image as ImageIcon, Lock, MessageSquare, Send, Share2, Smile, Trash2, X } from "lucide-react"
 import NextImage from "next/image"
 import { Tag } from "@/components/ui/tag"
 import { useEffect, useRef, useState } from "react"
@@ -241,7 +241,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
             )}
             {post.isLocked && (
               <Tag color="#f43f5e" className="gap-1">
-                🔒 已锁定
+                <Lock className="w-3.5 h-3.5" strokeWidth={2} /> 已锁定
               </Tag>
             )}
           </div>
@@ -261,7 +261,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
         {/* 操作栏 */}
         <div className="border-t border-border px-6 py-3 md:px-8 flex items-center gap-1">
           <button onClick={likePost} disabled={!isLoggedIn}
-            className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-red-500 hover:bg-red-500/5 disabled:opacity-40">
+            className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-red-400 hover:bg-red-500/5 disabled:opacity-40">
             <Heart className="h-4 w-4" strokeWidth={1.5} />{post.likeCount}
           </button>
           <span className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-muted-foreground">
@@ -277,7 +277,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
                 <button onClick={toggleSolve}
                   className={cn(
                     "flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs ring-1 transition-all",
-                    post.isSolved ? "bg-emerald-500/10 text-emerald-500 ring-emerald-500/20" : "bg-secondary text-muted-foreground ring-border hover:text-foreground"
+                    post.isSolved ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20" : "bg-secondary text-muted-foreground ring-border hover:text-foreground"
                   )}>
                   <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />
                   {post.isSolved ? "已解决" : "标记解决"}
@@ -292,7 +292,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
             )}
             {(isAuthor || isAdmin) && (
               <button onClick={confirmDeletePost}
-                className="flex items-center gap-1 rounded-lg px-3 py-2 text-xs text-red-500 ring-1 ring-red-500/20 transition-all hover:bg-red-500/10">
+                className="flex items-center gap-1 rounded-lg px-3 py-2 text-xs text-red-400 ring-1 ring-red-500/20 transition-all hover:bg-red-500/10">
                 <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />删除
               </button>
             )}
@@ -358,7 +358,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
                       回复
                     </button>
                     <button onClick={() => likeComment(c.id)} disabled={!isLoggedIn}
-                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-red-500 px-2 py-1 rounded transition-colors hover:bg-red-500/5 disabled:opacity-40">
+                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-red-400 px-2 py-1 rounded transition-colors hover:bg-red-500/5 disabled:opacity-40">
                       <Heart className="h-3 w-3" strokeWidth={1.5} />{c.likeCount > 0 && c.likeCount}
                     </button>
                     {currentUserId === c.user.id && (
@@ -369,7 +369,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
                     )}
                     {(currentUserId === c.user.id || isAdmin) && (
                       <button onClick={() => confirmDeleteComment(c.id)}
-                        className="text-xs text-muted-foreground hover:text-red-500 px-2 py-1 rounded transition-colors hover:bg-red-500/5">
+                        className="text-xs text-muted-foreground hover:text-red-400 px-2 py-1 rounded transition-colors hover:bg-red-500/5">
                         <Trash2 className="h-3 w-3" strokeWidth={1.5} />
                       </button>
                     )}
@@ -384,7 +384,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
         <div className="border-t border-border p-4 md:px-8 md:py-5">
           {post.isLocked ? (
             <p className="text-sm text-muted-foreground flex items-center gap-2">
-              🔒 帖子已锁定，无法发表评论
+              <Lock className="h-4 w-4" strokeWidth={2} /> 帖子已锁定，无法发表评论
             </p>
           ) : isLoggedIn ? (
             <form onSubmit={submitComment} className="space-y-2">

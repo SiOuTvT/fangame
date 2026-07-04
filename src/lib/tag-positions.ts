@@ -10,7 +10,7 @@ export interface TagPositionDef {
   key: string
   label: string
   description: string
-  icon: string       // emoji icon
+  icon: string       // Lucide icon name
   group: string      // 所属分类（用于后台分组展示）
 }
 
@@ -20,21 +20,21 @@ export const TAG_POSITIONS: TagPositionDef[] = [
     key: "home_card",
     label: "首页游戏卡片",
     description: "全站首页每个游戏封面卡片下方的标签行",
-    icon: "🏠",
+    icon: "Home",
     group: "核心展示区",
   },
   {
     key: "detail_header",
     label: "详情页信息栏",
     description: '游戏详情页右侧核心信息区域的标签展示',
-    icon: "📋",
+    icon: "ClipboardList",
     group: "核心展示区",
   },
   {
     key: "detail_related",
     label: "相关游戏推荐",
     description: '游戏详情页底部「相关游戏」区域中，用于关联筛选的标签',
-    icon: "🔗",
+    icon: "Link",
     group: "核心展示区",
   },
 
@@ -43,21 +43,21 @@ export const TAG_POSITIONS: TagPositionDef[] = [
     key: "search_filter",
     label: "搜索筛选面板",
     description: "全站高级搜索页的左侧/顶部标签筛选区域",
-    icon: "🔍",
+    icon: "Search",
     group: "搜索与发现",
   },
   {
     key: "tag_cloud",
     label: "标签云 / 标签墙",
     description: "标签聚合页面中以云/墙形式展示的标签组",
-    icon: "☁️",
+    icon: "Cloud",
     group: "搜索与发现",
   },
   {
     key: "ranking",
     label: "排行榜 / 热门推荐",
     description: '排行榜、热门、趋势等推荐页面中用于内容分类的标签',
-    icon: "🏆",
+    icon: "Trophy",
     group: "搜索与发现",
   },
 
@@ -66,14 +66,14 @@ export const TAG_POSITIONS: TagPositionDef[] = [
     key: "profile_game",
     label: "个人中心游戏列表",
     description: '用户个人主页的游戏收藏/评分/游玩状态列表中展示的标签',
-    icon: "👤",
+    icon: "User",
     group: "用户中心",
   },
   {
     key: "collection_view",
     label: "收藏集视图",
     description: '用户自定义收藏集中，游戏卡片上展示的标签',
-    icon: "📁",
+    icon: "Folder",
     group: "用户中心",
   },
 
@@ -82,7 +82,7 @@ export const TAG_POSITIONS: TagPositionDef[] = [
     key: "resource_card",
     label: "资源下载卡片",
     description: '点击「下载资源」后弹出的下载卡片顶部标签行',
-    icon: "📥",
+    icon: "Download",
     group: "资源与下载",
   },
 

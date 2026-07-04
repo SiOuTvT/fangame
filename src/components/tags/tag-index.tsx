@@ -1,6 +1,7 @@
 "use client"
 
 import { TagWithGroup } from "@/types/tags-browser"
+import { BookOpen } from "lucide-react"
 import Link from "next/link"
 import { TagLetterNav } from "./tag-letter-nav"
 import { useRef, useState, useEffect } from "react"
@@ -56,8 +57,8 @@ export function TagIndex({ tagsByLetter }: TagIndexProps) {
   return (
     <div className="bg-card rounded-2xl ring-1 ring-border overflow-hidden">
       <div className="px-6 py-4 border-b border-border">
-        <h2 className="text-lg font-bold text-foreground">
-          📚 全部标签
+        <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+          <BookOpen className="h-5 w-5" strokeWidth={2} /> 全部标签
         </h2>
       </div>
 
