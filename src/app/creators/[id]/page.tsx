@@ -63,23 +63,41 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   try {
     // 尝试获取创作者名称用于标题
     let creatorName: string | null = null
+    let creatorDesc: string | null = null
     if (id.startsWith("s")) {
       const staff = await vndbClient.getStaffDetail(id.slice(1))
       creatorName = staff?.name || null
+      creatorDesc = staff?.description || null
     } else if (id.startsWith("p")) {
       const producer = await vndbClient.getProducer(id.slice(1))
       creatorName = producer?.name || null
+      creatorDesc = producer?.description || null
     } else {
       const staff = await vndbClient.getStaffDetail(id)
       creatorName = staff?.name || null
+      creatorDesc = staff?.description || null
       if (!creatorName) {
         const producer = await vndbClient.getProducer(id)
         creatorName = producer?.name || null
+        creatorDesc = producer?.description || null
       }
     }
-    if (creatorName) return { title: `${creatorName} · 创作者 · 同人游戏站` }
+    if (creatorName) {
+      const description = creatorDesc?.replace(/<[^>]+>/g, "").slice(0, 160) || `${creatorName} - 创作者详情`
+      return {
+        title: `${creatorName} · 创作者 · 同人游戏站`,
+        description,
+        openGraph: { title: `${creatorName} · 创作者`, description, images: ["/opengraph-image"] },
+        alternates: { canonical: `/creators/${id}` },
+      }
+    }
   } catch {}
-  return { title: `创作者详情 · 同人游戏站` }
+  return {
+    title: `创作者详情 · 同人游戏站`,
+    description: "查看创作者详细信息",
+    openGraph: { title: "创作者详情 · 同人游戏站", description: "查看创作者详细信息", images: ["/opengraph-image"] },
+    alternates: { canonical: `/creators/${id}` },
+  }
 }
 
 export default async function CreatorPage({ params }: { params: Promise<{ id: string }> }) {

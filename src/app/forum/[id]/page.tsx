@@ -10,9 +10,15 @@ export const revalidate = 30
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
-  const post = await prisma.forumPost.findUnique({ where: { id }, select: { title: true } })
+  const post = await prisma.forumPost.findUnique({ where: { id }, select: { title: true, content: true } })
   if (!post) return { title: "帖子不存在" }
-  return { title: `${post.title} · 求档区` }
+  const desc = post.content.replace(/<[^>]*>/g, "").slice(0, 160)
+  return {
+    title: `${post.title} · 求档区`,
+    description: desc || `${post.title} - 同人游戏站求档区讨论帖`,
+    openGraph: { title: post.title, description: desc, images: ["/opengraph-image"] },
+    alternates: { canonical: `/forum/${id}` },
+  }
 }
 
 export default async function ForumPostPage({ params }: { params: Promise<{ id: string }> }) {

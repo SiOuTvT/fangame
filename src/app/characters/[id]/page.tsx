@@ -11,10 +11,21 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   try {
     const character = await vndbClient.getCharacterDetail(id)
     if (character?.name) {
-      return { title: `${character.name} · 角色详情 · 同人游戏站` }
+      const description = character.description?.replace(/<[^>]+>/g, "").slice(0, 160) || `${character.name} - VNDB 角色详情`
+      return {
+        title: `${character.name} · 角色详情 · 同人游戏站`,
+        description,
+        openGraph: { title: `${character.name} · 角色详情`, description, images: ["/opengraph-image"] },
+        alternates: { canonical: `/characters/${id}` },
+      }
     }
   } catch {}
-  return { title: `角色详情 · 同人游戏站` }
+  return {
+    title: `角色详情 · 同人游戏站`,
+    description: "查看 VNDB 角色详细信息",
+    openGraph: { title: "角色详情 · 同人游戏站", description: "查看 VNDB 角色详细信息", images: ["/opengraph-image"] },
+    alternates: { canonical: `/characters/${id}` },
+  }
 }
 
 export default async function CharacterPage({ params }: { params: Promise<{ id: string }> }) {

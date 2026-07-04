@@ -5,9 +5,13 @@ import { TagCategory } from "@/components/tags/tag-category"
 import { TagIndex } from "@/components/tags/tag-index"
 import { Skeleton } from "@/components/ui/skeleton"
 
-export const metadata = {
-  title: "标签浏览 · 同人游戏站",
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "标签浏览",
   description: "按标签浏览游戏，发现你感兴趣的作品类型",
+  openGraph: { title: "标签浏览 · 同人游戏站", description: "按标签浏览游戏，发现你感兴趣的作品类型", images: ["/opengraph-image"] },
+  alternates: { canonical: "/tags" },
 }
 
 export const revalidate = 300 // 5 分钟缓存

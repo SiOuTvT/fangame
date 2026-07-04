@@ -27,7 +27,21 @@ async function resolveUser(id: string) {
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const user = await resolveUser(id)
-  return { title: user ? `${user.username} · 同人游戏站` : "用户主页" }
+  if (user) {
+    const description = user.bio?.replace(/<[^>]+>/g, "").slice(0, 160) || `${user.username} 的个人主页`
+    return {
+      title: `${user.username} · 同人游戏站`,
+      description,
+      openGraph: { title: `${user.username} · 同人游戏站`, description, images: ["/opengraph-image"] },
+      alternates: { canonical: `/user/${id}` },
+    }
+  }
+  return {
+    title: "用户主页",
+    description: "查看用户主页",
+    openGraph: { title: "用户主页 · 同人游戏站", description: "查看用户主页", images: ["/opengraph-image"] },
+    alternates: { canonical: `/user/${id}` },
+  }
 }
 
 export default async function UserProfilePage({ params }: { params: Promise<{ id: string }> }) {

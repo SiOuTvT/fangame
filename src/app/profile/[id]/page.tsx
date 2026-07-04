@@ -7,8 +7,22 @@ import { notFound, redirect } from "next/navigation"
  */
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const user = await prisma.user.findUnique({ where: { id }, select: { username: true } })
-  return { title: user ? `${user.username} · 同人游戏站` : "用户主页" }
+  const user = await prisma.user.findUnique({ where: { id }, select: { username: true, bio: true, serialId: true } })
+  if (user) {
+    const description = user.bio?.replace(/<[^>]+>/g, "").slice(0, 160) || `${user.username} 的个人主页`
+    return {
+      title: `${user.username} · 同人游戏站`,
+      description,
+      openGraph: { title: `${user.username} · 同人游戏站`, description, images: ["/opengraph-image"] },
+      alternates: { canonical: `/user/${user.serialId}` },
+    }
+  }
+  return {
+    title: "用户主页",
+    description: "查看用户主页",
+    openGraph: { title: "用户主页 · 同人游戏站", description: "查看用户主页", images: ["/opengraph-image"] },
+    alternates: { canonical: "/user/" },
+  }
 }
 
 export default async function ProfileRedirectPage({ params }: { params: Promise<{ id: string }> }) {

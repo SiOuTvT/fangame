@@ -3,6 +3,14 @@ import { MobileSortDropdown } from "@/components/mobile-sort-dropdown"
 import { Pagination } from "@/components/ui/pagination"
 import { SearchBar } from "@/components/search-bar"
 import { logger } from "@/lib/logger"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "搜索",
+  description: "搜索同人游戏、Galgame、视觉小说资源，按名称、标签、原作查找",
+  openGraph: { title: "搜索 · 同人游戏站", description: "搜索同人游戏资源", images: ["/opengraph-image"] },
+  alternates: { canonical: "/search" },
+}
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "@prisma/client"
 import { unstable_cache } from "next/cache"

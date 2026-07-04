@@ -3,8 +3,15 @@ import { ChevronRight, Layers, Search } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 
+import type { Metadata } from "next"
+
 export const revalidate = 120
-export const metadata = { title: "精选合集 · 同人游戏站" }
+export const metadata: Metadata = {
+  title: "精选合集",
+  description: "浏览同人游戏精选合集，按系列、原作、主题发现更多精彩游戏",
+  openGraph: { title: "精选合集 · 同人游戏站", description: "按系列、原作、主题发现更多精彩游戏", images: ["/opengraph-image"] },
+  alternates: { canonical: "/collections" },
+}
 
 export default async function CollectionsPage({
   searchParams,

@@ -31,16 +31,21 @@ export const metadata: Metadata = {
     siteName: "同人游戏站",
     title: "同人游戏站 · 资源大厅",
     description: "东方、月姬、Fate 等同人游戏资源一站式体验",
+    images: ["/opengraph-image"],
   },
   twitter: {
     card: "summary_large_image",
     title: "同人游戏站 · 资源大厅",
     description: "东方、月姬、Fate 等同人游戏资源一站式体验",
+    images: ["/opengraph-image"],
   },
   robots: {
     index: true,
     follow: true,
     googleBot: { index: true, follow: true },
+  },
+  alternates: {
+    canonical: "/",
   },
 }
 

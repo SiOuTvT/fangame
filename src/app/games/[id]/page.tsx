@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const resolved = await resolveGame(id)
   const game = resolved ? await prisma.game.findUnique({
     where: { id: resolved.id },
-    select: { title: true, description: true, coverImage: true, originalWork: true },
+    select: { serialId: true, title: true, description: true, coverImage: true, originalWork: true },
   }) : null
   if (!game) return { title: "游戏详情" }
   return {
@@ -48,14 +48,15 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     openGraph: {
       title: game.title,
       description: getDescriptionText(game.description)?.slice(0, 160) || "",
-      images: game.coverImage ? [{ url: game.coverImage, width: 800, height: 1000 }] : [],
+      images: game.coverImage ? [{ url: game.coverImage, width: 800, height: 1000 }] : [{ url: "/opengraph-image", width: 1200, height: 630 }],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
       title: game.title,
-      images: game.coverImage ? [game.coverImage] : [],
+      images: game.coverImage ? [game.coverImage] : ["/opengraph-image"],
     },
+    alternates: { canonical: `/games/${game.serialId}` },
   }
 }
 

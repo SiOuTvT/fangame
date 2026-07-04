@@ -4,8 +4,15 @@ import { auth } from "@/lib/auth"
 import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 
+import type { Metadata } from "next"
+
 export const revalidate = 30
-export const metadata = { title: "求档区 · 同人游戏站" }
+export const metadata: Metadata = {
+  title: "求档区",
+  description: "同人游戏社区论坛，交流讨论、求档求助、分享资源",
+  openGraph: { title: "求档区 · 同人游戏站", description: "交流讨论、求档求助、分享资源", images: ["/opengraph-image"] },
+  alternates: { canonical: "/forum" },
+}
 
 export default async function ForumPage() {
   const session = await auth()

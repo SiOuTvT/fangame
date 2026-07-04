@@ -1,7 +1,14 @@
 import { getSiteSetting } from "@/lib/site-settings"
 import { RichTextContent } from "@/components/rich-text-content-wrapper"
 
-export const metadata = { title: "关于 · 同人游戏站" }
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "关于",
+  description: "了解同人游戏站 —— 面向 Galgame/视觉小说爱好者的社区平台，提供游戏资源下载、评论、收藏等功能",
+  openGraph: { title: "关于 · 同人游戏站", description: "面向 Galgame/视觉小说爱好者的社区平台", images: ["/opengraph-image"] },
+  alternates: { canonical: "/about" },
+}
 
 const DEFAULT_ABOUT_HTML = `<h2 class="text-lg font-semibold text-foreground mb-2">我们是谁</h2>
 <p class="text-sm text-muted-foreground leading-relaxed">
