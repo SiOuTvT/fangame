@@ -105,7 +105,7 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
 
       {/* 正文 */}
       <div
-        className="text-sm leading-[1.85] text-foreground/80 sm:text-base"
+        className="text-sm leading-relaxed text-foreground/80 sm:text-base"
         style={{ maxWidth: "65ch" }}
       >
         <RichTextContent html={ann.content} />

@@ -100,10 +100,10 @@ export function GameDetailTopClient({
             )}
           >
             {unfavoriting ? (
-              <Loader2 className="w-4 h-4 sm:w-[18px] sm:h-[18px] animate-spin" />
+              <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
             ) : (
               <Heart
-                className="w-4 h-4 sm:w-[18px] sm:h-[18px]"
+                className="w-4 h-4 sm:w-5 sm:h-5"
                 strokeWidth={2}
                 fill={fav ? "currentColor" : "none"}
               />
@@ -115,7 +115,7 @@ export function GameDetailTopClient({
             onClick={handleShare}
             className={cn(btnBase, "p-2.5 sm:p-2.5 rounded-xl bg-card ring-1 ring-border text-muted-foreground hover:text-foreground hover:ring-foreground/20")}
           >
-            <Share2 className="w-4 h-4 sm:w-[18px] sm:h-[18px]" strokeWidth={2} />
+            <Share2 className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
           </button>
 
           {/* 下载 */}
@@ -127,7 +127,7 @@ export function GameDetailTopClient({
               color: "var(--primary-foreground)",
             }}
           >
-            <Download className="w-4 h-4 sm:w-[18px] sm:h-[18px]" strokeWidth={2.5} />
+            <Download className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2.5} />
             <span>{downloadLinks.length > 0 ? "下载" : "资源"}</span>
           </button>
         </div>

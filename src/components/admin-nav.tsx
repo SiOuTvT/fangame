@@ -292,7 +292,7 @@ export function AdminNav() {
                       )}
                     >
                       <span className="relative">
-                        <Icon className={cn("h-[18px] w-[18px] shrink-0", isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground")} strokeWidth={2} />
+                        <Icon className={cn("h-5 w-5 shrink-0", isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground")} strokeWidth={2} />
                         {badge > 0 && (
                           <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
                             {badge > 99 ? "99+" : badge}
@@ -324,11 +324,11 @@ export function AdminNav() {
           >
             {mounted && (
               <>
-                {themeMode === "dark" && <Moon className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />}
-                {themeMode === "light" && <Sun className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />}
+                {themeMode === "dark" && <Moon className="h-5 w-5 shrink-0" strokeWidth={2} />}
+                {themeMode === "light" && <Sun className="h-5 w-5 shrink-0" strokeWidth={2} />}
                 {themeMode === "system" && (
-                  <span className="relative flex h-[18px] w-[18px] shrink-0 items-center justify-center">
-                    <Sun className="absolute h-[18px] w-[18px] opacity-50" strokeWidth={2} />
+                  <span className="relative flex h-5 w-5 shrink-0 items-center justify-center">
+                    <Sun className="absolute h-5 w-5 opacity-50" strokeWidth={2} />
                     <Moon className="absolute h-[10px] w-[10px] translate-x-[2px] -translate-y-[2px]" strokeWidth={2} />
                   </span>
                 )}
@@ -435,7 +435,7 @@ export function AdminNav() {
                       )}
                     >
                       <span className="relative">
-                        <Icon className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />
+                        <Icon className="h-5 w-5 shrink-0" strokeWidth={2} />
                         {badge > 0 && (
                           <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
                             {badge > 99 ? "99+" : badge}
@@ -459,11 +459,11 @@ export function AdminNav() {
           >
             {mounted && (
               <>
-                {themeMode === "dark" && <Moon className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />}
-                {themeMode === "light" && <Sun className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />}
+                {themeMode === "dark" && <Moon className="h-5 w-5 shrink-0" strokeWidth={2} />}
+                {themeMode === "light" && <Sun className="h-5 w-5 shrink-0" strokeWidth={2} />}
                 {themeMode === "system" && (
-                  <span className="relative flex h-[18px] w-[18px] shrink-0 items-center justify-center">
-                    <Sun className="absolute h-[18px] w-[18px] opacity-50" strokeWidth={2} />
+                  <span className="relative flex h-5 w-5 shrink-0 items-center justify-center">
+                    <Sun className="absolute h-5 w-5 opacity-50" strokeWidth={2} />
                     <Moon className="absolute h-[10px] w-[10px] translate-x-[2px] -translate-y-[2px]" strokeWidth={2} />
                   </span>
                 )}

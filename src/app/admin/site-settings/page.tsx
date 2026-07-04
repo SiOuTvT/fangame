@@ -115,7 +115,7 @@ export default function SiteSettingsPage() {
       <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
         <div className="flex items-center gap-2">
           <Globe className="h-5 w-5 text-muted-foreground" />
-          <h2 className="text-lg font-semibold">站点信息</h2>
+          <h2 className="text-lg font-semibold text-foreground">站点信息</h2>
         </div>
         <p className="text-sm text-muted-foreground">
           配置站点的基本信息，如名称和描述。
@@ -147,7 +147,7 @@ export default function SiteSettingsPage() {
       <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-muted-foreground" />
-          <h2 className="text-lg font-semibold">注册设置</h2>
+          <h2 className="text-lg font-semibold text-foreground">注册设置</h2>
         </div>
         <p className="text-sm text-muted-foreground">
           控制是否允许新用户注册。
@@ -180,7 +180,7 @@ export default function SiteSettingsPage() {
       <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
         <div className="flex items-center gap-2">
           <ImageIcon className="h-5 w-5 text-muted-foreground" />
-          <h2 className="text-lg font-semibold">默认占位图</h2>
+          <h2 className="text-lg font-semibold text-foreground">默认占位图</h2>
         </div>
         <p className="text-sm text-muted-foreground">
           当游戏没有封面时使用此图片。留空则使用前端默认的 SVG 占位图。

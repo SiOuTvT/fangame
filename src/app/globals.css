@@ -786,6 +786,16 @@ main > * {
   }
 }
 
+/* Gallery hero image fade-in */
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @keyframes fade-out {
   from {
     opacity: 1;

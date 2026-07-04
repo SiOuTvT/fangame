@@ -30,7 +30,7 @@ const SANITIZE_CONFIG = {
 function DescriptionContent({ html }: { html: string }) {
   return (
     <div
-      className="prose dark:prose-invert max-w-none text-sm leading-[1.9] text-foreground"
+      className="prose dark:prose-invert max-w-none text-sm leading-relaxed text-foreground"
       dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html, SANITIZE_CONFIG) }}
     />
   )

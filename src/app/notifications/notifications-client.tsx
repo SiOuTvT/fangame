@@ -207,7 +207,7 @@ export default function NotificationsClient({
       {/* 通知列表 */}
       <div className="space-y-1">
         {notifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20">
+          <div className="flex flex-col items-center justify-center py-16">
             <Bell className="h-12 w-12 text-muted-foreground/30" />
             <p className="mt-3 text-sm text-muted-foreground">暂无新通知</p>
           </div>

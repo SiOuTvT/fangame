@@ -92,7 +92,7 @@ export default async function CollectionsPage({
 
       {/* 系列列表 */}
       {sorted.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 py-20">
+        <div className="flex flex-col items-center gap-3 py-16">
           <Layers className="h-12 w-12 text-muted-foreground/30" />
           {q && <p className="text-sm text-muted-foreground">没有找到匹配的系列</p>}
         </div>

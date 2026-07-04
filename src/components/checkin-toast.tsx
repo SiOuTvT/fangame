@@ -95,7 +95,7 @@ export function CheckInToast({ marks, imageUrl: propImageUrl, onClose }: CheckIn
         bottom-[max(1.5rem,env(safe-area-inset-bottom,1.5rem))]
         sm:bottom-8
         flex items-center gap-4 sm:gap-5
-        rounded-2xl bg-card px-5 py-4 sm:px-7 sm:py-5
+        rounded-2xl bg-card px-5 py-4 sm:px-6 sm:py-5
         ring-1 ring-border
         shadow-2xl
         backdrop-blur-sm

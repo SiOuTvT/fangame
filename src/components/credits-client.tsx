@@ -151,7 +151,7 @@ export function CreditsClient() {
           ))}
         </div>
       ) : games.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 py-20">
+        <div className="flex flex-col items-center gap-3 py-16">
           <Users className="h-12 w-12 text-muted-foreground/30" />
           <p className="text-sm text-muted-foreground">暂无数据</p>
         </div>
