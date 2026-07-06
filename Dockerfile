@@ -47,9 +47,11 @@ ENV NODE_ENV=production
 ARG DATABASE_URL="postgresql://build:placeholder@localhost:5432/build"
 ARG NEXTAUTH_SECRET="build-placeholder-secret-not-used-at-runtime-32chars"
 ARG NEXTAUTH_URL="http://localhost:3000"
+ARG VERSION="unknown"
 ENV DATABASE_URL=${DATABASE_URL}
 ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
 ENV NEXTAUTH_URL=${NEXTAUTH_URL}
+ENV APP_VERSION=${VERSION}
 
 # Build the application
 RUN npm run build
@@ -99,6 +101,8 @@ RUN chown -R nextjs:nodejs /app
 EXPOSE 80
 
 # Environment variables
+ARG VERSION="unknown"
+ENV APP_VERSION=${VERSION}
 ENV NODE_ENV=production
 ENV HOSTNAME="0.0.0.0"
 ENV NODE_OPTIONS="--max-http-header-size=1048576"
