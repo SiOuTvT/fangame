@@ -104,7 +104,7 @@ export function CropDialog({ cropSrc, aspectRatio, shape, onConfirm, onCancel }:
           <div className="flex items-center gap-3">
             <RotateCw className="h-4 w-4 shrink-0 text-muted-foreground" />
             <input type="range" min={0} max={360} step={1} value={rotation} onChange={(e) => setRotation(Number(e.target.value))} className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-muted accent-primary" />
-            <span className="w-8 text-right text-[10px] text-muted-foreground">{rotation}°</span>
+            <span className="w-8 text-right text-micro text-muted-foreground">{rotation}°</span>
           </div>
         </div>
         <div className="mt-5 flex items-center justify-end gap-2">

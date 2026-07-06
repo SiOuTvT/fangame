@@ -52,7 +52,7 @@ export function TagCloud({ tags, maxTags = 30 }: TagCloudProps) {
 
   return (
     <div className="bg-card rounded-2xl p-6 ring-1 ring-border">
-      <h2 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+      <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
         <Flame className="h-5 w-5" strokeWidth={2} /> 热门标签
       </h2>
       <div className="flex flex-wrap gap-x-2 gap-y-1.5 sm:gap-x-3 sm:gap-y-2">
@@ -66,7 +66,7 @@ export function TagCloud({ tags, maxTags = 30 }: TagCloudProps) {
             title={`${tag.gameCount} 个游戏`}
           >
             {tag.name}
-            <span className="ml-1.5 text-[10px] opacity-60">
+            <span className="ml-1.5 text-micro opacity-60">
               ({tag.gameCount})
             </span>
           </ColorTag>

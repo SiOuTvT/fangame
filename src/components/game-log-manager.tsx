@@ -64,7 +64,7 @@ export function GameLogManager({ gameId }: { gameId: string }) {
         {logs.length === 0 && <p className="text-xs text-muted-foreground">暂无日志</p>}
         {logs.map(log => (
           <div key={log.id} className="flex items-center gap-3 rounded-lg bg-secondary/60/60 px-3 py-2">
-            <span className="shrink-0 text-[10px] text-muted-foreground">
+            <span className="shrink-0 text-micro text-muted-foreground">
               {new Date(log.createdAt).toLocaleDateString("zh-CN")}
             </span>
             <p className="flex-1 text-xs text-muted-foreground">{log.content}</p>

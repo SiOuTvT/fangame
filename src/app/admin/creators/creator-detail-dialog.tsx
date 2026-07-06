@@ -75,7 +75,7 @@ export function CreatorDetailDialog({ creator, onClose }: CreatorDetailDialogPro
 
             {/* 基本信息 */}
             <div className="flex-1 min-w-0 pt-0.5">
-              <h3 className="text-lg font-bold text-foreground leading-tight">{creator.name}</h3>
+              <h3 className="text-lg font-semibold text-foreground leading-tight">{creator.name}</h3>
               {creator.nameJa && (
                 <p className="text-sm text-muted-foreground mt-0.5">{creator.nameJa}</p>
               )}

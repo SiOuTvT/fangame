@@ -184,7 +184,7 @@ export function AvatarFrameSelector({
                       </div>
                       <div className="text-center">
                         <div className="text-xs font-medium text-foreground truncate max-w-[80px]">{f.name}</div>
-                        {f.description && <div className="text-[10px] text-muted-foreground truncate max-w-[80px]">{f.description}</div>}
+                        {f.description && <div className="text-micro text-muted-foreground truncate max-w-[80px]">{f.description}</div>}
                       </div>
                     </button>
                   ))}

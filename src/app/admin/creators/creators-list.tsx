@@ -56,10 +56,10 @@ export function CreatorsList({ creators }: { creators: Creator[] }) {
               </div>
               <div className="flex items-center gap-2 mt-0.5">
                 {creator.gender && (
-                  <span className="text-[10px] text-muted-foreground">{creator.gender}</span>
+                  <span className="text-micro text-muted-foreground">{creator.gender}</span>
                 )}
                 {creator.vndbId && (
-                  <span className="text-[10px] text-muted-foreground">VNDB:{creator.vndbId}</span>
+                  <span className="text-micro text-muted-foreground">VNDB:{creator.vndbId}</span>
                 )}
               </div>
             </div>
@@ -67,7 +67,7 @@ export function CreatorsList({ creators }: { creators: Creator[] }) {
             {/* 游戏数 */}
             <div className="text-right shrink-0">
               <span className="text-lg font-bold text-foreground">{creator.gameCount}</span>
-              <p className="text-[10px] text-muted-foreground">个游戏</p>
+              <p className="text-micro text-muted-foreground">个游戏</p>
             </div>
 
             {/* 删除按钮 */}

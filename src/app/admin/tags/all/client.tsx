@@ -148,11 +148,11 @@ export function AllTagsClient({ tags, groups }: { tags: TagItem[]; groups: Group
                   <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: tag.color }} />
                   <span className="flex-1 text-sm text-foreground truncate">{tag.name}</span>
                   {!tag.isVisible && (
-                    <span className="shrink-0 text-[10px] text-muted-foreground bg-secondary rounded-full px-1.5 py-0.5">隐藏</span>
+                    <span className="shrink-0 text-micro text-muted-foreground bg-secondary rounded-full px-1.5 py-0.5">隐藏</span>
                   )}
                   {tag.groupName && (
                     <span
-                      className="shrink-0 text-[10px] rounded-full px-1.5 py-0.5 font-medium"
+                      className="shrink-0 text-micro rounded-full px-1.5 py-0.5 font-medium"
                       style={{ color: tag.groupColor ?? "#6b7280", background: `${tag.groupColor ?? "#6b7280"}15` }}
                     >
                       {tag.groupName}
@@ -237,7 +237,7 @@ function InlineTagEdit({
     <div className="px-4 py-3 bg-muted/50 border-t border-border" onClick={(e) => e.stopPropagation()}>
       <div className="flex items-end gap-3 flex-wrap">
         <div className="space-y-1">
-          <label className="text-[10px] text-muted-foreground">名称</label>
+          <label className="text-micro text-muted-foreground">名称</label>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -246,7 +246,7 @@ function InlineTagEdit({
         </div>
 
         <div className="space-y-1">
-          <label className="text-[10px] text-muted-foreground">颜色</label>
+          <label className="text-micro text-muted-foreground">颜色</label>
           <div className="flex items-center gap-1.5">
             {TAG_PRESET_COLORS.slice(0, 8).map((c) => (
               <button
@@ -271,7 +271,7 @@ function InlineTagEdit({
         </div>
 
         <div className="space-y-1">
-          <label className="text-[10px] text-muted-foreground">标签组</label>
+          <label className="text-micro text-muted-foreground">标签组</label>
           <select
             value={groupId}
             onChange={(e) => setGroupId(e.target.value)}

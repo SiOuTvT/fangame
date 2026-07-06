@@ -149,7 +149,7 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
               style={{ background: c }} />
           ))}
           {colorLocked && groupId && (
-            <span className="flex items-center gap-1 text-[10px] text-muted-foreground ml-1">
+            <span className="flex items-center gap-1 text-micro text-muted-foreground ml-1">
               <span className="h-3 w-3 rounded-full ring-1 ring-border" style={{ background: color }} />颜色已同步自标签组
             </span>
           )}
@@ -207,16 +207,16 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-foreground truncate">{tag.name}</span>
                     {tag.groupName && (
-                      <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary ring-1 ring-primary/20">{tag.groupName}</span>
+                      <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-micro font-medium text-primary ring-1 ring-primary/20">{tag.groupName}</span>
                     )}
                     {tag.isVisible === false && (
-                      <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">隐藏</span>
+                      <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-micro font-medium text-muted-foreground">隐藏</span>
                     )}
                   </div>
                   {tag.description && <p className="text-xs text-muted-foreground truncate mt-0.5">{tag.description}</p>}
                 </div>
                 <span className="shrink-0 text-xs text-muted-foreground">{tag.gameCount} 个游戏</span>
-                <span className="shrink-0 text-[10px] text-muted-foreground/60">#{tag.sortOrder ?? 0}</span>
+                <span className="shrink-0 text-micro text-muted-foreground/60">#{tag.sortOrder ?? 0}</span>
                 <button onClick={() => startEditing(tag)} title="编辑标签" aria-label="编辑标签"
                   className="shrink-0 rounded-lg bg-secondary p-1.5 text-muted-foreground hover:text-foreground transition-colors">
                   <Pencil className="h-3.5 w-3.5" />

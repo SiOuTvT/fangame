@@ -1,5 +1,6 @@
 ﻿"use client"
 
+import { Badge } from "@/components/ui/badge"
 import type { UserRole } from "@/lib/admin"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
@@ -203,7 +204,7 @@ export function AdminNav() {
               )}
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-foreground">{session?.user?.name || "管理员"}</p>
-                <span className="inline-block rounded px-1.5 py-0.5 text-[10px] font-medium bg-primary/10 text-primary">
+                <span className="inline-block rounded px-1.5 py-0.5 text-micro font-medium bg-primary/10 text-primary">
                   {userRole === "SUPER_ADMIN" ? "超级管理员" : "管理员"}
                 </span>
               </div>
@@ -256,7 +257,7 @@ export function AdminNav() {
             {!collapsed && (
               <>
                 <span className="truncate flex-1 text-left">搜索</span>
-                <kbd className="rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground ring-1 ring-border">⌘K</kbd>
+                <kbd className="rounded bg-muted px-1 py-0.5 text-micro text-muted-foreground ring-1 ring-border">⌘K</kbd>
               </>
             )}
           </button>
@@ -269,7 +270,7 @@ export function AdminNav() {
               <div key={group.label ?? gi}>
                 {group.label && !collapsed && (
                   <div className="px-3 pt-4 pb-1.5">
-                    <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50">{group.label}</span>
+                    <span className="text-micro font-medium uppercase tracking-wider text-muted-foreground/50">{group.label}</span>
                   </div>
                 )}
                 {group.label && collapsed && (
@@ -294,9 +295,9 @@ export function AdminNav() {
                       <span className="relative">
                         <Icon className={cn("h-5 w-5 shrink-0", isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground")} strokeWidth={2} />
                         {badge > 0 && (
-                          <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
+                          <Badge variant="destructive-solid" size="sm" className="absolute -top-1.5 -right-1.5">
                             {badge > 99 ? "99+" : badge}
-                          </span>
+                          </Badge>
                         )}
                       </span>
                       {!collapsed && <span className="truncate">{label}</span>}
@@ -416,7 +417,7 @@ export function AdminNav() {
               <div key={group.label ?? gi}>
                 {group.label && (
                   <div className="px-3 pt-4 pb-1.5">
-                    <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50">{group.label}</span>
+                    <span className="text-micro font-medium uppercase tracking-wider text-muted-foreground/50">{group.label}</span>
                   </div>
                 )}
                 {group.items.map(({ icon: Icon, label, href }) => {
@@ -437,9 +438,9 @@ export function AdminNav() {
                       <span className="relative">
                         <Icon className="h-5 w-5 shrink-0" strokeWidth={2} />
                         {badge > 0 && (
-                          <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
+                          <Badge variant="destructive-solid" size="sm" className="absolute -top-1.5 -right-1.5">
                             {badge > 99 ? "99+" : badge}
-                          </span>
+                          </Badge>
                         )}
                       </span>
                       <span>{label}</span>

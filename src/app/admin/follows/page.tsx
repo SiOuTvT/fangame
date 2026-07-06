@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Pagination } from "@/components/ui/pagination"
+import { Badge } from "@/components/ui/badge"
 import { Search, UserPlus } from "lucide-react"
 import dynamic from "next/dynamic"
 import Image from "next/image"
@@ -53,9 +54,9 @@ export default async function AdminFollowsPage({
         <div className="flex items-center gap-3">
           <UserPlus className="h-6 w-6 text-primary" />
           <h1 className="text-xl font-bold text-foreground">关注记录</h1>
-          <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+          <Badge variant="secondary" size="lg">
             {total} 条记录
-          </span>
+          </Badge>
         </div>
         <form method="get" className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />

@@ -1,5 +1,6 @@
 import { requireSuperAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
+import { Badge } from "@/components/ui/badge"
 import { SmilePlus } from "lucide-react"
 import dynamic from "next/dynamic"
 
@@ -19,9 +20,9 @@ export default async function EmotionalMessagesPage() {
       <div className="flex items-center gap-3">
         <SmilePlus className="h-6 w-6 text-primary" />
         <h1 className="text-xl font-bold text-foreground">情感消息管理</h1>
-        <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+        <Badge variant="secondary" size="lg">
           {items.length} 条消息
-        </span>
+        </Badge>
       </div>
       <p className="text-sm text-muted-foreground -mt-3">
         管理各场景的提示文案、插图和 Emoji。修改后会实时影响前台用户看到的提示。

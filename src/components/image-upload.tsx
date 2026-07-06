@@ -245,7 +245,7 @@ export function ImageUpload({
           >
             {isDragging ? "释放以上传图片" : placeholder}
           </p>
-          <p className="mt-1 text-[10px] text-muted-foreground">
+          <p className="mt-1 text-micro text-muted-foreground">
             支持 JPG、PNG、WebP，最大 {maxSizeMB}MB
           </p>
         </div>

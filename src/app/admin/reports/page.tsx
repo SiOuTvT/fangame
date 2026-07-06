@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Pagination } from "@/components/ui/pagination"
+import { Badge } from "@/components/ui/badge"
 import { Flag } from "lucide-react"
 import Image from "next/image"
 import dynamic from "next/dynamic"
@@ -84,9 +85,9 @@ export default async function AdminReportsPage({
         <div className="flex items-center gap-3">
           <Flag className="h-6 w-6 text-primary" />
           <h1 className="text-xl font-bold text-foreground">举报管理</h1>
-          <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+          <Badge variant="secondary" size="lg">
             {total} 条举报
-          </span>
+          </Badge>
         </div>
         <ReportSearchForm initialQ={q} />
       </div>
@@ -107,7 +108,7 @@ export default async function AdminReportsPage({
                   className="flex items-center gap-2 rounded-lg bg-muted px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent"
                 >
                   <span className="truncate max-w-[150px]">{game.title}</span>
-                  <span className="shrink-0 rounded-full bg-red-500/15 px-1.5 py-0.5 text-[10px] font-bold text-red-400">
+                  <span className="shrink-0 rounded-full bg-red-500/15 px-1.5 py-0.5 text-micro font-bold text-red-400">
                     {item._count.id}
                   </span>
                 </Link>
@@ -148,7 +149,7 @@ export default async function AdminReportsPage({
                     {report.game.title}
                   </Link>
                   {!report.game.isPublished && (
-                    <span className="shrink-0 rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-400">
+                    <span className="shrink-0 rounded bg-amber-500/10 px-1.5 py-0.5 text-micro font-medium text-amber-400">
                       未发布
                     </span>
                   )}

@@ -109,7 +109,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                     ) : user.avatar ? (
                       <SafeAvatar src={user.avatar} alt={user.username} size={130} className="h-full w-full" />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center rounded-full text-2xl sm:text-[2.8rem] font-bold text-white" style={{ backgroundColor: getRandomAvatarColor(user.username) }}>
+                      <div className="flex h-full w-full items-center justify-center rounded-full text-2xl sm:text-4xl font-bold text-white" style={{ backgroundColor: getRandomAvatarColor(user.username) }}>
                         {user.username[0].toUpperCase()}
                       </div>
                     )}

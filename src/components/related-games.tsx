@@ -16,7 +16,7 @@ export function RelatedGames({ games }: { games: RelatedGame[] }) {
 
   return (
     <div className="py-4 sm:py-6 lg:py-8">
-      <h2 className="mb-3 text-base font-bold text-foreground">相关游戏推荐</h2>
+      <h2 className="mb-3 text-base font-semibold text-foreground">相关游戏推荐</h2>
       <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted-foreground/20" style={{ contain: "layout style" }}>
         {games.map((g) => (
           <Link
@@ -43,7 +43,7 @@ export function RelatedGames({ games }: { games: RelatedGame[] }) {
               {g.title}
             </p>
             {g.originalWork && (
-              <p className="text-[10px] text-muted-foreground line-clamp-1">{g.originalWork}</p>
+              <p className="text-micro text-muted-foreground line-clamp-1">{g.originalWork}</p>
             )}
           </Link>
         ))}

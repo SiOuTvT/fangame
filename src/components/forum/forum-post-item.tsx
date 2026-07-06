@@ -32,7 +32,7 @@ function fmtDate(d: string) {
 const Avatar = memo(function Avatar({ user, size = 6 }: { user: User; size?: number }) {
   const px = size * 4
   if (user.avatar) return <Image src={user.avatar} alt={user.username} width={px} height={px} className={`h-${size} w-${size} rounded-full object-cover shrink-0`} unoptimized />
-  return <div className={`h-${size} w-${size} rounded-full bg-primary/80 flex items-center justify-center text-[10px] font-bold text-primary-foreground shrink-0`}>{user.username[0].toUpperCase()}</div>
+  return <div className={`h-${size} w-${size} rounded-full bg-primary/80 flex items-center justify-center text-micro font-bold text-primary-foreground shrink-0`}>{user.username[0].toUpperCase()}</div>
 })
 
 export const ForumPostItem = memo(function ForumPostItem({ post }: ForumPostItemProps) {
@@ -45,7 +45,7 @@ export const ForumPostItem = memo(function ForumPostItem({ post }: ForumPostItem
         <span className="text-xs text-muted-foreground/60 shrink-0">·</span>
         <span className="text-xs text-muted-foreground/60 shrink-0">{fmtDate(post.createdAt)}</span>
         {post.updatedAt !== post.createdAt && (
-          <span className="text-[10px] text-muted-foreground/50 shrink-0">(已编辑)</span>
+          <span className="text-micro text-muted-foreground/50 shrink-0">(已编辑)</span>
         )}
         <Tag variant="badge" className={cn(
           "ml-auto shrink-0",

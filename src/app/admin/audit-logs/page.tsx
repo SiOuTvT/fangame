@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Pagination } from "@/components/ui/pagination"
+import { Badge } from "@/components/ui/badge"
 import { FileText } from "lucide-react"
 
 export const metadata = { title: "审计日志 · 管理后台" }
@@ -50,9 +51,9 @@ export default async function AdminAuditLogsPage({
       <div className="flex items-center gap-3">
         <FileText className="h-6 w-6 text-primary" />
         <h1 className="text-xl font-bold text-foreground">审计日志</h1>
-        <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+        <Badge variant="secondary" size="lg">
           {total} 条记录
-        </span>
+        </Badge>
       </div>
 
       {/* Filter tabs */}
@@ -86,18 +87,18 @@ export default async function AdminAuditLogsPage({
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-foreground">{log.user.username}</span>
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                  <Badge variant="secondary" size="lg">
                     {ACTION_LABELS[log.action] ?? log.action}
-                  </span>
+                  </Badge>
                   {log.target && (
-                    <span className="text-[10px] text-muted-foreground/50 font-mono truncate">{log.target.slice(0, 16)}</span>
+                    <span className="text-micro text-muted-foreground/50 font-mono truncate">{log.target.slice(0, 16)}</span>
                   )}
                 </div>
                 {log.detail && (
                   <p className="text-xs text-muted-foreground truncate">{log.detail}</p>
                 )}
               </div>
-              <span className="text-[10px] text-muted-foreground shrink-0 whitespace-nowrap">
+              <span className="text-micro text-muted-foreground shrink-0 whitespace-nowrap">
                 {new Date(log.createdAt).toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}
               </span>
             </div>

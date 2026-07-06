@@ -504,7 +504,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                       autoFocus
                     />
                     {group.isPreset && (
-                      <span className="text-[10px] text-amber-400/80 bg-amber-500/10 rounded-full px-2 py-0.5 ring-1 ring-amber-500/20 flex items-center gap-1">
+                      <span className="text-micro text-amber-400/80 bg-amber-500/10 rounded-full px-2 py-0.5 ring-1 ring-amber-500/20 flex items-center gap-1">
                         <Lock className="h-3 w-3" strokeWidth={2} /> 内置
                       </span>
                     )}
@@ -552,7 +552,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                       <div className="h-4 w-4 shrink-0 rounded-full" style={{ background: group.color }} />
                       <span className="text-base font-semibold text-foreground">{group.name}</span>
                       {group.isPreset && (
-                        <span className="shrink-0 text-[10px] text-amber-400/80 bg-amber-500/10 rounded-full px-1.5 py-0.5 ring-1 ring-amber-500/20">
+                        <span className="shrink-0 text-micro text-amber-400/80 bg-amber-500/10 rounded-full px-1.5 py-0.5 ring-1 ring-amber-500/20">
                           内置
                         </span>
                       )}
@@ -606,7 +606,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                         return (
                           <span
                             key={posKey}
-                            className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium bg-secondary text-muted-foreground ring-1 ring-border"
+                            className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-micro font-medium bg-secondary text-muted-foreground ring-1 ring-border"
                             title={def.description}
                           >
                             {def.icon} {def.label}
@@ -640,7 +640,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                             />
                             {tag.name}
                             <span
-                              className="text-[10px] opacity-60 ml-0.5"
+                              className="text-micro opacity-60 ml-0.5"
                               title={`绑定 ${tag.gameCount} 个游戏`}
                             >
                               {tag.gameCount}
@@ -758,7 +758,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                 >
                   <span className="h-1.5 w-1.5 rounded-full shrink-0" style={{ background: tag.color }} />
                   {tag.name}
-                  <span className="text-[10px] opacity-60">{tag.gameCount}</span>
+                  <span className="text-micro opacity-60">{tag.gameCount}</span>
                   <button
                     onClick={() => setEditingTag(tag.id)}
                     title="编辑并分配到标签组"

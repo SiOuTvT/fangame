@@ -109,7 +109,7 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
         <div className="rounded-xl bg-card p-4 ring-1 ring-border space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-foreground">密码重置链接</p>
-            <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">24小时有效</span>
+            <span className="text-micro text-muted-foreground bg-muted px-2 py-0.5 rounded-full">24小时有效</span>
           </div>
           <div className="flex items-center gap-2">
             <code className="flex-1 rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground font-mono break-all">

@@ -330,7 +330,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
           </button>
         )}
         <span
-          className="rounded-full bg-black/50 text-white border border-white/15 px-1.5 py-0.5 text-[10px] sm:px-2 sm:text-xs font-semibold tabular-nums backdrop-blur-md"
+          className="rounded-full bg-black/50 text-white border border-white/15 px-1.5 py-0.5 text-micro sm:px-2 sm:text-xs font-semibold tabular-nums backdrop-blur-md"
         >
           {activeIndex + 1}/{galleryImages.length}
         </span>

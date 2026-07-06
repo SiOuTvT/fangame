@@ -1,5 +1,6 @@
 "use client"
 
+import { Badge } from "@/components/ui/badge"
 import { Bell } from "lucide-react"
 import { logger } from "@/lib/logger"
 import Link from "next/link"
@@ -42,9 +43,9 @@ export function NotificationBell() {
     >
       <Bell className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
       {unreadCount > 0 && (
-        <span className="absolute right-1 top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+        <Badge variant="destructive-solid" size="sm" className="absolute right-1 top-1">
           {unreadCount > 99 ? "99+" : unreadCount}
-        </span>
+        </Badge>
       )}
     </Link>
   )

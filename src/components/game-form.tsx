@@ -731,7 +731,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                             className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm transition-colors ${
                               checked ? "bg-primary/10 text-primary" : "text-foreground hover:bg-accent"
                             }`}>
-                            <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px] font-bold transition-colors ${
+                            <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border text-micro font-bold transition-colors ${
                               checked ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background"
                             }`}>
                               {checked && "✓"}
@@ -760,7 +760,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                             className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm transition-colors ${
                               checked ? "bg-primary/10 text-primary" : "text-foreground hover:bg-accent"
                             }`}>
-                            <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px] font-bold transition-colors ${
+                            <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border text-micro font-bold transition-colors ${
                               checked ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background"
                             }`}>
                               {checked && "✓"}
@@ -793,7 +793,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
               >
                 <span className="font-medium text-foreground">{c.name}</span>
                 {c.nameJa && <span className="text-muted-foreground">({c.nameJa})</span>}
-                <span className="text-[10px] text-muted-foreground bg-muted rounded px-1 py-0.5">{c.role}</span>
+                <span className="text-micro text-muted-foreground bg-muted rounded px-1 py-0.5">{c.role}</span>
                 <button
                   type="button"
                   onClick={() => setCreators(p => p.filter((_, idx) => idx !== i))}

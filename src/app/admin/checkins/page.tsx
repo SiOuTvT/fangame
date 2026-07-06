@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
 import { Pagination } from "@/components/ui/pagination"
+import { Badge } from "@/components/ui/badge"
 import { CalendarCheck, Search } from "lucide-react"
 import dynamic from "next/dynamic"
 
@@ -99,9 +100,9 @@ export default async function AdminCheckInsPage({
         <div className="flex items-center gap-3">
           <CalendarCheck className="h-6 w-6 text-primary" />
           <h1 className="text-xl font-bold text-foreground">签到记录</h1>
-          <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+          <Badge variant="secondary" size="lg">
             {total} 条记录
-          </span>
+          </Badge>
         </div>
         <form method="get" className="flex flex-wrap items-center gap-2">
           <div className="relative">

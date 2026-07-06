@@ -80,7 +80,7 @@ export function AchievementModal({ compact, emptyText: _emptyText = "暂无成�
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-card/95 backdrop-blur-sm px-5 py-4">
               <div className="flex items-center gap-2.5">
                 <Award className="h-5 w-5 text-amber-400" />
-                <h2 className="text-base font-bold text-foreground">成就</h2>
+                <h2 className="text-base font-semibold text-foreground">成就</h2>
                 <Tag color="#f59e0b">
                   {unlocked.length}
                 </Tag>
@@ -125,7 +125,7 @@ export function AchievementModal({ compact, emptyText: _emptyText = "暂无成�
                       )}
                       <div className="text-center">
                         <p className="text-xs font-semibold leading-tight text-foreground">{ach.name}</p>
-                        <p className="mt-0.5 text-[10px] text-muted-foreground leading-tight line-clamp-2">{ach.description}</p>
+                        <p className="mt-0.5 text-micro text-muted-foreground leading-tight line-clamp-2">{ach.description}</p>
                       </div>
                     </button>
                   ))}

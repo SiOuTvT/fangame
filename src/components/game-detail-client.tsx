@@ -255,7 +255,7 @@ export default function GameDetailClient({
               >
                 {t.label}
                 {t.key === "comments" && commentCnt > 0 && (
-                  <span className="ml-1.5 text-[10px] opacity-60">{commentCnt}</span>
+                  <span className="ml-1.5 text-micro opacity-60">{commentCnt}</span>
                 )}
               </button>
             ))}

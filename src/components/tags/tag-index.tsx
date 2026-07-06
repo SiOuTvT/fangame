@@ -57,7 +57,7 @@ export function TagIndex({ tagsByLetter }: TagIndexProps) {
   return (
     <div className="bg-card rounded-2xl ring-1 ring-border overflow-hidden">
       <div className="px-6 py-4 border-b border-border">
-        <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+        <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
           <BookOpen className="h-5 w-5" strokeWidth={2} /> 全部标签
         </h2>
       </div>
@@ -105,7 +105,7 @@ export function TagIndex({ tagsByLetter }: TagIndexProps) {
                     title={`${tag.group.name} · ${tag.gameCount} 个游戏`}
                   >
                     {tag.name}
-                    <span className="ml-1.5 text-[10px] opacity-60">
+                    <span className="ml-1.5 text-micro opacity-60">
                       {tag.gameCount}
                     </span>
                   </Link>

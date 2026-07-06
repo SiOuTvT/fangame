@@ -283,22 +283,22 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
                     <input value={editTitle} onChange={e => setEditTitle(e.target.value)}
                       className="rounded-lg bg-muted px-2 py-1 text-sm text-foreground ring-1 ring-border outline-none focus:ring-primary/30" />
                     <input value={editUrl} onChange={e => setEditUrl(e.target.value)}
-                      className="rounded-lg bg-muted px-2 py-1 text-[10px] text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30" />
+                      className="rounded-lg bg-muted px-2 py-1 text-micro text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30" />
                     <div className="flex gap-1.5 mt-0.5">
                       <button onClick={() => saveEdit(m.id)}
-                        className="rounded-md bg-primary px-2 py-0.5 text-[10px] font-medium text-primary-foreground hover:opacity-90">保存</button>
+                        className="rounded-md bg-primary px-2 py-0.5 text-micro font-medium text-primary-foreground hover:opacity-90">保存</button>
                       <button onClick={() => setEditingId(null)}
-                        className="rounded-md bg-secondary px-2 py-0.5 text-[10px] font-medium text-muted-foreground hover:text-foreground">取消</button>
+                        className="rounded-md bg-secondary px-2 py-0.5 text-micro font-medium text-muted-foreground hover:text-foreground">取消</button>
                     </div>
                   </div>
                 ) : (
                   <>
                     <p className="text-sm font-medium text-foreground truncate">{m.title}</p>
-                    <p className="text-[10px] text-muted-foreground truncate">{m.url || m.filename}</p>
+                    <p className="text-micro text-muted-foreground truncate">{m.url || m.filename}</p>
                   </>
                 )}
               </div>
-              <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium ${m.isActive ? "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20" : "bg-muted text-muted-foreground ring-1 ring-border"}`}>
+              <span className={`shrink-0 rounded px-1.5 py-0.5 text-micro font-medium ${m.isActive ? "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20" : "bg-muted text-muted-foreground ring-1 ring-border"}`}>
                 {m.isActive ? "播放中" : "已停用"}
               </span>
               <button onClick={() => togglePlay(m.id, m.url)} className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" title={playingId === m.id ? "暂停" : "试听"}>

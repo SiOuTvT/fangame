@@ -286,7 +286,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
                       </div>
                       {EMOJI_CATEGORIES.map((cat) => (
                         <div key={cat.name} className="mb-2 last:mb-0">
-                          <p className="mb-1.5 text-[10px] font-medium text-muted-foreground">{cat.name}</p>
+                          <p className="mb-1.5 text-micro font-medium text-muted-foreground">{cat.name}</p>
                           <div className="grid grid-cols-8 sm:grid-cols-10 gap-1">
                             {cat.emojis.map((emoji) => (
                               <button key={emoji} type="button" onClick={() => insertEmoji(emoji)}
@@ -359,7 +359,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-xs font-semibold text-foreground">{c.user.username}</span>
-                <span className="text-[10px] text-muted-foreground">
+                <span className="text-micro text-muted-foreground">
                   {new Date(c.createdAt).toLocaleDateString("zh-CN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                 </span>
                 {currentUserId === c.user.id && (

@@ -188,7 +188,7 @@ export function ProfileMedalModal({ favCount, playCount, commentCount, totalLeve
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-card/95 backdrop-blur-sm px-5 py-4">
               <div className="flex items-center gap-2.5">
                 <Award className="h-5 w-5 text-amber-400" />
-                <h2 className="text-base font-bold text-foreground">勋章墙</h2>
+                <h2 className="text-base font-semibold text-foreground">勋章墙</h2>
                 <Tag color="#f59e0b">
                   {earnedMedals.length}
                 </Tag>
@@ -232,7 +232,7 @@ export function ProfileMedalModal({ favCount, playCount, commentCount, totalLeve
                           <p className={cn("text-xs font-semibold leading-tight", medal.earned ? "text-foreground" : "text-muted-foreground")}>
                             {medal.name}
                           </p>
-                          <p className="mt-0.5 text-[10px] text-muted-foreground leading-tight line-clamp-2">
+                          <p className="mt-0.5 text-micro text-muted-foreground leading-tight line-clamp-2">
                             {medal.earned ? medal.description : "未解锁"}
                           </p>
                         </div>

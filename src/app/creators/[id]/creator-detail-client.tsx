@@ -170,14 +170,14 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
                     <div className="flex h-full w-full items-center justify-center bg-secondary text-muted-foreground text-xs">封面还没上传~</div>
                   )}
                   {vn.rating ? (
-                    <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 rounded-md bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-amber-400 backdrop-blur-sm">
+                    <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 rounded-md bg-black/60 px-1.5 py-0.5 text-micro font-medium text-amber-400 backdrop-blur-sm">
                       <Star className="h-2.5 w-2.5" strokeWidth={2} />
                       {formatRating(vn.rating)}
                     </div>
                   ) : null}
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-zinc-950/90 to-transparent p-2">
-                    <p className="line-clamp-2 text-[10px] font-medium leading-tight text-foreground">{vn.original || vn.title}</p>
-                    <p className="mt-0.5 text-[10px] text-muted-foreground">{roleLabelMap[vn.role] || vn.role}</p>
+                    <p className="line-clamp-2 text-micro font-medium leading-tight text-foreground">{vn.original || vn.title}</p>
+                    <p className="mt-0.5 text-micro text-muted-foreground">{roleLabelMap[vn.role] || vn.role}</p>
                   </div>
                 </div>
               </Link>

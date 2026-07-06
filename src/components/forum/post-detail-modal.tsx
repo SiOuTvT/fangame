@@ -23,7 +23,7 @@ function fmtDate(d: string) {
 const Avatar = memo(function Avatar({ user, size = 6 }: { user: User; size?: number }) {
   const s = `h-${size} w-${size}`
   if (user.avatar) return <Image src={user.avatar} alt={user.username} width={size * 4} height={size * 4} className={`${s} rounded-full object-cover shrink-0`} />
-  return <div className={`${s} rounded-full bg-primary/80 flex items-center justify-center text-[10px] font-bold text-primary-foreground shrink-0`}>{user.username[0].toUpperCase()}</div>
+  return <div className={`${s} rounded-full bg-primary/80 flex items-center justify-center text-micro font-bold text-primary-foreground shrink-0`}>{user.username[0].toUpperCase()}</div>
 })
 
 const EMOJI_LIST = [
@@ -246,7 +246,7 @@ export function PostDetailModal({
               <Avatar user={post.user} size={8} />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground">{post.user.username}</p>
-                <p className="text-[10px] text-muted-foreground">
+                <p className="text-micro text-muted-foreground">
                   {fmtDate(post.createdAt)}
                   {post.updatedAt !== post.createdAt && " · 已编辑"}
                 </p>
@@ -258,7 +258,7 @@ export function PostDetailModal({
               )}
             </div>
 
-            <h2 className="mb-3 text-base font-bold text-foreground">{post.title}</h2>
+            <h2 className="mb-3 text-base font-semibold text-foreground">{post.title}</h2>
             <RichTextContent html={post.content} />
             {post.imageUrl && (
               <Image src={post.imageUrl} alt={post.title} width={480} height={320} className="mt-3 max-w-full rounded-xl object-cover" sizes="(max-width: 640px) 100vw, 480px" />
@@ -310,8 +310,8 @@ export function PostDetailModal({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="text-xs font-medium text-foreground">{c.user.username}</span>
-                      <span className="text-[10px] text-muted-foreground">{fmtDate(c.createdAt)}</span>
-                      {c.updatedAt && c.updatedAt !== c.createdAt && <span className="text-[10px] text-muted-foreground/50">已编辑</span>}
+                      <span className="text-micro text-muted-foreground">{fmtDate(c.createdAt)}</span>
+                      {c.updatedAt && c.updatedAt !== c.createdAt && <span className="text-micro text-muted-foreground/50">已编辑</span>}
                     </div>
                     {editingComment === c.id ? (
                       <div className="space-y-2">
@@ -319,9 +319,9 @@ export function PostDetailModal({
                           className="w-full rounded-lg bg-secondary px-3 py-1.5 text-xs text-foreground ring-1 ring-border outline-none focus:ring-primary/30" />
                         <div className="flex gap-2">
                           <button onClick={() => submitEditComment(c.id)}
-                            className="rounded-lg bg-primary px-2.5 py-1 text-[10px] font-medium text-primary-foreground hover:opacity-90">保存</button>
+                            className="rounded-lg bg-primary px-2.5 py-1 text-micro font-medium text-primary-foreground hover:opacity-90">保存</button>
                           <button onClick={() => setEditingComment(null)}
-                            className="rounded-lg bg-secondary px-2.5 py-1 text-[10px] font-medium text-muted-foreground hover:text-foreground">取消</button>
+                            className="rounded-lg bg-secondary px-2.5 py-1 text-micro font-medium text-muted-foreground hover:text-foreground">取消</button>
                         </div>
                       </div>
                     ) : (

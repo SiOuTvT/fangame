@@ -218,7 +218,7 @@ export function TagsOverviewClient({
               <div className="flex items-center gap-2">
                 <h3 className="text-base font-semibold text-foreground">{g.name}</h3>
                 {g.isPreset && (
-                  <span className="text-[10px] text-muted-foreground bg-secondary rounded px-1.5 py-0.5">内置</span>
+                  <span className="text-micro text-muted-foreground bg-secondary rounded px-1.5 py-0.5">内置</span>
                 )}
               </div>
               {g.description && (
@@ -230,7 +230,7 @@ export function TagsOverviewClient({
                   {g.positions.map((pos) => {
                     const def = TAG_POSITIONS.find((p) => p.key === pos)
                     return def ? (
-                      <span key={pos} className="text-[10px] bg-secondary/80 rounded-full px-2 py-0.5 text-muted-foreground">
+                      <span key={pos} className="text-micro bg-secondary/80 rounded-full px-2 py-0.5 text-muted-foreground">
                         {def.label}
                       </span>
                     ) : null
@@ -347,7 +347,7 @@ function UngroupedTagsSection({
               style={{ color: t.color, background: `${t.color}15`, borderColor: `${t.color}30` }}
             >
               {t.name}
-              <span className="text-[10px] opacity-60">({t.gameCount})</span>
+              <span className="text-micro opacity-60">({t.gameCount})</span>
               <FolderInput className="h-3 w-3 opacity-40 group-hover/tag:opacity-100 transition-opacity" />
             </button>
             {assigningId === t.id && (

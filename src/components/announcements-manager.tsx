@@ -255,11 +255,11 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
           {/* 定时发布 */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <p className="mb-1 text-[10px] text-muted-foreground">定时上线（选填）</p>
+              <p className="mb-1 text-micro text-muted-foreground">定时上线（选填）</p>
               <input type="datetime-local" value={startAt} onChange={(e) => setStartAt(e.target.value)} className={inputCls} />
             </div>
             <div>
-              <p className="mb-1 text-[10px] text-muted-foreground">定时下线（选填）</p>
+              <p className="mb-1 text-micro text-muted-foreground">定时下线（选填）</p>
               <input type="datetime-local" value={endAt} onChange={(e) => setEndAt(e.target.value)} className={inputCls} />
             </div>
           </div>
@@ -315,7 +315,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ${ann.isActive ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20" : "bg-muted text-muted-foreground ring-border"}`}>
+                    <span className={`rounded-full px-2 py-0.5 text-micro font-medium ring-1 ${ann.isActive ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20" : "bg-muted text-muted-foreground ring-border"}`}>
                       {ann.isActive ? "展示中" : "已隐藏"}
                     </span>
                     <span className="text-xs font-medium text-foreground truncate">{ann.title}</span>
@@ -332,10 +332,10 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                     </div>
                   )}
                   <div className="mt-1.5 flex items-center gap-2">
-                    <p className="text-[10px] text-muted-foreground">{new Date(ann.createdAt).toLocaleDateString("zh-CN")}</p>
+                    <p className="text-micro text-muted-foreground">{new Date(ann.createdAt).toLocaleDateString("zh-CN")}</p>
                     {ann.content.length > 100 && (
                       <button onClick={() => setExpandedId(expandedId === ann.id ? null : ann.id)}
-                        className="flex items-center gap-0.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors">
+                        className="flex items-center gap-0.5 text-micro text-muted-foreground hover:text-foreground transition-colors">
                         {expandedId === ann.id ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
                         {expandedId === ann.id ? "收起" : "展开"}
                       </button>

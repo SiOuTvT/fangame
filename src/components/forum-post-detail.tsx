@@ -27,7 +27,7 @@ const EMOJI_LIST = [
 ]
 
 function Avatar({ user, size = "md" }: { user: User; size?: "sm" | "md" | "lg" }) {
-  const cls = size === "sm" ? "h-8 w-8 text-[10px]" : size === "md" ? "h-10 w-10 text-xs" : "h-11 w-11 text-sm"
+  const cls = size === "sm" ? "h-8 w-8 text-micro" : size === "md" ? "h-10 w-10 text-xs" : "h-11 w-11 text-sm"
   if (user.avatar) return <NextImage src={user.avatar} alt={user.username} width={44} height={44} className={`${cls} rounded-full object-cover shrink-0`} />
   return <div className={`${cls} rounded-full bg-primary/80 flex items-center justify-center font-bold text-primary-foreground shrink-0`}>{user.username[0].toUpperCase()}</div>
 }
@@ -321,7 +321,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-foreground">{c.user.username}</span>
                     <span className="text-xs text-muted-foreground/50">{fmtDate(c.createdAt)}</span>
-                    {c.updatedAt && c.updatedAt !== c.createdAt && <span className="text-[10px] text-muted-foreground/40">已编辑</span>}
+                    {c.updatedAt && c.updatedAt !== c.createdAt && <span className="text-micro text-muted-foreground/40">已编辑</span>}
                   </div>
                   {editingComment === c.id ? (
                     <div className="space-y-2 mt-1">

@@ -267,8 +267,8 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <span className={`text-xs font-medium ${meta.color}`}>{meta.label}</span>
-                        <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">{item.key}</span>
-                        {!item.enabled && <span className="rounded bg-red-500/10 px-1.5 py-0.5 text-[10px] text-red-400">已禁用</span>}
+                        <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-micro text-muted-foreground">{item.key}</span>
+                        {!item.enabled && <span className="rounded bg-red-500/10 px-1.5 py-0.5 text-micro text-red-400">已禁用</span>}
                       </div>
                       <p className="mt-0.5 text-sm font-semibold text-foreground">{item.title || "—"}</p>
                       <p className="text-xs text-muted-foreground">{item.subtitle || "—"}</p>

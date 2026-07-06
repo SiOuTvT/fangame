@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Pagination } from "@/components/ui/pagination"
+import { Badge } from "@/components/ui/badge"
 import { MessageSquare, Search } from "lucide-react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
@@ -64,9 +65,9 @@ export default async function AdminForumPage({
         <div className="flex items-center gap-3">
           <MessageSquare className="h-6 w-6 text-primary" />
           <h1 className="text-xl font-bold text-foreground">论坛管理</h1>
-          <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+          <Badge variant="secondary" size="lg">
             {total} 个帖子
-          </span>
+          </Badge>
         </div>
         <form method="get" className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
@@ -123,7 +124,7 @@ export default async function AdminForumPage({
                   <div className="min-w-0">
                     <h3 className="truncate text-sm font-semibold text-foreground">
                       {post.isSolved && (
-                        <span className="mr-1 inline-flex items-center rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-bold text-emerald-400 ring-1 ring-emerald-500/20">
+                        <span className="mr-1 inline-flex items-center rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-micro font-bold text-emerald-400 ring-1 ring-emerald-500/20">
                           已解决
                         </span>
                       )}

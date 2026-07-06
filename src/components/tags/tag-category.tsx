@@ -52,7 +52,7 @@ export function TagCategory({ group }: TagCategoryProps) {
             title={`${tag.gameCount} 个游戏`}
           >
             {tag.name}
-            <span className="ml-1 text-[10px] opacity-60">
+            <span className="ml-1 text-micro opacity-60">
               {tag.gameCount}
             </span>
           </ColorTag>

@@ -161,7 +161,7 @@ export function ProfileEditForm({ user }: Props) {
             shape="rounded"
             placeholder="上传封面图"
           />
-          <p className="mt-2 text-[10px] text-muted-foreground">推荐尺寸 900×300 · JPG/PNG/WebP · 最大 10MB · 不填就用默认背景</p>
+          <p className="mt-2 text-micro text-muted-foreground">推荐尺寸 900×300 · JPG/PNG/WebP · 最大 10MB · 不填就用默认背景</p>
         </div>
 
         {/* 分隔线 */}
@@ -199,7 +199,7 @@ export function ProfileEditForm({ user }: Props) {
                 rows={4}
                 className="w-full resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
               />
-              <p className="mt-1 text-right text-[10px] text-muted-foreground">{bio.length}/200</p>
+              <p className="mt-1 text-right text-micro text-muted-foreground">{bio.length}/200</p>
             </div>
           </div>
         </div>
@@ -212,7 +212,7 @@ export function ProfileEditForm({ user }: Props) {
           <div className="flex items-center gap-2 mb-4">
             <Lock className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             <h3 className="text-xs font-semibold text-muted-foreground">修改密码</h3>
-            <span className="text-[10px] text-muted-foreground">不想改的话留空就好~</span>
+            <span className="text-micro text-muted-foreground">不想改的话留空就好~</span>
           </div>
           <div className="space-y-4">
             <div>

@@ -298,7 +298,7 @@ export function TagGroupDetailClient({
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-foreground truncate">{tag.name}</span>
                     {tag.isVisible === false && (
-                      <span className="text-[10px] text-muted-foreground bg-secondary rounded px-1 py-0.5">隐藏</span>
+                      <span className="text-micro text-muted-foreground bg-secondary rounded px-1 py-0.5">隐藏</span>
                     )}
                   </div>
                   {tag.description && (
@@ -309,7 +309,7 @@ export function TagGroupDetailClient({
                 {/* 游戏数 */}
                 <div className="text-right shrink-0">
                   <span className="text-lg font-bold text-foreground">{tag.gameCount}</span>
-                  <p className="text-[10px] text-muted-foreground">个游戏</p>
+                  <p className="text-micro text-muted-foreground">个游戏</p>
                 </div>
 
                 {/* 编辑按钮 */}

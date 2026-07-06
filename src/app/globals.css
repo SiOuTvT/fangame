@@ -1520,6 +1520,10 @@ svg {
 /* 胶囊/头像/徽章 */
 .rounded-pill { border-radius: 9999px; }
 
+/* ═══ DS v2 Typography Token ═══ */
+/* 微型文字：badge 计数、caption、元数据标签 */
+.text-micro { font-size: 10px; line-height: 1.4; }
+
 /* ═══ 审计修复：tabular-nums 数字统一 ═══ */
 .num-tab {
   font-variant-numeric: tabular-nums;

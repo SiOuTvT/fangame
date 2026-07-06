@@ -116,7 +116,7 @@ export function MusicPlayer() {
               {/* 曲名 */}
               <div className="flex-1 min-w-0">
                 <p className="truncate text-xs font-medium text-foreground">{tracks[cur]?.title}</p>
-                <p className="text-[10px] text-muted-foreground">{cur + 1} / {tracks.length}</p>
+                <p className="text-micro text-muted-foreground">{cur + 1} / {tracks.length}</p>
               </div>
 
               {/* 控制按钮 */}

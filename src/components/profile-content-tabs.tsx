@@ -152,7 +152,7 @@ export function ProfileContentTabs({ userId }: Props) {
                 )}>
                 <Icon className="h-3.5 w-3.5" strokeWidth={2} />
                 {tab.label}
-                {tab.key === "comments" && localComments.length > 0 && <span className="ml-0.5 rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold text-primary leading-none">{localComments.length}</span>}
+                {tab.key === "comments" && localComments.length > 0 && <span className="ml-0.5 rounded-full bg-primary/15 px-1.5 py-0.5 text-micro font-bold text-primary leading-none">{localComments.length}</span>}
               </button>
             )
           })}
@@ -274,7 +274,7 @@ function CollectionCard({ id, name, gameCount, coverGames, onOpen, onDelete, isD
                   : <div className="flex h-full w-full items-center justify-center bg-muted"><FolderHeart className="h-4 w-4" /></div>}
               </div>
             ))}
-            {gameCount > 5 && <div className="flex h-16 w-12 shrink-0 items-center justify-center rounded-md bg-muted text-[10px] font-bold text-muted-foreground">+{gameCount - 5}</div>}
+            {gameCount > 5 && <div className="flex h-16 w-12 shrink-0 items-center justify-center rounded-md bg-muted text-micro font-bold text-muted-foreground">+{gameCount - 5}</div>}
           </div>
         ) : <p className="text-xs text-muted-foreground">空收藏夹 · 点击查看详情</p>}
       </button>
@@ -289,7 +289,7 @@ const FolderModalContent = memo(function FolderModalContent({ name, games, onClo
       <div className="flex items-center justify-between border-b border-border px-6 py-4">
         <div className="flex items-center gap-3">
           <FolderHeart className="h-5 w-5 text-primary" strokeWidth={2} />
-          <h2 className="text-base font-bold text-foreground">{name}</h2>
+          <h2 className="text-base font-semibold text-foreground">{name}</h2>
           <Tag variant="badge" className="bg-muted text-muted-foreground">{games.length} 部</Tag>
         </div>
         <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground"><X className="h-4 w-4" strokeWidth={2} /></button>

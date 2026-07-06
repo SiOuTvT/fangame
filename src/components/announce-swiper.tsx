@@ -142,7 +142,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
             </h2>
             {showNew && (
               <span
-                className="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-white"
+                className="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-micro font-bold tracking-wider text-white"
                 style={{ background: "var(--primary)" }}
               >
                 NEW

@@ -351,11 +351,11 @@ export function ArchiveCard({
           {gameTags && gameTags.length > 0 && (
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 -mx-4 px-4">
               <Gamepad2 className="h-4 w-4 shrink-0 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground shrink-0 leading-[22px]">游戏标签</span>
+              <span className="text-sm text-muted-foreground shrink-0 leading-none">游戏标签</span>
               {gameTags.map((tag, i) => (
                 <span
                   key={i}
-                  className="inline-flex items-center rounded-md px-2 text-sm font-semibold shrink-0 leading-[22px]"
+                  className="inline-flex items-center rounded-md px-2 text-sm font-semibold shrink-0 leading-none"
                   style={{
                     background: tag.color ? `${tag.color}20` : "var(--secondary)",
                     color: tag.color || "var(--foreground)",

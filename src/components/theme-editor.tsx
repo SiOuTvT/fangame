@@ -147,7 +147,7 @@ export function ThemeEditor({ initialSettings, onSave }: ThemeEditorProps) {
                         )}
                       </div>
                       <span className="text-xs font-medium text-foreground">{preset.label}</span>
-                      <span className="text-[10px] text-muted-foreground">{preset.desc}</span>
+                      <span className="text-micro text-muted-foreground">{preset.desc}</span>
                     </button>
                   )
                 })}
@@ -263,8 +263,8 @@ export function ThemeEditor({ initialSettings, onSave }: ThemeEditorProps) {
                     <p className="text-sm font-semibold text-foreground">游戏卡片预览</p>
                     <p className="text-xs text-muted-foreground">这是圆角和阴影的预览效果</p>
                     <div className="mt-2 flex gap-1.5">
-                      <Badge variant="secondary" className="text-[10px]">tag1</Badge>
-                      <Badge variant="secondary" className="text-[10px]">tag2</Badge>
+                      <Badge variant="secondary" className="text-micro">tag1</Badge>
+                      <Badge variant="secondary" className="text-micro">tag2</Badge>
                     </div>
                   </div>
                 </div>
