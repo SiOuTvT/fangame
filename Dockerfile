@@ -10,13 +10,10 @@ RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends openssl && \
     rm -rf /var/lib/apt/lists/*
 
-# 使用国内 npm 镜像加速下载
-RUN npm config set registry https://registry.npmmirror.com
-
 # Copy dependency files
 COPY package.json package-lock.json ./
 
-# Install all dependencies (--legacy-peer-deps for React 19 compat with uploadthing)
+# Install all dependencies (--legacy-peer-deps for React 19 compat)
 RUN npm ci --no-audit --no-fund --legacy-peer-deps
 
 # Generate Prisma client
@@ -46,10 +43,10 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-# 构建时需要的环境变量（用于 Next.js 环境验证）
-ARG DATABASE_URL
-ARG NEXTAUTH_SECRET
-ARG NEXTAUTH_URL
+# 构建时环境变量占位符（真实值在运行时注入，避免密钥泄漏到镜像层）
+ARG DATABASE_URL="postgresql://build:placeholder@localhost:5432/build"
+ARG NEXTAUTH_SECRET="build-placeholder-secret-not-used-at-runtime-32chars"
+ARG NEXTAUTH_URL="http://localhost:3000"
 ENV DATABASE_URL=${DATABASE_URL}
 ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
 ENV NEXTAUTH_URL=${NEXTAUTH_URL}
@@ -71,12 +68,6 @@ RUN apt-get update -qq && \
       curl \
     && rm -rf /var/lib/apt/lists/*
 
-# 使用国内 npm 镜像
-RUN npm config set registry https://registry.npmmirror.com
-
-# 安装 prisma CLI（用于 migrate deploy）
-RUN npm install -g prisma@6
-
 # Create non-root user
 RUN groupadd --gid 1001 nodejs && \
     useradd --uid 1001 --gid nodejs --shell /bin/bash --create-home nextjs
@@ -87,10 +78,11 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 # Copy public directory (uploads, favicon, etc.)
 COPY --from=builder /app/public ./public
-# Copy Prisma schema and engine
-COPY --from=builder /app/prisma ./prisma
+# Copy Prisma CLI + engine + generated client + schema
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/prisma ./prisma
 
 # Create uploads directory with proper permissions
 RUN mkdir -p /app/public/uploads && \
