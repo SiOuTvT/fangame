@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { ok, serverError, unauthorized } from "@/lib/api-response"
 import { cache, cacheKey } from "@/lib/redis"
+import { logger } from "@/lib/logger"
 
 // GET /api/user/stats - 获取用户统计信息（包括总印记）
 async function handleGet() {
@@ -31,7 +32,7 @@ async function handleGet() {
 
     return ok({ totalMarks })
   } catch (error) {
-    console.error("Get user stats error:", error)
+    logger.api.error("Get user stats error", error)
     return serverError("获取统计失败")
   }
 }

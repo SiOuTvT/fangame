@@ -5,6 +5,7 @@ import { Plus, Trash2, Eye, EyeOff, Music, Loader2, Play, Pause, Pencil, Upload,
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { logger } from "@/lib/logger"
 
 interface MusicItem { id: string; title: string; url: string; filename: string; isActive: boolean; playlist?: { id: string; name: string } | null }
 interface PlaylistItem { id: string; name: string; _count: { music: number } }
@@ -35,7 +36,7 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
     try {
       const res = await fetch("/api/admin/playlists")
       if (res.ok) setPlaylists(await res.json())
-    } catch {}
+    } catch (err) { logger.api.warn("[MusicManager] fetchPlaylists failed", { error: err instanceof Error ? err.message : String(err) }) }
   }, [])
 
   useEffect(() => { fetchPlaylists() }, [fetchPlaylists])

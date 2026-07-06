@@ -3,6 +3,7 @@
 import { Download, Loader2 } from "lucide-react"
 import { useRef, useState } from "react"
 import { toast } from "sonner"
+import { logger } from "@/lib/logger"
 
 interface CardData {
   username: string
@@ -183,7 +184,7 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
 
       toast.success("名片已生成")
     } catch (e) {
-      console.error("[名片生成]", e)
+      logger.user.error("[名片生成]", e)
       toast.error("生成失败")
     } finally {
       setGenerating(false)

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Plus, Trash2, Loader2 } from "lucide-react"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { logger } from "@/lib/logger"
 
 interface Log { id: string; content: string; createdAt: string }
 
@@ -43,7 +44,7 @@ export function GameLogManager({ gameId }: { gameId: string }) {
         body: JSON.stringify({ logId }),
       })
       if (res.ok) setLogs(p => p.filter(l => l.id !== logId))
-    } catch {}
+    } catch (err) { logger.game.warn("[GameLogManager] delete log failed", { error: err instanceof Error ? err.message : String(err) }) }
   }
 
   return (

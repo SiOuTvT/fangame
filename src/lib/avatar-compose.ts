@@ -119,8 +119,8 @@ export async function cleanupOldComposedAvatar(composedUrl: string): Promise<voi
       const filePath = path.join(process.cwd(), 'public', composedUrl)
       await fs.unlink(filePath)
       logger.upload.debug(`已清理旧合成头像: ${composedUrl}`)
-    } catch {
-      // 文件可能已被删除，忽略错误
+    } catch (err) {
+      logger.upload.warn("[avatarCompose] cleanup old composed avatar failed", { error: err instanceof Error ? err.message : String(err) })
     }
   }
 }

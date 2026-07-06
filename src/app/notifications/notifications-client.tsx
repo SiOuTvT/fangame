@@ -2,6 +2,7 @@
 
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { timeAgo } from "@/lib/time-ago"
+import { logger } from "@/lib/logger"
 import { Bell, CheckCheck, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
@@ -112,7 +113,7 @@ export default function NotificationsClient({
       const data = await res.json()
       setNotifications((prev) => [...prev, ...(data.notifications ?? [])])
       setNextCursor(data.nextCursor)
-    } catch { /* ignore */ }
+    } catch (err) { logger.api.warn("[NotificationsClient] fetchMore failed", { error: err instanceof Error ? err.message : String(err) }) }
     setLoadingMore(false)
   }, [nextCursor, loadingMore])
 

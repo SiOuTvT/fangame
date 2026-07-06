@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useRef, memo } from "react"
 import { Loader2, Plus, X, MessageCircle, HelpCircle, Package, Coffee } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { logger } from "@/lib/logger"
 import { RichTextEditor } from "../rich-text-editor-wrapper"
 import type { ComponentType, SVGProps } from "react"
 
@@ -45,8 +46,8 @@ export function NewPostModal({ isOpen, onClose, onSubmit }: NewPostModalProps) {
       setTitle("")
       setContent("")
       onClose()
-    } catch {
-      // onSubmit 内部已处理 toast，此处仅确保按钮恢复
+    } catch (err) {
+      logger.forum.warn("[NewPostModal] submit post failed", { error: err instanceof Error ? err.message : String(err) })
     } finally {
       setSubmitting(false)
     }

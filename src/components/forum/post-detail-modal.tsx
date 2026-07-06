@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import { Tag } from "@/components/ui/tag"
 import { RichTextContent } from "../rich-text-content-wrapper"
 import type { Post, Comment, User } from "./forum-client-root"
+import { logger } from "@/lib/logger"
 
 function fmtDate(d: string) {
   const date = new Date(d)
@@ -222,7 +223,7 @@ export function PostDetailModal({
           prev.map((c) => (c.id === id ? { ...c, content: updated.content ?? editCommentText.trim(), updatedAt: updated.updatedAt } : c))
         )
       }
-    } catch { /* ignore */ }
+    } catch (err) { logger.forum.warn("[PostDetailModal] editComment failed", { error: err instanceof Error ? err.message : String(err) }) }
   }, [editCommentText])
 
   return (

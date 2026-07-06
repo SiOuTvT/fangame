@@ -82,9 +82,7 @@ export async function DELETE(
       )
       try {
         await fs.unlink(framePath)
-      } catch {
-        // 文件可能不存在，忽略
-      }
+      } catch (err) { logger.upload.warn("[AvatarFramesRoute] delete old frame file failed", { error: err instanceof Error ? err.message : String(err) }) }
     }
 
     // 清理使用该头像框的用户的合成头像文件和数据

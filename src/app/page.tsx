@@ -60,7 +60,7 @@ async function GameGridServer({ tag, q, nsfw, page }: { tag: string; q: string; 
       select: { color: true },
     })
     if (homeCardTag?.color) cardTagColor = homeCardTag.color
-  } catch {}
+  } catch (err) { logger.db.warn("[HomePage] cardTagColor query failed", { error: err instanceof Error ? err.message : String(err) }) }
 
   const mapped = games.map((g) => {
     // downloadLinks 是 Json 类型，直接使用
@@ -80,7 +80,7 @@ async function GameGridServer({ tag, q, nsfw, page }: { tag: string; q: string; 
               resourceTags.push({ name, color: cardTagColor })
             }
           }
-        } catch {}
+        } catch (err) { logger.db.warn("[HomePage] resourceTag processing failed", { error: err instanceof Error ? err.message : String(err) }) }
       }
     }
 

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 
 /**
@@ -26,7 +27,7 @@ export async function logAudit({
         ip: ip ?? "",
       },
     })
-  } catch {
-    // don't fail the main operation on audit log failure
+  } catch (err) {
+    logger.db.warn("[auditLog] write audit log failed", { error: err instanceof Error ? err.message : String(err) })
   }
 }

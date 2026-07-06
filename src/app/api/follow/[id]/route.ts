@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth"
+import { logger } from "@/lib/logger"
 import { checkRateLimit, rateLimits } from "@/lib/rate-limit"
 import { createNotification } from "@/lib/notifications"
 import { prisma } from "@/lib/prisma"
@@ -82,8 +83,8 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
         }
       }
     })
-  } catch {
-    // 不存在时也返回成功
+  } catch (err) {
+    logger.user.warn("[FollowRoute] delete follow failed (may not exist)", { error: err instanceof Error ? err.message : String(err) })
   }
 
   return NextResponse.json({ success: true })

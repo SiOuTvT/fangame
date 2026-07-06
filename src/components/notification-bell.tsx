@@ -1,6 +1,7 @@
 "use client"
 
 import { Bell } from "lucide-react"
+import { logger } from "@/lib/logger"
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 
@@ -13,8 +14,8 @@ export function NotificationBell() {
       if (!res.ok) return
       const data = await res.json()
       setUnreadCount(data.unreadCount ?? 0)
-    } catch {
-      // ignore
+    } catch (err) {
+      logger.api.warn("[NotificationBell] fetch unread count failed", { error: err instanceof Error ? err.message : String(err) })
     }
   }, [])
 

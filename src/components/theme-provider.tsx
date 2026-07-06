@@ -1,6 +1,7 @@
 "use client"
 
 import { applyThemeColor } from "@/lib/theme-colors"
+import { logger } from "@/lib/logger"
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
 
 export interface FullThemeSettings {
@@ -68,8 +69,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         doApply(parsed)
         // 设置 data-theme 属性
         document.documentElement.setAttribute("data-theme", "custom")
-      }
-    } catch {}
+    }
+  } catch (err) { logger.api.warn("[ThemeProvider] load theme from localStorage failed", { error: err instanceof Error ? err.message : String(err) }) }
 
     const controller = new AbortController()
     fetch("/api/site-settings", { signal: controller.signal })

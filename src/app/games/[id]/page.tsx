@@ -7,6 +7,7 @@ import { SafeImage } from "@/components/safe-image"
 import { ViewCounter } from "@/components/view-counter"
 import { FeedbackBtn } from "@/components/feedback-btn"
 import { auth } from "@/lib/auth"
+import { logger } from "@/lib/logger"
 import { getAllDescriptions, getDescriptionText } from "@/lib/parse-description"
 import { safeParse } from "@/lib/parse-utils"
 import { prisma } from "@/lib/prisma"
@@ -114,7 +115,7 @@ export default async function GameDetailPage({
           await cache.set(cacheKeyResource, group.color, 3600)
           return group.color
         }
-      } catch {}
+      } catch (err) { logger.game.warn("[GameDetailPage] resourceTagColor query failed", { error: err instanceof Error ? err.message : String(err) }) }
       return "#22c55e"
     })(),
     session?.user?.id

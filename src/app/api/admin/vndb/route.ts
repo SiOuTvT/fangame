@@ -251,9 +251,7 @@ export async function POST(req: NextRequest) {
           select: { id: true, name: true },
         })
         newTags.push(created)
-      } catch {
-        // 可能并发导致重复，忽略
-      }
+      } catch (err) { logger.db.warn("[VndbRoute] create tag failed (possible duplicate)", { error: err instanceof Error ? err.message : String(err) }) }
     }
 
     // 所有匹配的标签 ID 列表

@@ -254,7 +254,7 @@ export function ForumClient({
               setPosts(p => p.map(x => x.id === id ? { ...x, isSolved: data.isSolved } : x))
               setActivePost(p => p && { ...p, isSolved: data.isSolved })
             }
-          } catch {}
+          } catch (err) { logger.forum.warn("[ForumClient] toggle solve failed", { error: err instanceof Error ? err.message : String(err) }) }
         }}
         onStartEdit={setEditingPost}
         onDelete={handleDeletePost}
@@ -279,7 +279,7 @@ export function ForumClient({
                 setActivePost(p => p && { ...p, comments: p.comments.filter(c => c.id !== id) })
                 setPosts(p => p.map(x => x.id === targetPostId ? { ...x, commentCount: Math.max(0, x.commentCount - 1) } : x))
               }
-            } catch {}
+            } catch (err) { logger.forum.warn("[ForumClient] delete comment failed", { error: err instanceof Error ? err.message : String(err) }) }
           })
           setConfirmOpen(true)
         }}

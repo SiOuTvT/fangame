@@ -5,6 +5,7 @@ import { CheckInToast } from "@/components/checkin-toast"
 import { NotificationBell } from "@/components/notification-bell"
 import { useEmotionalMessage, useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import { cn } from "@/lib/utils"
+import { logger } from "@/lib/logger"
 import Image from "next/image"
 import {
   CalendarCheck,
@@ -109,7 +110,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
         const { date, checkedIn: val } = JSON.parse(cached)
         if (date === today) { setCheckedIn(val); return }
       }
-    } catch {}
+    } catch (err) { logger.user.warn("[TopNav] read checkin cache failed", { error: err instanceof Error ? err.message : String(err) }) }
 
     const controller = new AbortController()
     fetch("/api/checkin", { signal: controller.signal })
@@ -117,7 +118,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
       .then(data => {
         const val = data.data?.checkedIn ?? false
         setCheckedIn(val)
-        try { sessionStorage.setItem("checkin_status", JSON.stringify({ date: today, checkedIn: val })) } catch {}
+        try { sessionStorage.setItem("checkin_status", JSON.stringify({ date: today, checkedIn: val })) } catch (err) { logger.user.warn("[TopNav] write checkin cache failed", { error: err instanceof Error ? err.message : String(err) }) }
       })
       .catch(() => setCheckedIn(false))
     return () => controller.abort()
@@ -159,7 +160,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
       const detail = (e as CustomEvent).detail
       if (detail?.image) {
         setLocalAvatar(detail.image)
-        try { localStorage.setItem("local_avatar", detail.image) } catch {}
+        try { localStorage.setItem("local_avatar", detail.image) } catch (err) { logger.user.warn("[TopNav] write local avatar failed", { error: err instanceof Error ? err.message : String(err) }) }
       }
       setAvatarVersion(v => v + 1)
     }
@@ -172,7 +173,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
     if (localAvatar && user?.image && localAvatar === user.image) {
        
       setLocalAvatar(null)
-      try { localStorage.removeItem("local_avatar") } catch {}
+      try { localStorage.removeItem("local_avatar") } catch (err) { logger.user.warn("[TopNav] remove local avatar failed", { error: err instanceof Error ? err.message : String(err) }) }
     }
   }, [user?.image, localAvatar])
 
@@ -234,7 +235,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
         toast.error(errorMsg)
       })
       .catch((e) => {
-        console.error('[签到] 错误:', e)
+        logger.user.error('[签到] 错误', e)
         toast.error("签到失败，请稍后重试")
       })
       .finally(() => { setCheckinLoading(false) })
@@ -360,7 +361,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
                       try {
                         localStorage.clear()
                         sessionStorage.clear()
-                      } catch {}
+                      } catch (err) { logger.user.warn("[TopNav] clear storage failed", { error: err instanceof Error ? err.message : String(err) }) }
                       signOut({ callbackUrl: "/" })
                     }}
                       className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-destructive transition-colors hover:bg-accent">

@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
+import { logger } from "@/lib/logger"
 
 interface UseAutoSaveDraftOptions<T> {
   /** localStorage key */
@@ -52,8 +53,8 @@ export function useAutoSaveDraft<T>({
         const parsed = JSON.parse(saved)
         return { ...defaultValue, ...parsed }
       }
-    } catch {
-      // ignore
+    } catch (err) {
+      logger.api.warn("[useAutoSaveDraft] restore draft failed", { error: err instanceof Error ? err.message : String(err) })
     }
     return defaultValue
   })
@@ -70,8 +71,8 @@ export function useAutoSaveDraft<T>({
       if (saved) {
         setHasRestored(true)
       }
-    } catch {
-      // ignore
+    } catch (err) {
+      logger.api.warn("[useAutoSaveDraft] check restored draft failed", { error: err instanceof Error ? err.message : String(err) })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -82,8 +83,8 @@ export function useAutoSaveDraft<T>({
       if (!enabled || typeof window === "undefined") return
       try {
         localStorage.setItem(storageKey, JSON.stringify(data))
-      } catch {
-        // localStorage 满了，静默失败
+      } catch (err) {
+        logger.api.warn("[useAutoSaveDraft] save to localStorage failed", { error: err instanceof Error ? err.message : String(err) })
       }
     },
     [enabled, storageKey],
@@ -117,8 +118,8 @@ export function useAutoSaveDraft<T>({
     setHasRestored(false)
     try {
       localStorage.removeItem(storageKey)
-    } catch {
-      // ignore
+    } catch (err) {
+      logger.api.warn("[useAutoSaveDraft] remove draft failed", { error: err instanceof Error ? err.message : String(err) })
     }
   }, [defaultValue, storageKey])
 

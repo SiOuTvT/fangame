@@ -41,15 +41,23 @@ export const EM_KEYS = {
 
 /** 客户端 fetch 辅助（SWR/React Query 不需要时可直接用此函数） */
 export async function fetchEmotionalMessage(key: string) {
-  const res = await fetch(`/api/emotional-messages?key=${encodeURIComponent(key)}`)
-  if (!res.ok) return null
-  return res.json()
+  try {
+    const res = await fetch(`/api/emotional-messages?key=${encodeURIComponent(key)}`)
+    if (!res.ok) return null
+    return res.json()
+  } catch {
+    return null
+  }
 }
 
 /** 批量获取客户端 */
 export async function fetchEmotionalMessages(category?: string) {
-  const qs = category ? `?category=${encodeURIComponent(category)}` : ""
-  const res = await fetch(`/api/emotional-messages${qs}`)
-  if (!res.ok) return []
-  return res.json()
+  try {
+    const qs = category ? `?category=${encodeURIComponent(category)}` : ""
+    const res = await fetch(`/api/emotional-messages${qs}`)
+    if (!res.ok) return []
+    return res.json()
+  } catch {
+    return []
+  }
 }

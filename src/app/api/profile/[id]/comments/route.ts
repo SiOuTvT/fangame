@@ -1,6 +1,7 @@
 import { ok, serverError } from "@/lib/api-response"
 import { prisma } from "@/lib/prisma"
 import { NextRequest } from "next/server"
+import { logger } from "@/lib/logger"
 
 export async function GET(
   _req: NextRequest,
@@ -23,7 +24,7 @@ export async function GET(
     })
     return ok({ comments })
   } catch (error) {
-    console.error("[Profile Comments API]", error)
+    logger.api.error("Profile Comments API", error)
     return serverError("获取评论失败")
   }
 }

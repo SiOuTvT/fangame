@@ -10,6 +10,7 @@ import { useBreadcrumb } from "./breadcrumb-context"
 import { ConfirmDialog } from "./ui/confirm-dialog"
 import { RichTextContent } from "./rich-text-content-wrapper"
 import { RichTextEditor } from "./rich-text-editor-wrapper"
+import { logger } from "@/lib/logger"
 
 interface User { id: string; username: string; avatar: string }
 interface Comment { id: string; content: string; imageUrl: string; likeCount: number; createdAt: string; updatedAt?: string; user: User }
@@ -101,7 +102,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
       const res = await fetch(`/api/forum/comments/${id}/like`, { method: "POST" })
       const data = await res.json()
       setComments(cs => cs.map(c => c.id === id ? { ...c, likeCount: data.likeCount } : c))
-    } catch {}
+    } catch (err) { logger.forum.warn("[ForumPostDetail] likeComment failed", { error: err instanceof Error ? err.message : String(err) }) }
   }
 
   // ── 标记已解决 ──
@@ -110,7 +111,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
       const res = await fetch(`/api/forum/posts/${post.id}/solve`, { method: "POST" })
       const data = await res.json()
       if (res.ok) setPost(p => ({ ...p, isSolved: data.isSolved }))
-    } catch {}
+    } catch (err) { logger.forum.warn("[ForumPostDetail] toggleSolve failed", { error: err instanceof Error ? err.message : String(err) }) }
   }
 
   // ── 删除帖子 ──
@@ -120,7 +121,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
       try {
         const res = await fetch(`/api/forum/posts/${post.id}`, { method: "DELETE" })
         if (res.ok) window.location.href = "/forum"
-      } catch {}
+      } catch (err) { logger.forum.warn("[ForumPostDetail] deletePost failed", { error: err instanceof Error ? err.message : String(err) }) }
     })
     setConfirmOpen(true)
   }
@@ -135,7 +136,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
           setComments(cs => cs.filter(c => c.id !== id))
           setPost(p => ({ ...p, commentCount: Math.max(0, p.commentCount - 1) }))
         }
-      } catch {}
+      } catch (err) { logger.forum.warn("[ForumPostDetail] deleteComment failed", { error: err instanceof Error ? err.message : String(err) }) }
     })
     setConfirmOpen(true)
   }

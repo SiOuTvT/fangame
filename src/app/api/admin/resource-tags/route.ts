@@ -1,5 +1,6 @@
 import { getAdminSession } from "@/lib/admin"
 import { ensureResourceTags } from "@/lib/preset-resource-tags"
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { revalidateTag } from "next/cache"
 import { NextRequest, NextResponse } from "next/server"
@@ -36,7 +37,7 @@ export async function GET() {
     const raw = map.get(key)
     let options: string[] = []
     if (raw) {
-      try { options = JSON.parse(raw) } catch { /* ignore */ }
+      try { options = JSON.parse(raw) } catch (err) { logger.api.warn("[ResourceTagsRoute] parse GET options failed", { error: err instanceof Error ? err.message : String(err) }) }
     }
     return { group, key, label: LABELS[group], options }
   })
@@ -68,7 +69,7 @@ export async function PUT(req: NextRequest) {
   const oldSetting = await prisma.siteSetting.findUnique({ where: { key } })
   let oldOptions: string[] = []
   if (oldSetting?.value) {
-    try { oldOptions = JSON.parse(oldSetting.value) } catch { /* ignore */ }
+    try { oldOptions = JSON.parse(oldSetting.value) } catch (err) { logger.api.warn("[ResourceTagsRoute] parse PUT oldOptions failed", { error: err instanceof Error ? err.message : String(err) }) }
   }
   const removedTags = oldOptions.filter(t => !cleaned.includes(t))
 

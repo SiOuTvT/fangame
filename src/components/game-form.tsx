@@ -347,17 +347,22 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       creators: creators.length ? creators : undefined,
     }
 
-    const res = await fetch(
-      isEdit ? `/api/admin/games/${gameId}` : "/api/admin/games",
-      { method: isEdit ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }
-    )
-    const data = await res.json()
-    setSaving(false)
+    try {
+      const res = await fetch(
+        isEdit ? `/api/admin/games/${gameId}` : "/api/admin/games",
+        { method: isEdit ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }
+      )
+      const data = await res.json()
+      setSaving(false)
 
-    if (!res.ok) { setError(data.error ?? "保存失败"); return }
-    clearDraft()
-    router.push("/admin/games")
-    router.refresh()
+      if (!res.ok) { setError(data.error ?? "保存失败"); return }
+      clearDraft()
+      router.push("/admin/games")
+      router.refresh()
+    } catch (err) {
+      setSaving(false)
+      setError(`保存出错: ${(err as Error).message}`)
+    }
   }
 
   const inputCls = "w-full rounded-xl bg-muted px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all"

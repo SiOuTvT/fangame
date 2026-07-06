@@ -33,16 +33,21 @@ function ResetForm() {
     if (password !== confirm) { setError("两次密码不一致"); return }
     if (password.length < 6) { setError("密码至少6位"); return }
     setSaving(true)
-    const res = await fetch("/api/auth/reset-password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, password }),
-    })
-    const data = await res.json()
-    setSaving(false)
-    if (!res.ok) { setError(data.error); return }
-    setDone(true)
-    setTimeout(() => router.push("/login"), 2000)
+    try {
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, password }),
+      })
+      const data = await res.json()
+      setSaving(false)
+      if (!res.ok) { setError(data.error); return }
+      setDone(true)
+      setTimeout(() => router.push("/login"), 2000)
+    } catch (err) {
+      setSaving(false)
+      setError(`重置出错: ${(err as Error).message}`)
+    }
   }
 
   const fieldCls = "flex items-center gap-3 rounded-xl bg-secondary px-4 py-3 ring-1 ring-border focus-within:ring-primary/30 transition-all"

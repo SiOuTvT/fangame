@@ -1,5 +1,6 @@
 import { getAdminSession } from "@/lib/admin"
 import { ensurePresetTagGroups } from "@/lib/preset-tag-groups"
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { isValidPosition } from "@/lib/tag-positions"
 import { NextRequest, NextResponse } from "next/server"
@@ -26,7 +27,7 @@ export async function GET() {
       if (!Array.isArray(arr)) continue
       totalResourceTagCount += arr.length
       if (homeCardTagKeys.includes(s.key)) homeCardTagCount += arr.length
-    } catch {}
+    } catch (err) { logger.api.warn("[TagGroupsRoute] parse resource tag setting failed", { error: err instanceof Error ? err.message : String(err) }) }
   }
 
   const totalTagCount = await prisma.tag.count()

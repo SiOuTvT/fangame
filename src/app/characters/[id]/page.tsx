@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
         alternates: { canonical: `/characters/${id}` },
       }
     }
-  } catch {}
+  } catch (err) { logger.db.warn("[CharacterPage] generateMetadata VNDB failed", { error: err instanceof Error ? err.message : String(err) }) }
   return {
     title: `角色详情 · 同人游戏站`,
     description: "查看 VNDB 角色详细信息",

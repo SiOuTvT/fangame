@@ -3,6 +3,7 @@
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
 import { cn } from "@/lib/utils"
+import { logger } from "@/lib/logger"
 import { Heart, ImageIcon, Send, Smile, Trash2, X } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
@@ -169,8 +170,8 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
         const data = await res.json()
         setComments((prev) => prev.map((c) => c.id === commentId ? { ...c, likeCount: data.count } : c))
       }
-    } catch {
-      // silent fail for like
+    } catch (err) {
+      logger.forum.warn("[CommentSection] likeComment failed", { error: err instanceof Error ? err.message : String(err) })
     }
   }
 
@@ -180,8 +181,8 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
       if (res.ok) {
         setComments((prev) => prev.filter((c) => c.id !== commentId))
       }
-    } catch {
-      // silent fail
+    } catch (err) {
+      logger.forum.warn("[CommentSection] deleteComment failed", { error: err instanceof Error ? err.message : String(err) })
     }
     setDeletingId(null)
   }

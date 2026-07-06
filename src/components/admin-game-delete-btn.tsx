@@ -11,10 +11,15 @@ export function AdminGameDeleteBtn({ id, title }: { id: string; title: string })
 
   async function handleDelete() {
     setLoading(true)
-    await fetch(`/api/admin/games/${id}`, { method: "DELETE" })
-    setLoading(false)
-    setConfirming(false)
-    router.refresh()
+    try {
+      await fetch(`/api/admin/games/${id}`, { method: "DELETE" })
+    } catch (err) {
+      void err // error silently; page will still refresh
+    } finally {
+      setLoading(false)
+      setConfirming(false)
+      router.refresh()
+    }
   }
 
   if (confirming) {

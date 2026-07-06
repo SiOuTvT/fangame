@@ -5,6 +5,7 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { logger } from "@/lib/logger"
 import { Gamepad2, Loader2, MessageSquare, Search, Tag, Users } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -73,8 +74,8 @@ export function AdminGlobalSearch() {
           setResults(data)
           setSelectedIndex(0)
         }
-      } catch {
-        // ignore
+      } catch (err) {
+        logger.api.warn("[AdminGlobalSearch] search failed", { error: err instanceof Error ? err.message : String(err) })
       } finally {
         setLoading(false)
       }

@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/lib/admin"
 import { ensureResourceTags } from "@/lib/preset-resource-tags"
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { notFound } from "next/navigation"
 import { TagGroupDetailClient } from "./detail-client"
@@ -82,7 +83,7 @@ export default async function TagGroupDetailPage({
       const raw = map.get(key)
       let options: string[] = []
       if (raw) {
-        try { options = JSON.parse(raw) } catch { /* ignore */ }
+        try { options = JSON.parse(raw) } catch (err) { logger.db.warn("[TagGroupDetailPage] parse resource options failed", { error: err instanceof Error ? err.message : String(err) }) }
       }
       const label = RESOURCE_LABELS[key] ?? key
       for (const opt of options) {

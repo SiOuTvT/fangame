@@ -5,6 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Tag, TagGroup } from "@/components/ui/tag"
 import { memo, useCallback, useState } from "react"
+import { logger } from "@/lib/logger"
 
 export interface GameCardData {
   id: string
@@ -72,7 +73,7 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
       href={`/games/${game.serialId ?? game.id}`}
       className="game-card group flex flex-col overflow-hidden rounded-2xl transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       onClick={() => {
-        try { sessionStorage.setItem(`pending_view_${game.id}`, "1") } catch {}
+        try { sessionStorage.setItem(`pending_view_${game.id}`, "1") } catch (err) { logger.api.warn("[GameCard] set sessionStorage failed", { error: err instanceof Error ? err.message : String(err) }) }
       }}
     >
       {/* ─── 封面：固定像素高度 ─── */}

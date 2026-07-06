@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { logger } from "@/lib/logger"
 import {
   Compass,
   Home,
@@ -45,8 +46,8 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
       if (!res.ok) throw new Error("获取失败")
       const data = await res.json()
       router.push(`/games/${data.serialId}`)
-    } catch {
-      // 静默失败
+    } catch (err) {
+      logger.api.warn("[NavSidebar] random discover failed", { error: err instanceof Error ? err.message : String(err) })
     } finally {
       setRandomLoading(false)
     }

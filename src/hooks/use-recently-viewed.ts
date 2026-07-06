@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useState } from "react"
+import { logger } from "@/lib/logger"
 
 export interface RecentGame {
   id: string
@@ -46,8 +47,8 @@ export function useRecentlyViewed() {
 
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-        } catch {
-          // ignore
+        } catch (err) {
+          logger.api.warn("[useRecentlyViewed] save to localStorage failed", { error: err instanceof Error ? err.message : String(err) })
         }
         return updated
       })
@@ -60,8 +61,8 @@ export function useRecentlyViewed() {
     setRecentGames([])
     try {
       localStorage.removeItem(STORAGE_KEY)
-    } catch {
-      // ignore
+    } catch (err) {
+      logger.api.warn("[useRecentlyViewed] remove from localStorage failed", { error: err instanceof Error ? err.message : String(err) })
     }
   }, [])
 

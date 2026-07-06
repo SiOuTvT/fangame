@@ -91,7 +91,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
         alternates: { canonical: `/creators/${id}` },
       }
     }
-  } catch {}
+  } catch (err) { logger.db.warn("[CreatorPage] generateMetadata VNDB failed", { error: err instanceof Error ? err.message : String(err) }) }
   return {
     title: `创作者详情 · 同人游戏站`,
     description: "查看创作者详细信息",

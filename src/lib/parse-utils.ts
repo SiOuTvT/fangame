@@ -8,7 +8,7 @@ export function parseStringArray(raw: string | null | undefined): string[] {
     const parsed = JSON.parse(raw)
     if (Array.isArray(parsed)) return parsed.filter(Boolean).map(String)
   } catch {
-    // 不是 JSON，按分隔符拆分
+    // not JSON, fall through to delimiter split
   }
   return raw.split(/[,，、]/).map(s => s.trim()).filter(Boolean)
 }
@@ -25,7 +25,7 @@ export function parseFileSizes(raw: string | null | undefined): FileSizeEntry[] 
     const parsed = JSON.parse(raw)
     if (Array.isArray(parsed)) return parsed.filter(e => e && e.value)
   } catch {
-    // 不是 JSON，按分隔符拆分
+    // not JSON, fall through to delimiter split
   }
   const parts = raw.split(/[、,，]/).map(s => s.trim()).filter(Boolean)
   return parts.map(part => {

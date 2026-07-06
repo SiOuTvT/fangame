@@ -426,7 +426,7 @@ class VNDBClient {
               }
             }
           } catch {
-            // 单个搜索失败不影响其他
+            // individual search failure doesn't block other results
           }
         }
 

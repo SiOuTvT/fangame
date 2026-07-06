@@ -1,5 +1,6 @@
 import { getAdminSession } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
+import { logger } from "@/lib/logger"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(req: NextRequest) {
@@ -28,7 +29,7 @@ export async function POST(req: NextRequest) {
     })
     return NextResponse.json({ ok: true, deleted: result.count })
   } catch (error) {
-    console.error("[BatchDelete] Transaction failed", error)
+    logger.game.error("BatchDelete Transaction failed", error)
     return NextResponse.json({ error: "批量删除失败，请重试" }, { status: 500 })
   }
 }

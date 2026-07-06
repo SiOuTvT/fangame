@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { logger } from "@/lib/logger"
 
 interface TurnstileCaptchaProps {
   onVerify: (token: string) => void
@@ -52,7 +53,7 @@ export function TurnstileCaptcha({ onVerify, onError }: TurnstileCaptchaProps) {
 
     return () => {
       if (widgetIdRef.current) {
-        try { ts.remove(widgetIdRef.current) } catch {}
+        try { ts.remove(widgetIdRef.current) } catch (err) { logger.api.warn("[TurnstileCaptcha] remove widget failed", { error: err instanceof Error ? err.message : String(err) }) }
         widgetIdRef.current = null
       }
     }

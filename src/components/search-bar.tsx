@@ -5,6 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { logger } from "@/lib/logger"
 
 type Suggestion = {
   id: string
@@ -60,7 +61,7 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
         setShowSuggestions(data.length > 0)
         setActiveIdx(-1)
       }
-    } catch { /* aborted or network error */ }
+    } catch (err) { logger.api.warn("[SearchBar] fetchSuggestions failed", { error: err instanceof Error ? err.message : String(err) }) }
   }, [])
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {

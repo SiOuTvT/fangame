@@ -1,6 +1,7 @@
 import { ok, serverError } from "@/lib/api-response"
 import { prisma } from "@/lib/prisma"
 import { NextRequest } from "next/server"
+import { logger } from "@/lib/logger"
 
 export async function GET(
   _req: NextRequest,
@@ -20,7 +21,7 @@ export async function GET(
     })
     return ok({ favorites: favorites.map((f) => f.game) })
   } catch (error) {
-    console.error("[Profile Favorites API]", error)
+    logger.api.error("Profile Favorites API", error)
     return serverError("获取收藏失败")
   }
 }

@@ -1,6 +1,7 @@
 import { ok, serverError } from "@/lib/api-response"
 import { prisma } from "@/lib/prisma"
 import { NextRequest } from "next/server"
+import { logger } from "@/lib/logger"
 
 export async function GET(
   _req: NextRequest,
@@ -21,7 +22,7 @@ export async function GET(
     })
     return ok({ playStatuses: playStatuses.map((ps) => ({ game: ps.game, status: ps.status })) })
   } catch (error) {
-    console.error("[Profile PlayStatus API]", error)
+    logger.api.error("Profile PlayStatus API", error)
     return serverError("获取游玩状态失败")
   }
 }

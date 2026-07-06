@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/admin"
 import { serverError, unauthorized, success } from "@/lib/api-response"
 import { sanitizeFilename } from "@/lib/sanitize"
+import { logger } from "@/lib/logger"
 import { NextRequest } from "next/server"
 import { put } from "@vercel/blob"
 import crypto from "crypto"
@@ -30,7 +31,7 @@ async function handlePost(req: NextRequest) {
 
     return success({ url: blob.url })
   } catch (error) {
-    console.error("Upload error:", error)
+    logger.upload.error("Upload error", error)
     return serverError("上传失败，请稍后重试")
   }
 }

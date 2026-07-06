@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api-client"
+import { logger } from "@/lib/logger"
 import { Check, Folder, FolderPlus, Loader2 } from "lucide-react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -81,8 +82,8 @@ export function CollectionPickerDialog({
       }
       onSelect(collectionId)
       onOpenChange(false)
-    } catch {
-      // 失败时不关闭弹窗，用户可重试
+    } catch (err) {
+      logger.user.warn("[CollectionPickerDialog] select collection failed", { error: err instanceof Error ? err.message : String(err) })
     } finally {
       setSubmitting(null)
     }

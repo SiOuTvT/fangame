@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/admin"
 import { ensurePresetTagGroups } from "@/lib/preset-tag-groups"
 import { ensureResourceTags } from "@/lib/preset-resource-tags"
+import { logger } from "@/lib/logger"
 import { prisma, Prisma } from "@/lib/prisma"
 import { TagsOverviewClient } from "./overview-client"
 
@@ -31,7 +32,7 @@ export default async function TagsOverviewPage() {
       if (!Array.isArray(arr)) continue
       totalResourceTagCount += arr.length
       if (homeCardTagKeys.includes(s.key)) homeCardTagCount += arr.length
-    } catch {}
+    } catch (err) { logger.db.warn("[TagsOverviewPage] parse resource tag setting failed", { error: err instanceof Error ? err.message : String(err) }) }
   }
 
   // 优化：合并查询，同时获取标签组和未分组标签
