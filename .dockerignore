@@ -1,49 +1,70 @@
-# Dependencies
+# ═══════════════════════════════════════════
+# Docker Build Context 排除规则
+# ═══════════════════════════════════════════
+
+# 依赖（容器内 npm ci 重新安装）
 node_modules
-.pnp
-.pnp.js
 
-# Build outputs
-.next
-out
-
-# Debug logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Environment (use docker-compose env_file)
-.env
-.env.local
-.env.*.local
-
-# Version control
+# Git 仓库
 .git
 .gitignore
 
-# IDE
+# Next.js 构建产物（容器内重新构建）
+.next
+out
+
+# 环境变量（密钥通过 Coolify 环境变量注入）
+.env*
+!.env.example
+
+# IDE / 编辑器
 .vscode
 .idea
 *.swp
 *.swo
 
-# OS
+# 操作系统
 .DS_Store
 Thumbs.db
 
-# Test files
-test_*.py
-audit_*.py
-verify_*.py
-*.png
-!public/**
+# 测试 / 覆盖率
+coverage
+jest.config.*
+playwright.config.*
+__tests__
 
-# Documentation
+# 文档
 *.md
 !DEPLOYMENT.md
+LICENSE
 
-# Misc
+# Docker 自身
 docker-compose*.yml
 Dockerfile
 .dockerignore
+
+# 开发工具配置
+eslint.config.*
+components.json
+
+# 用户上传（运行时通过 volume 挂载，不打入镜像）
+public/uploads
+public/music
+
+# TypeScript 构建信息
+*.tsbuildinfo
+next-env.d.ts
+
+# 调试日志
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 旧文件
+.pnp
+.pnp.js
 ecosystem.config.js
+test_*.py
+audit_*.py
+verify_*.py
