@@ -23,11 +23,12 @@ async function loadMessages(): Promise<EmMsg[]> {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), 10000)
   fetchPromise = fetch("/api/emotional-messages", { signal: controller.signal })
-    .then((res) => (res.ok ? res.json() : []))
-    .then((data) => {
+    .then((res) => (res.ok ? res.json() : { data: [] }))
+    .then((json) => {
       clearTimeout(timeoutId)
-      cachedMessages = data
-      return data
+      const arr = Array.isArray(json) ? json : (json.data ?? [])
+      cachedMessages = arr
+      return arr
     })
     .catch(() => {
       clearTimeout(timeoutId)

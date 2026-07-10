@@ -72,7 +72,7 @@ export default async function TagsOverviewPage() {
   const gameTagCounts = allTagIds.length > 0
     ? await prisma.$queryRaw<Array<{ tagId: string; _count: number }>>`
         SELECT "tagId", COUNT(*)::int as "_count"
-        FROM "_GameToTag"
+        FROM "GameTag"
         WHERE "tagId" IN (${Prisma.join(allTagIds)})
         GROUP BY "tagId"
       `
