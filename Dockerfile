@@ -5,15 +5,14 @@ FROM node:20-bookworm-slim AS deps
 
 WORKDIR /app
 
-# ── 阿里云镜像源（HTTPS） ──
-# 第一步：HTTP 引导安装 ca-certificates（解决 TLS 证书链缺失）
-# 第二步：切换 HTTPS 镜像，正式安装依赖
-RUN echo "deb http://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
+# ── APT 镜像源：bootstrap(HTTP) → 正式(HTTPS) ──
+# Phase 1: HTTP 引导 — 仅安装 ca-certificates，解决 TLS 证书链缺失
+# Phase 2: 切换 HTTPS 镜像 — ca-certificates 已就绪，正式安装业务依赖
+RUN echo "deb http://mirrors.aliyun.com/debian bookworm main" \
       > /etc/apt/sources.list.d/mirror-bootstrap.list && \
-    echo "deb http://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" \
-      >> /etc/apt/sources.list.d/mirror-bootstrap.list && \
     apt-get update -qq && \
     apt-get install -y --no-install-recommends ca-certificates && \
+    update-ca-certificates && \
     rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/mirror-bootstrap.list && \
     echo "deb https://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
       > /etc/apt/sources.list.d/mirror.list && \
@@ -42,13 +41,12 @@ FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
 
-# ── 阿里云镜像源（HTTPS） ──
-RUN echo "deb http://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
+# ── APT 镜像源：bootstrap(HTTP) → 正式(HTTPS) ──
+RUN echo "deb http://mirrors.aliyun.com/debian bookworm main" \
       > /etc/apt/sources.list.d/mirror-bootstrap.list && \
-    echo "deb http://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" \
-      >> /etc/apt/sources.list.d/mirror-bootstrap.list && \
     apt-get update -qq && \
     apt-get install -y --no-install-recommends ca-certificates && \
+    update-ca-certificates && \
     rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/mirror-bootstrap.list && \
     echo "deb https://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
       > /etc/apt/sources.list.d/mirror.list && \
@@ -91,13 +89,12 @@ FROM node:20-bookworm-slim AS runner
 
 WORKDIR /app
 
-# ── 阿里云镜像源（HTTPS） ──
-RUN echo "deb http://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
+# ── APT 镜像源：bootstrap(HTTP) → 正式(HTTPS) ──
+RUN echo "deb http://mirrors.aliyun.com/debian bookworm main" \
       > /etc/apt/sources.list.d/mirror-bootstrap.list && \
-    echo "deb http://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" \
-      >> /etc/apt/sources.list.d/mirror-bootstrap.list && \
     apt-get update -qq && \
     apt-get install -y --no-install-recommends ca-certificates && \
+    update-ca-certificates && \
     rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/mirror-bootstrap.list && \
     echo "deb https://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
       > /etc/apt/sources.list.d/mirror.list && \
