@@ -195,15 +195,6 @@ export function SetupWizard() {
 
   function nextStep() { if (validateStep()) setStep(s => s + 1) }
 
-  function skipStep() {
-    if (step === 1) {
-      // 跳过个性化：重置为主题和标签默认值
-      selectThemeColor(INITIAL.themeColor)
-      update("tagGroupColors", INITIAL.tagGroupColors)
-    }
-    setStep(s => s + 1)
-  }
-
   async function handleSubmit() {
     if (loading) return
     setLoading(true)
@@ -290,7 +281,6 @@ export function SetupWizard() {
   /* ═══════════════════════════════════════════════════
      主表单
      ═══════════════════════════════════════════════════ */
-  const canSkip = step === 1
 
   return (
     <>
@@ -459,6 +449,11 @@ export function SetupWizard() {
                         </div>
                       </Field>
                     </div>
+
+                    <div className={cn("flex items-start gap-2 rounded-lg px-3 py-2.5 text-xs", isDark ? "text-white/25 bg-white/[0.02] border border-white/[0.04]" : "text-neutral-400 bg-neutral-50 border border-neutral-100")}>
+                      <span className="mt-px shrink-0">💡</span>
+                      <span>这些外观配置可以随时在后台「站点设置」中修改，你也可以先使用默认配置。</span>
+                    </div>
                   </div>
                 )}
 
@@ -529,42 +524,38 @@ export function SetupWizard() {
                 )}
               </div>
 
-              {/* ── 右侧：实时预览（桌面内联 / 移动端浮层） ── */}
-              <div className="lg:w-[300px] shrink-0">
-                {/* 桌面端：内联显示 */}
-                <div className="hidden lg:block">
-                  <PreviewPanel form={form} logoPreview={logoPreview} step={step} isDark={isDark} />
-                </div>
-                {/* 移动端：折叠按钮 */}
-                <button type="button"
-                  className={cn(
-                    "lg:hidden w-full flex items-center justify-center gap-2 h-10 rounded-xl text-xs font-medium transition-all mt-2",
-                    isDark
-                      ? "bg-white/[0.04] border border-white/[0.08] text-white/50 hover:bg-white/[0.07]"
-                      : "bg-neutral-50 border border-neutral-200 text-neutral-500 hover:bg-neutral-100",
-                    showPreview && (isDark ? "bg-white/[0.07] text-white/70" : "bg-neutral-100 text-neutral-600"),
-                  )}
-                  onClick={() => setShowPreview(v => !v)}
-                >
-                  <span>{showPreview ? "隐藏预览" : "查看实时预览"}</span>
-                  <span className={cn("transition-transform duration-200", showPreview && "rotate-180")}>▾</span>
-                </button>
-                {/* 移动端：折叠面板 */}
-                {showPreview && (
-                  <div className="lg:hidden mt-3" style={{ animation: "wiz-fade-in 0.25s ease-out" }}>
-                    <PreviewPanel form={form} logoPreview={logoPreview} step={step} isDark={isDark} />
+              {/* ── 右侧：实时预览（仅个性化步骤，桌面内联 / 移动端折叠） ── */}
+              {step === 1 && (
+                <div className="lg:w-[300px] shrink-0">
+                  <div className="hidden lg:block">
+                    <PreviewPanel form={form} logoPreview={logoPreview} isDark={isDark} />
                   </div>
-                )}
-              </div>
+                  <button type="button"
+                    className={cn(
+                      "lg:hidden w-full flex items-center justify-center gap-2 h-10 rounded-xl text-xs font-medium transition-all mt-2",
+                      isDark
+                        ? "bg-white/[0.04] border border-white/[0.08] text-white/50 hover:bg-white/[0.07]"
+                        : "bg-neutral-50 border border-neutral-200 text-neutral-500 hover:bg-neutral-100",
+                      showPreview && (isDark ? "bg-white/[0.07] text-white/70" : "bg-neutral-100 text-neutral-600"),
+                    )}
+                    onClick={() => setShowPreview(v => !v)}
+                  >
+                    <span>{showPreview ? "隐藏预览" : "查看实时预览"}</span>
+                    <span className={cn("transition-transform duration-200", showPreview && "rotate-180")}>▾</span>
+                  </button>
+                  {showPreview && (
+                    <div className="lg:hidden mt-3" style={{ animation: "wiz-fade-in 0.25s ease-out" }}>
+                      <PreviewPanel form={form} logoPreview={logoPreview} isDark={isDark} />
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* 操作按钮 */}
             <div className="flex gap-2 sm:gap-3 mt-5 sm:mt-6">
               {step > 0 && !loading && (
                 <button type="button" className={cn("h-11 px-4 sm:px-6 rounded-xl text-sm font-medium transition-all active:scale-[0.98]", isDark ? "bg-white/[0.04] border border-white/[0.08] text-white/60 hover:bg-white/[0.08]" : "bg-neutral-100 border border-neutral-200 text-neutral-500 hover:bg-neutral-200")} onClick={() => setStep(s => s - 1)}>← 上一步</button>
-              )}
-              {canSkip && !loading && (
-                <button type="button" className={cn("h-11 px-4 rounded-xl text-sm transition-all", isDark ? "text-white/30 hover:text-white/50" : "text-neutral-400 hover:text-neutral-600")} onClick={skipStep}>跳过</button>
               )}
               <div className="flex-1" />
               {step < 3 ? (
@@ -607,8 +598,8 @@ function SummaryRow({ label, value, isDark, accent, children }: { label: string;
 }
 
 /* ── 预览面板（桌面端内联 + 移动端折叠共用） ── */
-function PreviewPanel({ form, logoPreview, step, isDark }: {
-  form: FormData; logoPreview: string; step: number; isDark: boolean
+function PreviewPanel({ form, logoPreview, isDark }: {
+  form: FormData; logoPreview: string; isDark: boolean
 }) {
   return (
     <div className={cn("rounded-xl overflow-hidden border transition-colors", isDark ? "border-white/[0.06] bg-[#121215]" : "border-neutral-200 bg-white")}>
@@ -618,65 +609,41 @@ function PreviewPanel({ form, logoPreview, step, isDark }: {
       </div>
       <div className="p-3 space-y-3">
         {/* 主题色预览：真实 Button / Input / 链接 */}
-        {(step === 0 || step === 1) && (
-          <div className="space-y-2.5">
-            <p className={cn("text-[10px] uppercase tracking-wider", isDark ? "text-white/20" : "text-neutral-400")}>主题色效果</p>
-            <div className="flex flex-wrap gap-2">
-              <Button variant="default" size="sm">主要按钮</Button>
-              <Button variant="outline" size="sm">次要按钮</Button>
-            </div>
-            <div className={cn(
-              "w-full min-h-[40px] rounded-xl px-3 py-2 text-sm transition-colors border",
-              isDark
-                ? "border-[var(--theme-color)]/50 bg-white/[0.08] shadow-[0_0_0_3px_rgba(var(--theme-r),var(--theme-g),var(--theme-b),0.1)]"
-                : "border-[var(--theme-color)]/50 bg-white shadow-[0_0_0_3px_rgba(var(--theme-r),var(--theme-g),var(--theme-b),0.1)]",
-            )}>
-              <span className={cn(isDark ? "text-white/60" : "text-neutral-500")}>输入框聚焦态</span>
-            </div>
-            <div className="flex items-center gap-3 text-sm">
-              <span className="text-primary font-medium">主题色链接</span>
-              <span className={cn(isDark ? "text-muted-foreground" : "text-neutral-500")}>普通文本</span>
-            </div>
+        <div className="space-y-2.5">
+          <p className={cn("text-[10px] uppercase tracking-wider", isDark ? "text-white/20" : "text-neutral-400")}>主题色效果</p>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="default" size="sm">主要按钮</Button>
+            <Button variant="outline" size="sm">次要按钮</Button>
           </div>
-        )}
+          <div className={cn(
+            "w-full min-h-[40px] rounded-xl px-3 py-2 text-sm transition-colors border",
+            isDark
+              ? "border-[var(--theme-color)]/50 bg-white/[0.08] shadow-[0_0_0_3px_rgba(var(--theme-r),var(--theme-g),var(--theme-b),0.1)]"
+              : "border-[var(--theme-color)]/50 bg-white shadow-[0_0_0_3px_rgba(var(--theme-r),var(--theme-g),var(--theme-b),0.1)]",
+          )}>
+            <span className={cn(isDark ? "text-white/60" : "text-neutral-500")}>输入框聚焦态</span>
+          </div>
+          <div className="flex items-center gap-3 text-sm">
+            <span className="text-primary font-medium">主题色链接</span>
+            <span className={cn(isDark ? "text-muted-foreground" : "text-neutral-500")}>普通文本</span>
+          </div>
+        </div>
 
         {/* 标签色预览：与后台 admin/tags 相同样式 */}
-        {(step === 1 || step === 3) && (
-          <div className="space-y-2">
-            {step === 1 ? (
-              <p className={cn("text-[10px] uppercase tracking-wider", isDark ? "text-white/20" : "text-neutral-400")}>标签分类效果</p>
-            ) : (
-              <div className={cn("border-t pt-2.5", isDark ? "border-white/[0.06]" : "border-neutral-200")}>
-                <p className={cn("text-[10px] uppercase tracking-wider", isDark ? "text-white/20" : "text-neutral-400")}>标签分类</p>
-              </div>
-            )}
-            <div className="flex flex-wrap gap-1.5">
-              {PRESET_TAG_GROUPS.map(g => {
-                const c = form.tagGroupColors[g.id] || g.color
-                return (
-                  <span key={g.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border" style={{ color: c, background: `${c}15`, borderColor: `${c}30` }}>
-                    {g.name.replace("标签", "")}
-                  </span>
-                )
-              })}
-            </div>
-            <p className={cn("text-[9px]", isDark ? "text-white/15" : "text-neutral-300")}>首页卡片 · 详情页 · 发现页 · 资源</p>
+        <div className="space-y-2">
+          <p className={cn("text-[10px] uppercase tracking-wider", isDark ? "text-white/20" : "text-neutral-400")}>标签分类效果</p>
+          <div className="flex flex-wrap gap-1.5">
+            {PRESET_TAG_GROUPS.map(g => {
+              const c = form.tagGroupColors[g.id] || g.color
+              return (
+                <span key={g.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border" style={{ color: c, background: `${c}15`, borderColor: `${c}30` }}>
+                  {g.name.replace("标签", "")}
+                </span>
+              )
+            })}
           </div>
-        )}
-
-        {/* 站长信息 */}
-        {step === 2 && form.username && (
-          <div className="space-y-2">
-            <p className={cn("text-[10px] uppercase tracking-wider", isDark ? "text-white/20" : "text-neutral-400")}>站长信息</p>
-            <div className={cn("flex items-center gap-2 rounded-xl px-3 py-2", isDark ? "bg-white/[0.04]" : "bg-neutral-50")}>
-              <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-primary-foreground" style={{ backgroundColor: "var(--theme-color)" }}>{form.username[0]?.toUpperCase()}</div>
-              <div>
-                <p className={cn("text-[11px] font-medium", isDark ? "text-white/80" : "text-neutral-700")}>{form.username}</p>
-                <p className={cn("text-[9px]", isDark ? "text-white/25" : "text-neutral-400")}>SUPER_ADMIN</p>
-              </div>
-            </div>
-          </div>
-        )}
+          <p className={cn("text-[9px]", isDark ? "text-white/15" : "text-neutral-300")}>首页卡片 · 详情页 · 发现页 · 资源</p>
+        </div>
       </div>
       <div className={cn("flex items-center justify-center h-6 border-t text-[9px]", isDark ? "border-white/[0.04] text-white/15" : "border-neutral-100 text-neutral-400")}>
         {form.siteName || "Fangame"} · 资源大厅
