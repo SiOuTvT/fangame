@@ -14,12 +14,14 @@ interface ServiceConfig {
   r2_public_url: string
   redis_url: string
   redis_token: string
+  resend_api_key: string
 }
 
 const EMPTY: ServiceConfig = {
   r2_account_id: "", r2_access_key_id: "", r2_secret_access_key: "",
   r2_bucket_name: "", r2_public_url: "",
   redis_url: "", redis_token: "",
+  resend_api_key: "",
 }
 
 export default function ServicesPage() {
@@ -144,12 +146,12 @@ export default function ServicesPage() {
       </Card>
 
       {/* ── 邮件服务 ── */}
-      <Card className="p-6 space-y-4 opacity-60" style={{ borderRadius: "var(--radius-lg)" }}>
-        <SectionHeader icon={Mail} title="邮件服务" desc="Resend 邮件 API，用于密码重置等场景" disabled />
+      <Card className="p-6 space-y-4" style={{ borderRadius: "var(--radius-lg)" }}>
+        <SectionHeader icon={Mail} title="邮件服务" desc="Resend 邮件 API，用于密码重置等场景" testResult={testResult.email} />
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="API Key" value="" onChange={() => {}} placeholder="即将支持" disabled className="sm:col-span-2" />
+          <Field label="API Key" value={config.resend_api_key} onChange={v => update("resend_api_key", v)} placeholder="re_xxxxxxxxxxxx" type="password" className="sm:col-span-2" />
         </div>
-        <p className="text-xs text-muted-foreground">邮件功能开发中，当前密码重置通过管理员手动处理。</p>
+        <p className="text-xs text-muted-foreground">配置后密码重置功能将自动发送邮件。未配置时密码重置仍可使用，但需要管理员手动处理。</p>
       </Card>
     </div>
   )

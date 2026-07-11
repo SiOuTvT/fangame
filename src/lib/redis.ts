@@ -1,4 +1,4 @@
-import { features } from "./env"
+import { getRedisConfig } from "./service-config"
 import { logger } from "./logger"
 
 /**
@@ -208,22 +208,20 @@ class MemoryCache implements CacheClient {
 // ============ 创建缓存实例 ============
 
 function createCache(): CacheClient {
-  if (features.redis) {
+  const cfg = getRedisConfig()
+  if (cfg) {
     logger.db.info("Redis 缓存已启用")
-    return new RedisCache(
-      process.env.UPSTASH_REDIS_REST_URL!,
-      process.env.UPSTASH_REDIS_REST_TOKEN!
-    )
+    return new RedisCache(cfg.url, cfg.token)
   }
 
-  logger.db.info("使用内存缓存（配置 UPSTASH_REDIS_REST_URL 以启用 Redis）")
+  logger.db.info("使用内存缓存（配置 Redis 以启用 Redis 缓存）")
   return new MemoryCache()
 }
 
 export const cache = createCache()
 
 /** 是否使用 Redis 后端 */
-export const isRedisAvailable = (): boolean => features.redis
+export const isRedisAvailable = (): boolean => !!getRedisConfig()
 
 // ============ 便捷缓存工具 ============
 

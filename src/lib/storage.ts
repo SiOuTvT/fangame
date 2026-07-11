@@ -7,8 +7,8 @@
  *   const { url, key } = await storage.upload(buffer, "images", "jpg")
  *   await storage.delete(key)
  *
- * 切换后端：设置 R2_* 环境变量即可自动使用 R2，
- * 无需修改任何业务代码。
+ * 配置来源：后台服务配置（SiteSetting）> 环境变量（process.env）
+ * 未配置 R2 时自动使用本地文件系统存储。
  */
 
 import crypto from "crypto"
@@ -17,6 +17,7 @@ import { mkdir, writeFile, unlink } from "fs/promises"
 import path from "path"
 import { logger } from "./logger"
 import { UPLOAD, STORAGE } from "./config"
+import { getR2Config } from "./service-config"
 
 // ── 接口定义 ────────────────────────
 
@@ -94,17 +95,15 @@ class R2StorageAdapter implements StorageAdapter {
   private publicUrl: string
 
   constructor() {
-    const accountId = process.env.R2_ACCOUNT_ID!
-    const accessKeyId = process.env.R2_ACCESS_KEY_ID!
-    const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY!
+    const cfg = getR2Config()!
 
-    this.bucket = process.env.R2_BUCKET_NAME!
-    this.publicUrl = process.env.R2_PUBLIC_URL!
+    this.bucket = cfg.bucketName
+    this.publicUrl = cfg.publicUrl
 
     this.client = new S3Client({
       region: "auto",
-      endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-      credentials: { accessKeyId, secretAccessKey },
+      endpoint: `https://${cfg.accountId}.r2.cloudflarestorage.com`,
+      credentials: { accessKeyId: cfg.accessKeyId, secretAccessKey: cfg.secretAccessKey },
     })
   }
 
@@ -149,9 +148,7 @@ let _storage: StorageAdapter | null = null
 export function getStorage(): StorageAdapter {
   if (_storage) return _storage
 
-  const hasR2 = !!(process.env.R2_BUCKET_NAME && process.env.R2_ACCOUNT_ID)
-
-  if (hasR2) {
+  if (getR2Config()) {
     _storage = new R2StorageAdapter()
     logger.upload.info("存储后端: Cloudflare R2")
   } else {

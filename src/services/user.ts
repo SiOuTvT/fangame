@@ -4,6 +4,7 @@
 
 import { userRepo, collectionRepo, notificationRepo, followRepo, commentRepo, searchRepo, checkinRepo, profileRepo } from "@/repositories/user"
 import { NotFoundError, ValidationError, ConflictError, UnauthorizedError } from "@/lib/errors"
+import { sendPasswordResetEmail } from "@/lib/email"
 import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
 
@@ -48,7 +49,7 @@ export const authService = {
     const token = crypto.randomUUID()
     const expiresAt = new Date(Date.now() + 3600000) // 1 小时
     await prisma.passwordResetToken.create({ data: { userId: user.id, token, expiresAt } })
-    // TODO: 发送邮件
+    await sendPasswordResetEmail(email.toLowerCase().trim(), token).catch(() => {})
     return { success: true }
   },
 

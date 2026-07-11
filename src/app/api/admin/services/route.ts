@@ -7,6 +7,7 @@ const SERVICE_KEYS = [
   "r2_account_id", "r2_access_key_id", "r2_secret_access_key",
   "r2_bucket_name", "r2_public_url",
   "redis_url", "redis_token",
+  "resend_api_key",
 ]
 
 // GET — 读取服务配置
