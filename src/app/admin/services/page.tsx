@@ -131,6 +131,9 @@ export default function ServicesPage() {
         <span>服务配置保存后需要重启应用才能生效。环境变量中的配置优先级高于此处设置。</span>
       </div>
 
+      {/* autoComplete=off 阻止浏览器自动填充干扰配置字段 */}
+      <form autoComplete="off" onSubmit={e => e.preventDefault()} className="space-y-6">
+
       {/* ── R2 对象存储 ── */}
       <Card className="p-6 space-y-4" style={{ borderRadius: "var(--radius-lg)" }}>
         <SectionHeader icon={HardDrive} title="Cloudflare R2 存储" desc="S3 兼容对象存储，用于游戏截图、用户头像等文件上传" testResult={testResult.r2} />
@@ -184,6 +187,7 @@ export default function ServicesPage() {
         </div>
         <p className="text-xs text-muted-foreground">未配置时无法发送密码重置邮件，需管理员手动处理。</p>
       </Card>
+      </form>
     </div>
   )
 }
@@ -236,7 +240,7 @@ function SecretField({ label, value, onChange, placeholder, className }: {
       <label className="block text-sm font-medium text-foreground mb-1.5">{label}</label>
       <div className="relative">
         <Input type={visible ? "text" : "password"} value={value} onChange={e => onChange(e.target.value)}
-          placeholder={placeholder} className="pr-10" autoComplete="off" />
+          placeholder={placeholder} className="pr-10" autoComplete="new-password" />
         <button type="button" onClick={() => setVisible(v => !v)}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           tabIndex={-1}>
