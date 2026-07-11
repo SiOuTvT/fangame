@@ -3,8 +3,10 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
-import { MicroRichEditor } from "@/components/micro-rich-editor"
+import dynamic from "next/dynamic"
 import { Plus, X, ArrowUp, ArrowDown, Type, List, Pilcrow, LayoutTemplate, ExternalLink } from "lucide-react"
+
+const MicroRichEditor = dynamic(() => import("@/components/micro-rich-editor").then(m => ({ default: m.MicroRichEditor })), { ssr: false })
 
 interface Block {
   id: string

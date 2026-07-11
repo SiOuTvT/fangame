@@ -72,6 +72,8 @@ COPY . .
 # Set build-time environment
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV PRISMA_CLI_QUERY_ENGINE_TYPE=library
+ENV PRISMA_QUERY_ENGINE_TYPE=library
 
 # 构建时环境变量占位符（真实值在运行时注入，避免密钥泄漏到镜像层）
 ARG DATABASE_URL="postgresql://build:placeholder@localhost:5432/build"
