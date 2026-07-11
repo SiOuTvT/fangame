@@ -28,6 +28,7 @@ declare module "next-auth" {
       avatarFrame: string
       composedAvatarUrl: string | null
       role: string
+      isEmailVerified: boolean
     }
   }
 }
@@ -37,6 +38,7 @@ declare module "next-auth" {
     id?: string
     name?: string
     role?: string
+    isEmailVerified?: boolean
   }
 }
 
@@ -97,6 +99,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           email: user.email,
           image: user.avatar ?? null,
           role: user.role,
+        emailVerified: user.emailVerified,
         }
       },
     }),
@@ -107,6 +110,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id   = user.id
         token.name = user.name
         token.role = (user as Record<string, unknown>).role as string
+        token.isEmailVerified = (user as Record<string, unknown>).emailVerified as boolean
       }
       // 用户更新后刷新 session
       if (trigger === "update" && session) {
@@ -120,6 +124,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id   = token.id as string
         session.user.name = token.name ?? ""
         session.user.role = (token.role as string) ?? "USER"
+        session.user.isEmailVerified = (token.isEmailVerified as boolean) ?? false
         // 实时从数据库读取 image 和 avatarFrame，避免存入 JWT 增大 cookie
         try {
           if (token.id) {

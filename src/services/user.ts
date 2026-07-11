@@ -4,9 +4,23 @@
 
 import { userRepo, collectionRepo, notificationRepo, followRepo, commentRepo, searchRepo, checkinRepo, profileRepo } from "@/repositories/user"
 import { NotFoundError, ValidationError, ConflictError, UnauthorizedError } from "@/lib/errors"
-import { sendPasswordResetEmail } from "@/lib/email"
+import { sendPasswordResetEmail, sendVerificationEmail, sendEmailChangeEmail, sendWelcomeEmail } from "@/lib/email"
 import bcrypt from "bcryptjs"
+import crypto from "crypto"
 import { prisma } from "@/lib/prisma"
+import { logger } from "@/lib/logger"
+
+// ── Token 工具 ──────────────────────
+
+function generateToken(): { raw: string; hash: string } {
+  const raw = crypto.randomBytes(32).toString("hex")
+  const hash = crypto.createHash("sha256").update(raw).digest("hex")
+  return { raw, hash }
+}
+
+function hashToken(raw: string): string {
+  return crypto.createHash("sha256").update(raw).digest("hex")
+}
 
 // ── 认证 ────────────────────────────
 
@@ -27,7 +41,6 @@ export const authService = {
     if (existingEmail) throw new ConflictError("邮箱已被注册")
 
     const hashed = await bcrypt.hash(password, 12)
-    // 第一个用户自动成为 SUPER_ADMIN（兼容未使用 Setup 的部署）
     const userCount = await prisma.user.count()
     if (userCount > 0) {
       const regSetting = await prisma.siteSetting.findUnique({
@@ -38,16 +51,164 @@ export const authService = {
         throw new UnauthorizedError("注册已关闭，请联系管理员")
       }
     }
-    const role = userCount === 0 ? "SUPER_ADMIN" : "USER"
-    return userRepo.create({ username, email, password: hashed, role })
+
+    const isFirstUser = userCount === 0
+    const role = isFirstUser ? "SUPER_ADMIN" : "USER"
+    // 首个用户自动验证，其余根据配置决定
+    const emailVerified = isFirstUser ? true : false
+    const user = await userRepo.create({ username, email, password: hashed, role, emailVerified })
+
+    // 读取邮件验证配置
+    const [verifyEnabled, welcomeEnabled] = await Promise.all([
+      prisma.siteSetting.findUnique({ where: { key: "email_verification_enabled" }, select: { value: true } }),
+      prisma.siteSetting.findUnique({ where: { key: "send_welcome_email" }, select: { value: true } }),
+    ])
+
+    const needVerify = verifyEnabled?.value === "true" && !isFirstUser
+
+    if (needVerify) {
+      await this.sendVerificationEmail(user.id, email)
+    }
+
+    if (welcomeEnabled?.value === "true") {
+      await sendWelcomeEmail(email, username).catch(() => {})
+    }
+
+    return { ...user, emailVerificationSent: needVerify }
+  },
+
+  // ── 邮箱验证 ──────────────────────
+
+  async sendVerificationEmail(userId: string, email?: string) {
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, username: true } })
+    if (!user) throw new NotFoundError("用户")
+    if (user.email !== (email || user.email)) throw new ValidationError("邮箱不匹配")
+
+    // 冷却检查：同一用户 5 分钟内不可重复发送
+    const recent = await prisma.emailVerificationToken.findFirst({
+      where: { userId, type: "verify", usedAt: null, expiresAt: { gt: new Date() } },
+      orderBy: { createdAt: "desc" },
+      select: { createdAt: true },
+    })
+    if (recent) {
+      const elapsed = Date.now() - recent.createdAt.getTime()
+      if (elapsed < 5 * 60 * 1000) {
+        throw new ValidationError("请等待 5 分钟后再发送验证邮件")
+      }
+    }
+
+    // 清除旧的未使用 token
+    await prisma.emailVerificationToken.deleteMany({
+      where: { userId, type: "verify", usedAt: null },
+    })
+
+    const { raw, hash } = generateToken()
+    await prisma.emailVerificationToken.create({
+      data: { userId, email: email || user.email, tokenHash: hash, type: "verify", expiresAt: new Date(Date.now() + 24 * 3600 * 1000) },
+    })
+
+    await sendVerificationEmail(email || user.email, raw, user.username)
+    return { success: true }
+  },
+
+  async verifyEmail(rawToken: string) {
+    if (!rawToken) throw new ValidationError("验证令牌不能为空")
+    const tokenHash = hashToken(rawToken)
+
+    const record = await prisma.emailVerificationToken.findUnique({ where: { tokenHash } })
+    if (!record) throw new ValidationError("验证链接无效")
+    if (record.usedAt) throw new ValidationError("验证链接已使用")
+    if (record.expiresAt < new Date()) throw new ValidationError("验证链接已过期，请重新发送")
+
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: record.userId },
+        data: { emailVerified: true, emailVerifiedAt: new Date(), email: record.email },
+      }),
+      prisma.emailVerificationToken.update({
+        where: { id: record.id },
+        data: { usedAt: new Date() },
+      }),
+    ])
+
+    return { success: true, email: record.email }
+  },
+
+  // ── 修改邮箱 ──────────────────────
+
+  async requestEmailChange(userId: string, newEmail: string, currentPassword: string) {
+    if (!newEmail || !newEmail.includes("@")) throw new ValidationError("邮箱格式不正确")
+    if (!currentPassword) throw new ValidationError("请输入当前密码")
+
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, password: true } })
+    if (!user) throw new NotFoundError("用户")
+
+    const valid = await bcrypt.compare(currentPassword, user.password)
+    if (!valid) throw new UnauthorizedError("当前密码不正确")
+
+    const normalizedEmail = newEmail.trim().toLowerCase()
+    if (normalizedEmail === user.email) throw new ValidationError("新邮箱与当前邮箱相同")
+
+    const existing = await userRepo.findByEmail(normalizedEmail)
+    if (existing) throw new ConflictError("该邮箱已被使用")
+
+    // 冷却检查
+    const recent = await prisma.emailVerificationToken.findFirst({
+      where: { userId, type: "change_email", usedAt: null, expiresAt: { gt: new Date() } },
+      orderBy: { createdAt: "desc" },
+      select: { createdAt: true },
+    })
+    if (recent) {
+      const elapsed = Date.now() - recent.createdAt.getTime()
+      if (elapsed < 5 * 60 * 1000) {
+        throw new ValidationError("请等待 5 分钟后再发送验证邮件")
+      }
+    }
+
+    // 清除旧的未使用 token
+    await prisma.emailVerificationToken.deleteMany({
+      where: { userId, type: "change_email", usedAt: null },
+    })
+
+    const { raw, hash } = generateToken()
+    await prisma.emailVerificationToken.create({
+      data: { userId, email: normalizedEmail, tokenHash: hash, type: "change_email", expiresAt: new Date(Date.now() + 3600 * 1000) },
+    })
+
+    await sendEmailChangeEmail(normalizedEmail, raw)
+    return { success: true }
+  },
+
+  async confirmEmailChange(rawToken: string) {
+    if (!rawToken) throw new ValidationError("验证令牌不能为空")
+    const tokenHash = hashToken(rawToken)
+
+    const record = await prisma.emailVerificationToken.findUnique({ where: { tokenHash } })
+    if (!record) throw new ValidationError("验证链接无效")
+    if (record.type !== "change_email") throw new ValidationError("令牌类型不正确")
+    if (record.usedAt) throw new ValidationError("验证链接已使用")
+    if (record.expiresAt < new Date()) throw new ValidationError("验证链接已过期")
+
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: record.userId },
+        data: { email: record.email, emailVerified: true, emailVerifiedAt: new Date() },
+      }),
+      prisma.emailVerificationToken.update({
+        where: { id: record.id },
+        data: { usedAt: new Date() },
+      }),
+    ])
+
+    return { success: true, email: record.email }
   },
 
   async forgotPassword(email: string) {
     if (!email) throw new ValidationError("邮箱不能为空")
     const user = await userRepo.findByEmail(email.toLowerCase().trim())
-    if (!user) return { success: true } // 不泄露用户是否存在
+    if (!user) return { success: true }
     const token = crypto.randomUUID()
-    const expiresAt = new Date(Date.now() + 3600000) // 1 小时
+    const expiresAt = new Date(Date.now() + 3600000)
     await prisma.passwordResetToken.create({ data: { userId: user.id, token, expiresAt } })
     await sendPasswordResetEmail(email.toLowerCase().trim(), token).catch(() => {})
     return { success: true }

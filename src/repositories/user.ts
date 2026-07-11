@@ -34,8 +34,8 @@ export const userRepo = {
     })
   },
 
-  create(data: { username: string; email: string; password: string; role?: UserRole }) {
-    return prisma.user.create({ data: { ...data, role: data.role || "USER" } })
+  create(data: { username: string; email: string; password: string; role?: UserRole; emailVerified?: boolean }) {
+    return prisma.user.create({ data: { ...data, role: data.role || "USER", emailVerified: data.emailVerified ?? false } })
   },
 
   updateProfile(id: string, data: Prisma.UserUpdateInput) {

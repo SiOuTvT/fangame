@@ -13,6 +13,7 @@ import { useCallback, useEffect, useState } from "react"
 const NavSidebar = dynamic(() => import("@/components/nav-sidebar").then(m => ({ default: m.NavSidebar })), { ssr: false })
 const ForumSidebar = dynamic(() => import("@/components/forum-sidebar").then(m => ({ default: m.ForumSidebar })), { ssr: false })
 const MusicPlayer = dynamic(() => import("@/components/music-player").then(m => ({ default: m.MusicPlayer })), { ssr: false })
+const EmailVerificationBanner = dynamic(() => import("@/components/email-verification-banner").then(m => ({ default: m.EmailVerificationBanner })), { ssr: false })
 
 /* ═══════════════════════════════════════════════════
    侧边栏宽度常量
@@ -132,6 +133,7 @@ export function LayoutWrapper({ children, siteName = "Fangame" }: { children: Re
                 <div className="sticky top-0 z-30">
                   <TopNav onToggleNav={toggleNav} onToggleForum={toggleForum} />
                 </div>
+                <EmailVerificationBanner />
                 <div className="space-y-2 sm:space-y-3">
                   <Breadcrumb />
                   {children}

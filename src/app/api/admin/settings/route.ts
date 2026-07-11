@@ -10,6 +10,9 @@ const ALLOWED_KEYS = new Set([
   "site_logo",
   "registration_enabled",
   "themeColor",
+  "email_verification_enabled",
+  "email_verification_required_for_login",
+  "send_welcome_email",
 ])
 
 // GET /api/admin/settings — 获取所有站点配置
