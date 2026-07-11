@@ -28,6 +28,7 @@ const EMPTY: ServiceConfig = {
 export default function ServicesPage() {
   const [config, setConfig] = useState<ServiceConfig>(EMPTY)
   const [loading, setLoading] = useState(true)
+  const [ready, setReady] = useState(false)
   const [saving, setSaving] = useState(false)
   const [testing, setTesting] = useState<string | null>(null)
   const [testResult, setTestResult] = useState<Record<string, { ok: boolean; msg: string }>>({})
@@ -37,9 +38,14 @@ export default function ServicesPage() {
   useEffect(() => {
     fetch("/api/admin/services")
       .then(r => r.json())
-      .then(res => { if (res.data) setConfig(prev => ({ ...prev, ...res.data })) })
+      .then(res => {
+        if (res.data) setConfig(prev => ({ ...prev, ...res.data }))
+      })
       .catch(() => toast.error("加载配置失败"))
-      .finally(() => setLoading(false))
+      .finally(() => {
+        setLoading(false)
+        setReady(true)
+      })
   }, [])
 
   const update = (key: keyof ServiceConfig, value: string) => {
@@ -130,6 +136,7 @@ export default function ServicesPage() {
         <span>服务配置保存后需要重启应用才能生效。环境变量中的配置优先级高于此处设置。</span>
       </div>
 
+      <div key={String(ready)} className="space-y-6">
       {/* ── R2 对象存储 ── */}
       <Card className="p-6 space-y-4" style={{ borderRadius: "var(--radius-lg)" }}>
         <SectionHeader icon={HardDrive} title="Cloudflare R2 存储" desc="S3 兼容对象存储，用于游戏截图、用户头像等文件上传" testResult={testResult.r2} />
@@ -183,6 +190,7 @@ export default function ServicesPage() {
         </div>
         <p className="text-xs text-muted-foreground">未配置时无法发送密码重置邮件，需管理员手动处理。</p>
       </Card>
+      </div>
     </div>
   )
 }
