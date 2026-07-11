@@ -3,7 +3,7 @@
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { adminBtnPrimary, adminBtnSecondary } from "@/lib/admin-styles"
-import { AlertTriangle, Check, Database, Eye, EyeOff, HardDrive, Loader2, Mail, Save, Server, X, Zap } from "lucide-react"
+import { AlertTriangle, Check, Database, Eye, EyeOff, HardDrive, Loader2, Mail, Save, X, Zap } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -37,14 +37,7 @@ export default function ServicesPage() {
   useEffect(() => {
     fetch("/api/admin/services")
       .then(r => r.json())
-      .then(res => {
-        if (res.data) {
-          // 延迟一帧设置值：Chrome 自动填充在 React commit 后异步执行，
-          // 如果立即 setConfig，Chrome 会覆盖 API 数据。
-          // 延迟后 Chrome 已完成填充，我们的值可以正确覆盖。
-          requestAnimationFrame(() => setConfig(prev => ({ ...prev, ...res.data })))
-        }
-      })
+      .then(res => { if (res.data) setConfig(prev => ({ ...prev, ...res.data })) })
       .catch(() => toast.error("加载配置失败"))
       .finally(() => setLoading(false))
   }, [])
@@ -132,10 +125,6 @@ export default function ServicesPage() {
         </button>
       </div>
 
-      {/* key 强制重建：API 数据加载完成后重新挂载输入框，防止浏览器自动填充覆盖 */}
-      <div key={loading ? "loading" : "ready"} className="space-y-6">
-
-      {/* 重启提示 */}
       <div className="flex items-start gap-3 rounded-xl bg-amber-500/10 ring-1 ring-amber-500/20 px-4 py-3 text-sm text-amber-600 dark:text-amber-400">
         <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
         <span>服务配置保存后需要重启应用才能生效。环境变量中的配置优先级高于此处设置。</span>
@@ -183,18 +172,17 @@ export default function ServicesPage() {
         <SectionHeader icon={Mail} title="邮件服务" desc="Resend 邮件 API，用于密码重置等场景" testResult={testResult.email} />
         <div className="grid gap-4 sm:grid-cols-2">
           <SecretField label="API Key" value={config.resend_api_key} onChange={v => update("resend_api_key", v)} placeholder="re_xxxxxxxxxxxx" className="sm:col-span-2" />
+          <Field label="测试收件邮箱" value={testEmail} onChange={setTestEmail} placeholder="test@example.com" className="sm:col-span-2" />
         </div>
-        <div className="flex items-center gap-3 flex-wrap">
-          <Input type="email" value={testEmail} onChange={e => setTestEmail(e.target.value)}
-            placeholder="测试收件邮箱" className="w-56" />
+        <div className="flex items-center gap-3">
           <button onClick={handleTestEmail} disabled={sendingTest || !config.resend_api_key || !testEmail} className={adminBtnSecondary}>
             {sendingTest ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Mail className="h-3.5 w-3.5" />}
             发送测试邮件
           </button>
+          <span className="text-xs text-muted-foreground">验证 Resend 是否可正常发送邮件</span>
         </div>
         <p className="text-xs text-muted-foreground">未配置时无法发送密码重置邮件，需管理员手动处理。</p>
       </Card>
-      </div>
     </div>
   )
 }
