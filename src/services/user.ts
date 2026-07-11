@@ -26,8 +26,17 @@ export const authService = {
     if (existingEmail) throw new ConflictError("邮箱已被注册")
 
     const hashed = await bcrypt.hash(password, 12)
-    // 第一个用户自动成为 SUPER_ADMIN
+    // 第一个用户自动成为 SUPER_ADMIN（兼容未使用 Setup 的部署）
     const userCount = await prisma.user.count()
+    if (userCount > 0) {
+      const regSetting = await prisma.siteSetting.findUnique({
+        where: { key: "registration_enabled" },
+        select: { value: true },
+      })
+      if (regSetting?.value === "false") {
+        throw new UnauthorizedError("注册已关闭，请联系管理员")
+      }
+    }
     const role = userCount === 0 ? "SUPER_ADMIN" : "USER"
     return userRepo.create({ username, email, password: hashed, role })
   },
