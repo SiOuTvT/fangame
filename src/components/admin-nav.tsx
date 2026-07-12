@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 import Image from "next/image"
 import {
   ArrowLeft, Award, CalendarCheck, ChevronLeft, ChevronRight, ClipboardCheck, FileCode, FileText, Flag, FolderTree, Frame, Gamepad2, Heart,
-  LayoutDashboard, Megaphone, Menu, MessageSquare, Moon, Music, Palette,
+  LayoutDashboard, List, Megaphone, Menu, MessageSquare, Moon, Music, Palette,
   PenTool, Search, Server, Settings, SmilePlus, Sun, Tag, UserPlus, Users, X,
 } from "lucide-react"
 import { useSession } from "next-auth/react"
@@ -37,6 +37,7 @@ const navGroups: NavGroup[] = [
     label: "内容管理",
     items: [
       { icon: Gamepad2, label: "游戏", href: "/admin/games", minRole: "ADMIN" },
+      { icon: List, label: "精选合集", href: "/admin/curated-collections", minRole: "ADMIN" },
       { icon: Tag, label: "标签管理", href: "/admin/tags", minRole: "ADMIN" },
       { icon: PenTool, label: "创作者", href: "/admin/creators", minRole: "ADMIN" },
       { icon: Megaphone, label: "公告", href: "/admin/announcements", minRole: "ADMIN" },

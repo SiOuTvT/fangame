@@ -51,6 +51,7 @@ model User {
   collections      Collection[]
   publishedGames   Game[]
   gameResources    GameResource[]
+  curatedCollectionGames CuratedCollectionGame[]
   forumPostLikes   ForumPostLike[]
   forumCommentLikes ForumCommentLike[]
   commentLikes     CommentLike[]
@@ -456,6 +457,32 @@ model EmailVerificationToken {
 
   @@index([userId])
   @@index([tokenHash])
+}
+
+model CuratedCollection {
+  id          String   @id @default(cuid())
+  name        String
+  description String   @default("")
+  sortOrder   Int      @default(0)
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  games       CuratedCollectionGame[]
+
+  @@index([sortOrder])
+}
+
+model CuratedCollectionGame {
+  id          String           @id @default(cuid())
+  collectionId String
+  gameId      String
+  sortOrder   Int              @default(0)
+  collection  CuratedCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  game        Game              @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([collectionId, gameId])
+  @@index([collectionId])
+  @@index([gameId])
 }
 
 model CheckIn {
