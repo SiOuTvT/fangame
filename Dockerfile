@@ -128,26 +128,9 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 # Copy Prisma schema + generated client + engines（迁移和运行时需要）
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-
-# 安装 Prisma CLI 及其传递依赖（@prisma/config → effect → fast-check 等）
-# 从 builder 拷贝完整 node_modules，确保所有传递依赖版本一致
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder /app/node_modules/@prisma/config ./node_modules/@prisma/config
-COPY --from=builder /app/node_modules/effect ./node_modules/effect
-COPY --from=builder /app/node_modules/fast-check ./node_modules/fast-check
-COPY --from=builder /app/node_modules/c12 ./node_modules/c12
-COPY --from=builder /app/node_modules/chokidar ./node_modules/chokidar
-COPY --from=builder /app/node_modules/confbox ./node_modules/confbox
-COPY --from=builder /app/node_modules/defu ./node_modules/defu
-COPY --from=builder /app/node_modules/dotenv ./node_modules/dotenv
-COPY --from=builder /app/node_modules/exsolve ./node_modules/exsolve
-COPY --from=builder /app/node_modules/giget ./node_modules/giget
-COPY --from=builder /app/node_modules/jiti ./node_modules/jiti
-COPY --from=builder /app/node_modules/deepmerge-ts ./node_modules/deepmerge-ts
-COPY --from=builder /app/node_modules/empathic ./node_modules/empathic
-COPY --from=builder /app/node_modules/@standard-schema ./node_modules/@standard-schema
+# Copy 完整 node_modules（确保 prisma CLI 及其所有传递依赖完整可用）
+# .dockerignore 已排除本地 node_modules，此处来自 builder 阶段的干净构建
+COPY --from=builder /app/node_modules ./node_modules
 
 # Create uploads directory with proper permissions
 RUN mkdir -p /app/public/uploads && \
