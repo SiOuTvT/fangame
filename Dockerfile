@@ -127,9 +127,8 @@ COPY --from=builder /app/.next/static ./.next/static
 # Copy public directory (uploads, favicon, etc.)
 COPY --from=builder /app/public ./public
 # Copy Prisma CLI + engine + generated client + schema
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+# 必须拷贝完整 node_modules 以包含 prisma 的传递依赖（effect、fast-check 等）
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
 
 # Create uploads directory with proper permissions
