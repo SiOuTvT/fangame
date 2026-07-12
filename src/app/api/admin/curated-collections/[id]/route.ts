@@ -4,9 +4,10 @@ import { prisma } from "@/lib/prisma"
 import { NotFoundError, ValidationError } from "@/lib/errors"
 
 // GET — 获取单个合集（含游戏列表）
-export const GET = withHandler(async (req, { params }: { params: Promise<{ id: string }> }) => {
+export const GET = withHandler(async (req, ctx) => {
   await requireAdminRole("ADMIN")
-  const { id } = await params
+  const id = (await ctx?.params)?.id
+  if (!id) throw new ValidationError("缺少合集 ID")
 
   const collection = await prisma.curatedCollection.findUnique({
     where: { id },
@@ -27,9 +28,11 @@ export const GET = withHandler(async (req, { params }: { params: Promise<{ id: s
 })
 
 // PUT — 更新合集
-export const PUT = withHandler(async (req, { params }: { params: Promise<{ id: string }> }) => {
+export const PUT = withHandler(async (req, ctx) => {
   await requireAdminRole("ADMIN")
-  const { id } = await params
+  const id = (await ctx?.params)?.id
+  if (!id) throw new ValidationError("缺少合集 ID")
+
   const body = await req.json()
   const { name, description, published, gameIds } = body
 
@@ -63,9 +66,11 @@ export const PUT = withHandler(async (req, { params }: { params: Promise<{ id: s
 })
 
 // DELETE — 删除合集
-export const DELETE = withHandler(async (req, { params }: { params: Promise<{ id: string }> }) => {
+export const DELETE = withHandler(async (req, ctx) => {
   await requireAdminRole("ADMIN")
-  const { id } = await params
+  const id = (await ctx?.params)?.id
+  if (!id) throw new ValidationError("缺少合集 ID")
+
   await prisma.curatedCollection.delete({ where: { id } })
   return json({ success: true })
 })
