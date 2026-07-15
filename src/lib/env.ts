@@ -114,6 +114,7 @@ export function getFeatures() {
     redis: !!(e.UPSTASH_REDIS_REST_URL && e.UPSTASH_REDIS_REST_TOKEN),
     sentry: !!e.SENTRY_DSN,
     email: !!(e.RESEND_API_KEY || e.BREVO_API_KEY),
+    // 注意: 此值仅反映环境变量，DB 配置的能力检查见 service-config.getEmailConfigured()
     r2: !!(e.R2_BUCKET_NAME && e.R2_ACCOUNT_ID),
   } as const
 }

@@ -227,13 +227,19 @@ export default function ServicesPage() {
           <ProviderSelect
             label="第一优先"
             value={providerOrder[0] || ""}
-            onChange={v => update("email_provider_order", [v, providerOrder[1] || ""].filter(Boolean).join(","))}
+            onChange={v => {
+              const second = providerOrder[1] || ""
+              update("email_provider_order", [v, second === v ? "" : second].filter(Boolean).join(","))
+            }}
             excludeKey={providerOrder[1] || ""}
           />
           <ProviderSelect
             label="第二优先"
             value={providerOrder[1] || ""}
-            onChange={v => update("email_provider_order", [providerOrder[0] || "", v].filter(Boolean).join(","))}
+            onChange={v => {
+              const first = providerOrder[0] || ""
+              update("email_provider_order", [first === v ? "" : first, v].filter(Boolean).join(","))
+            }}
             excludeKey={providerOrder[0] || ""}
             allowNone
           />
