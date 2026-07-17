@@ -1,6 +1,7 @@
 import { withHandler, json, noContent } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
+import { ValidationError, NotFoundError } from "@/lib/errors"
 
 export const PUT = withHandler(async (req, ctx) => {
   await requireAdminRole()
@@ -13,7 +14,7 @@ export const PUT = withHandler(async (req, ctx) => {
   if (typeof body.url === "string" && body.url.trim()) data.url = body.url.trim()
 
   if (Object.keys(data).length === 0) {
-    throw new Error("没有要更新的字段")
+    throw new ValidationError("没有要更新的字段")
   }
 
   const m = await prisma.music.update({ where: { id }, data })

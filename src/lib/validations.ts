@@ -124,6 +124,51 @@ export const gameCreateSchema = z.object({
   creatorId: z.string().optional(),
 })
 
+export const gameResourceCreateSchema = z.object({
+  resourceName: z.string().max(200).optional(),
+  resourceNote: z.string().max(1000).optional(),
+  platform: z.array(z.string().max(50)).max(10).optional(),
+  language: z.array(z.string().max(50)).max(10).optional(),
+  runType: z.array(z.string().max(50)).max(10).optional(),
+  resourceContent: z.array(z.string().max(50)).max(10).optional(),
+  entries: z.array(z.object({
+    url: z.string().url("链接格式不正确").max(2000),
+    extractCode: z.string().max(100).optional(),
+    decompressCode: z.string().max(100).optional(),
+    fileSize: z.string().max(50).optional(),
+  })).min(1, "至少需要一个下载链接").max(20),
+})
+
+export const collectionCreateSchema = z.object({
+  name: z.string().min(1, "收藏夹名称不能为空").max(50, "名称最多 50 个字符"),
+  description: z.string().max(200).optional(),
+})
+
+export const achievementCreateSchema = z.object({
+  name: z.string().min(1, "成就名称不能为空").max(100),
+  description: z.string().max(500).optional(),
+  icon: z.string().max(500).optional(),
+  characterImage: z.string().max(500).optional(),
+  category: z.string().max(50).optional(),
+  conditionType: z.enum(["favorite_count", "comment_count", "play_count", "checkin_streak", "forum_post_count", "register_days"]),
+  conditionTarget: z.number().int().min(1).max(10000),
+  points: z.number().int().min(0).max(1000).optional(),
+  hidden: z.boolean().optional(),
+  isActive: z.boolean().optional(),
+})
+
+export const announcementUpdateSchema = z.object({
+  title: z.string().min(1, "公告标题不能为空").max(200).optional(),
+  content: z.string().min(1, "公告内容不能为空").max(5000).optional(),
+  imageUrl: z.string().url().max(500).optional().or(z.literal("")),
+  link: z.string().url().max(500).optional().or(z.literal("")),
+  authorName: z.string().max(100).optional(),
+  isActive: z.boolean().optional(),
+  startAt: z.string().optional(),
+  endAt: z.string().optional(),
+  sortOrder: z.number().int().optional(),
+})
+
 // ============ 通用工具 ============
 
 /**

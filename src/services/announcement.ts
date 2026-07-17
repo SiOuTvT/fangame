@@ -8,7 +8,7 @@
  */
 
 import { announcementRepo, type AnnouncementCreateInput } from "@/repositories/announcement"
-import { announcementSchema } from "@/lib/validations"
+import { announcementSchema, announcementUpdateSchema } from "@/lib/validations"
 import { NotFoundError } from "@/lib/errors"
 import type { AuthContext } from "@/lib/auth-context"
 
@@ -68,14 +68,17 @@ export const announcementService = {
     const existing = await announcementRepo.findById(id)
     if (!existing) throw new NotFoundError("公告")
 
+    // Zod 验证
+    const parsed = announcementUpdateSchema.parse(raw)
+
     const data: Record<string, unknown> = {}
-    if (raw.title !== undefined) data.title = String(raw.title).trim()
-    if (raw.content !== undefined) data.content = String(raw.content).trim()
-    if (raw.imageUrl !== undefined) data.imageUrl = String(raw.imageUrl).trim()
-    if (raw.link !== undefined) data.link = String(raw.link).trim()
-    if (raw.isActive !== undefined) data.isActive = Boolean(raw.isActive)
-    if (raw.startAt !== undefined) data.startAt = raw.startAt ? new Date(String(raw.startAt)) : null
-    if (raw.endAt !== undefined) data.endAt = raw.endAt ? new Date(String(raw.endAt)) : null
+    if (parsed.title !== undefined) data.title = String(parsed.title).trim()
+    if (parsed.content !== undefined) data.content = String(parsed.content).trim()
+    if (parsed.imageUrl !== undefined) data.imageUrl = String(parsed.imageUrl).trim()
+    if (parsed.link !== undefined) data.link = String(parsed.link).trim()
+    if (parsed.isActive !== undefined) data.isActive = parsed.isActive
+    if (parsed.startAt !== undefined) data.startAt = parsed.startAt ? new Date(parsed.startAt) : null
+    if (parsed.endAt !== undefined) data.endAt = parsed.endAt ? new Date(parsed.endAt) : null
 
     return announcementRepo.update(id, data)
   },

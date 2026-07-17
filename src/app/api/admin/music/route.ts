@@ -1,6 +1,7 @@
 import { withHandler, json, created } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
+import { ValidationError } from "@/lib/errors"
 
 export const GET = withHandler(async () => {
   await requireAdminRole()
@@ -19,7 +20,7 @@ export const POST = withHandler(async (req) => {
   let playlistId = body.playlistId as string | undefined
 
   if (!title?.trim() || !url?.trim()) {
-    throw new Error("标题和链接不能为空")
+    throw new ValidationError("标题和链接不能为空")
   }
 
   // Validate playlist exists if provided

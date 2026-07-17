@@ -1,6 +1,7 @@
 import { withHandler, json, noContent } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
+import { ValidationError, NotFoundError } from "@/lib/errors"
 
 export const GET = withHandler(async (_req, ctx) => {
   await requireAdminRole()
@@ -9,7 +10,7 @@ export const GET = withHandler(async (_req, ctx) => {
     where: { id },
     include: { music: { orderBy: { createdAt: "desc" } } },
   })
-  if (!playlist) throw new Error("播放列表不存在")
+  if (!playlist) throw new NotFoundError("播放列表")
   return json(playlist)
 })
 
@@ -18,7 +19,7 @@ export const PUT = withHandler(async (req, ctx) => {
   const { id } = await ctx!.params
   const { name } = await req.json()
   if (!name?.trim()) {
-    throw new Error("名称不能为空")
+    throw new ValidationError("名称不能为空")
   }
   await prisma.playlist.update({ where: { id }, data: { name: name.trim() } })
   return json({ ok: true })

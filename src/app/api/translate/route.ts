@@ -1,6 +1,7 @@
 import { withHandler, json } from "@/lib/api-handler"
 import { logger } from "@/lib/logger"
-import { ValidationError } from "@/lib/errors"
+import { ValidationError, RateLimitError } from "@/lib/errors"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 // 翻译专用限流：每分钟 10 次
 const TRANSLATE_RATE_LIMIT = {
@@ -45,6 +46,9 @@ async function translateWithGoogle(text: string): Promise<string | null> {
 }
 
 export const POST = withHandler(async (req) => {
+  const rl = await checkRateLimit(TRANSLATE_RATE_LIMIT)
+  if (!rl.success) throw new RateLimitError(TRANSLATE_RATE_LIMIT.message)
+
   const { text } = await req.json()
 
   if (!text?.trim()) {

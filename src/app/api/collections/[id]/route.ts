@@ -5,7 +5,7 @@ import { collectionService } from "@/services/user"
 export const GET = withHandler(async (_req, ctx) => {
   const { userId } = await requireAuth()
   const { id } = await ctx!.params
-  const collection = await collectionService.getById(id)
+  const collection = await collectionService.getById(id, userId)
   return json(collection)
 })
 

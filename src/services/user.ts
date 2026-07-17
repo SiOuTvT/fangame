@@ -4,6 +4,7 @@
 
 import { userRepo, collectionRepo, notificationRepo, followRepo, commentRepo, searchRepo, checkinRepo, profileRepo } from "@/repositories/user"
 import { NotFoundError, ValidationError, ConflictError, UnauthorizedError } from "@/lib/errors"
+import { collectionCreateSchema } from "@/lib/validations"
 import { sendPasswordResetEmail, sendVerificationEmail, sendEmailChangeEmail, sendWelcomeEmail } from "@/lib/email"
 import { getEmailConfigured } from "@/lib/service-config"
 import bcrypt from "bcryptjs"
@@ -288,9 +289,10 @@ export const userService = {
 export const collectionService = {
   getByUserId(userId: string) { return collectionRepo.findByUserId(userId) },
 
-  async getById(id: string) {
+  async getById(id: string, userId: string) {
     const c = await collectionRepo.findById(id)
     if (!c) throw new NotFoundError("收藏夹")
+    if (c.userId !== userId) throw new NotFoundError("收藏夹")
     return c
   },
 

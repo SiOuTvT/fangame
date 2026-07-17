@@ -5,6 +5,7 @@
 import { gameRepo } from "@/repositories/game"
 import { NotFoundError, ValidationError, ForbiddenError } from "@/lib/errors"
 import { prisma } from "@/lib/prisma"
+import { gameResourceCreateSchema } from "@/lib/validations"
 import type { PlayStatusType } from "@prisma/client"
 
 export const gameService = {
@@ -103,21 +104,24 @@ export const gameService = {
   getResources(gameId: string) { return gameRepo.findResources(gameId) },
 
   async createResource(gameId: string, userId: string, raw: Record<string, unknown>) {
+    // Zod 验证
+    const parsed = gameResourceCreateSchema.parse(raw)
+
     return gameRepo.createResource({
       gameId, userId,
-      resourceName: raw.resourceName ? String(raw.resourceName) : "",
-      resourceNote: raw.resourceNote ? String(raw.resourceNote) : "",
-      platform: JSON.stringify(raw.platform || []),
-      language: JSON.stringify(raw.language || []),
-      runType: JSON.stringify(raw.runType || []),
-      resourceContent: JSON.stringify(raw.resourceContent || []),
+      resourceName: parsed.resourceName ?? "",
+      resourceNote: parsed.resourceNote ?? "",
+      platform: JSON.stringify(parsed.platform ?? []),
+      language: JSON.stringify(parsed.language ?? []),
+      runType: JSON.stringify(parsed.runType ?? []),
+      resourceContent: JSON.stringify(parsed.resourceContent ?? []),
       entries: {
-        create: Array.isArray(raw.entries) ? raw.entries.map((e: any) => ({
-          url: String(e.url || ""),
-          extractCode: String(e.extractCode || ""),
-          decompressCode: String(e.decompressCode || ""),
-          fileSize: String(e.fileSize || ""),
-        })) : [],
+        create: parsed.entries.map((e) => ({
+          url: e.url,
+          extractCode: e.extractCode ?? "",
+          decompressCode: e.decompressCode ?? "",
+          fileSize: e.fileSize ?? "",
+        })),
       },
     })
   },
