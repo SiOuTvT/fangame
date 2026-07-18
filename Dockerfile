@@ -30,7 +30,9 @@ RUN printf 'Acquire::Retries "5";\nAcquire::http::Timeout "30";\nAcquire::https:
 COPY package.json package-lock.json ./
 
 # Install all dependencies (--legacy-peer-deps for React 19 compat)
-RUN npm ci --no-audit --no-fund --legacy-peer-deps
+# npm 镜像加速（国内网络环境）
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm ci --no-audit --no-fund --legacy-peer-deps
 
 # Generate Prisma client
 COPY prisma ./prisma/
