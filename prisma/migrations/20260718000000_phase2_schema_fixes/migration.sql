@@ -13,17 +13,17 @@ EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
 DO $$ BEGIN
-  CREATE TYPE "ForumCategory" AS ENUM ('discussion', 'question', 'showcase', 'guide', 'feedback');
+  CREATE TYPE "ForumPostCategory" AS ENUM ('discussion', 'question', 'showcase', 'guide', 'feedback');
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
 DO $$ BEGIN
-  CREATE TYPE "NotificationType" AS ENUM ('forum_post_like', 'forum_comment_like', 'forum_comment_new', 'follow', 'achievement_unlock');
+  CREATE TYPE "NotificationTypeEnum" AS ENUM ('forum_post_like', 'forum_comment_like', 'forum_comment_new', 'follow', 'achievement_unlock');
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
 DO $$ BEGIN
-  CREATE TYPE "NotificationTargetType" AS ENUM ('forum_post', 'forum_comment', 'user', 'achievement');
+  CREATE TYPE "NotificationTargetTypeEnum" AS ENUM ('forum_post', 'forum_comment', 'user', 'achievement');
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
@@ -58,40 +58,40 @@ ALTER TABLE "Game" ALTER COLUMN "status" SET DEFAULT 'FINISHED'::"GameStatus";
 ALTER TABLE "Game" ALTER COLUMN "status" SET NOT NULL;
 
 -- 4. Migrate ForumPost.category to enum
-ALTER TABLE "ForumPost" ADD COLUMN "category_new" "ForumCategory";
+ALTER TABLE "ForumPost" ADD COLUMN "category_new" "ForumPostCategory";
 UPDATE "ForumPost" SET "category_new" = CASE
-  WHEN "category" = 'discussion' THEN 'discussion'::"ForumCategory"
-  WHEN "category" = 'question' THEN 'question'::"ForumCategory"
-  WHEN "category" = 'showcase' THEN 'showcase'::"ForumCategory"
-  WHEN "category" = 'guide' THEN 'guide'::"ForumCategory"
-  WHEN "category" = 'feedback' THEN 'feedback'::"ForumCategory"
-  ELSE 'discussion'::"ForumCategory"
+  WHEN "category" = 'discussion' THEN 'discussion'::"ForumPostCategory"
+  WHEN "category" = 'question' THEN 'question'::"ForumPostCategory"
+  WHEN "category" = 'showcase' THEN 'showcase'::"ForumPostCategory"
+  WHEN "category" = 'guide' THEN 'guide'::"ForumPostCategory"
+  WHEN "category" = 'feedback' THEN 'feedback'::"ForumPostCategory"
+  ELSE 'discussion'::"ForumPostCategory"
 END;
 ALTER TABLE "ForumPost" DROP COLUMN "category";
 ALTER TABLE "ForumPost" RENAME COLUMN "category_new" TO "category";
-ALTER TABLE "ForumPost" ALTER COLUMN "category" SET DEFAULT 'discussion'::"ForumCategory";
+ALTER TABLE "ForumPost" ALTER COLUMN "category" SET DEFAULT 'discussion'::"ForumPostCategory";
 ALTER TABLE "ForumPost" ALTER COLUMN "category" SET NOT NULL;
 
 -- 5. Migrate Notification.type to enum
-ALTER TABLE "Notification" ADD COLUMN "type_new" "NotificationType";
+ALTER TABLE "Notification" ADD COLUMN "type_new" "NotificationTypeEnum";
 UPDATE "Notification" SET "type_new" = CASE
-  WHEN "type" = 'forum_post_like' THEN 'forum_post_like'::"NotificationType"
-  WHEN "type" = 'forum_comment_like' THEN 'forum_comment_like'::"NotificationType"
-  WHEN "type" = 'forum_comment_new' THEN 'forum_comment_new'::"NotificationType"
-  WHEN "type" = 'follow' THEN 'follow'::"NotificationType"
-  ELSE 'follow'::"NotificationType"
+  WHEN "type" = 'forum_post_like' THEN 'forum_post_like'::"NotificationTypeEnum"
+  WHEN "type" = 'forum_comment_like' THEN 'forum_comment_like'::"NotificationTypeEnum"
+  WHEN "type" = 'forum_comment_new' THEN 'forum_comment_new'::"NotificationTypeEnum"
+  WHEN "type" = 'follow' THEN 'follow'::"NotificationTypeEnum"
+  ELSE 'follow'::"NotificationTypeEnum"
 END;
 ALTER TABLE "Notification" DROP COLUMN "type";
 ALTER TABLE "Notification" RENAME COLUMN "type_new" TO "type";
 ALTER TABLE "Notification" ALTER COLUMN "type" SET NOT NULL;
 
 -- 6. Migrate Notification.targetType to enum
-ALTER TABLE "Notification" ADD COLUMN "targetType_new" "NotificationTargetType";
+ALTER TABLE "Notification" ADD COLUMN "targetType_new" "NotificationTargetTypeEnum";
 UPDATE "Notification" SET "targetType_new" = CASE
-  WHEN "targetType" = 'forum_post' THEN 'forum_post'::"NotificationTargetType"
-  WHEN "targetType" = 'forum_comment' THEN 'forum_comment'::"NotificationTargetType"
-  WHEN "targetType" = 'user' THEN 'user'::"NotificationTargetType"
-  ELSE 'user'::"NotificationTargetType"
+  WHEN "targetType" = 'forum_post' THEN 'forum_post'::"NotificationTargetTypeEnum"
+  WHEN "targetType" = 'forum_comment' THEN 'forum_comment'::"NotificationTargetTypeEnum"
+  WHEN "targetType" = 'user' THEN 'user'::"NotificationTargetTypeEnum"
+  ELSE 'user'::"NotificationTargetTypeEnum"
 END;
 ALTER TABLE "Notification" DROP COLUMN "targetType";
 ALTER TABLE "Notification" RENAME COLUMN "targetType_new" TO "targetType";

@@ -30,7 +30,7 @@ enum GameStatus {
   CANCELLED
 }
 
-enum ForumCategory {
+enum ForumPostCategory {
   discussion
   question
   showcase
@@ -38,7 +38,7 @@ enum ForumCategory {
   feedback
 }
 
-enum NotificationType {
+enum NotificationTypeEnum {
   forum_post_like
   forum_comment_like
   forum_comment_new
@@ -46,7 +46,7 @@ enum NotificationType {
   achievement_unlock
 }
 
-enum NotificationTargetType {
+enum NotificationTargetTypeEnum {
   forum_post
   forum_comment
   user
@@ -548,7 +548,7 @@ model ForumPost {
   isSolved  Boolean        @default(false)
   isPinned  Boolean        @default(false)
   isLocked  Boolean        @default(false)
-  category  ForumCategory  @default(discussion)
+  category  ForumPostCategory  @default(discussion)
   viewCount Int            @default(0)
   updatedAt DateTime       @default(now()) @updatedAt
   createdAt DateTime       @default(now())
@@ -584,8 +584,8 @@ model Notification {
   id         String   @id @default(cuid())
   userId     String   // 接收通知的用户
   actorId    String   // 触发通知的用户
-  type       NotificationType
-  targetType NotificationTargetType
+  type       NotificationTypeEnum
+  targetType NotificationTargetTypeEnum
   targetId   String   // 关联对象 ID
   isRead     Boolean  @default(false)
   createdAt  DateTime @default(now())

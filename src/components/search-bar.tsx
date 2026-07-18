@@ -134,6 +134,10 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
             placeholder="搜索游戏名称、原作、标签…"
             inputMode="search"
             enterKeyHint="search"
+            aria-label="搜索游戏"
+            aria-autocomplete="list"
+            aria-controls="search-suggestions"
+            aria-expanded={showSuggestions && suggestions.length > 0}
             className="flex-1 bg-transparent text-base text-foreground placeholder:text-muted-foreground outline-none"
           />
           {value && (
@@ -157,6 +161,8 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
       {/* 搜索建议下拉 */}
       {showSuggestions && suggestions.length > 0 && (
         <div
+          id="search-suggestions"
+          role="listbox"
           className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-xl bg-card py-1 shadow-lg ring-1 ring-border"
         >
           {suggestions.map((s, i) => (
@@ -164,6 +170,8 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
               key={s.id}
               href={`/games/${s.serialId}`}
               onClick={() => setShowSuggestions(false)}
+              role="option"
+              aria-selected={i === activeIdx}
               className={`flex items-center gap-3 px-4 py-3 transition-colors hover:bg-secondary ${i === activeIdx ? "bg-secondary" : ""}`}
             >
               {s.coverImage ? (

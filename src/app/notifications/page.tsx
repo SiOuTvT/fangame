@@ -3,7 +3,7 @@ import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import NotificationsClient from "./notifications-client"
-import { NotificationType } from "@prisma/client"
+import { NotificationTypeEnum } from "@prisma/client"
 import Link from "next/link"
 
 export const dynamic = "force-dynamic"
@@ -36,7 +36,7 @@ export default async function NotificationsPage() {
 
     // 批量查询评论点赞通知对应的帖子 ID
     const commentIds = notifications
-      .filter(n => n.type === NotificationType.forum_comment_like && n.targetId)
+      .filter(n => n.type === NotificationTypeEnum.forum_comment_like && n.targetId)
       .map(n => n.targetId)
     const commentPostMap = new Map<string, string>()
     if (commentIds.length > 0) {
@@ -68,7 +68,7 @@ export default async function NotificationsPage() {
       initialNotifications={data.notifications.map(n => ({
         ...n,
         createdAt: n.createdAt.toISOString(),
-        postId: n.type === NotificationType.forum_comment_like && n.targetId ? data.commentPostMap.get(n.targetId) ?? null : null,
+        postId: n.type === NotificationTypeEnum.forum_comment_like && n.targetId ? data.commentPostMap.get(n.targetId) ?? null : null,
       }))}
       initialUnreadCount={data.unreadCount}
     />

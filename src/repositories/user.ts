@@ -134,7 +134,7 @@ export const notificationRepo = {
     return prisma.notification.update({ where: { id }, data: { isRead: true } })
   },
 
-  create(data: { userId: string; actorId: string; type: import("@prisma/client").NotificationType; targetType: import("@prisma/client").NotificationTargetType; targetId: string }) {
+  create(data: { userId: string; actorId: string; type: import("@prisma/client").NotificationTypeEnum; targetType: import("@prisma/client").NotificationTargetTypeEnum; targetId: string }) {
     return prisma.notification.create({ data })
   },
 }
