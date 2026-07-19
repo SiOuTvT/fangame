@@ -686,12 +686,6 @@ main > * {
   text-shadow: none;
 }
 
-/* 带主题色背景的元素，文字必须是白色或深色确保可读 */
-.bg-primary,
-.bg-\[var\(--clr-blue\)\] {
-  color: #ffffff;
-}
-
 .light .bg-primary {
   color: var(--primary-foreground);
 }
