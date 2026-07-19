@@ -111,7 +111,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
         rel={ann.link ? "noopener noreferrer" : undefined}
         className="absolute inset-0 z-[2] flex flex-col justify-end p-2.5 sm:p-3 lg:p-3.5 cursor-pointer"
       >
-        <div className="flex flex-col max-w-2xl backdrop-blur-md bg-black/20 dark:bg-black/40 rounded-xl ring-1 ring-white/[0.08] px-3 py-2 sm:px-5 sm:py-3.5">
+        <div className="flex flex-col max-w-2xl backdrop-blur-md bg-black/10 dark:bg-black/40 rounded-xl ring-1 ring-white/[0.08] px-3 py-2 sm:px-5 sm:py-3.5">
           {/* 发布者行 */}
           <div className="flex items-center gap-1.5 mb-1 sm:mb-2">
             {ann.authorAvatar ? (
@@ -120,21 +120,21 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
                 alt={ann.authorName || siteName}
                 width={28}
                 height={28}
-                className="h-7 w-7 rounded-full object-cover ring-1 ring-white/15"
+                className="h-7 w-7 rounded-full object-cover ring-1 ring-zinc-300 dark:ring-white/15"
                 unoptimized
               />
             ) : (
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/15 text-xs font-bold text-white/90">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-200 dark:bg-white/15 text-xs font-bold text-zinc-700 dark:text-white/90">
                 {(ann.authorName || siteName).charAt(0)}
               </div>
             )}
-            <span className="text-sm font-medium text-white/90">{ann.authorName || siteName}</span>
-            <span className="text-xs text-white/50" suppressHydrationWarning>· {relativeTime(ann.createdAt)}</span>
+            <span className="text-sm font-medium text-zinc-800 dark:text-white/90">{ann.authorName || siteName}</span>
+            <span className="text-xs text-zinc-500 dark:text-white/50" suppressHydrationWarning>· {relativeTime(ann.createdAt)}</span>
           </div>
 
           {/* 标题 + NEW */}
           <div className="flex items-center gap-2.5 mb-1">
-            <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold leading-tight text-white line-clamp-1 transition-colors hover:text-[var(--primary)]">
+            <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold leading-tight text-zinc-900 dark:text-white line-clamp-1 transition-colors hover:text-[var(--primary)]">
               {ann.title}
             </h2>
             {showNew && (
