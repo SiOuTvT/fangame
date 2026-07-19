@@ -1,0 +1,149 @@
+
+> fangame@0.1.0 dev
+> node --max-old-space-size=4096 node_modules/next/dist/bin/next dev
+
+▲ Next.js 16.2.7 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.5.32:3000
+- Environments: .env
+✓ Ready in 642ms
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+[90m2026-07-19T05:22:17.601Z[0m [33mWRN[0m [90m[DB][0m 安全警告 [90m{"issues":"NEXTAUTH_SECRET 使用了弱密钥，生产环境请运行: openssl rand -base64 32; 数据库使用了弱密码，生产环境请更换强密码"}[0m
+[90m2026-07-19T05:22:17.617Z[0m [32mINF[0m [90m[DB][0m 使用内存缓存（配置 Redis 以启用 Redis 缓存）
+[90m2026-07-19T05:22:18.317Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-07-19T05:22:18.317Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-07-19T05:22:18.317Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /admin 200 in 2.7s (next.js: 825ms, proxy.ts: 187ms, application-code: 1735ms)
+ GET /manifest.webmanifest 200 in 160ms (next.js: 115ms, proxy.ts: 14ms, application-code: 32ms)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["prisma"].tagGroup.findFirst()` invocation in
+D:\fangame\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:187
+
+  622 // 获取"首页卡片标签"组的颜色
+  623 let cardTagColor = "#6b7280";
+  624 try {
+→ 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["prisma"].tagGroup.findFirst(
+Error occurred during query execution:
+ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: "42883", message: "操作符不存在: text @> unknown", severity: "错误", detail: None, column: None, hint: Some("没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.") }), transient: false })
+[90m2026-07-19T05:22:19.913Z[0m [33mWRN[0m [90m[DB][0m [HomePage] cardTagColor query failed [90m{"error":"\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst()` invocation in\nD:\\fangame\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__1ombvbc._.js:625:187\n\n  622 // 获取\"首页卡片标签\"组的颜色\n  623 let cardTagColor = \"#6b7280\";\n  624 try {\n→ 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst(\nError occurred during query execution:\nConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: \"42883\", message: \"操作符不存在: text @> unknown\", severity: \"错误\", detail: None, column: None, hint: Some(\"没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.\") }), transient: false })"}[0m
+ GET /manifest.webmanifest 200 in 103ms (next.js: 42ms, proxy.ts: 53ms, application-code: 8ms)
+ GET / 200 in 524ms (next.js: 33ms, proxy.ts: 6ms, application-code: 484ms)
+ GET /api/site-settings 200 in 1069ms (next.js: 332ms, proxy.ts: 18ms, application-code: 720ms)
+ GET /api/site-settings 200 in 38ms (next.js: 17ms, proxy.ts: 12ms, application-code: 9ms)
+ GET /api/emotional-messages 200 in 1064ms (next.js: 347ms, proxy.ts: 135ms, application-code: 582ms)
+ GET /icon-192.png 404 in 1457ms (next.js: 618ms, proxy.ts: 162ms, application-code: 678ms)
+ GET /icon-192.png 404 in 231ms (next.js: 40ms, proxy.ts: 20ms, application-code: 171ms)
+ GET /icon?1ae48169b089fbfe 200 in 1599ms (next.js: 51ms, proxy.ts: 7ms, application-code: 1542ms)
+ GET /icon?1ae48169b089fbfe 200 in 46ms (next.js: 8ms, proxy.ts: 10ms, application-code: 28ms)
+ GET /api/auth/session 200 in 2.5s (next.js: 2.4s, proxy.ts: 19ms, application-code: 47ms)
+ GET /api/auth/session 200 in 70ms (next.js: 24ms, proxy.ts: 5ms, application-code: 40ms)
+[90m2026-07-19T05:22:24.041Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-07-19T05:22:24.041Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-07-19T05:22:24.041Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /api/auth/session 200 in 542ms (next.js: 15ms, proxy.ts: 8ms, application-code: 519ms)
+ GET /api/music 200 in 59ms (next.js: 29ms, proxy.ts: 16ms, application-code: 14ms)
+ GET /api/music 200 in 543ms (next.js: 303ms, proxy.ts: 39ms, application-code: 201ms)
+ GET /api/notifications/unread-count 200 in 593ms (next.js: 216ms, proxy.ts: 23ms, application-code: 355ms)
+ GET /api/user/stats 200 in 610ms (next.js: 278ms, proxy.ts: 23ms, application-code: 310ms)
+ GET /api/admin/counts 200 in 330ms (next.js: 162ms, proxy.ts: 7ms, application-code: 161ms)
+ GET /api/auth/session 200 in 150ms (next.js: 77ms, proxy.ts: 14ms, application-code: 59ms)
+ GET /api/auth/session 200 in 47ms (next.js: 13ms, proxy.ts: 7ms, application-code: 28ms)
+ GET /api/auth/session 200 in 70ms (next.js: 32ms, proxy.ts: 6ms, application-code: 32ms)
+✓ Compiled in 319ms
+[90m2026-07-19T05:22:36.876Z[0m [33mWRN[0m [90m[DB][0m 安全警告 [90m{"issues":"NEXTAUTH_SECRET 使用了弱密钥，生产环境请运行: openssl rand -base64 32; 数据库使用了弱密码，生产环境请更换强密码"}[0m
+[90m2026-07-19T05:22:36.877Z[0m [32mINF[0m [90m[DB][0m 使用内存缓存（配置 Redis 以启用 Redis 缓存）
+[90m2026-07-19T05:22:36.922Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-07-19T05:22:36.922Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-07-19T05:22:36.923Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-07-19T05:22:37.007Z[0m [33mWRN[0m [90m[DB][0m 安全警告 [90m{"issues":"NEXTAUTH_SECRET 使用了弱密钥，生产环境请运行: openssl rand -base64 32; 数据库使用了弱密码，生产环境请更换强密码"}[0m
+[90m2026-07-19T05:22:37.009Z[0m [32mINF[0m [90m[DB][0m 使用内存缓存（配置 Redis 以启用 Redis 缓存）
+[90m2026-07-19T05:22:37.084Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-07-19T05:22:37.084Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-07-19T05:22:37.084Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["prisma"].tagGroup.findFirst()` invocation in
+D:\fangame\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:187
+
+  622 // 获取"首页卡片标签"组的颜色
+  623 let cardTagColor = "#6b7280";
+  624 try {
+→ 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["prisma"].tagGroup.findFirst(
+Error occurred during query execution:
+ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: "42883", message: "操作符不存在: text @> unknown", severity: "错误", detail: None, column: None, hint: Some("没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.") }), transient: false })
+[90m2026-07-19T05:22:37.107Z[0m [33mWRN[0m [90m[DB][0m [HomePage] cardTagColor query failed [90m{"error":"\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst()` invocation in\nD:\\fangame\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__1ombvbc._.js:625:187\n\n  622 // 获取\"首页卡片标签\"组的颜色\n  623 let cardTagColor = \"#6b7280\";\n  624 try {\n→ 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst(\nError occurred during query execution:\nConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: \"42883\", message: \"操作符不存在: text @> unknown\", severity: \"错误\", detail: None, column: None, hint: Some(\"没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.\") }), transient: false })"}[0m
+ GET / 200 in 500ms (next.js: 56ms, proxy.ts: 6ms, application-code: 438ms)
+ GET /admin 200 in 687ms (next.js: 70ms, proxy.ts: 151ms, application-code: 467ms)
+ GET /manifest.webmanifest 200 in 71ms (next.js: 50ms, proxy.ts: 10ms, application-code: 10ms)
+ GET /icon?1ae48169b089fbfe 200 in 113ms (next.js: 82ms, proxy.ts: 10ms, application-code: 21ms)
+ GET /manifest.webmanifest 200 in 25ms (next.js: 12ms, proxy.ts: 8ms, application-code: 4ms)
+ GET /icon?1ae48169b089fbfe 200 in 39ms (next.js: 15ms, proxy.ts: 10ms, application-code: 15ms)
+ GET /icon-192.png 404 in 416ms (next.js: 17ms, proxy.ts: 5ms, application-code: 394ms)
+ GET /icon-192.png 404 in 125ms (next.js: 9ms, proxy.ts: 3ms, application-code: 113ms)
+✓ Compiled in 151ms
+[90m2026-07-19T05:22:51.592Z[0m [33mWRN[0m [90m[DB][0m 安全警告 [90m{"issues":"NEXTAUTH_SECRET 使用了弱密钥，生产环境请运行: openssl rand -base64 32; 数据库使用了弱密码，生产环境请更换强密码"}[0m
+[90m2026-07-19T05:22:51.593Z[0m [32mINF[0m [90m[DB][0m 使用内存缓存（配置 Redis 以启用 Redis 缓存）
+[90m2026-07-19T05:22:51.643Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-07-19T05:22:51.643Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-07-19T05:22:51.643Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-07-19T05:22:51.748Z[0m [33mWRN[0m [90m[DB][0m 安全警告 [90m{"issues":"NEXTAUTH_SECRET 使用了弱密钥，生产环境请运行: openssl rand -base64 32; 数据库使用了弱密码，生产环境请更换强密码"}[0m
+[90m2026-07-19T05:22:51.750Z[0m [32mINF[0m [90m[DB][0m 使用内存缓存（配置 Redis 以启用 Redis 缓存）
+[90m2026-07-19T05:22:51.789Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-07-19T05:22:51.789Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-07-19T05:22:51.789Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["prisma"].tagGroup.findFirst()` invocation in
+D:\fangame\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:187
+
+  622 // 获取"首页卡片标签"组的颜色
+  623 let cardTagColor = "#6b7280";
+  624 try {
+→ 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["prisma"].tagGroup.findFirst(
+Error occurred during query execution:
+ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: "42883", message: "操作符不存在: text @> unknown", severity: "错误", detail: None, column: None, hint: Some("没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.") }), transient: false })
+[90m2026-07-19T05:22:51.800Z[0m [33mWRN[0m [90m[DB][0m [HomePage] cardTagColor query failed [90m{"error":"\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst()` invocation in\nD:\\fangame\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__1ombvbc._.js:625:187\n\n  622 // 获取\"首页卡片标签\"组的颜色\n  623 let cardTagColor = \"#6b7280\";\n  624 try {\n→ 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst(\nError occurred during query execution:\nConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: \"42883\", message: \"操作符不存在: text @> unknown\", severity: \"错误\", detail: None, column: None, hint: Some(\"没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.\") }), transient: false })"}[0m
+ GET / 200 in 332ms (next.js: 44ms, proxy.ts: 6ms, application-code: 282ms)
+ GET /admin 200 in 438ms (next.js: 84ms, proxy.ts: 152ms, application-code: 202ms)
+ GET /manifest.webmanifest 200 in 70ms (next.js: 57ms, proxy.ts: 4ms, application-code: 9ms)
+ GET /icon?1ae48169b089fbfe 200 in 76ms (next.js: 32ms, proxy.ts: 4ms, application-code: 40ms)
+ GET /manifest.webmanifest 200 in 26ms (next.js: 12ms, proxy.ts: 8ms, application-code: 5ms)
+ GET /icon?1ae48169b089fbfe 200 in 49ms (next.js: 17ms, proxy.ts: 9ms, application-code: 23ms)
+ GET /icon-192.png 404 in 368ms (next.js: 10ms, proxy.ts: 4ms, application-code: 354ms)
+ GET /icon-192.png 404 in 98ms (next.js: 11ms, proxy.ts: 4ms, application-code: 84ms)
+[90m2026-07-19T05:22:54.350Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-07-19T05:22:54.350Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-07-19T05:22:54.350Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /api/notifications/unread-count 200 in 82ms (next.js: 62ms, proxy.ts: 2ms, application-code: 18ms)
+ GET /api/notifications/unread-count 200 in 21ms (next.js: 3ms, proxy.ts: 3ms, application-code: 15ms)
+ GET /api/auth/session 200 in 334ms (next.js: 177ms, proxy.ts: 110ms, application-code: 47ms)
+ GET /api/auth/session 200 in 184ms (next.js: 44ms, proxy.ts: 26ms, application-code: 114ms)
+ GET /api/auth/session 200 in 273ms (next.js: 101ms, proxy.ts: 114ms, application-code: 57ms)
+[browser] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+ GET /api/admin/search?q=S 200 in 365ms (next.js: 269ms, proxy.ts: 15ms, application-code: 80ms)
+ GET /api/admin/search?q=Si 200 in 288ms (next.js: 13ms, proxy.ts: 12ms, application-code: 263ms)
+ GET /api/admin/search?q=SiO 200 in 304ms (next.js: 45ms, proxy.ts: 12ms, application-code: 248ms)
+ GET /api/admin/search?q=SiOu 200 in 128ms (next.js: 34ms, proxy.ts: 12ms, application-code: 83ms)
+ GET /api/notifications/unread-count 200 in 121ms (next.js: 23ms, proxy.ts: 21ms, application-code: 77ms)
+ GET /api/admin/search?q=SiOuT 200 in 198ms (next.js: 41ms, proxy.ts: 34ms, application-code: 124ms)
+ GET /api/admin/search?q=SiOuTv 200 in 171ms (next.js: 9ms, proxy.ts: 11ms, application-code: 150ms)
+ GET /api/admin/search?q=SiOuTvT 200 in 573ms (next.js: 118ms, proxy.ts: 77ms, application-code: 377ms)
+○ Compiling /admin/users ...
+ GET /admin/users 200 in 9.8s (next.js: 8.6s, proxy.ts: 35ms, application-code: 1146ms)
+ GET /manifest.webmanifest 200 in 301ms (next.js: 103ms, proxy.ts: 157ms, application-code: 40ms)
+ GET /icon-192.png 404 in 751ms (next.js: 246ms, proxy.ts: 41ms, application-code: 463ms)
+ GET /api/notifications/unread-count 200 in 200ms (next.js: 40ms, proxy.ts: 17ms, application-code: 142ms)
+○ Compiling /admin/tags ...
+ GET /admin/tags 200 in 6.4s (next.js: 5.6s, proxy.ts: 27ms, application-code: 766ms)
+ GET /manifest.webmanifest 200 in 76ms (next.js: 31ms, proxy.ts: 17ms, application-code: 28ms)
+ GET /icon-192.png 404 in 549ms (next.js: 114ms, proxy.ts: 26ms, application-code: 409ms)
+ GET /admin 200 in 755ms (next.js: 58ms, proxy.ts: 42ms, application-code: 654ms)
+ GET /manifest.webmanifest 200 in 106ms (next.js: 21ms, proxy.ts: 52ms, application-code: 33ms)
+ GET /icon-192.png 404 in 522ms (next.js: 47ms, proxy.ts: 16ms, application-code: 459ms)
+ GET /api/auth/session 200 in 346ms (next.js: 168ms, proxy.ts: 69ms, application-code: 109ms)
+ GET /api/auth/session 200 in 305ms (next.js: 139ms, proxy.ts: 22ms, application-code: 144ms)
+ GET /api/auth/session 200 in 223ms (next.js: 60ms, proxy.ts: 24ms, application-code: 139ms)
+ GET /api/auth/session 200 in 290ms (next.js: 86ms, proxy.ts: 41ms, application-code: 163ms)
+ GET /api/auth/session 200 in 41ms (next.js: 22ms, proxy.ts: 4ms, application-code: 15ms)
+ GET /api/auth/session 200 in 58ms (next.js: 25ms, proxy.ts: 4ms, application-code: 29ms)
+ GET /api/notifications/unread-count 200 in 51ms (next.js: 8ms, proxy.ts: 7ms, application-code: 36ms)
+ GET /api/notifications/unread-count 200 in 66ms (next.js: 9ms, proxy.ts: 8ms, application-code: 50ms)

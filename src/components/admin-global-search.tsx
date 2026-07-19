@@ -71,7 +71,14 @@ export function AdminGlobalSearch() {
         const res = await fetch(`/api/admin/search?q=${encodeURIComponent(q.trim())}`)
         if (res.ok) {
           const j = await res.json()
-          setResults(Array.isArray(j) ? j : j.data ?? [])
+          const raw = j.data ?? j
+          // API 返回 { games: [], users: [], forumPosts: [] }，映射为 SearchResult[]
+          const flat: SearchResult[] = [
+            ...((raw.games ?? []).map((g: { id: string; title: string; coverImage?: string }) => ({ type: "game" as const, id: g.id, title: g.title }))),
+            ...((raw.users ?? []).map((u: { id: string; username: string }) => ({ type: "user" as const, id: u.id, title: u.username }))),
+            ...((raw.forumPosts ?? []).map((p: { id: string; title: string }) => ({ type: "forum" as const, id: p.id, title: p.title }))),
+          ]
+          setResults(flat)
           setSelectedIndex(0)
         }
       } catch (err) {
