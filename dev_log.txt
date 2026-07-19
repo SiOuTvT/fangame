@@ -286,3 +286,40 @@ ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(Postgr
  GET /api/auth/session 200 in 384ms (next.js: 152ms, proxy.ts: 66ms, application-code: 167ms)
  GET /icon-192.png 404 in 1260ms (next.js: 84ms, proxy.ts: 25ms, application-code: 1150ms)
  GET /api/auth/session 200 in 103ms (next.js: 70ms, proxy.ts: 12ms, application-code: 21ms)
+ GET /api/notifications/unread-count 200 in 327ms (next.js: 32ms, proxy.ts: 38ms, application-code: 257ms)
+✓ Compiled in 4.2s
+[90m2026-07-19T05:32:27.781Z[0m [33mWRN[0m [90m[DB][0m 安全警告 [90m{"issues":"NEXTAUTH_SECRET 使用了弱密钥，生产环境请运行: openssl rand -base64 32; 数据库使用了弱密码，生产环境请更换强密码"}[0m
+[90m2026-07-19T05:32:27.783Z[0m [32mINF[0m [90m[DB][0m 使用内存缓存（配置 Redis 以启用 Redis 缓存）
+[90m2026-07-19T05:32:28.645Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-07-19T05:32:28.645Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-07-19T05:32:28.645Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["prisma"].tagGroup.findFirst()` invocation in
+D:\fangame\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:187
+
+  622 // 获取"首页卡片标签"组的颜色
+  623 let cardTagColor = "#6b7280";
+  624 try {
+→ 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["prisma"].tagGroup.findFirst(
+Error occurred during query execution:
+ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: "42883", message: "操作符不存在: text @> unknown", severity: "错误", detail: None, column: None, hint: Some("没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.") }), transient: false })
+[90m2026-07-19T05:32:29.045Z[0m [33mWRN[0m [90m[DB][0m [HomePage] cardTagColor query failed [90m{"error":"\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst()` invocation in\nD:\\fangame\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__1ombvbc._.js:625:187\n\n  622 // 获取\"首页卡片标签\"组的颜色\n  623 let cardTagColor = \"#6b7280\";\n  624 try {\n→ 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst(\nError occurred during query execution:\nConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: \"42883\", message: \"操作符不存在: text @> unknown\", severity: \"错误\", detail: None, column: None, hint: Some(\"没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.\") }), transient: false })"}[0m
+ GET / 200 in 3.3s (next.js: 1141ms, proxy.ts: 341ms, application-code: 1857ms)
+ GET /admin 200 in 1992ms (next.js: 549ms, proxy.ts: 113ms, application-code: 1330ms)
+[90m2026-07-19T05:32:36.855Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-07-19T05:32:36.855Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-07-19T05:32:36.855Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /api/notifications/unread-count 200 in 557ms (next.js: 438ms, proxy.ts: 14ms, application-code: 105ms)
+ GET /manifest.webmanifest 200 in 145ms (next.js: 91ms, proxy.ts: 25ms, application-code: 29ms)
+ GET /icon-192.png 404 in 1291ms (next.js: 75ms, proxy.ts: 20ms, application-code: 1196ms)
+ GET /manifest.webmanifest 200 in 71ms (next.js: 18ms, proxy.ts: 21ms, application-code: 32ms)
+ GET /icon-192.png 404 in 459ms (next.js: 32ms, proxy.ts: 11ms, application-code: 416ms)
+ GET /api/auth/session 200 in 392ms (next.js: 270ms, proxy.ts: 12ms, application-code: 109ms)
+ GET /api/auth/session 200 in 159ms (next.js: 63ms, proxy.ts: 17ms, application-code: 78ms)
+ GET /api/auth/session 200 in 142ms (next.js: 43ms, proxy.ts: 24ms, application-code: 74ms)
+ GET /api/notifications/unread-count 200 in 237ms (next.js: 54ms, proxy.ts: 15ms, application-code: 167ms)
+ GET /api/notifications/unread-count 200 in 189ms (next.js: 41ms, proxy.ts: 43ms, application-code: 105ms)
+ GET /api/auth/session 200 in 399ms (next.js: 290ms, proxy.ts: 55ms, application-code: 53ms)
+ GET /api/auth/session 200 in 144ms (next.js: 43ms, proxy.ts: 21ms, application-code: 80ms)
+ GET /api/auth/session 200 in 358ms (next.js: 141ms, proxy.ts: 32ms, application-code: 185ms)
+ GET /api/notifications/unread-count 200 in 334ms (next.js: 52ms, proxy.ts: 15ms, application-code: 266ms)
