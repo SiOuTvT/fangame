@@ -239,11 +239,11 @@ export default function ServicesPage() {
       <Card className="p-6 space-y-4" style={{ borderRadius: "var(--radius-lg)" }}>
         <SectionHeader icon={HardDrive} title="Cloudflare R2 存储" desc="S3 兼容对象存储，用于游戏截图、用户头像等文件上传" />
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Account ID" value={config.r2_account_id} onChange={v => updateService("r2_account_id", v)} placeholder="Cloudflare 账户 ID" />
-          <Field label="Bucket Name" value={config.r2_bucket_name} onChange={v => updateService("r2_bucket_name", v)} placeholder="存储桶名称" />
-          <Field label="Access Key ID" value={config.r2_access_key_id} onChange={v => updateService("r2_access_key_id", v)} placeholder="R2 API Token ID" />
-          <SecretField label="Secret Access Key" value={config.r2_secret_access_key} onChange={v => updateService("r2_secret_access_key", v)} placeholder="R2 API Token Secret" />
-          <Field label="Public URL" value={config.r2_public_url} onChange={v => updateService("r2_public_url", v)} placeholder="https://pub-xxx.r2.dev" className="sm:col-span-2" />
+          <Field label="Account ID" value={config.r2_account_id} onChange={v => updateService("r2_account_id", v)} placeholder="Cloudflare 账户 ID" required />
+          <Field label="Bucket Name" value={config.r2_bucket_name} onChange={v => updateService("r2_bucket_name", v)} placeholder="存储桶名称" required />
+          <Field label="Access Key ID" value={config.r2_access_key_id} onChange={v => updateService("r2_access_key_id", v)} placeholder="R2 API Token ID" required />
+          <SecretField label="Secret Access Key" value={config.r2_secret_access_key} onChange={v => updateService("r2_secret_access_key", v)} placeholder="R2 API Token Secret" required />
+          <Field label="Public URL" value={config.r2_public_url} onChange={v => updateService("r2_public_url", v)} placeholder="https://pub-xxx.r2.dev" className="sm:col-span-2" required />
         </div>
         <TestAction>
           <button onClick={() => handleTest("r2")} disabled={testing === "r2" || !config.r2_account_id} className={adminBtnSecondary}>
@@ -419,13 +419,15 @@ function TestResultBadge({ result }: { result?: TestResult }) {
   )
 }
 
-function Field({ label, value, onChange, placeholder, disabled, className }: {
+function Field({ label, value, onChange, placeholder, disabled, className, required }: {
   label: string; value: string; onChange: (v: string) => void; placeholder: string
-  disabled?: boolean; className?: string
+  disabled?: boolean; className?: string; required?: boolean
 }) {
   return (
     <div className={className}>
-      <label className="block text-sm font-medium text-foreground mb-1.5">{label}</label>
+      <label className="block text-sm font-medium text-foreground mb-1.5">
+        {label}{required && <span className="text-destructive ml-0.5">*</span>}
+      </label>
       <Input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
         disabled={disabled} autoComplete="off" />
     </div>
