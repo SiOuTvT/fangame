@@ -10,7 +10,7 @@ export function applyThemeColor(hex: string, radius = 12, shadowIntensity = 50, 
   const isDark = !root.classList.contains("light")
   const [r, g, b] = hexToRgb(hex)
   const lum = 0.299 * (r / 255) + 0.587 * (g / 255) + 0.114 * (b / 255)
-  const fg = lum > 0.6 ? "#18181b" : "#ffffff"
+  const fg = lum > 0.5 ? "#18181b" : "#ffffff"
   const alphaDecimal = alpha / 100
   const hue = getHue(hex)
 

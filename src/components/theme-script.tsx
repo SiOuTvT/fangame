@@ -93,7 +93,7 @@ export async function ThemeScript() {
         root.style.setProperty('--theme-color-hover', darken(hex, 0.15));
         root.style.setProperty('--theme-color-active', darken(hex, 0.25));
         // 前景文字（白/黑自动判定）
-        var fg = (0.299*(r/255) + 0.587*(g/255) + 0.114*(b/255)) > 0.6 ? '#18181b' : '#ffffff';
+        var fg = (0.299*(r/255) + 0.587*(g/255) + 0.114*(b/255)) > 0.5 ? '#18181b' : '#ffffff';
         root.style.setProperty('--primary-foreground', fg);
         root.style.setProperty('--theme-fg', fg);
 
