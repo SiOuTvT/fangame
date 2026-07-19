@@ -645,3 +645,87 @@ ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(Postgr
  GET /api/notifications/unread-count 200 in 200ms (next.js: 166ms, proxy.ts: 8ms, application-code: 26ms)
  GET /api/auth/session 200 in 29ms (next.js: 14ms, proxy.ts: 4ms, application-code: 11ms)
  GET /api/auth/session 200 in 27ms (next.js: 11ms, proxy.ts: 3ms, application-code: 13ms)
+ GET /api/notifications/unread-count 200 in 19ms (next.js: 2ms, proxy.ts: 3ms, application-code: 14ms)
+✓ Compiled in 257ms
+[90m2026-07-19T07:22:20.841Z[0m [33mWRN[0m [90m[DB][0m 安全警告 [90m{"issues":"NEXTAUTH_SECRET 使用了弱密钥，生产环境请运行: openssl rand -base64 32; 数据库使用了弱密码，生产环境请更换强密码"}[0m
+[90m2026-07-19T07:22:20.842Z[0m [32mINF[0m [90m[DB][0m 使用内存缓存（配置 Redis 以启用 Redis 缓存）
+[90m2026-07-19T07:22:20.889Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-07-19T07:22:20.889Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-07-19T07:22:20.889Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET / 200 in 193ms (next.js: 47ms, proxy.ts: 15ms, application-code: 131ms)
+ GET /manifest.webmanifest 200 in 50ms (next.js: 39ms, proxy.ts: 4ms, application-code: 6ms)
+ GET /icon-192.png 404 in 285ms (next.js: 14ms, proxy.ts: 5ms, application-code: 266ms)
+[90m2026-07-19T07:22:24.369Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-07-19T07:22:24.369Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-07-19T07:22:24.369Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /api/notifications/unread-count 200 in 96ms (next.js: 77ms, proxy.ts: 3ms, application-code: 16ms)
+✓ Compiled in 171ms
+[90m2026-07-19T07:22:32.702Z[0m [33mWRN[0m [90m[DB][0m 安全警告 [90m{"issues":"NEXTAUTH_SECRET 使用了弱密钥，生产环境请运行: openssl rand -base64 32; 数据库使用了弱密码，生产环境请更换强密码"}[0m
+[90m2026-07-19T07:22:32.703Z[0m [32mINF[0m [90m[DB][0m 使用内存缓存（配置 Redis 以启用 Redis 缓存）
+[90m2026-07-19T07:22:32.743Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-07-19T07:22:32.743Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-07-19T07:22:32.743Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET / 200 in 172ms (next.js: 67ms, proxy.ts: 16ms, application-code: 90ms)
+ GET /manifest.webmanifest 200 in 48ms (next.js: 38ms, proxy.ts: 5ms, application-code: 5ms)
+ GET /icon-192.png 404 in 263ms (next.js: 13ms, proxy.ts: 3ms, application-code: 247ms)
+✓ Compiled in 111ms
+[90m2026-07-19T07:22:37.915Z[0m [33mWRN[0m [90m[DB][0m 安全警告 [90m{"issues":"NEXTAUTH_SECRET 使用了弱密钥，生产环境请运行: openssl rand -base64 32; 数据库使用了弱密码，生产环境请更换强密码"}[0m
+[90m2026-07-19T07:22:37.915Z[0m [32mINF[0m [90m[DB][0m 使用内存缓存（配置 Redis 以启用 Redis 缓存）
+[90m2026-07-19T07:22:37.967Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-07-19T07:22:37.967Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-07-19T07:22:37.968Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET / 200 in 190ms (next.js: 79ms, proxy.ts: 17ms, application-code: 94ms)
+ GET /manifest.webmanifest 200 in 50ms (next.js: 40ms, proxy.ts: 6ms, application-code: 4ms)
+ GET /icon-192.png 404 in 276ms (next.js: 13ms, proxy.ts: 3ms, application-code: 260ms)
+✓ Compiled in 242ms
+[90m2026-07-19T07:22:44.878Z[0m [33mWRN[0m [90m[DB][0m 安全警告 [90m{"issues":"NEXTAUTH_SECRET 使用了弱密钥，生产环境请运行: openssl rand -base64 32; 数据库使用了弱密码，生产环境请更换强密码"}[0m
+[90m2026-07-19T07:22:44.879Z[0m [32mINF[0m [90m[DB][0m 使用内存缓存（配置 Redis 以启用 Redis 缓存）
+[90m2026-07-19T07:22:44.919Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-07-19T07:22:44.919Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-07-19T07:22:44.919Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET / 200 in 182ms (next.js: 65ms, proxy.ts: 14ms, application-code: 103ms)
+ GET /manifest.webmanifest 200 in 56ms (next.js: 45ms, proxy.ts: 5ms, application-code: 6ms)
+ GET /icon-192.png 404 in 274ms (next.js: 11ms, proxy.ts: 3ms, application-code: 259ms)
+✓ Compiled in 208ms
+[90m2026-07-19T07:22:53.777Z[0m [33mWRN[0m [90m[DB][0m 安全警告 [90m{"issues":"NEXTAUTH_SECRET 使用了弱密钥，生产环境请运行: openssl rand -base64 32; 数据库使用了弱密码，生产环境请更换强密码"}[0m
+[90m2026-07-19T07:22:53.782Z[0m [32mINF[0m [90m[DB][0m 使用内存缓存（配置 Redis 以启用 Redis 缓存）
+[90m2026-07-19T07:22:53.833Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-07-19T07:22:53.833Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-07-19T07:22:53.833Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET / 200 in 219ms (next.js: 93ms, proxy.ts: 33ms, application-code: 93ms)
+ GET /manifest.webmanifest 200 in 61ms (next.js: 49ms, proxy.ts: 5ms, application-code: 6ms)
+ GET /icon-192.png 404 in 265ms (next.js: 11ms, proxy.ts: 3ms, application-code: 250ms)
+[90m2026-07-19T07:22:54.421Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-07-19T07:22:54.421Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-07-19T07:22:54.421Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /api/notifications/unread-count 200 in 164ms (next.js: 116ms, proxy.ts: 2ms, application-code: 45ms)
+ GET /api/auth/session 200 in 111ms (next.js: 89ms, proxy.ts: 3ms, application-code: 19ms)
+ GET /api/auth/session 200 in 21ms (next.js: 5ms, proxy.ts: 3ms, application-code: 12ms)
+ GET /api/notifications/unread-count 200 in 38ms (next.js: 5ms, proxy.ts: 5ms, application-code: 28ms)
+✓ Compiled in 272ms
+[90m2026-07-19T07:23:29.610Z[0m [33mWRN[0m [90m[DB][0m 安全警告 [90m{"issues":"NEXTAUTH_SECRET 使用了弱密钥，生产环境请运行: openssl rand -base64 32; 数据库使用了弱密码，生产环境请更换强密码"}[0m
+[90m2026-07-19T07:23:29.611Z[0m [32mINF[0m [90m[DB][0m 使用内存缓存（配置 Redis 以启用 Redis 缓存）
+[90m2026-07-19T07:23:29.692Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-07-19T07:23:29.692Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-07-19T07:23:29.692Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET / 200 in 279ms (next.js: 132ms, proxy.ts: 19ms, application-code: 128ms)
+ GET /manifest.webmanifest 200 in 76ms (next.js: 64ms, proxy.ts: 7ms, application-code: 5ms)
+ GET /icon-192.png 404 in 287ms (next.js: 12ms, proxy.ts: 4ms, application-code: 272ms)
+✓ Compiled in 195ms
+[90m2026-07-19T07:23:36.505Z[0m [33mWRN[0m [90m[DB][0m 安全警告 [90m{"issues":"NEXTAUTH_SECRET 使用了弱密钥，生产环境请运行: openssl rand -base64 32; 数据库使用了弱密码，生产环境请更换强密码"}[0m
+[90m2026-07-19T07:23:36.506Z[0m [32mINF[0m [90m[DB][0m 使用内存缓存（配置 Redis 以启用 Redis 缓存）
+[90m2026-07-19T07:23:36.551Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-07-19T07:23:36.551Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-07-19T07:23:36.551Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET / 200 in 182ms (next.js: 70ms, proxy.ts: 18ms, application-code: 93ms)
+ GET /manifest.webmanifest 200 in 67ms (next.js: 56ms, proxy.ts: 5ms, application-code: 6ms)
+ GET /icon-192.png 404 in 410ms (next.js: 14ms, proxy.ts: 3ms, application-code: 392ms)
+✓ Compiled in 195ms
+[90m2026-07-19T07:23:42.234Z[0m [33mWRN[0m [90m[DB][0m 安全警告 [90m{"issues":"NEXTAUTH_SECRET 使用了弱密钥，生产环境请运行: openssl rand -base64 32; 数据库使用了弱密码，生产环境请更换强密码"}[0m
+[90m2026-07-19T07:23:42.235Z[0m [32mINF[0m [90m[DB][0m 使用内存缓存（配置 Redis 以启用 Redis 缓存）
+[90m2026-07-19T07:23:42.312Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-07-19T07:23:42.312Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-07-19T07:23:42.312Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET / 200 in 251ms (next.js: 66ms, proxy.ts: 17ms, application-code: 168ms)
+ GET /manifest.webmanifest 200 in 58ms (next.js: 47ms, proxy.ts: 6ms, application-code: 5ms)
+ GET /icon-192.png 404 in 281ms (next.js: 15ms, proxy.ts: 5ms, application-code: 262ms)

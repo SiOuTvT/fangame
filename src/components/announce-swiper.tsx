@@ -111,7 +111,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
         rel={ann.link ? "noopener noreferrer" : undefined}
         className="absolute inset-0 z-[2] flex flex-col justify-end p-2.5 sm:p-3 lg:p-3.5 cursor-pointer"
       >
-        <div className="flex flex-col max-w-2xl backdrop-blur-md bg-black/25 dark:bg-black/40 rounded-xl ring-1 ring-white/[0.08] px-3 py-2 sm:px-5 sm:py-3.5">
+        <div className="flex flex-col max-w-2xl backdrop-blur-md bg-black/35 dark:bg-black/40 rounded-xl ring-1 ring-white/[0.08] px-3 py-2 sm:px-5 sm:py-3.5">
           {/* 发布者行 */}
           <div className="flex items-center gap-1.5 mb-1 sm:mb-2">
             {ann.authorAvatar ? (
@@ -120,21 +120,21 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
                 alt={ann.authorName || siteName}
                 width={28}
                 height={28}
-                className="h-7 w-7 rounded-full object-cover ring-1 ring-zinc-300 dark:ring-white/15"
+                className="h-7 w-7 rounded-full object-cover ring-1 ring-white/15"
                 unoptimized
               />
             ) : (
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-200 dark:bg-white/15 text-xs font-bold text-zinc-700 dark:text-white/90">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/15 text-xs font-bold text-white/90">
                 {(ann.authorName || siteName).charAt(0)}
               </div>
             )}
-            <span className="text-sm font-medium text-zinc-800 dark:text-white/90">{ann.authorName || siteName}</span>
-            <span className="text-xs text-zinc-500 dark:text-white/50" suppressHydrationWarning>· {relativeTime(ann.createdAt)}</span>
+            <span className="text-sm font-medium text-white/90">{ann.authorName || siteName}</span>
+            <span className="text-xs text-white/50" suppressHydrationWarning>· {relativeTime(ann.createdAt)}</span>
           </div>
 
           {/* 标题 + NEW */}
           <div className="flex items-center gap-2.5 mb-1">
-            <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold leading-tight text-zinc-900 dark:text-white line-clamp-1 transition-colors hover:text-[var(--primary)]">
+            <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold leading-tight text-white line-clamp-1 transition-colors hover:text-[var(--primary)]">
               {ann.title}
             </h2>
             {showNew && (
@@ -150,14 +150,14 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
 
           {/* 摘要 — 单行省略（手机端隐藏节省空间） */}
           {summary && (
-            <p className="hidden sm:block text-sm text-zinc-600 dark:text-white/70 line-clamp-1 leading-relaxed mb-2.5">
+            <p className="hidden sm:block text-sm text-white/70 line-clamp-1 leading-relaxed mb-2.5">
               {summary}
             </p>
           )}
 
           {/* 查看详情（手机端隐藏） */}
           <span
-            className="hidden sm:inline-flex items-center gap-1 text-xs font-medium text-zinc-700 dark:text-white transition-all hover:underline hover:text-[var(--primary)]"
+            className="hidden sm:inline-flex items-center gap-1 text-xs font-medium text-white transition-all hover:underline hover:text-[var(--primary)]"
           >
             查看详情
             <span className="inline-block transition-transform hover:translate-x-1" aria-hidden="true">→</span>
@@ -171,14 +171,14 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); prev() }}
             aria-label="上一条公告"
-            className="absolute left-3 top-1/2 z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/20 text-zinc-700 dark:bg-black/30 dark:text-white/70 backdrop-blur-sm transition-all hover:bg-black/30 hover:text-zinc-900 dark:hover:bg-black/50 dark:hover:text-white"
+            className="absolute left-3 top-1/2 z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/30 text-white/70 backdrop-blur-sm transition-all hover:bg-black/50 hover:text-white"
           >
             <ChevronLeft className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
           </button>
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); next() }}
             aria-label="下一条公告"
-            className="absolute right-3 top-1/2 z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/20 text-zinc-700 dark:bg-black/30 dark:text-white/70 backdrop-blur-sm transition-all hover:bg-black/30 hover:text-zinc-900 dark:hover:bg-black/50 dark:hover:text-white"
+            className="absolute right-3 top-1/2 z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/30 text-white/70 backdrop-blur-sm transition-all hover:bg-black/50 hover:text-white"
           >
             <ChevronRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
           </button>
@@ -191,7 +191,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); setCur(i) }}
                 aria-label={`切换到第 ${i + 1} 条公告`}
                 aria-current={i === cur ? "true" : undefined}
-                className={`rounded-full transition-all ${i === cur ? "h-1.5 w-5 bg-zinc-800 dark:bg-white/90" : "h-1.5 w-1.5 bg-zinc-400 dark:bg-white/30 hover:bg-zinc-600 dark:hover:bg-white/50"}`}
+                className={`rounded-full transition-all ${i === cur ? "h-1.5 w-5 bg-white/90" : "h-1.5 w-1.5 bg-white/30 hover:bg-white/50"}`}
               />
             ))}
           </div>
