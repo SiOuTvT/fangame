@@ -70,8 +70,8 @@ export function AdminGlobalSearch() {
       try {
         const res = await fetch(`/api/admin/search?q=${encodeURIComponent(q.trim())}`)
         if (res.ok) {
-          const data = await res.json()
-          setResults(data)
+          const j = await res.json()
+          setResults(Array.isArray(j) ? j : j.data ?? [])
           setSelectedIndex(0)
         }
       } catch (err) {

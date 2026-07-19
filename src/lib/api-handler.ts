@@ -42,6 +42,17 @@ export function json<T>(data: T, status = 200): NextResponse {
   return NextResponse.json<ApiResponse<T>>({ success: true, data }, { status })
 }
 
+/**
+ * 客户端解析 API 响应
+ * 统一处理 { success, data } 包装格式，兼容直接返回数组/对象的旧 API
+ */
+export function parseApiResponse<T>(json: unknown): T {
+  if (json && typeof json === "object" && "data" in json) {
+    return (json as { data: T }).data
+  }
+  return json as T
+}
+
 export function created<T>(data: T): NextResponse {
   return json(data, 201)
 }
