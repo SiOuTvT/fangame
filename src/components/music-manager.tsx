@@ -36,7 +36,10 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
   const fetchPlaylists = useCallback(async () => {
     try {
       const res = await fetch("/api/admin/playlists")
-      if (res.ok) setPlaylists(await res.json())
+      if (res.ok) {
+        const json = await res.json()
+        setPlaylists(Array.isArray(json) ? json : json.data ?? [])
+      }
     } catch (err) { logger.api.warn("[MusicManager] fetchPlaylists failed", { error: err instanceof Error ? err.message : String(err) }) }
   }, [])
 
