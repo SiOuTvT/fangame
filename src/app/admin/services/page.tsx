@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { adminBtnPrimary, adminBtnSecondary } from "@/lib/admin-styles"
 import { AlertTriangle, Check, Database, Eye, EyeOff, HardDrive, Loader2, Mail, Save, X, Zap } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
@@ -319,21 +320,25 @@ export default function ServicesPage() {
                 {fields
                   .filter(field => !field.showIf || field.showIf === currentMode)
                   .map(field => {
-                    // mode 字段用 select 代替 input
+                    // mode 字段用 Select 代替 input
                     if (field.key === "mode") {
                       return (
                         <div key={field.key}>
                           <label className="block text-xs font-medium text-foreground mb-1">
                             {field.label}{field.required && <span className="text-destructive ml-0.5">*</span>}
                           </label>
-                          <select
+                          <Select
                             value={providerConfig.mode || "api"}
-                            onChange={e => updateProviderField(providerId, "mode", e.target.value)}
-                            className="w-full h-9 rounded-lg border bg-background px-3 text-sm text-foreground"
+                            onValueChange={v => updateProviderField(providerId, "mode", v)}
                           >
-                            <option value="api">API</option>
-                            <option value="smtp">SMTP Relay</option>
-                          </select>
+                            <SelectTrigger className="w-full min-h-[44px] rounded-xl">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="api">API</SelectItem>
+                              <SelectItem value="smtp">SMTP Relay</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                       )
                     }
@@ -450,10 +455,10 @@ function ProviderSelect({ label, value, onChange, excludeKey, allowNone }: {
   label: string; value: string; onChange: (v: string) => void; excludeKey?: string; allowNone?: boolean
 }) {
   const options = [
-    { key: "", label: "无" },
+    { key: "__none__", label: "无" },
     ...AVAILABLE_PROVIDERS.map(id => ({ key: id, label: PROVIDER_LABELS[id] })),
   ].filter(o => {
-    if (!allowNone && !o.key) return false
+    if (!allowNone && o.key === "__none__") return false
     if (excludeKey && o.key === excludeKey) return false
     return true
   })
@@ -461,15 +466,16 @@ function ProviderSelect({ label, value, onChange, excludeKey, allowNone }: {
   return (
     <div>
       <label className="block text-sm font-medium text-foreground mb-1.5">{label}</label>
-      <select
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        className="w-full h-10 rounded-lg border bg-background px-3 text-sm text-foreground"
-      >
-        {options.map(o => (
-          <option key={o.key} value={o.key}>{o.label}</option>
-        ))}
-      </select>
+      <Select value={value || "__none__"} onValueChange={v => onChange(v === "__none__" ? "" : v)}>
+        <SelectTrigger className="w-full min-h-[44px] rounded-xl">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map(o => (
+            <SelectItem key={o.key} value={o.key}>{o.label}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   )
 }
