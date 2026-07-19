@@ -112,7 +112,7 @@ export default async function HomePage({
   let total = 0
   let todayCheckins = 0
   let weekNewGames = 0
-  let announcements: { id: string; title: string; content: string; imageUrl: string; link: string; createdAt: string; authorName: string; authorAvatar: string }[] = []
+  let announcements: { id: string; title: string; summary: string; content: string; imageUrl: string; link: string; createdAt: string; authorName: string; authorAvatar: string; isPinned: boolean }[] = []
   let dbError = false
 
   // 获取站点品牌信息
@@ -152,22 +152,23 @@ export default async function HomePage({
           prisma.game.count({ where: { isPublished: true, createdAt: { gte: weekAgo } } }),
           prisma.announcement.findMany({
             where: {
+              status: "published",
               isActive: true,
               AND: [
                 { OR: [{ startAt: null }, { startAt: { lte: new Date() } }] },
                 { OR: [{ endAt: null }, { endAt: { gte: new Date() } }] },
               ],
             },
-            orderBy: { createdAt: "desc" },
+            orderBy: [{ isPinned: "desc" }, { sortOrder: "asc" }],
             take: 5,
-            select: { id: true, title: true, content: true, imageUrl: true, link: true, createdAt: true, authorName: true, authorAvatar: true },
+            select: { id: true, title: true, summary: true, content: true, imageUrl: true, link: true, createdAt: true, authorName: true, authorAvatar: true, isPinned: true },
           }).then((anns) => anns.map((a) => ({ ...a, createdAt: a.createdAt.toISOString() }))),
         ]).finally(() => {
           pendingMap!.delete(statsCacheKey)
         })
         pendingMap.set(statsCacheKey, pending)
       }
-      const [totalResult, todayCheckinsResult, weekNewGamesResult, announcementsResult] = await pending
+      const [totalResult, todayCheckinsResult, weekNewGamesResult, announcementsResult] = await pending!
       total = totalResult
       todayCheckins = todayCheckinsResult
       weekNewGames = weekNewGamesResult
