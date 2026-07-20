@@ -12,22 +12,23 @@ label:has(input[type="radio"]), label:has(input[type="checkbox"]) {
 
 /* 全局移动端溢出保护 */
 html {
-  /* clip 替代 hidden：不创建滚动容器，避免 Radix RemoveScroll 锁定视口滚动 */
   overflow-x: clip;
   max-width: 100vw;
-  /* 强制始终显示滚动条，避免浮层打开/关闭时页面宽度变化 */
-  overflow-y: scroll !important;
+  overflow-y: auto;
   overscroll-behavior-y: contain;
+  scrollbar-gutter: stable both-edges;
 }
 body {
-  /* 必须用 clip 而非 hidden：hidden 会强制 overflow-y 变成 auto，
-     导致 body 成为独立滚动容器，与 html 冲突，
-     表现为鼠标滚轮/触摸滑动失效，只能拖右侧滚动条 */
   overflow-x: clip;
   max-width: 100vw;
   overscroll-behavior-y: contain;
-  /* 禁用双击缩放，保留捏合缩放 */
   touch-action: manipulation;
+}
+/* Radix react-remove-scroll 打开弹窗时给 body 加 margin-right 补偿滚动条 → 抵消 */
+body[data-scroll-locked] {
+  overflow: hidden;
+  margin-right: 0 !important;
+  padding-right: 0 !important;
 }
 
 /* 富文本内容中的图片防溢出（仅用户/管理员生成的 HTML 内容） */

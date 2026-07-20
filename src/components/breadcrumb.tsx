@@ -191,7 +191,7 @@ export function Breadcrumb() {
       <nav className="my-8 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm text-muted-foreground leading-none" aria-label="面包屑导航">
         <Link
           href="/"
-          className="inline-flex items-center shrink-0 leading-none text-muted-foreground/60 transition-colors hover:text-foreground"
+          className="inline-flex items-center shrink-0 leading-none text-white/70 transition-colors hover:text-white"
         >
           首页
         </Link>
@@ -207,7 +207,7 @@ export function Breadcrumb() {
               ) : (
                 <Link
                   href={crumb.href}
-                  className="inline-flex items-center leading-none text-muted-foreground/60 transition-colors hover:text-foreground"
+                  className="inline-flex items-center leading-none text-white/70 transition-colors hover:text-white"
                 >
                   {crumb.label}
                 </Link>
@@ -266,7 +266,7 @@ export function Breadcrumb() {
     <nav className="my-8 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm text-muted-foreground leading-none" aria-label="面包屑导航">
       <Link
         href="/"
-        className="inline-flex items-center shrink-0 leading-none text-muted-foreground/60 transition-colors hover:text-foreground"
+        className="inline-flex items-center shrink-0 leading-none text-white/70 transition-colors hover:text-white"
       >
         首页
       </Link>
@@ -282,7 +282,7 @@ export function Breadcrumb() {
             ) : (
               <Link
                 href={crumb.href}
-                className="inline-flex items-center leading-none text-muted-foreground/60 transition-colors hover:text-foreground"
+                className="inline-flex items-center leading-none text-white/70 transition-colors hover:text-white"
               >
                 {crumb.label}
               </Link>
