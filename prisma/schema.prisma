@@ -363,6 +363,7 @@ model GameReport {
   createdAt DateTime @default(now())
   game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
   @@unique([gameId, ip])
+  @@index([createdAt])
 }
 
 model Announcement {
@@ -408,6 +409,7 @@ model Music {
   playlist   Playlist? @relation(fields: [playlistId], references: [id], onDelete: SetNull)
 
   @@index([playlistId])
+  @@index([createdAt])
 }
 
 model GameLog {
@@ -450,6 +452,7 @@ model Creator {
 
   @@index([vndbId])
   @@index([name])
+  @@index([createdAt])
 }
 
 model GameCreator {
@@ -685,9 +688,8 @@ model Achievement {
   @@index([category])
   @@index([conditionType])
   @@index([isActive])
+  @@index([createdAt])
 }
-
-/// 用户成就解锁记录
 model UserAchievement {
   id            String      @id @default(cuid())
   userId        String

@@ -404,11 +404,12 @@ export const searchService = {
 
 export const checkinService = {
   async checkIn(userId: string) {
-    const today = new Date()
+    const todayStr = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Shanghai" })
+    const today = new Date(todayStr + "T00:00:00")
     const existing = await checkinRepo.findByDate(userId, today)
     if (existing) throw new ConflictError("今天已经签到过了")
     const marks = Math.floor(Math.random() * 10) + 1
-    await checkinRepo.create(userId, marks)
+    await checkinRepo.create(userId, marks, today)
     // 连续签到天数
     const records = await checkinRepo.getUserStreak(userId)
     let streak = 0
@@ -425,7 +426,8 @@ export const checkinService = {
   },
 
   async getStatus(userId: string) {
-    const today = new Date()
+    const todayStr = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Shanghai" })
+    const today = new Date(todayStr + "T00:00:00")
     const existing = await checkinRepo.findByDate(userId, today)
     return { checkedIn: !!existing }
   },

@@ -230,18 +230,17 @@ export const POST = withHandler(async (req) => {
 
   // 自动创建缺失标签（默认分配到"详情页信息栏标签"组）
   const newTagNames = tagNames.filter(n => !existingNameSet.has(n))
-  const newTags: { id: string; name: string }[] = []
-  for (const name of newTagNames) {
-    try {
-      const created = await prisma.tag.create({
+  const newTags = (await Promise.all(
+    newTagNames.map(name =>
+      prisma.tag.create({
         data: { name, color: "#6b7280", groupId: "preset_detail_header" },
         select: { id: true, name: true },
+      }).catch((err) => {
+        logger.db.warn("[VndbRoute] create tag failed (possible duplicate)", { error: err instanceof Error ? err.message : String(err) })
+        return null
       })
-      newTags.push(created)
-    } catch (err) {
-      logger.db.warn("[VndbRoute] create tag failed (possible duplicate)", { error: err instanceof Error ? err.message : String(err) })
-    }
-  }
+    )
+  )).filter(Boolean) as { id: string; name: string }[]
 
   // 所有匹配的标签 ID 列表
   const allTagIds = [...existingTags, ...newTags].map(t => t.id)

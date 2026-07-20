@@ -249,10 +249,11 @@ export const checkinRepo = {
     })
   },
 
-  create(userId: string, marks: number) {
-    const dateStr = this._toDateStr(new Date())
-    const date = new Date(dateStr + "T00:00:00.000Z")
-    return prisma.checkIn.create({ data: { userId, date, marks } })
+  create(userId: string, marks: number, date?: Date) {
+    const d = date || new Date()
+    const dateStr = this._toDateStr(d)
+    const dateObj = new Date(dateStr + "T00:00:00.000Z")
+    return prisma.checkIn.create({ data: { userId, date: dateObj, marks } })
   },
 
   getUserStreak(userId: string) {

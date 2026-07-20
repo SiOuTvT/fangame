@@ -1,7 +1,8 @@
-import { AdminGlobalSearch } from "@/components/admin-global-search"
 import { requireAdmin, requireSuperAdmin } from "@/lib/admin"
 import dynamic from "next/dynamic"
 import { headers } from "next/headers"
+
+const AdminGlobalSearch = dynamic(() => import("@/components/admin-global-search").then(m => ({ default: m.AdminGlobalSearch })))
 
 /**
  * 需要 SUPER_ADMIN 权限的路由前缀列表

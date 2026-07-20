@@ -103,7 +103,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
 
   // 签到状态：先从 sessionStorage 读取当日缓存，过期才请求
   useEffect(() => {
-    const today = new Date().toISOString().slice(0, 10)
+    const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Shanghai" })
     try {
       const cached = sessionStorage.getItem("checkin_status")
       if (cached) {

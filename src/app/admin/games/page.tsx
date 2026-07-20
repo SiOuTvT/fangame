@@ -1,9 +1,13 @@
-import { AdminGamesTable } from "@/components/admin-games-table"
 import { Pagination } from "@/components/ui/pagination"
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Download, Plus, Search } from "lucide-react"
+import dynamic from "next/dynamic"
 import Link from "next/link"
+
+const AdminGamesTable = dynamic(() => import("@/components/admin-games-table").then(m => ({ default: m.AdminGamesTable })), {
+  loading: () => <div className="animate-pulse space-y-3">{Array.from({length:8}).map((_,i) => <div key={i} className="h-12 rounded bg-muted" />)}</div>,
+})
 
 export default async function AdminGamesPage({
   searchParams,

@@ -11,7 +11,7 @@ import type { Prisma } from "@prisma/client"
 
 export const achievementRepo = {
   findAll() {
-    return prisma.achievement.findMany({ orderBy: { createdAt: "desc" } })
+    return prisma.achievement.findMany({ orderBy: { createdAt: "desc" }, take: 200 })
   },
   findById(id: string) {
     return prisma.achievement.findUnique({ where: { id } })
@@ -68,6 +68,7 @@ export const creatorRepo = {
   findAll() {
     return prisma.creator.findMany({
       orderBy: { createdAt: "desc" },
+      take: 200,
       include: { _count: { select: { games: true } } },
     })
   },
@@ -177,7 +178,7 @@ export const tagRepo = {
 
 export const musicRepo = {
   findAll() {
-    return prisma.music.findMany({ orderBy: { createdAt: "desc" }, include: { playlist: true } })
+    return prisma.music.findMany({ orderBy: { createdAt: "desc" }, take: 200, include: { playlist: true } })
   },
   findById(id: string) {
     return prisma.music.findUnique({ where: { id } })
@@ -300,7 +301,10 @@ export const adminGameRepo = {
         where,
         orderBy: { createdAt: "desc" },
         skip, take: limit,
-        include: {
+        select: {
+          id: true, serialId: true, title: true, originalWork: true, coverImage: true,
+          isPublished: true, isNsfw: true, status: true, viewCount: true,
+          favoriteCount: true, createdAt: true, updatedAt: true,
           publisher: { select: { id: true, username: true } },
           tags: { take: 3, select: { tag: { select: { name: true, color: true } } } },
         },
@@ -317,6 +321,9 @@ export const adminGameRepo = {
         creators: { include: { creator: true } },
       },
     })
+  },
+  async exists(id: string): Promise<boolean> {
+    return !!(await prisma.game.findUnique({ where: { id }, select: { id: true } }))
   },
   update(id: string, data: Prisma.GameUpdateInput) {
     return prisma.game.update({ where: { id }, data })
@@ -346,11 +353,14 @@ export const adminGameRepo = {
 // ── 管理后台审核 ────────────────────
 
 export const adminReviewRepo = {
-  findPending() {
+  findPending(take = 50) {
     return prisma.game.findMany({
       where: { isPublished: false },
       orderBy: { createdAt: "asc" },
-      include: {
+      take,
+      select: {
+        id: true, serialId: true, title: true, originalWork: true, coverImage: true,
+        createdAt: true, rejectReason: true,
         publisher: { select: { id: true, username: true, avatar: true } },
         tags: { select: { tag: { select: { name: true, color: true } } } },
       },
@@ -416,6 +426,9 @@ export const adminUserRepo = {
       where: { id },
       select: { id: true, serialId: true, username: true, email: true, avatar: true, bio: true, role: true, createdAt: true, _count: { select: { comments: true, favorites: true, forumPosts: true, checkIns: true } } },
     })
+  },
+  findBasic(id: string) {
+    return prisma.user.findUnique({ where: { id }, select: { id: true, role: true } })
   },
   updateRole(id: string, role: Prisma.UserUpdateInput["role"]) {
     return prisma.user.update({ where: { id }, data: { role } })

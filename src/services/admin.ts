@@ -414,8 +414,7 @@ export const adminGameService = {
   },
 
   async update(id: string, data: Record<string, unknown>) {
-    const existing = await adminGameRepo.findById(id)
-    if (!existing) throw new NotFoundError("游戏")
+    if (!await adminGameRepo.exists(id)) throw new NotFoundError("游戏")
     // 字段白名单，防止 mass assignment
     const ALLOWED = ["title", "originalWork", "description", "coverImage", "screenshots",
       "downloadLinks", "status", "isNsfw", "vndbId", "isPublished", "releaseDate",
@@ -426,8 +425,7 @@ export const adminGameService = {
   },
 
   async delete(id: string) {
-    const existing = await adminGameRepo.findById(id)
-    if (!existing) throw new NotFoundError("游戏")
+    if (!await adminGameRepo.exists(id)) throw new NotFoundError("游戏")
     return adminGameRepo.delete(id)
   },
 
@@ -450,14 +448,12 @@ export const adminReviewService = {
   getPending() { return adminReviewRepo.findPending() },
 
   async approve(gameId: string, reviewerId: string) {
-    const game = await adminGameRepo.findById(gameId)
-    if (!game) throw new NotFoundError("游戏")
+    if (!await adminGameRepo.exists(gameId)) throw new NotFoundError("游戏")
     return adminReviewRepo.approve(gameId, reviewerId)
   },
 
   async reject(gameId: string, reason: string, reviewerId: string) {
-    const game = await adminGameRepo.findById(gameId)
-    if (!game) throw new NotFoundError("游戏")
+    if (!await adminGameRepo.exists(gameId)) throw new NotFoundError("游戏")
     if (!reason?.trim()) throw new ValidationError("拒绝原因不能为空")
     return adminReviewRepo.reject(gameId, reason.trim(), reviewerId)
   },
@@ -489,7 +485,7 @@ export const adminUserService = {
   async updateRole(id: string, role: string, callerRole: UserRole) {
     const validRoles = ["USER", "ADMIN", "SUPER_ADMIN"]
     if (!validRoles.includes(role)) throw new ValidationError("无效的角色")
-    const user = await adminUserRepo.findById(id)
+    const user = await adminUserRepo.findBasic(id)
     if (!user) throw new NotFoundError("用户")
     // 只有 SUPER_ADMIN 可以设置/变更 SUPER_ADMIN 角色
     if (role === "SUPER_ADMIN" && callerRole !== "SUPER_ADMIN") {
@@ -503,7 +499,7 @@ export const adminUserService = {
   },
 
   async delete(id: string, callerRole: UserRole, callerId: string) {
-    const user = await adminUserRepo.findById(id)
+    const user = await adminUserRepo.findBasic(id)
     if (!user) throw new NotFoundError("用户")
     if (user.id === callerId) throw new ValidationError("不能删除自己的账号")
     if (user.role === "SUPER_ADMIN" && callerRole !== "SUPER_ADMIN") {

@@ -10,20 +10,26 @@ export const dynamic = "force-dynamic"
 export default async function TagsOverviewPage() {
   await requireAdmin()
 
-  // 确保预设标签组存在
-  await ensurePresetTagGroups()
-  // 确保资源标签数据存在
-  await ensureResourceTags()
+  // 确保预设标签组和资源标签存在（并行）
+  await Promise.all([ensurePresetTagGroups(), ensureResourceTags()])
 
-  // 获取标签总数（用于预设组显示）
-  const totalTagCount = await prisma.tag.count()
+  // 获取标签计数、资源标签设置、标签组和未分组标签（全部并行）
+  const [totalTagCount, allResourceSettings, groups, ungroupedTags] = await Promise.all([
+    prisma.tag.count(),
+    prisma.siteSetting.findMany({ where: { key: { in: ["resource_platforms", "resource_languages", "resource_run_types", "resource_content_types"] } } }),
+    prisma.tagGroup.findMany({
+      orderBy: [{ isPreset: "desc" }, { name: "asc" }],
+      include: { tags: { orderBy: [{ sortOrder: "asc" }, { name: "asc" }], select: { id: true, name: true, color: true } } },
+    }),
+    prisma.tag.findMany({
+      where: { groupId: null },
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      select: { id: true, name: true, color: true, description: true, sortOrder: true, isVisible: true },
+    }),
+  ])
 
-  // 获取资源标签计数
-  const allResourceTagKeys = ["resource_platforms", "resource_languages", "resource_run_types", "resource_content_types"]
+  // 资源标签计数
   const homeCardTagKeys = ["resource_languages", "resource_run_types", "resource_content_types"]
-  const allResourceSettings = await prisma.siteSetting.findMany({
-    where: { key: { in: allResourceTagKeys } },
-  })
   let totalResourceTagCount = 0
   let homeCardTagCount = 0
   for (const s of allResourceSettings) {
@@ -34,35 +40,6 @@ export default async function TagsOverviewPage() {
       if (homeCardTagKeys.includes(s.key)) homeCardTagCount += arr.length
     } catch (err) { logger.db.warn("[TagsOverviewPage] parse resource tag setting failed", { error: err instanceof Error ? err.message : String(err) }) }
   }
-
-  // 优化：合并查询，同时获取标签组和未分组标签
-  const [groups, ungroupedTags] = await Promise.all([
-    prisma.tagGroup.findMany({
-      orderBy: [{ isPreset: "desc" }, { name: "asc" }],
-      include: {
-        tags: {
-          orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-          select: {
-            id: true,
-            name: true,
-            color: true,
-          },
-        },
-      },
-    }),
-    prisma.tag.findMany({
-      where: { groupId: null },
-      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-      select: {
-        id: true,
-        name: true,
-        color: true,
-        description: true,
-        sortOrder: true,
-        isVisible: true,
-      },
-    }),
-  ])
 
   // 一次性获取所有标签的游戏计数
   const groupedTags = groups.flatMap(g => g.tags)

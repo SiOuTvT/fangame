@@ -88,15 +88,11 @@ export default async function AdminDashboard() {
     }
   }
 
-  // 查询最近列表数据（这些实时性要求较高，不缓存）
-  const [recentGames, topGames, recentUsers] = await Promise.all([
+  // 查询最近列表 + 趋势图数据（并行执行，不缓存）
+  const [recentGames, topGames, recentUsers, gamesByDay, usersByDay, commentsByDay] = await Promise.all([
     prisma.game.findMany({ orderBy: { createdAt: "desc" }, take: 5, select: { id: true, title: true, isPublished: true, createdAt: true } }),
     prisma.game.findMany({ where: { isPublished: true }, orderBy: { viewCount: "desc" }, take: 5, select: { id: true, serialId: true, title: true, viewCount: true } }),
     prisma.user.findMany({ orderBy: { createdAt: "desc" }, take: 5, select: { id: true, username: true, avatar: true, createdAt: true } }),
-  ])
-
-  // 趋势图数据 - 使用 groupBy 聚合查询，直接返回每日统计而非完整对象数组
-  const [gamesByDay, usersByDay, commentsByDay] = await Promise.all([
     prisma.game.groupBy({
       by: ["createdAt"],
       where: { createdAt: { gte: since } },
