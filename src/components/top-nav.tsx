@@ -220,6 +220,8 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
         if (data.success && data.data) {
           setCheckedIn(true)
           setToastMarks(data.data.marks ?? 0)
+          setTotalMarks(prev => prev + (data.data.marks ?? 0))
+          try { sessionStorage.setItem("checkin_status", JSON.stringify({ date: new Date().toISOString().slice(0, 10), checkedIn: true })) } catch {}
           return
         }
         // 409 冲突（已签到）：{ success: false, error: "...", code: "CONFLICT" }

@@ -50,13 +50,20 @@ export const userRepo = {
     return prisma.user.update({ where: { id }, data: { avatarFrameId } })
   },
 
-  getStats(id: string) {
-    return prisma.user.findUnique({
-      where: { id },
-      select: {
-        _count: { select: { comments: true, favorites: true, forumPosts: true, checkIns: true, followers: true, following: true } },
-      },
-    })
+  async getStats(id: string) {
+    const [userStats, marksSum] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id },
+        select: {
+          _count: { select: { comments: true, favorites: true, forumPosts: true, checkIns: true, followers: true, following: true } },
+        },
+      }),
+      prisma.checkIn.aggregate({ where: { userId: id }, _sum: { marks: true } }),
+    ])
+    return {
+      ...userStats,
+      totalMarks: marksSum._sum.marks ?? 0,
+    }
   },
 }
 
@@ -230,15 +237,20 @@ export const searchRepo = {
 // ── 签到（公共）────────────────────
 
 export const checkinRepo = {
+  /** 将 Date 转为 UTC 零点日期字符串（YYYY-MM-DD） */
+  _toDateStr(date: Date): string {
+    return date.toISOString().split("T")[0]
+  },
+
   findByDate(userId: string, date: Date) {
-    const dateStr = date.toISOString().split("T")[0]
+    const dateStr = this._toDateStr(date)
     return prisma.checkIn.findFirst({
       where: { userId, date: new Date(dateStr + "T00:00:00.000Z") as unknown as Date },
     })
   },
 
   create(userId: string, marks: number) {
-    const dateStr = new Date().toISOString().split("T")[0]
+    const dateStr = this._toDateStr(new Date())
     const date = new Date(dateStr + "T00:00:00.000Z")
     return prisma.checkIn.create({ data: { userId, date, marks } })
   },
