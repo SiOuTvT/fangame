@@ -16,6 +16,7 @@ html {
   max-width: 100vw;
   overflow-y: auto;
   overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
 }
 body {
   overflow-x: clip;
@@ -25,7 +26,10 @@ body {
 }
 /* Radix react-remove-scroll 打开弹窗时给 body 加 margin-right 补偿滚动条 → 抵消 */
 body[data-scroll-locked] {
-  overflow: hidden;
+  margin-right: 0 !important;
+  padding-right: 0 !important;
+}
+html:has(body[data-scroll-locked]) > body {
   margin-right: 0 !important;
   padding-right: 0 !important;
 }
