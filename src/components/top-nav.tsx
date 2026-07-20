@@ -214,28 +214,23 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
     setCheckinLoading(true)
     setUserOpen(false)
     fetch("/api/checkin", { method: "POST" })
-      .then(r => r.json())
+      .then(r => r.json().then(data => ({ status: r.status, ...data })))
       .then(data => {
-        // 成功响应
+        // 成功：{ success: true, data: { marks, streak } }
         if (data.success && data.data) {
-          const d = data.data as { ok?: boolean; alreadyDone?: boolean; marks?: number; total?: number }
-          if (d.ok) {
-            setCheckedIn(true)
-            setToastMarks(d.marks ?? 0)
-            return
-          }
+          setCheckedIn(true)
+          setToastMarks(data.data.marks ?? 0)
+          return
         }
-        // 409 conflict: alreadyDone 在 data.data 里
-        if (data.data?.alreadyDone) {
+        // 409 冲突（已签到）：{ success: false, error: "...", code: "CONFLICT" }
+        if (data.code === "CONFLICT") {
           setCheckedIn(true)
           return
         }
-        // 其他情况视为失败
-        const errorMsg = data.error || "签到失败，请稍后重试"
-        toast.error(errorMsg)
+        // 其他失败
+        toast.error(data.error || "签到失败，请稍后重试")
       })
-      .catch((e) => {
-        logger.user.error('[签到] 错误', e)
+      .catch(() => {
         toast.error("签到失败，请稍后重试")
       })
       .finally(() => { setCheckinLoading(false) })
