@@ -16,7 +16,7 @@ html {
   overflow-x: clip;
   max-width: 100vw;
   /* 强制始终显示滚动条，避免浮层打开/关闭时页面宽度变化 */
-  overflow-y: scroll;
+  overflow-y: scroll !important;
   overscroll-behavior-y: contain;
 }
 body {
