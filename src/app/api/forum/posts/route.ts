@@ -13,9 +13,9 @@ export const GET = withHandler(async (req) => {
 })
 
 export const POST = withHandler(async (req) => {
-  const rl = await checkRateLimit(rateLimits.comment)
-  if (!rl.success) throw new RateLimitError()
   const { userId } = await requireAuth()
+  const rl = await checkRateLimit(rateLimits.comment, "forum-post")
+  if (!rl.success) throw new RateLimitError()
   const body = await req.json()
   const post = await forumService.createPost(userId, body)
   return created(post)

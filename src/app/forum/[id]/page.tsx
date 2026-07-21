@@ -42,15 +42,9 @@ export default async function ForumPostPage({ params }: { params: Promise<{ id: 
   }
 
   type PostData = NonNullable<Awaited<ReturnType<typeof fetchPost>>>
-  let post: PostData
-  try {
-    const result = await fetchPost()
-    if (!result) notFound()
-    post = result
-  } catch (error) {
-    logger.db.error("[ForumPostPage] 查询失败", error)
-    notFound()
-  }
+  const postResult = await fetchPost()
+  if (!postResult) notFound()
+  const post: PostData = postResult
 
   const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "SUPER_ADMIN"
 

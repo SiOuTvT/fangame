@@ -145,7 +145,7 @@ export const rateLimits = {
  * }
  * ```
  */
-export async function checkRateLimit(config: RateLimitConfig): Promise<{
+export async function checkRateLimit(config: RateLimitConfig, keySuffix = ""): Promise<{
   success: boolean
   limit: number
   remaining: number
@@ -157,7 +157,7 @@ export async function checkRateLimit(config: RateLimitConfig): Promise<{
              headersList.get("x-real-ip") ??
              "unknown"
 
-  const key = `ip:${ip}`
+  const key = `ip:${ip}${keySuffix ? `:${keySuffix}` : ""}`
   const result = await getRateLimit(key, config)
 
   return {

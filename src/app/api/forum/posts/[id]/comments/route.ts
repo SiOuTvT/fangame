@@ -14,9 +14,9 @@ export const GET = withHandler(async (req, ctx) => {
 })
 
 export const POST = withHandler(async (req, ctx) => {
-  const rl = await checkRateLimit(rateLimits.comment)
-  if (!rl.success) throw new RateLimitError()
   const { userId } = await requireAuth()
+  const rl = await checkRateLimit(rateLimits.comment, "forum-comment")
+  if (!rl.success) throw new RateLimitError()
   const { id } = await ctx!.params
 
   const fd = await req.formData()

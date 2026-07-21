@@ -99,15 +99,9 @@ export default async function GameDetailPage({
   }
 
   type GameData = NonNullable<Awaited<ReturnType<typeof fetchGame>>>
-  let game: GameData
-  try {
-    const result = await fetchGame()
-    if (!result) notFound()
-    game = result
-  } catch (error) {
-    logger.db.error("[GameDetailPage] 查询失败", error)
-    notFound()
-  }
+  const gameResult = await fetchGame()
+  if (!gameResult) notFound()
+  const game: GameData = gameResult
 
   const tags = game.tags.map((t) => t.tag)
   const tagNames = tags.map((t) => t.name)

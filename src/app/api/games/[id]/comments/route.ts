@@ -16,9 +16,9 @@ export const GET = withHandler(async (req, ctx) => {
 })
 
 export const POST = withHandler(async (req, ctx) => {
-  const rl = await checkRateLimit(rateLimits.comment)
-  if (!rl.success) throw new RateLimitError()
   const { userId } = await requireAuth()
+  const rl = await checkRateLimit(rateLimits.comment, "game-comment")
+  if (!rl.success) throw new RateLimitError()
   const { id: gameId } = await ctx!.params
   const body = await req.json()
   const comment = await gameService.createComment(
