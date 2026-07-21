@@ -23,7 +23,7 @@ HTTP 请求
 
 | 模块 | 职责 | 约定 |
 |---|---|---|
-| `api-handler.ts` | 统一响应格式 + 异常处理 | `withHandler()` 包装每个路由；`json()/created()/paginated()/noContent()` 返回成功；`parseBody()`/`parseSearchParams()` 用 Zod 解析 |
+| `api-handler.ts` | 统一响应格式 + 异常处理 | `withHandler()` 包装每个路由；`json()/created()/paginated()/noContent()` 返回成功；`safeParseJson(req)` 解析请求体（非法 JSON → 422），配合 Zod `schema.parse()` 校验 |
 | `errors.ts` | `AppError` 及其子类（`NotFoundError`/`ValidationError`/`ForbiddenError`/`RateLimitError` 等） | Service 抛子类，handler 自动映射 HTTP 状态 |
 | `auth.ts` + `auth-context.ts` | NextAuth v5 配置 + 路由鉴权上下文 | `requireAuth()` / `requireAdminRole()` 在 **Service 层** 调用，并**从 DB 重新读取最新角色**（时效角色变更即时生效） |
 | `env.ts` | 环境变量懒校验（Zod） | `getEnv()` 首次访问时校验；build 阶段容忍缺失；prod 缺失直接 `process.exit(1)` |

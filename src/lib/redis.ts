@@ -91,9 +91,25 @@ class RedisCache implements CacheClient {
   }
 
   async clear(): Promise<void> {
-    // Upstash 不支持通配符删除，需要逐个删除
-    // 建议使用 key 前缀 + SCAN
-    logger.db.warn("Redis clear() not implemented for Upstash - use key prefixes and del()")
+    // Upstash REST 不支持 DEL 通配符，需用 SCAN 游标遍历 + pipeline 批量删除。
+    // 所有本项目的缓存 key 都以 cacheKey() 生成的 "fangame:" 为前缀。
+    try {
+      const match = "fangame:*"
+      let cursor = "0"
+      do {
+        const res = await this.request(`/scan/${cursor}?cursor=${cursor}&match=${encodeURIComponent(match)}`)
+        const keys: string[] = Array.isArray(res.result) ? res.result : []
+        if (keys.length > 0) {
+          await this.request("/pipeline", {
+            method: "POST",
+            body: JSON.stringify(keys.map((k) => ["del", k])),
+          })
+        }
+        cursor = String(res.cursor ?? "0")
+      } while (cursor !== "0")
+    } catch (error) {
+      logger.db.error("Redis clear error", error)
+    }
   }
 
   async incr(key: string, ttlSeconds?: number): Promise<number> {

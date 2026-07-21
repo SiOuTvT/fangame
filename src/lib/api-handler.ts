@@ -78,10 +78,11 @@ export function noContent(): NextResponse {
 
 // ── 错误响应（内部用）──────────────
 
-function errorResponse(message: string, status: number, code?: string, details?: Record<string, string[]>): NextResponse {
+function errorResponse(message: string, status: number, code?: string, details?: Record<string, string[]>, retryAfter?: number): NextResponse {
   const headers: Record<string, string> = {}
   if (code === "RATE_LIMITED") {
-    headers["Retry-After"] = "60"
+    // 优先使用异常中携带的 retryAfter；未携带时回退到默认 60s
+    headers["Retry-After"] = retryAfter ? String(retryAfter) : "60"
   }
   return NextResponse.json<ApiResponse>(
     { success: false, error: message, code, details },
@@ -110,7 +111,10 @@ export function withHandler(handler: RouteHandler): RouteHandler {
       if (error instanceof AppError) {
         if (error instanceof RateLimitError) {
           logger.api.warn("请求被限流", { path: req.nextUrl.pathname })
-        } else if (error.status >= 500) {
+          // 携带异常中的 retryAfter，让客户端获得准确的重试时间（L2③）
+          return errorResponse(error.message, error.status, error.code, error.details, error.retryAfter)
+        }
+        if (error.status >= 500) {
           logger.api.error(`[${error.code}] ${error.message}`, error)
         }
         return errorResponse(error.message, error.status, error.code, error.details)
@@ -168,8 +172,6 @@ function mapPrismaError(error: Prisma.PrismaClientKnownRequestError): AppError {
 
 // ── 请求解析工具 ────────────────────
 
-import { z } from "zod"
-
 /**
  * 安全解析 JSON 请求体：非法/空 JSON 统一抛 422（ValidationError），
  * 而非让 withHandler 当作未知异常返回 500。
@@ -184,26 +186,4 @@ export async function safeParseJson<T = any>(
     if (options?.allowEmpty) return {} as T
     throw new ValidationError("请求体格式错误，请提供合法的 JSON")
   }
-}
-
-/**
- * 安全解析 + Zod 校验请求体
- */
-export async function parseBody<T extends z.ZodType>(
-  req: NextRequest,
-  schema: T,
-): Promise<z.infer<T>> {
-  const body = await safeParseJson(req)
-  return schema.parse(body) // 失败时抛 ZodError，由 withHandler 捕获
-}
-
-/**
- * 解析查询参数
- */
-export function parseSearchParams<T extends z.ZodType>(
-  req: NextRequest,
-  schema: T,
-): z.infer<T> {
-  const params = Object.fromEntries(req.nextUrl.searchParams.entries())
-  return schema.parse(params)
 }

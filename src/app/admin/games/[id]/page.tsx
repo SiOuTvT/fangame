@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
+import { toShanghaiDate } from "@/lib/date"
 import dynamic from "next/dynamic"
 import { notFound } from "next/navigation"
 
@@ -44,7 +45,7 @@ export default async function EditGamePage({ params }: { params: Promise<{ id: s
     downloadLinks,
     tagIds: game.tags.map((t) => t.tag.id),
     creators: game.creators.map((c) => ({ vndbId: c.creator.vndbId, name: c.creator.name, nameJa: c.creator.nameJa, role: c.role })),
-    releaseDate: game.releaseDate ? game.releaseDate.toISOString().slice(0, 10) : undefined,
+    releaseDate: game.releaseDate ? toShanghaiDate(game.releaseDate) : undefined,
   }
 
   return (

@@ -13,6 +13,7 @@ import { safeParse } from "@/lib/parse-utils"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { isNumericId } from "@/lib/serial-id"
+import { timeAgoPublished } from "@/lib/time-ago"
 import { Tag, TagGroup } from "@/components/ui/tag"
 import { Download, Eye, Heart } from "lucide-react"
 import Image from "next/image"
@@ -194,17 +195,8 @@ export default async function GameDetailPage({
     role: gc.role,
   }))
 
-  // 计算发布时间相对描述
-  const createdAt = new Date(game.createdAt)
-  const now = new Date()
-  const diffMs = now.getTime() - createdAt.getTime()
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-  let timeAgo: string
-  if (diffDays === 0) timeAgo = "今天发布"
-  else if (diffDays === 1) timeAgo = "昨天发布"
-  else if (diffDays < 30) timeAgo = `${diffDays}天前发布`
-  else if (diffDays < 365) timeAgo = `${Math.floor(diffDays / 30)}个月前发布`
-  else timeAgo = `${Math.floor(diffDays / 365)}年前发布`
+  // 计算发布时间相对描述（H2 统一为 timeAgoPublished）
+  const releaseLabel = timeAgoPublished(game.createdAt)
 
   // JSON-LD 结构化数据
   const BASE = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
@@ -320,7 +312,7 @@ export default async function GameDetailPage({
                   <p className="text-xs sm:text-sm font-semibold text-foreground/80 sm:text-foreground truncate">
                     {game.publisher ? game.publisher.username : "本站发布"}
                   </p>
-                  <p className="text-xs sm:text-sm text-muted-foreground/50 sm:text-muted-foreground/70">{timeAgo}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground/50 sm:text-muted-foreground/70">{releaseLabel}</p>
                 </div>
                 <div className="ml-auto shrink-0">
                   <GameDetailTopClient

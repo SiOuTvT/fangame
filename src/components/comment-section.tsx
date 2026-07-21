@@ -9,6 +9,7 @@ import { Heart, ImageIcon, Send, Smile, Trash2, X } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { UserAvatar } from "@/components/user-avatar"
 
 interface Comment {
   id: string
@@ -29,16 +30,7 @@ interface Props {
 
 type SortMode = "newest" | "hottest"
 
-function Avatar({ user }: { user: Comment["user"] }) {
-  if (user.avatar) {
-    return <Image src={user.avatar} alt={user.username} width={32} height={32} className="h-8 w-8 rounded-full object-cover" />
-  }
-  return (
-    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/80 text-xs font-bold text-primary-foreground">
-      {user.username[0].toUpperCase()}
-    </div>
-  )
-}
+// Avatar 已统一为用户头像组件 UserAvatar（H3 消除 4 处本地定义）
 
 // 表情列表 - 分类
 const EMOJI_CATEGORIES = [
@@ -359,7 +351,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
         )}
         {sortedComments.map((c) => (
           <div key={c.id} className="group flex gap-3 rounded-xl p-2 transition-colors hover:bg-secondary/30">
-            <Avatar user={c.user} />
+            <UserAvatar user={c.user} size={32} />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-xs font-semibold text-foreground">{c.user.username}</span>

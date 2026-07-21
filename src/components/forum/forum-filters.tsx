@@ -8,9 +8,9 @@ type IconType = ComponentType<SVGProps<SVGSVGElement>>
 
 const CATEGORIES: { value: string; label: string; icon: IconType }[] = [
   { value: "discussion", label: "讨论", icon: MessageCircle },
-  { value: "help", label: "求档", icon: HelpCircle },
-  { value: "resource", label: "资源", icon: Package },
-  { value: "offtopic", label: "杂谈", icon: Coffee },
+  { value: "question", label: "求档", icon: HelpCircle },
+  { value: "showcase", label: "资源", icon: Package },
+  { value: "feedback", label: "杂谈", icon: Coffee },
 ]
 
 interface ForumFiltersProps {

@@ -189,32 +189,6 @@ export const idParamSchema = z.object({
   id: z.string().min(1, "ID 不能为空"),
 })
 
-/**
- * 安全解析请求体的通用函数
- * 注意：API 响应统一使用 @/lib/api-handler 中的 withHandler 包装
- */
-export async function parseBody<T extends z.ZodType>(
-  req: Request,
-  schema: T
-): Promise<
-  | { success: true; data: z.infer<T> }
-  | { success: false; error: z.ZodError<z.infer<T>> }
-  | { success: false; error: null; message: string }
-> {
-  try {
-    const body = await req.json()
-    const result = schema.safeParse(body)
-
-    if (!result.success) {
-      return { success: false, error: result.error }
-    }
-
-    return { success: true, data: result.data }
-  } catch {
-    return { success: false, error: null, message: "请求体必须是有效的 JSON" }
-  }
-}
-
 // ============ 邮件 Provider 配置 ============
 
 const resendConfigSchema = z.object({

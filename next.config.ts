@@ -25,18 +25,16 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   output: "standalone",
 
-  async headers() {
-    return [
-      {
-        source: "/(.*)",
-        headers: [{ key: "X-Forwarded-Proto", value: "http" }],
-      },
-    ];
+  // 信任反向代理（nginx/Cloudflare 等）转发的 x-forwarded-* 头，
+  // 否则部署在代理后会错误判断客户端协议，导致 NextAuth/CSRF/重定向异常（H3）。
+  // 注意：不要再自行伪造 X-Forwarded-Proto 响应头，真实协议应由代理填写。
+  server: {
+    trustProxy: true,
   },
 
   compress: true,
   typescript: { ignoreBuildErrors: false },
-  reactStrictMode: false,
+  reactStrictMode: true,
   allowedDevOrigins: ["192.168.5.53", "192.168.*", "10.*"],
 
   // 显式启用 Turbopack（Next.js 16 默认），消除 webpack 兼容警告

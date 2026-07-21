@@ -2,7 +2,7 @@ import { withHandler, json, created, safeParseJson } from '@/lib/api-handler'
 import { requireAuth, getOptionalAuth } from '@/lib/auth-context'
 import { gameService } from '@/services/game'
 import { checkRateLimit, rateLimits } from '@/lib/rate-limit'
-import { RateLimitError } from '@/lib/errors'
+import { RateLimitError, ValidationError } from '@/lib/errors'
 
 export const GET = withHandler(async (req, ctx) => {
   await getOptionalAuth()
@@ -20,13 +20,36 @@ export const POST = withHandler(async (req, ctx) => {
   const rl = await checkRateLimit(rateLimits.comment, "game-comment")
   if (!rl.success) throw new RateLimitError()
   const { id: gameId } = await ctx!.params
-  const body = await safeParseJson(req)
-  const comment = await gameService.createComment(
-    userId,
-    gameId,
-    body.content,
-    body.imageUrl,
-    body.parentId
-  )
+
+  // 支持 FormData（含图片）和 JSON 两种格式
+  let content: string | undefined
+  let imageUrl: string | undefined
+  let parentId: string | undefined
+
+  const contentType = req.headers.get("content-type") || ""
+  if (contentType.includes("multipart/form-data")) {
+    const fd = await req.formData()
+    content = fd.get("content") as string | undefined
+    imageUrl = fd.get("imageUrl") as string | undefined
+    parentId = fd.get("parentId") as string | undefined
+    const imageFile = fd.get("image") as File | null
+    if (imageFile && imageFile.size > 0) {
+      const { UPLOAD } = await import("@/lib/config")
+      if (imageFile.size > UPLOAD.IMAGE_MAX_SIZE) throw new ValidationError("图片太大，最多 10MB")
+      if (!UPLOAD.IMAGE_TYPES.includes(imageFile.type)) throw new ValidationError("不支持的图片格式")
+      const buffer = Buffer.from(await imageFile.arrayBuffer())
+      const ext = imageFile.type.split("/")[1]?.replace("jpeg", "jpg") || "jpg"
+      const { getStorage } = await import("@/lib/storage")
+      const result = await getStorage().upload(buffer, "comments", ext)
+      imageUrl = result.url
+    }
+  } else {
+    const body = await safeParseJson(req)
+    content = body.content
+    imageUrl = body.imageUrl
+    parentId = body.parentId
+  }
+
+  const comment = await gameService.createComment(userId, gameId, content ?? "", imageUrl, parentId)
   return created(comment)
 })

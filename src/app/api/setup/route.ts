@@ -4,6 +4,7 @@ import { revalidateTag } from "next/cache"
 import bcrypt from "bcryptjs"
 import { serialIdToUid } from "@/lib/serial-id"
 import { ConflictError, ValidationError } from "@/lib/errors"
+import { validatePassword } from "@/lib/password"
 
 interface SetupBody {
   siteName: string
@@ -26,11 +27,12 @@ export const POST = withHandler(async (req) => {
 
   if (!siteName?.trim()) throw new ValidationError("网站名称不能为空")
   if (!admin?.username?.trim()) throw new ValidationError("管理员用户名不能为空")
-  if (!admin?.password || admin.password.length < 8) throw new ValidationError("密码至少 8 个字符")
+  const pwErr = validatePassword(admin.password)
+  if (pwErr) throw new ValidationError(pwErr)
 
   const email = admin.email?.trim() ? admin.email.trim().toLowerCase() : `${admin.username.trim()}@placeholder.local`
 
-  const hashed = await bcrypt.hash(admin.password, 10)
+  const hashed = await bcrypt.hash(admin.password, 12)
 
   // Serializable 事务：原子性检查 + 创建，杜绝并发初始化
   const result = await prisma.$transaction(async (tx) => {

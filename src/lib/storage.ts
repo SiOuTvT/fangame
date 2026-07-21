@@ -82,7 +82,7 @@ class LocalStorageAdapter implements StorageAdapter {
 
   async delete(key: string): Promise<void> {
     const filePath = path.join(this.uploadDir, key)
-    await unlink(filePath).catch(() => {})
+    await unlink(filePath).catch((e) => logger.upload.error("本地文件删除失败", e))
   }
 }
 
@@ -164,4 +164,23 @@ export function getStorage(): StorageAdapter {
  */
 export function getStorageBackend(): string {
   return getStorage().name
+}
+
+/**
+ * 根据可访问 URL 反推存储 key 并删除（用于替换/清理孤儿文件，L10）。
+ * 仅对本地 / R2 自身生成的 URL 生效；外部头像（OAuth 等）会被安全忽略，不会误删。
+ */
+export async function deleteByUrl(url?: string | null): Promise<void> {
+  if (!url) return
+  const adapter = getStorage()
+  let key: string | null = null
+  if (adapter.name === "local") {
+    const marker = "/uploads/"
+    const idx = url.indexOf(marker)
+    key = idx >= 0 ? url.slice(idx + marker.length) : null
+  } else {
+    const base = process.env.R2_PUBLIC_URL
+    if (base && url.startsWith(`${base}/`)) key = url.slice(base.length + 1)
+  }
+  if (key) await adapter.delete(key)
 }

@@ -1,10 +1,21 @@
-import { withHandler, noContent } from "@/lib/api-handler"
+import { withHandler, json, noContent } from "@/lib/api-handler"
 import { requireAuth } from "@/lib/auth-context"
 import { forumService } from "@/services/forum"
 
-export const DELETE = withHandler(async (_req, ctx) => {
-  const { userId } = await requireAuth()
+export const PUT = withHandler(async (req, ctx) => {
+  const auth = await requireAuth()
   const { id } = await ctx!.params
-  await forumService.deleteComment(userId, id)
+  const body = await req.json()
+  const isAdmin = auth.role === "ADMIN" || auth.role === "SUPER_ADMIN"
+  const comment = await forumService.updateComment(auth.userId, id, body.content, isAdmin)
+  return json(comment)
+})
+
+export const DELETE = withHandler(async (_req, ctx) => {
+  const auth = await requireAuth()
+  const { id } = await ctx!.params
+  // 管理员可删除任意评论；普通用户仅能删除自己的（M17）
+  const isAdmin = auth.role === "ADMIN" || auth.role === "SUPER_ADMIN"
+  await forumService.deleteComment(auth.userId, id, isAdmin)
   return noContent()
 })

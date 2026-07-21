@@ -293,7 +293,7 @@ export function ForumClient({
         onClose={() => setEditingPost(null)}
         onSave={async (id, title, content) => {
           const res = await fetch(`/api/forum/posts/${id}`, {
-            method: "PATCH",
+            method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ title, content }),
           })

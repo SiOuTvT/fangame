@@ -11,6 +11,9 @@ import { ConfirmDialog } from "./ui/confirm-dialog"
 import { RichTextContent } from "./rich-text-content-wrapper"
 import { RichTextEditor } from "./rich-text-editor-wrapper"
 import { logger } from "@/lib/logger"
+import { EMOJI_LIST } from "@/lib/emoji"
+import { timeAgo } from "@/lib/time-ago"
+import { UserAvatar } from "@/components/user-avatar"
 
 interface User { id: string; username: string; avatar: string }
 interface Comment { id: string; content: string; imageUrl: string; likeCount: number; createdAt: string; updatedAt?: string; user: User }
@@ -20,28 +23,10 @@ interface PostData {
   createdAt: string; user: User
 }
 
-const EMOJI_LIST = [
-  "😀", "😂", "🤣", "😍", "🥰", "😘", "😋", "🤔", "😎", "🥺",
-  "😭", "😤", "🤯", "🥳", "🤩", "😴", "🤮", "👻", "💀", "🤡",
-  "👍", "👎", "❤️", "🔥", "⭐", "🎉", "🎮", "🎵", "✨", "💯",
-]
+// EMOJI_LIST 已迁移至 @/lib/emoji（L1 统一为单一来源）
+// Avatar 已统一为用户头像组件 UserAvatar（H3 消除 4 处本地定义）
 
-function Avatar({ user, size = "md" }: { user: User; size?: "sm" | "md" | "lg" }) {
-  const cls = size === "sm" ? "h-8 w-8 text-micro" : size === "md" ? "h-10 w-10 text-xs" : "h-11 w-11 text-sm"
-  if (user.avatar) return <NextImage src={user.avatar} alt={user.username} width={44} height={44} className={`${cls} rounded-full object-cover shrink-0`} />
-  return <div className={`${cls} rounded-full bg-primary/80 flex items-center justify-center font-bold text-primary-foreground shrink-0`}>{user.username[0].toUpperCase()}</div>
-}
-
-function fmtDate(d: string) {
-  const date = new Date(d)
-  const now = new Date()
-  const diff = now.getTime() - date.getTime()
-  if (diff < 60_000) return "刚刚"
-  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}分钟前`
-  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}小时前`
-  if (diff < 86_400_000 * 30) return `${Math.floor(diff / 86_400_000)}天前`
-  return date.toLocaleDateString("zh-CN", { year: "numeric", month: "short", day: "numeric" })
-}
+// fmtDate 已统一为 timeAgo（H1 迁移至 @/lib/time-ago）
 
 function fmtFullDate(d: string) {
   return new Date(d).toLocaleString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
@@ -231,11 +216,11 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
           <h1 className="text-xl md:text-2xl font-bold text-foreground leading-snug">{post.title}</h1>
 
           <div className="mt-4 flex items-center gap-3">
-            <Avatar user={post.user} size="md" />
+            <UserAvatar user={post.user} size={40} />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground">{post.user.username}</p>
               <p className="text-xs text-muted-foreground/60 mt-0.5">
-                {fmtFullDate(post.createdAt)} · 浏览 {post.viewCount ?? (post.commentCount + post.likeCount)}
+                {fmtFullDate(post.createdAt)} · 浏览 {post.viewCount ?? 0}
               </p>
             </div>
             {post.isSolved && (
@@ -321,11 +306,11 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
           <div className="space-y-5">
             {comments.map((c) => (
               <div key={c.id} className="group flex gap-3">
-                <Avatar user={c.user} size="sm" />
+                <UserAvatar user={c.user} size={32} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-foreground">{c.user.username}</span>
-                    <span className="text-xs text-muted-foreground/50">{fmtDate(c.createdAt)}</span>
+                    <span className="text-xs text-muted-foreground/50">{timeAgo(c.createdAt)}</span>
                     {c.updatedAt && c.updatedAt !== c.createdAt && <span className="text-micro text-muted-foreground/40">已编辑</span>}
                   </div>
                   {editingComment === c.id ? (
@@ -335,7 +320,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
                       <div className="flex gap-2">
                         <button onClick={async () => {
                           if (!editCommentText.trim()) return
-                          const res = await fetch(`/api/forum/comments/${c.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: editCommentText.trim() }) })
+                          const res = await fetch(`/api/forum/comments/${c.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: editCommentText.trim() }) })
                           if (res.ok) {
                             const j = await res.json()
                             const d = j.data ?? j
@@ -505,7 +490,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
                   if (!editTitle.trim() || !editContent.trim()) return
                   setEditSubmitting(true)
                   const res = await fetch(`/api/forum/posts/${post.id}`, {
-                    method: "PATCH",
+                    method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ title: editTitle.trim(), content: editContent.trim() }),
                   })

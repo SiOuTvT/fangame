@@ -131,6 +131,18 @@ export const notificationRepo = {
     return prisma.notification.update({ where: { id }, data: { isRead: true } })
   },
 
+  markReadBulk(ids: string[], userId: string) {
+    return prisma.notification.updateMany({ where: { id: { in: ids }, userId }, data: { isRead: true } })
+  },
+
+  deleteMany(ids: string[], userId: string) {
+    return prisma.notification.deleteMany({ where: { id: { in: ids }, userId } })
+  },
+
+  deleteAllRead(userId: string) {
+    return prisma.notification.deleteMany({ where: { userId, isRead: true } })
+  },
+
   create(data: { userId: string; actorId: string; type: import("@prisma/client").NotificationTypeEnum; targetType: import("@prisma/client").NotificationTargetTypeEnum; targetId: string }) {
     return prisma.notification.create({ data })
   },

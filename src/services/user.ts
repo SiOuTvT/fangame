@@ -3,10 +3,15 @@
  */
 
 import { userRepo, collectionRepo, notificationRepo, followRepo, commentRepo, searchRepo, checkinRepo, profileRepo } from "@/repositories/user"
+import { Prisma } from "@prisma/client"
 import { NotFoundError, ValidationError, ConflictError, UnauthorizedError } from "@/lib/errors"
 import { collectionCreateSchema } from "@/lib/validations"
 import { sendPasswordResetEmail, sendVerificationEmail, sendEmailChangeEmail, sendWelcomeEmail } from "@/lib/email"
 import { getEmailConfigured } from "@/lib/service-config"
+import { toShanghaiDate } from "@/lib/date"
+import { sanitizeUrl } from "@/lib/sanitize"
+import { getStorage, deleteByUrl } from "@/lib/storage"
+import { validatePassword } from "@/lib/password"
 import bcrypt from "bcryptjs"
 import crypto from "crypto"
 import { prisma } from "@/lib/prisma"
@@ -35,7 +40,8 @@ export const authService = {
     if (!username || username.length < 3 || username.length > 20) throw new ValidationError("用户名 3-20 个字符")
     if (!/^[a-zA-Z0-9_]+$/.test(username)) throw new ValidationError("用户名只能包含字母、数字和下划线")
     if (!email || !email.includes("@")) throw new ValidationError("邮箱格式不正确")
-    if (!password || password.length < 8) throw new ValidationError("密码至少 8 位")
+    const pwErr = validatePassword(password)
+    if (pwErr) throw new ValidationError(pwErr)
 
     const existingUser = await userRepo.findByUsername(username)
     if (existingUser) throw new ConflictError("用户名已被注册")
@@ -238,7 +244,8 @@ export const authService = {
 
   async resetPassword(token: string, password: string) {
     if (!token) throw new ValidationError("重置令牌不能为空")
-    if (!password || password.length < 8) throw new ValidationError("密码至少 8 位")
+    const pwErr = validatePassword(password)
+    if (pwErr) throw new ValidationError(pwErr)
     const hash = hashToken(token)
     const record = await prisma.passwordResetToken.findUnique({ where: { token: hash } })
     if (!record || record.usedAt || record.expiresAt < new Date()) throw new ValidationError("令牌无效或已过期")
@@ -265,10 +272,35 @@ export const userService = {
       data.username = username
     }
     if (raw.bio !== undefined) data.bio = String(raw.bio).slice(0, 500)
-    if (raw.avatar !== undefined) data.avatar = String(raw.avatar)
-    if (raw.banner !== undefined) data.banner = String(raw.banner)
+    // 用户可控的 URL 字段必须校验协议，禁止 javascript:/data: 等（M6/M19）
+    if (raw.avatar !== undefined) {
+      const v = raw.avatar ? sanitizeUrl(String(raw.avatar)) : ""
+      if (raw.avatar && v === null) throw new ValidationError("头像链接格式不正确")
+      data.avatar = v ?? ""
+    }
+    if (raw.banner !== undefined) {
+      const v = raw.banner ? sanitizeUrl(String(raw.banner)) : ""
+      if (raw.banner && v === null) throw new ValidationError("封面链接格式不正确")
+      data.banner = v ?? ""
+    }
     if (raw.faveGameId !== undefined) data.faveGameId = raw.faveGameId || null
-    return userRepo.updateProfile(userId, data)
+
+    // 取旧头像/封面 URL，替换成功后清理旧文件，避免孤儿文件持续堆积（L10）
+    const current = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { avatar: true, banner: true },
+    })
+
+    const result = await userRepo.updateProfile(userId, data)
+
+    // 仅在字段被更新且实际变化时删除旧文件（best-effort，失败不影响主流程）
+    if (current?.avatar && raw.avatar !== undefined && data.avatar !== current.avatar) {
+      deleteByUrl(current.avatar).catch(() => {})
+    }
+    if (current?.banner && raw.banner !== undefined && data.banner !== current.banner) {
+      deleteByUrl(current.banner).catch(() => {})
+    }
+    return result
   },
 
   async setAvatarFrame(userId: string, frameId: string | null) {
@@ -333,6 +365,20 @@ export const notificationService = {
   getUnreadCount(userId: string) { return notificationRepo.getUnreadCount(userId) },
 
   markAllRead(userId: string) { return notificationRepo.markAllRead(userId) },
+
+  markRead(ids: string[], userId: string) {
+    if (!ids.length) return
+    return notificationRepo.markReadBulk(ids, userId)
+  },
+
+  deleteNotifications(ids: string[], userId: string) {
+    if (!ids.length) return
+    return notificationRepo.deleteMany(ids, userId)
+  },
+
+  deleteAllRead(userId: string) {
+    return notificationRepo.deleteAllRead(userId)
+  },
 }
 
 // ── 关注 ────────────────────────────
@@ -396,21 +442,27 @@ export const searchService = {
 
 export const checkinService = {
   async checkIn(userId: string) {
-    const todayStr = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Shanghai" })
+    const todayStr = toShanghaiDate(new Date())
     const today = new Date(todayStr + "T00:00:00")
     const existing = await checkinRepo.findByDate(userId, today)
     if (existing) throw new ConflictError("今天已经签到过了")
     const marks = Math.floor(Math.random() * 10) + 1
-    await checkinRepo.create(userId, marks, today)
-    // 连续签到天数
+    // 并发保护：唯一约束 [userId, date] 会在并发重复签到时抛 P2002，
+    // 这里捕获并转为友好的"已签到"提示，避免返回泛化 409（M2/M3 竞态）。
+    try {
+      await checkinRepo.create(userId, marks, today)
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+        throw new ConflictError("今天已经签到过了")
+      }
+      throw e
+    }
+    // 连续签到天数（统一按 Asia/Shanghai 计算，避免服务器时区导致的跨日偏差）
     const records = await checkinRepo.getUserStreak(userId)
     let streak = 0
-    const now = new Date()
     for (let i = 0; i < records.length; i++) {
-      const expected = new Date(now)
-      expected.setDate(expected.getDate() - i)
-      const expectedStr = expected.toISOString().split("T")[0]
-      const recordStr = new Date(records[i].date).toISOString().split("T")[0]
+      const expectedStr = toShanghaiDate(new Date(Date.now() - i * 86400000))
+      const recordStr = toShanghaiDate(records[i].date)
       if (expectedStr === recordStr) streak++
       else break
     }
@@ -418,7 +470,7 @@ export const checkinService = {
   },
 
   async getStatus(userId: string) {
-    const todayStr = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Shanghai" })
+    const todayStr = toShanghaiDate(new Date())
     const today = new Date(todayStr + "T00:00:00")
     const existing = await checkinRepo.findByDate(userId, today)
     return { checkedIn: !!existing }

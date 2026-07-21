@@ -108,6 +108,14 @@ export const forumRepo = {
     })
   },
 
+  updateComment(id: string, content: string) {
+    return prisma.forumComment.update({
+      where: { id },
+      data: { content },
+      include: { user: { select: { id: true, username: true, avatar: true } } },
+    })
+  },
+
   createComment(postId: string, userId: string, content: string, imageUrl?: string) {
     return prisma.forumComment.create({
       data: { postId, userId, content, imageUrl: imageUrl || "" },

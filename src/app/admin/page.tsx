@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
+import { toShanghaiDate } from "@/lib/date"
 import { Download, Eye, Gamepad2, Tag, Users } from "lucide-react"
 import Image from "next/image"
 import dynamic from "next/dynamic"
@@ -16,7 +17,7 @@ function getLast14Days() {
   return Array.from({ length: 14 }, (_, i) => {
     const d = new Date()
     d.setDate(d.getDate() - (13 - i))
-    return d.toISOString().slice(0, 10)
+    return toShanghaiDate(d)
   })
 }
 
@@ -25,7 +26,7 @@ export default async function AdminDashboard() {
 
   const days = getLast14Days()
   const since = new Date(days[0])
-  const today = new Date().toISOString().slice(0, 10)
+  const today = toShanghaiDate(new Date())
 
   // 使用缓存减少数据库查询压力（5 分钟 TTL）
   const cacheKeyStats = cacheKey("admin:dashboard:stats", today)
@@ -101,7 +102,7 @@ export default async function AdminDashboard() {
       // 按日期分组统计
       const map = new Map<string, number>()
       result.forEach(r => {
-        const key = new Date(r.createdAt).toISOString().slice(0, 10)
+        const key = toShanghaiDate(r.createdAt)
         map.set(key, (map.get(key) ?? 0) + r._count.id)
       })
       return map
@@ -113,7 +114,7 @@ export default async function AdminDashboard() {
     }).then(result => {
       const map = new Map<string, number>()
       result.forEach(r => {
-        const key = new Date(r.createdAt).toISOString().slice(0, 10)
+        const key = toShanghaiDate(r.createdAt)
         map.set(key, (map.get(key) ?? 0) + r._count.id)
       })
       return map
@@ -125,7 +126,7 @@ export default async function AdminDashboard() {
     }).then(result => {
       const map = new Map<string, number>()
       result.forEach(r => {
-        const key = new Date(r.createdAt).toISOString().slice(0, 10)
+        const key = toShanghaiDate(r.createdAt)
         map.set(key, (map.get(key) ?? 0) + r._count.id)
       })
       return map
@@ -236,7 +237,7 @@ export default async function AdminDashboard() {
                     : <div className="flex h-full w-full items-center justify-center text-micro font-bold text-white">{(u.username?.[0] ?? "?").toUpperCase()}</div>}
                 </div>
                 <Link href={`/user/${u.id}`} className="flex-1 truncate text-sm text-muted-foreground hover:text-foreground transition-colors">{u.username}</Link>
-                <span className="shrink-0 text-xs text-muted-foreground/70">{u.createdAt.toISOString().slice(0, 10)}</span>
+                <span className="shrink-0 text-xs text-muted-foreground/70">{toShanghaiDate(u.createdAt)}</span>
               </div>
             ))}
           </div>

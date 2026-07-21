@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs"
 import { unstable_cache } from "next/cache"
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
+import { getRateLimit, getClientIP, rateLimits } from "@/lib/rate-limit"
 
 // 请求级缓存：同一请求内多次 auth() 调用只查一次 DB
 const getCachedUser = unstable_cache(
@@ -79,7 +80,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         identifier: { label: "用户名或邮箱" },
         password: { label: "密码", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
+        // 登录限流（M16）：基于客户端 IP 限制尝试频率，防止凭证暴力破解
+        const ip = getClientIP(request?.headers ?? new Headers())
+        const rl = await getRateLimit(`auth:${ip}`, rateLimits.auth)
+        if (!rl.allowed) return null
+
         const identifier = credentials?.identifier as string
         const password = credentials?.password as string
         if (!identifier || !password) return null

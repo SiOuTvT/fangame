@@ -5,11 +5,13 @@
 import { achievementRepo, avatarFrameRepo, creatorRepo, emotionalMessageRepo, tagGroupRepo, tagRepo, musicRepo, playlistRepo, checkInRepo, auditLogRepo, reportRepo, adminStatsRepo, adminGameRepo, adminReviewRepo, adminForumRepo, adminUserRepo, adminSearchRepo } from "@/repositories/admin"
 import { NotFoundError, ConflictError, ValidationError, ForbiddenError, AppError } from "@/lib/errors"
 import { achievementCreateSchema } from "@/lib/validations"
-import type { Prisma, UserRole } from "@prisma/client"
+import type { Prisma, UserRole, GameStatus } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import fs from "fs/promises"
 import path from "path"
 import { logAudit } from "@/lib/audit-log"
+import { sanitizeUrl } from "@/lib/sanitize"
+import { logger } from "@/lib/logger"
 
 // ── 成就 ────────────────────────────
 
@@ -35,7 +37,7 @@ export const achievementService = {
       points: parsed.points ?? 10,
       hidden: parsed.hidden !== false,
     })
-    await logAudit({ userId: "ADMIN", action: "achievement.create", target: result.id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "achievement.create", target: result.id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -49,7 +51,7 @@ export const achievementService = {
     for (const f of fields) { if (f in parsed) data[f] = parsed[f as keyof typeof parsed] }
     if (Object.keys(data).length === 0) throw new ValidationError("没有有效的更新字段")
     const result = await achievementRepo.update(id, data)
-    await logAudit({ userId: "ADMIN", action: "achievement.update", target: id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "achievement.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -57,7 +59,7 @@ export const achievementService = {
     const existing = await achievementRepo.findById(id)
     if (!existing) throw new NotFoundError("成就")
     const result = await achievementRepo.delete(id)
-    await logAudit({ userId: "ADMIN", action: "achievement.delete", target: id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "achievement.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 }
@@ -78,11 +80,11 @@ export const avatarFrameService = {
     const result = await avatarFrameRepo.create({
       name: String(raw.name),
       description: raw.description ? String(raw.description) : "",
-      imageUrl: String(raw.imageUrl),
+      imageUrl: sanitizeUrl(String(raw.imageUrl)) ?? "",
       isPublic: raw.isPublic !== false,
       sort: Number(raw.sort) || 0,
     })
-    await logAudit({ userId: "ADMIN", action: "avatarFrame.create", target: result.id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "avatarFrame.create", target: result.id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -91,10 +93,10 @@ export const avatarFrameService = {
     if (!existing) throw new NotFoundError("头像框")
     const data: Record<string, unknown> = {}
     for (const f of ["name", "description", "imageUrl", "isPublic", "sort"]) {
-      if (f in raw) data[f] = raw[f]
+      if (f in raw) data[f] = f === "imageUrl" ? (sanitizeUrl(String(raw[f])) ?? "") : raw[f]
     }
     const result = await avatarFrameRepo.update(id, data)
-    await logAudit({ userId: "ADMIN", action: "avatarFrame.update", target: id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "avatarFrame.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -105,17 +107,17 @@ export const avatarFrameService = {
     const affectedUsers = await avatarFrameRepo.findUsersWithFrame(id)
     for (const user of affectedUsers) {
       if (user.composedAvatarUrl) {
-        try { await cleanupOldComposedAvatar(user.composedAvatarUrl) } catch {}
+        try { await cleanupOldComposedAvatar(user.composedAvatarUrl) } catch (e) { logger.system.warn("[Cleanup] 旧文件清理失败", e) }
       }
     }
     // 删除头像框图片文件
     for (const ext of ["png", "webp", "jpg"]) {
       try {
         await fs.unlink(path.join(process.cwd(), "public", "uploads", "avatar-frames", `${id}.${ext}`))
-      } catch {}
+      } catch (e) { logger.system.warn("[Cleanup] 旧文件清理失败", e) }
     }
     const result = await avatarFrameRepo.delete(id)
-    await logAudit({ userId: "ADMIN", action: "avatarFrame.delete", target: id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "avatarFrame.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 }
@@ -131,13 +133,13 @@ export const creatorService = {
       vndbId: raw.vndbId ? String(raw.vndbId).trim() : "",
       name: String(raw.name).trim(),
       nameJa: raw.nameJa ? String(raw.nameJa).trim() : "",
-      avatar: raw.avatar ? String(raw.avatar).trim() : "",
+      avatar: raw.avatar ? (sanitizeUrl(String(raw.avatar)) ?? "") : "",
       bio: raw.bio ? String(raw.bio).trim() : "",
       gender: raw.gender ? String(raw.gender) : "",
-      twitterUrl: raw.twitterUrl ? String(raw.twitterUrl).trim() : "",
-      wikipediaUrl: raw.wikipediaUrl ? String(raw.wikipediaUrl).trim() : "",
+      twitterUrl: raw.twitterUrl ? (sanitizeUrl(String(raw.twitterUrl)) ?? "") : "",
+      wikipediaUrl: raw.wikipediaUrl ? (sanitizeUrl(String(raw.wikipediaUrl)) ?? "") : "",
     })
-    await logAudit({ userId: "ADMIN", action: "creator.create", target: result.id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "creator.create", target: result.id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -149,13 +151,13 @@ export const creatorService = {
       vndbId: raw.vndbId ? String(raw.vndbId).trim() : "",
       name: String(raw.name).trim(),
       nameJa: raw.nameJa ? String(raw.nameJa).trim() : "",
-      avatar: raw.avatar ? String(raw.avatar).trim() : "",
+      avatar: raw.avatar ? (sanitizeUrl(String(raw.avatar)) ?? "") : "",
       bio: raw.bio ? String(raw.bio).trim() : "",
       gender: raw.gender ? String(raw.gender) : "",
-      twitterUrl: raw.twitterUrl ? String(raw.twitterUrl).trim() : "",
-      wikipediaUrl: raw.wikipediaUrl ? String(raw.wikipediaUrl).trim() : "",
+      twitterUrl: raw.twitterUrl ? (sanitizeUrl(String(raw.twitterUrl)) ?? "") : "",
+      wikipediaUrl: raw.wikipediaUrl ? (sanitizeUrl(String(raw.wikipediaUrl)) ?? "") : "",
     })
-    await logAudit({ userId: "ADMIN", action: "creator.update", target: id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "creator.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -163,7 +165,7 @@ export const creatorService = {
     const existing = await creatorRepo.findById(id)
     if (!existing) throw new NotFoundError("创作者")
     const result = await creatorRepo.delete(id)
-    await logAudit({ userId: "ADMIN", action: "creator.delete", target: id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "creator.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -211,10 +213,10 @@ export const emotionalMessageService = {
     const result = await emotionalMessageRepo.create({
       key: String(raw.key), category: String(raw.category),
       title: raw.title ? String(raw.title) : "", subtitle: raw.subtitle ? String(raw.subtitle) : "",
-      imageUrl: raw.imageUrl ? String(raw.imageUrl) : "", emoji: raw.emoji ? String(raw.emoji) : "",
+      imageUrl: raw.imageUrl ? (sanitizeUrl(String(raw.imageUrl)) ?? "") : "", emoji: raw.emoji ? String(raw.emoji) : "",
       enabled: raw.enabled !== false,
     })
-    await logAudit({ userId: "ADMIN", action: "emotionalMessage.create", target: result.id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "emotionalMessage.create", target: result.id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -223,10 +225,10 @@ export const emotionalMessageService = {
     if (!existing) throw new NotFoundError("情感消息")
     const data: Record<string, unknown> = {}
     for (const f of ["title", "subtitle", "imageUrl", "emoji", "enabled", "category"]) {
-      if (f in raw) data[f] = raw[f]
+      if (f in raw) data[f] = f === "imageUrl" ? (sanitizeUrl(String(raw[f])) ?? "") : raw[f]
     }
     const result = await emotionalMessageRepo.update(id, data)
-    await logAudit({ userId: "ADMIN", action: "emotionalMessage.update", target: id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "emotionalMessage.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -234,7 +236,7 @@ export const emotionalMessageService = {
     const existing = await emotionalMessageRepo.findById(id)
     if (!existing) throw new NotFoundError("情感消息")
     const result = await emotionalMessageRepo.delete(id)
-    await logAudit({ userId: "ADMIN", action: "emotionalMessage.delete", target: id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "emotionalMessage.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 }
@@ -259,7 +261,7 @@ export const tagGroupService = {
       positions: raw.positions ? String(raw.positions) : "[]",
       isPreset: Boolean(raw.isPreset),
     })
-    await logAudit({ userId: "ADMIN", action: "tagGroup.create", target: result.id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "tagGroup.create", target: result.id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -271,7 +273,7 @@ export const tagGroupService = {
       if (f in raw) data[f] = raw[f]
     }
     const result = await tagGroupRepo.update(id, data)
-    await logAudit({ userId: "ADMIN", action: "tagGroup.update", target: id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "tagGroup.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -279,7 +281,7 @@ export const tagGroupService = {
     const existing = await tagGroupRepo.findById(id)
     if (!existing) throw new NotFoundError("标签组")
     const result = await tagGroupRepo.delete(id)
-    await logAudit({ userId: "ADMIN", action: "tagGroup.delete", target: id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "tagGroup.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -305,7 +307,7 @@ export const tagService = {
       isVisible: raw.isVisible !== false,
       ...(raw.groupId ? { group: { connect: { id: String(raw.groupId) } } } : {}),
     })
-    await logAudit({ userId: "ADMIN", action: "tag.create", target: result.id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "tag.create", target: result.id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -322,7 +324,7 @@ export const tagService = {
       data.group = raw.groupId ? { connect: { id: String(raw.groupId) } } : { disconnect: true }
     }
     const result = await tagRepo.update(id, data)
-    await logAudit({ userId: "ADMIN", action: "tag.update", target: id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "tag.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -330,7 +332,7 @@ export const tagService = {
     const existing = await tagRepo.findById(id)
     if (!existing) throw new NotFoundError("标签")
     const result = await tagRepo.delete(id)
-    await logAudit({ userId: "ADMIN", action: "tag.delete", target: id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "tag.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -344,7 +346,7 @@ export const tagService = {
     const existing = await tagRepo.findById(id)
     if (!existing) throw new NotFoundError("标签")
     const result = await tagRepo.update(id, groupId ? { group: { connect: { id: groupId } } } : { group: { disconnect: true } })
-    await logAudit({ userId: "ADMIN", action: "tag.assignGroup", target: id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "tag.assignGroup", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 }
@@ -383,6 +385,37 @@ export const adminStatsService = {
 export const adminGameService = {
   getPaginated(page: number, search?: string) { return adminGameRepo.findPaginated(page, 20, search) },
 
+  async create(data: Record<string, unknown>, publisherId: string) {
+    if (!data.title?.toString().trim()) throw new ValidationError("游戏标题不能为空")
+    const game = await prisma.game.create({
+      data: {
+        title: String(data.title).trim(),
+        originalWork: data.originalWork ? String(data.originalWork).trim() : "",
+        description: data.description ? String(data.description).trim() : "",
+        coverImage: data.coverImage ? String(data.coverImage).trim() : "",
+        status: (data.status as GameStatus) || "FINISHED",
+        isNsfw: Boolean(data.isNsfw),
+        vndbId: data.vndbId ? String(data.vndbId).trim() : "",
+        releaseDate: data.releaseDate ? new Date(String(data.releaseDate)) : null,
+        gameDuration: data.gameDuration ? String(data.gameDuration).trim() : "",
+        studioName: data.studioName ? String(data.studioName).trim() : "",
+        englishName: data.englishName ? String(data.englishName).trim() : "",
+        aliases: data.aliases ? String(data.aliases).trim() : "",
+        publisherId,
+        isPublished: data.isPublished === true,
+      },
+    })
+    // 处理标签关联
+    if (Array.isArray(data.tagIds) && data.tagIds.length > 0) {
+      await prisma.gameTag.createMany({
+        data: data.tagIds.map((tagId: string) => ({ gameId: game.id, tagId })),
+        skipDuplicates: true,
+      })
+    }
+    await logAudit({ userId: publisherId, action: "game.create", target: game.id })
+    return game
+  },
+
   async getById(id: string) {
     const game = await adminGameRepo.findById(id)
     if (!game) throw new NotFoundError("游戏")
@@ -398,21 +431,21 @@ export const adminGameService = {
     const safe: Record<string, unknown> = {}
     for (const k of ALLOWED) { if (k in data) safe[k] = data[k] }
     const result = await adminGameRepo.update(id, safe)
-    await logAudit({ userId: "ADMIN", action: "game.update", target: id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "game.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
   async delete(id: string) {
     if (!await adminGameRepo.exists(id)) throw new NotFoundError("游戏")
     const result = await adminGameRepo.delete(id)
-    await logAudit({ userId: "ADMIN", action: "game.delete", target: id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "game.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
   async batchDelete(ids: string[]) {
     if (!ids.length) throw new ValidationError("缺少游戏 ID")
     const result = await adminGameRepo.batchDelete(ids)
-    await logAudit({ userId: "ADMIN", action: "game.batchDelete", target: ids.join(","), detail: `${ids.length} games` }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "game.batchDelete", target: ids.join(","), detail: `${ids.length} games` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -432,7 +465,7 @@ export const adminReviewService = {
   async approve(gameId: string, reviewerId: string) {
     if (!await adminGameRepo.exists(gameId)) throw new NotFoundError("游戏")
     const result = await adminReviewRepo.approve(gameId, reviewerId)
-    await logAudit({ userId: "ADMIN", action: "review.approve", target: gameId }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "review.approve", target: gameId }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -440,7 +473,7 @@ export const adminReviewService = {
     if (!await adminGameRepo.exists(gameId)) throw new NotFoundError("游戏")
     if (!reason?.trim()) throw new ValidationError("拒绝原因不能为空")
     const result = await adminReviewRepo.reject(gameId, reason.trim(), reviewerId)
-    await logAudit({ userId: "ADMIN", action: "review.reject", target: gameId }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "review.reject", target: gameId }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 }
@@ -454,7 +487,7 @@ export const adminForumService = {
     const post = await prisma.forumPost.findUnique({ where: { id } })
     if (!post) throw new NotFoundError("帖子")
     const result = await adminForumRepo.deletePost(id)
-    await logAudit({ userId: "ADMIN", action: "forum.deletePost", target: id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "forum.deletePost", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 }
@@ -483,8 +516,13 @@ export const adminUserService = {
     if (callerRole !== "SUPER_ADMIN" && user.role === "SUPER_ADMIN") {
       throw new ForbiddenError("不能修改超级管理员的角色")
     }
+    // 防止降级最后一名超级管理员，导致后台无可用超管而锁死（L9）
+    if (role !== "SUPER_ADMIN" && user.role === "SUPER_ADMIN") {
+      const superAdminCount = await adminUserRepo.countSuperAdmins()
+      if (superAdminCount <= 1) throw new ValidationError("至少需保留一名超级管理员")
+    }
     const result = await adminUserRepo.updateRole(id, role as UserRole)
-    await logAudit({ userId: "ADMIN", action: "user.updateRole", target: id, detail: `role=${role}` }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "user.updateRole", target: id, detail: `role=${role}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -495,8 +533,13 @@ export const adminUserService = {
     if (user.role === "SUPER_ADMIN" && callerRole !== "SUPER_ADMIN") {
       throw new ForbiddenError("只有超级管理员可以删除超级管理员账号")
     }
+    // 防止删除最后一名超级管理员，导致后台锁死（L9）
+    if (user.role === "SUPER_ADMIN") {
+      const superAdminCount = await adminUserRepo.countSuperAdmins()
+      if (superAdminCount <= 1) throw new ValidationError("至少需保留一名超级管理员")
+    }
     const result = await adminUserRepo.delete(id)
-    await logAudit({ userId: "ADMIN", action: "user.delete", target: id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "user.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 }
@@ -568,7 +611,7 @@ export const adminMusicService = {
       url: raw.url.trim(),
       playlist: playlistId ? { connect: { id: playlistId } } : undefined,
     })
-    await logAudit({ userId: "ADMIN", action: "music.create", target: result.id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "music.create", target: result.id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -579,14 +622,14 @@ export const adminMusicService = {
     if (typeof raw.url === "string" && raw.url.trim()) { data.url = raw.url.trim(); data.filename = raw.url.trim() }
     if (Object.keys(data).length === 0) throw new ValidationError("没有要更新的字段")
     const result = await musicRepo.update(id, data)
-    await logAudit({ userId: "ADMIN", action: "music.update", target: id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "music.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
   async delete(id: string) {
     await musicRepo.findById(id).then(m => { if (!m) throw new NotFoundError("音乐") })
     const result = await musicRepo.delete(id)
-    await logAudit({ userId: "ADMIN", action: "music.delete", target: id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "music.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 }
@@ -605,7 +648,7 @@ export const adminPlaylistService = {
   async create(name: string) {
     if (!name?.trim()) throw new ValidationError("名称不能为空")
     const result = await playlistRepo.create({ name: name.trim() })
-    await logAudit({ userId: "ADMIN", action: "playlist.create", target: result.id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "playlist.create", target: result.id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -613,14 +656,14 @@ export const adminPlaylistService = {
     if (!name?.trim()) throw new ValidationError("名称不能为空")
     await playlistRepo.findById(id).then(pl => { if (!pl) throw new NotFoundError("播放列表") })
     const result = await playlistRepo.update(id, { name: name.trim() })
-    await logAudit({ userId: "ADMIN", action: "playlist.update", target: id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "playlist.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
   async delete(id: string) {
     await playlistRepo.findById(id).then(pl => { if (!pl) throw new NotFoundError("播放列表") })
     const result = await playlistRepo.delete(id)
-    await logAudit({ userId: "ADMIN", action: "playlist.delete", target: id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "playlist.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 }
@@ -645,8 +688,18 @@ export const adminFavoriteService = {
   },
 
   async delete(id: string) {
-    const result = await prisma.favorite.delete({ where: { id } })
-    await logAudit({ userId: "ADMIN", action: "favorite.delete", target: id }).catch(() => {})
+    // 先取 gameId，删除收藏后同步递减游戏的 denormalized favoriteCount（M4 计数器对账）
+    const favorite = await prisma.favorite.findUnique({ where: { id }, select: { gameId: true } })
+    if (!favorite) throw new NotFoundError("收藏")
+    const result = await prisma.$transaction(async (tx) => {
+      const deleted = await tx.favorite.delete({ where: { id } })
+      await tx.game.update({
+        where: { id: favorite.gameId },
+        data: { favoriteCount: { decrement: 1 } },
+      })
+      return deleted
+    })
+    await logAudit({ userId: "ADMIN", action: "favorite.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 }
@@ -672,7 +725,7 @@ export const adminFollowService = {
 
   async delete(id: string) {
     const result = await prisma.follow.delete({ where: { id } })
-    await logAudit({ userId: "ADMIN", action: "follow.delete", target: id }).catch(() => {})
+    await logAudit({ userId: "ADMIN", action: "follow.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 }
@@ -687,5 +740,5 @@ async function cleanupOldComposedAvatar(url: string) {
     // 路径遍历防护：解析后的路径必须在 uploads 目录内
     if (!filePath.startsWith(uploadsDir)) return
     await fs.unlink(filePath)
-  } catch {}
+  } catch (e) { logger.system.warn("[Cleanup] 旧文件清理失败", e) }
 }

@@ -16,7 +16,21 @@ export const POST = withHandler(async (req) => {
   const { userId } = await requireAuth()
   const rl = await checkRateLimit(rateLimits.comment, "forum-post")
   if (!rl.success) throw new RateLimitError()
-  const body = await safeParseJson(req)
+
+  // 支持 FormData 和 JSON 两种格式
+  let body: Record<string, unknown>
+  const contentType = req.headers.get("content-type") || ""
+  if (contentType.includes("multipart/form-data")) {
+    const fd = await req.formData()
+    body = {
+      title: fd.get("title") as string,
+      content: fd.get("content") as string,
+      category: fd.get("category") as string,
+    }
+  } else {
+    body = await safeParseJson(req)
+  }
+
   const post = await forumService.createPost(userId, body)
   return created(post)
 })

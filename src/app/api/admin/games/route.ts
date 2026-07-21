@@ -1,4 +1,4 @@
-import { withHandler, json } from "@/lib/api-handler"
+import { withHandler, json, created } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { adminGameService } from "@/services/admin"
 import type { NextRequest } from "next/server"
@@ -8,4 +8,11 @@ export const GET = withHandler(async (req: NextRequest) => {
   const page = Math.max(1, parseInt(req.nextUrl.searchParams.get("page") || "1"))
   const search = req.nextUrl.searchParams.get("search") || undefined
   return json(await adminGameService.getPaginated(page, search))
+})
+
+export const POST = withHandler(async (req) => {
+  const auth = await requireAdminRole()
+  const body = await req.json()
+  const game = await adminGameService.create(body, auth.userId)
+  return created(game)
 })

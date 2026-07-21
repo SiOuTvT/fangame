@@ -2,56 +2,46 @@
 
 import { cn } from "@/lib/utils"
 import { Eye, Heart, Lock, MessageSquare, Pin } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 import { memo } from "react"
 import { Tag } from "@/components/ui/tag"
 import type { User, Post } from "./forum-client-root"
+import { timeAgo } from "@/lib/time-ago"
+import { UserAvatar } from "@/components/user-avatar"
 
 const CATEGORY_LABELS: Record<string, string> = {
   discussion: "讨论",
-  help: "求档",
-  resource: "资源",
-  offtopic: "杂谈",
+  question: "求档",
+  showcase: "资源",
+  feedback: "杂谈",
+  guide: "教程",
 }
 
 interface ForumPostItemProps {
   post: Omit<Post, "comments">
 }
 
-function fmtDate(d: string) {
-  const date = new Date(d)
-  const now = new Date()
-  const diff = now.getTime() - date.getTime()
-  if (diff < 60_000) return "刚刚"
-  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}分钟前`
-  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}小时前`
-  return date.toLocaleDateString("zh-CN", { month: "short", day: "numeric" })
-}
+// fmtDate 已统一为 timeAgo（H1 迁移至 @/lib/time-ago）
+// Avatar 已统一为用户头像组件 UserAvatar（H3 消除 4 处本地定义）
 
-const Avatar = memo(function Avatar({ user, size = 6 }: { user: User; size?: number }) {
-  const px = size * 4
-  if (user.avatar) return <Image src={user.avatar} alt={user.username} width={px} height={px} className={`h-${size} w-${size} rounded-full object-cover shrink-0`} unoptimized />
-  return <div className={`h-${size} w-${size} rounded-full bg-primary/80 flex items-center justify-center text-micro font-bold text-primary-foreground shrink-0`}>{user.username[0].toUpperCase()}</div>
-})
 
 export const ForumPostItem = memo(function ForumPostItem({ post }: ForumPostItemProps) {
   return (
     <Link href={`/forum/${post.id}`}
       className="game-card block rounded-2xl bg-card p-4 sm:p-5 ring-1 ring-border transition-all hover:ring-primary/30">
       <div className="flex items-center gap-2.5 min-w-0">
-        <Avatar user={post.user} size={7} />
+        <UserAvatar user={post.user} size={28} />
         <span className="text-sm text-muted-foreground truncate">{post.user.username}</span>
         <span className="text-xs text-muted-foreground/60 shrink-0">·</span>
-        <span className="text-xs text-muted-foreground/60 shrink-0">{fmtDate(post.createdAt)}</span>
+        <span className="text-xs text-muted-foreground/60 shrink-0">{timeAgo(post.createdAt)}</span>
         {post.updatedAt !== post.createdAt && (
           <span className="text-micro text-muted-foreground/50 shrink-0">(已编辑)</span>
         )}
         <Tag variant="badge" className={cn(
           "ml-auto shrink-0",
           post.category === "discussion" ? "bg-blue-500/10 text-blue-400" :
-          post.category === "help" ? "bg-amber-500/10 text-amber-400" :
-          post.category === "resource" ? "bg-emerald-500/10 text-emerald-400" :
+          post.category === "question" ? "bg-amber-500/10 text-amber-400" :
+          post.category === "showcase" ? "bg-emerald-500/10 text-emerald-400" :
           "bg-purple-500/10 text-purple-400"
         )}>{CATEGORY_LABELS[post.category] || post.category}</Tag>
       </div>

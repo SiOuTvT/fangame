@@ -1,4 +1,4 @@
-import { withHandler, json } from "@/lib/api-handler"
+import { withHandler, json, noContent } from "@/lib/api-handler"
 import { requireAuth } from "@/lib/auth-context"
 import { notificationService } from "@/services/user"
 
@@ -10,8 +10,24 @@ export const GET = withHandler(async (req) => {
   return json(data)
 })
 
-export const PUT = withHandler(async () => {
+export const PUT = withHandler(async (req) => {
   const { userId } = await requireAuth()
-  await notificationService.markAllRead(userId)
+  const body = await req.json().catch(() => ({}))
+  if (body.ids?.length) {
+    await notificationService.markRead(body.ids, userId)
+  } else {
+    await notificationService.markAllRead(userId)
+  }
   return json({ ok: true })
+})
+
+export const DELETE = withHandler(async (req) => {
+  const { userId } = await requireAuth()
+  const body = await req.json().catch(() => ({}))
+  if (body.ids?.length) {
+    await notificationService.deleteNotifications(body.ids, userId)
+  } else {
+    await notificationService.deleteAllRead(userId)
+  }
+  return noContent()
 })

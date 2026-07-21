@@ -265,11 +265,13 @@ export default function GameDetailClient({
           <div className="pt-4">
             {/* 游戏简介 — 提取至 IntroTab 组件 */}
             {tab === "intro" && (
-              <IntroTab
-                description={description}
-                allDescriptions={allDescriptions}
-                creators={creators}
-              />
+              <div role="tabpanel" id="tabpanel-intro" aria-labelledby="tab-intro">
+                <IntroTab
+                  description={description}
+                  allDescriptions={allDescriptions}
+                  creators={creators}
+                />
+              </div>
             )}
 
             {/* 游戏资源 */}

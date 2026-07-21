@@ -17,8 +17,10 @@ export const PUT = withHandler(async (req, ctx) => {
 })
 
 export const DELETE = withHandler(async (_req, ctx) => {
-  const { userId } = await requireAuth()
+  const auth = await requireAuth()
   const { id } = await ctx!.params
-  await forumService.deletePost(userId, id)
+  // 管理员可删除任意帖子；普通用户仅能删除自己的（M17）
+  const isAdmin = auth.role === "ADMIN" || auth.role === "SUPER_ADMIN"
+  await forumService.deletePost(auth.userId, id, isAdmin)
   return noContent()
 })

@@ -67,7 +67,7 @@ export function ProfileEditForm({ user }: Props) {
     setSaving(true)
 
     const res = await fetch("/api/profile/edit", {
-      method: "POST",
+      method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         username: username.trim(),

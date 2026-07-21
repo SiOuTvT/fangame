@@ -21,8 +21,7 @@ export function FollowButton({ targetUserId, initialFollowing }: Props) {
     if (loading) return
     setLoading(true)
     try {
-      const method = following ? "DELETE" : "POST"
-      const res = await fetch(`/api/follow/${targetUserId}`, { method })
+      const res = await fetch(`/api/follow/${targetUserId}`, { method: "POST" })
       if (res.ok) {
         setFollowing(!following)
         toast.success(following

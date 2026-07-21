@@ -79,8 +79,13 @@ export async function middleware(req: NextRequest) {
   res.headers.set("Cross-Origin-Opener-Policy", "same-origin")
   res.headers.set("Cross-Origin-Resource-Policy", "same-origin")
 
-  // HSTS：仅在生产环境 HTTPS 下启用（避免 HTTP 站点误设导致无法访问）
-  const isSecure = req.nextUrl.protocol === "https"
+  // HSTS：真实协议需从 x-forwarded-proto 判断（H2）。
+  // 反向代理（TLS 终止）后 req.nextUrl.protocol 常为 http，若仅据此判断，
+  // 会导致 HTTPS 站点永远不发送 HSTS，失去传输安全保护。
+  const proto =
+    req.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() ||
+    req.nextUrl.protocol.replace(":", "")
+  const isSecure = proto === "https"
   if (isSecure) {
     res.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
   } else {

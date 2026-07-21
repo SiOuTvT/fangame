@@ -6,7 +6,7 @@ import { gameRepo } from "@/repositories/game"
 import { NotFoundError, ValidationError, ForbiddenError } from "@/lib/errors"
 import { prisma } from "@/lib/prisma"
 import { gameResourceCreateSchema } from "@/lib/validations"
-import type { PlayStatusType } from "@prisma/client"
+import type { PlayStatusType, Prisma } from "@prisma/client"
 
 export const gameService = {
   getPaginated(page: number, limit: number, filters?: { q?: string; sort?: string; tag?: string }) {
@@ -138,5 +138,40 @@ export const gameService = {
 
   reportResource(userId: string, resourceId: string) {
     return gameRepo.reportResource(userId, resourceId)
+  },
+
+  async updateResource(resourceId: string, userId: string, role: string, raw: Record<string, unknown>) {
+    const resource = await prisma.gameResource.findUnique({
+      where: { id: resourceId },
+      select: { userId: true },
+    })
+    if (!resource) throw new NotFoundError("资源")
+    if (resource.userId !== userId && role !== "ADMIN" && role !== "SUPER_ADMIN") {
+      throw new ForbiddenError("只能编辑自己上传的资源")
+    }
+    const parsed = gameResourceCreateSchema.partial().parse(raw)
+    const updateData: Record<string, unknown> = {}
+    if (parsed.resourceName !== undefined) updateData.resourceName = parsed.resourceName
+    if (parsed.resourceNote !== undefined) updateData.resourceNote = parsed.resourceNote
+    if (parsed.platform !== undefined) updateData.platform = JSON.stringify(parsed.platform)
+    if (parsed.language !== undefined) updateData.language = JSON.stringify(parsed.language)
+    if (parsed.runType !== undefined) updateData.runType = JSON.stringify(parsed.runType)
+    if (parsed.resourceContent !== undefined) updateData.resourceContent = JSON.stringify(parsed.resourceContent)
+    if (parsed.entries) {
+      await prisma.gameResourceEntry.deleteMany({ where: { resourceId } })
+      updateData.entries = {
+        create: parsed.entries.map((e) => ({
+          url: e.url,
+          extractCode: e.extractCode ?? "",
+          decompressCode: e.decompressCode ?? "",
+          fileSize: e.fileSize ?? "",
+        })),
+      }
+    }
+    return prisma.gameResource.update({
+      where: { id: resourceId },
+      data: updateData as Prisma.GameResourceUpdateInput,
+      include: { entries: true, user: { select: { id: true, username: true } } },
+    })
   },
 }

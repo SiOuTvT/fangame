@@ -1,6 +1,7 @@
 import { createNotification } from "@/lib/notifications"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
+import { toShanghaiDate, shiftShanghaiDate } from "@/lib/date"
 
 // 条件类型定义
 export type ConditionType =
@@ -28,21 +29,19 @@ async function calculateCheckinStreak(userId: string): Promise<number> {
 
   if (checkins.length === 0) return 0
 
-  // 使用 Asia/Shanghai 时区计算今天
-  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Shanghai" })
+  // 统一使用 Asia/Shanghai 计算"今天"（与签到存储的日期口径一致）
+  const today = toShanghaiDate(new Date())
 
   // 如果今天没有签到，从昨天开始检查
   let streak = 0
-  let currentDate = new Date(today)
+  let currentDate = today
 
-  // 将 Date 转换为 YYYY-MM-DD 字符串用于比较
-  const dateToString = (d: Date) => new Date(d).toISOString().slice(0, 10)
+  // 将签到日期统一转换为 Shanghai YYYY-MM-DD 用于比较
+  const dateToString = (d: Date) => toShanghaiDate(d)
 
   // 如果最新签到不是今天也不是昨天，连续签到中断
   const latestCheckin = dateToString(checkins[0].date)
-  const yesterday = new Date(currentDate)
-  yesterday.setDate(yesterday.getDate() - 1)
-  const yesterdayStr = yesterday.toISOString().slice(0, 10)
+  const yesterdayStr = shiftShanghaiDate(today, -1)
 
   if (latestCheckin !== today && latestCheckin !== yesterdayStr) {
     return 0
@@ -50,16 +49,16 @@ async function calculateCheckinStreak(userId: string): Promise<number> {
 
   // 如果最新签到是昨天，从昨天开始计算
   if (latestCheckin === yesterdayStr) {
-    currentDate = yesterday
+    currentDate = yesterdayStr
   }
 
   // 创建一个 Set 用于快速查找
-  const checkinDates = new Set(checkins.map(c => dateToString(c.date)))
+  const checkinDates = new Set(checkins.map(c => toShanghaiDate(c.date)))
 
   // 从当前日期向前回溯
-  while (checkinDates.has(currentDate.toISOString().slice(0, 10))) {
+  while (checkinDates.has(currentDate)) {
     streak++
-    currentDate.setDate(currentDate.getDate() - 1)
+    currentDate = shiftShanghaiDate(currentDate, -1)
   }
 
   return streak

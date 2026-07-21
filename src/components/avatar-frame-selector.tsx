@@ -62,7 +62,7 @@ export function AvatarFrameSelector({
     setSaving(true)
     try {
       const res = await fetch("/api/user/avatar-frame", {
-        method: "POST",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ frameId }),
       })

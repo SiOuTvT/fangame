@@ -433,6 +433,9 @@ export const adminUserRepo = {
   updateRole(id: string, role: Prisma.UserUpdateInput["role"]) {
     return prisma.user.update({ where: { id }, data: { role } })
   },
+  countSuperAdmins() {
+    return prisma.user.count({ where: { role: "SUPER_ADMIN" } })
+  },
   delete(id: string) {
     return prisma.$transaction([
       prisma.game.updateMany({ where: { reviewedBy: id }, data: { reviewedBy: null } }),

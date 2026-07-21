@@ -7,6 +7,7 @@ import { notificationRepo } from "@/repositories/user"
 import { NotFoundError, ValidationError, ForbiddenError } from "@/lib/errors"
 import { forumPostSchema, forumCommentSchema } from "@/lib/validations"
 import { FORUM } from "@/lib/config"
+import { sanitizeUrl } from "@/lib/sanitize"
 import type { ForumPostCategory } from "@prisma/client"
 
 export const forumService = {
@@ -37,7 +38,7 @@ export const forumService = {
     return forumRepo.createPost(userId, {
       title: parsed.title.trim(),
       content: parsed.content.trim(),
-      imageUrl: raw.imageUrl ? String(raw.imageUrl) : "",
+      imageUrl: raw.imageUrl ? (sanitizeUrl(String(raw.imageUrl)) ?? "") : "",
       category: (parsed.category ?? "discussion") as ForumPostCategory,
     })
   },
@@ -114,6 +115,15 @@ export const forumService = {
     }
 
     return comment
+  },
+
+  async updateComment(userId: string, commentId: string, content: string, isAdmin = false) {
+    const comment = await forumRepo.findCommentById(commentId)
+    if (!comment) throw new NotFoundError("评论")
+    if (!isAdmin && comment.userId !== userId) throw new ForbiddenError("只能编辑自己的评论")
+    if (!content?.trim()) throw new ValidationError("评论内容不能为空")
+    if (content.length > FORUM.COMMENT_MAX) throw new ValidationError(`评论最多 ${FORUM.COMMENT_MAX} 个字符`)
+    return forumRepo.updateComment(commentId, content.trim())
   },
 
   async deleteComment(userId: string, commentId: string, isAdmin = false) {

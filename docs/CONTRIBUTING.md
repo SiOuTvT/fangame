@@ -15,7 +15,7 @@
 - **Repository 层**（`src/repositories/**`）只能是纯 Prisma 数据访问，无业务逻辑。
 - **鉴权** 在 Service 层调用 `requireAuth()` / `requireAdminRole(...)`；新增管理接口必须显式加守卫。
 - **统一异常**：路由用 `withHandler()` 包装，抛 `AppError` 或 `ZodError`，**不要**自己 `try/catch` 返回 500。
-- **输入校验** 用 `@/lib/validations` 的 Zod schema；`parseBody()` / `parseSearchParams()` 会抛 `ZodError` 由 handler 自动转 422。
+- **输入校验** 用 `@/lib/validations` 的 Zod schema；路由中用 `safeParseJson(req)` 解析请求体（非法 JSON → 422），再用 `schema.parse(body)` 校验，`ZodError` 由 `withHandler()` 自动转 422。
 - **日志** 用 `@/lib/logger`，**严禁 `console.log`**。
 - **存储** 经 `@/lib/storage` 的 `getStorage()`，勿直接调 R2/本地。
 - **数据库** 改动走 Prisma Migration，提交迁移文件，不要在 Route 写 Prisma。

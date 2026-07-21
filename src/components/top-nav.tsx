@@ -6,6 +6,7 @@ import { NotificationBell } from "@/components/notification-bell"
 import { useEmotionalMessage, useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import { cn } from "@/lib/utils"
 import { logger } from "@/lib/logger"
+import { toShanghaiDate } from "@/lib/date"
 import Image from "next/image"
 import {
   CalendarCheck,
@@ -103,7 +104,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
 
   // 签到状态：先从 sessionStorage 读取当日缓存，过期才请求
   useEffect(() => {
-    const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Shanghai" })
+    const today = toShanghaiDate(new Date())
     try {
       const cached = sessionStorage.getItem("checkin_status")
       if (cached) {
@@ -221,7 +222,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
           setCheckedIn(true)
           setToastMarks(data.data.marks ?? 0)
           setTotalMarks(prev => prev + (data.data.marks ?? 0))
-          try { sessionStorage.setItem("checkin_status", JSON.stringify({ date: new Date().toISOString().slice(0, 10), checkedIn: true })) } catch {}
+          try { sessionStorage.setItem("checkin_status", JSON.stringify({ date: toShanghaiDate(new Date()), checkedIn: true })) } catch {}
           return
         }
         // 409 冲突（已签到）：{ success: false, error: "...", code: "CONFLICT" }
@@ -356,8 +357,9 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
                     <button onClick={() => {
                       setUserOpen(false)
                       try {
-                        localStorage.clear()
-                        sessionStorage.clear()
+                        // 仅清理与登录用户会话相关的本地缓存，保留主题 / NSFW 等偏好（L3）
+                        localStorage.removeItem("local_avatar")
+                        sessionStorage.removeItem("checkin_status")
                       } catch (err) { logger.user.warn("[TopNav] clear storage failed", { error: err instanceof Error ? err.message : String(err) }) }
                       signOut({ callbackUrl: "/" })
                     }}

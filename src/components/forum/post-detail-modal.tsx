@@ -2,35 +2,22 @@
 
 import { useState, useRef, useCallback, useEffect, memo } from "react"
 import Image from "next/image"
-import { CheckCircle2, ChevronLeft, Edit3, Heart, ImageIcon, MessageSquare, Send, Smile, Trash2, X } from "lucide-react"
+import { CheckCircle2, ChevronLeft, Edit3, Eye, Heart, ImageIcon, Lock, MessageSquare, Send, Share2, Smile, Trash2, X } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { Tag } from "@/components/ui/tag"
 import { RichTextContent } from "../rich-text-content-wrapper"
 import type { Post, Comment, User } from "./forum-client-root"
 import { logger } from "@/lib/logger"
+import { EMOJI_LIST } from "@/lib/emoji"
+import { timeAgo } from "@/lib/time-ago"
+import { UserAvatar } from "@/components/user-avatar"
 
-function fmtDate(d: string) {
-  const date = new Date(d)
-  const now = new Date()
-  const diff = now.getTime() - date.getTime()
-  if (diff < 60_000) return "刚刚"
-  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}分钟前`
-  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}小时前`
-  return date.toLocaleDateString("zh-CN", { month: "short", day: "numeric" })
-}
+// fmtDate 已统一为 timeAgo（H1 迁移至 @/lib/time-ago）
+// Avatar 已统一为用户头像组件 UserAvatar（H3 消除 4 处本地定义）
 
-const Avatar = memo(function Avatar({ user, size = 6 }: { user: User; size?: number }) {
-  const s = `h-${size} w-${size}`
-  if (user.avatar) return <Image src={user.avatar} alt={user.username} width={size * 4} height={size * 4} className={`${s} rounded-full object-cover shrink-0`} />
-  return <div className={`${s} rounded-full bg-primary/80 flex items-center justify-center text-micro font-bold text-primary-foreground shrink-0`}>{user.username[0].toUpperCase()}</div>
-})
 
-const EMOJI_LIST = [
-  "😀", "😂", "🤣", "😍", "🥰", "😘", "😋", "🤔", "😎", "🥺",
-  "😭", "😤", "🤯", "🥳", "🤩", "😴", "🤮", "👻", "💀", "🤡",
-  "👍", "👎", "❤️", "🔥", "⭐", "🎉", "🎮", "🎵", "✨", "💯",
-]
+// EMOJI_LIST 已迁移至 @/lib/emoji（L1 统一为单一来源）
 
 // 表情面板组件 - 使用 memo 避免不必要的重渲染
 const EmojiPanel = memo(function EmojiPanel({ onSelect, onClose }: { onSelect: (emoji: string) => void; onClose: () => void }) {
@@ -98,6 +85,7 @@ export function PostDetailModal({
   const [commentSubmitting, setCommentSubmitting] = useState(false)
   const [editingComment, setEditingComment] = useState<string | null>(null)
   const [editCommentText, setEditCommentText] = useState("")
+  const [replyTo, setReplyTo] = useState<string | null>(null)
   const commentFileRef = useRef<HTMLInputElement>(null)
 
   // 本地评论列表，支持提交/编辑后即时更新
@@ -161,7 +149,8 @@ export function PostDetailModal({
     setCommentSubmitting(true)
     try {
       const fd = new FormData()
-      fd.append("content", commentText.trim())
+      const text = replyTo ? `${replyTo} ${commentText.trim()}` : commentText.trim()
+      fd.append("content", text)
       if (commentImageFile) fd.append("image", commentImageFile)
       const res = await fetch(`/api/forum/posts/${post.id}/comments`, { method: "POST", body: fd })
       if (!res.ok) {
@@ -175,6 +164,7 @@ export function PostDetailModal({
       setCommentImagePreview(null)
       setCommentImageFile(null)
       setShowCommentEmoji(false)
+      setReplyTo(null)
       // 追加新评论到本地列表
       const newComment: Comment = {
         id: data.id,
@@ -191,7 +181,7 @@ export function PostDetailModal({
     } finally {
       setCommentSubmitting(false)
     }
-  }, [commentText, commentImageFile, post.id, currentUserId])
+  }, [commentText, commentImageFile, replyTo, post.id, currentUserId])
 
   const handleLikeComment = useCallback((id: string) => {
     onLikeComment?.(id)
@@ -211,7 +201,7 @@ export function PostDetailModal({
     if (!editCommentText.trim()) return
     try {
       const res = await fetch(`/api/forum/comments/${id}`, {
-        method: "PATCH",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: editCommentText.trim() }),
       })
@@ -243,17 +233,23 @@ export function PostDetailModal({
           <div className="p-5">
             {/* 帖子元信息 */}
             <div className="mb-3 flex items-center gap-2.5">
-              <Avatar user={post.user} size={8} />
+              <UserAvatar user={post.user} size={32} />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground">{post.user.username}</p>
                 <p className="text-micro text-muted-foreground">
-                  {fmtDate(post.createdAt)}
+                  {timeAgo(post.createdAt)}
                   {post.updatedAt !== post.createdAt && " · 已编辑"}
+                  {post.viewCount != null && ` · 浏览 ${post.viewCount}`}
                 </p>
               </div>
               {post.isSolved && (
                 <Tag color="#10b981" className="gap-1">
                   <CheckCircle2 className="h-3 w-3" strokeWidth={2} />已解决
+                </Tag>
+              )}
+              {post.isLocked && (
+                <Tag color="#f59e0b" className="gap-1">
+                  <Lock className="h-3 w-3" strokeWidth={2} />已锁定
                 </Tag>
               )}
             </div>
@@ -269,6 +265,10 @@ export function PostDetailModal({
               <button onClick={() => onLikePost(post.id)} disabled={!isLoggedIn}
                 className="flex min-h-[44px] items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs text-muted-foreground ring-1 ring-border transition-all hover:text-primary disabled:opacity-40">
                 <Heart className="h-3.5 w-3.5" strokeWidth={1.5} />{post.likeCount}
+              </button>
+              <button onClick={() => { const url = window.location.href; if (navigator.clipboard) { navigator.clipboard.writeText(url); toast.success("链接已复制") } }}
+                className="flex min-h-[44px] items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs text-muted-foreground ring-1 ring-border transition-all hover:text-foreground">
+                <Share2 className="h-3.5 w-3.5" strokeWidth={1.5} />分享
               </button>
               {isAuthor && (
                 <>
@@ -306,11 +306,11 @@ export function PostDetailModal({
               {localComments.length === 0 && <p className="text-xs text-muted-foreground">还没有人回复，来说点什么吧~</p>}
               {localComments.map(c => (
                 <div key={c.id} className="flex gap-2.5">
-                  <Avatar user={c.user} size={6} />
+                  <UserAvatar user={c.user} size={24} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="text-xs font-medium text-foreground">{c.user.username}</span>
-                      <span className="text-micro text-muted-foreground">{fmtDate(c.createdAt)}</span>
+                      <span className="text-micro text-muted-foreground">{timeAgo(c.createdAt)}</span>
                       {c.updatedAt && c.updatedAt !== c.createdAt && <span className="text-micro text-muted-foreground/50">已编辑</span>}
                     </div>
                     {editingComment === c.id ? (
@@ -336,6 +336,10 @@ export function PostDetailModal({
                       <button onClick={() => handleLikeComment(c.id)} disabled={!isLoggedIn}
                         className="flex min-h-[44px] items-center gap-1 px-2 py-2 text-xs text-muted-foreground transition-colors hover:text-primary disabled:opacity-40">
                         <Heart className="h-3 w-3" strokeWidth={1.5} />{c.likeCount > 0 && c.likeCount}
+                      </button>
+                      <button onClick={() => { setReplyTo(`@${c.user.username} `); commentInputRef.current?.focus() }}
+                        className="flex min-h-[44px] items-center gap-1 px-2 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground">
+                        <MessageSquare className="h-3 w-3" strokeWidth={1.5} />
                       </button>
                       {currentUserId === c.user.id && editingComment !== c.id && (
                         <button onClick={() => startEditComment(c.id, c.content)}
@@ -366,6 +370,15 @@ export function PostDetailModal({
                       aria-label="移除图片"
                       className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-secondary text-foreground sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-red-500/80 hover:text-white">
                       <X className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
+                    </button>
+                  </div>
+                )}
+                {replyTo && (
+                  <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
+                    <span>回复 {replyTo.replace(/^@/, "").replace(/\s$/, "")}</span>
+                    <button type="button" onClick={() => setReplyTo(null)}
+                      className="text-muted-foreground/50 hover:text-foreground">
+                      <X className="h-3 w-3" strokeWidth={2} />
                     </button>
                   </div>
                 )}

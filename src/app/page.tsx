@@ -7,6 +7,7 @@ import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { getSiteSetting, getSiteName, getSiteDescription } from "@/lib/site-settings"
+import { toShanghaiDate } from "@/lib/date"
 import Link from "next/link"
 import { Suspense } from "react"
 
@@ -121,7 +122,7 @@ export default async function HomePage({
   // 统计数据缓存 key（按日期和 nsfw 状态区分）
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  const dateStr = today.toISOString().slice(0, 10)
+  const dateStr = toShanghaiDate(today)
   const statsCacheKey = cacheKey("homepage:stats", dateStr, nsfw ? "1" : "0")
 
   // 全局去重 Map，防止并发请求同时 miss 缓存

@@ -1,48 +1,15 @@
 "use client"
 
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { Trash2 } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { toast } from "sonner"
+import { AdminDeleteButton } from "@/components/admin-delete-button"
 
 export function FavoriteDeleteBtn({ id }: { id: string }) {
-  const router = useRouter()
-  const [open, setOpen] = useState(false)
-
-  async function handleDelete() {
-    const res = await fetch("/api/admin/favorites", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-    })
-    if (res.ok) {
-      toast.success("收藏已删除")
-      router.refresh()
-    } else {
-      toast.error("删除失败")
-      throw new Error("删除失败")
-    }
-  }
-
   return (
-    <>
-      <button
-        onClick={() => setOpen(true)}
-        className="shrink-0 rounded-lg p-2 text-muted-foreground transition-all hover:bg-red-500/10 hover:text-red-400"
-        title="删除"
-      >
-        <Trash2 className="h-4 w-4" />
-      </button>
-      <ConfirmDialog
-        open={open}
-        onOpenChange={setOpen}
-        title="删除收藏"
-        description="确定要删除这条收藏记录吗？删了就找不回来了。"
-        confirmText="删除"
-        variant="destructive"
-        onConfirm={handleDelete}
-      />
-    </>
+    <AdminDeleteButton
+      endpoint="/api/admin/favorites"
+      title="删除收藏"
+      description="确定要删除这条收藏记录吗？删了就找不回来了。"
+      successMessage="收藏已删除"
+      body={{ id }}
+    />
   )
 }

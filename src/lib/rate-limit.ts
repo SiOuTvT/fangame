@@ -105,12 +105,13 @@ export async function getRateLimit(key: string, config: RateLimitConfig): Promis
  * 生产环境应确保有反向代理（nginx/Cloudflare）设置此头。
  * 仅用于速率限制等临时场景，不用于永久存储。
  */
-export function getClientIP(req: Request): string {
-  const forwarded = req.headers.get("x-forwarded-for")
+export function getClientIP(req: Request | Headers): string {
+  const get = (k: string) => (req instanceof Headers ? req.get(k) : req.headers.get(k))
+  const forwarded = get("x-forwarded-for")
   if (forwarded) {
     return forwarded.split(",")[0].trim()
   }
-  const realIP = req.headers.get("x-real-ip")
+  const realIP = get("x-real-ip")
   if (realIP) {
     return realIP
   }
@@ -153,9 +154,7 @@ export async function checkRateLimit(config: RateLimitConfig, keySuffix = ""): P
 }> {
   const { headers } = await import("next/headers")
   const headersList = await headers()
-  const ip = headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-             headersList.get("x-real-ip") ??
-             "unknown"
+  const ip = getClientIP(headersList)
 
   const key = `ip:${ip}${keySuffix ? `:${keySuffix}` : ""}`
   const result = await getRateLimit(key, config)

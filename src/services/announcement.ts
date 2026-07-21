@@ -10,6 +10,7 @@
 import { announcementRepo, type AnnouncementCreateInput } from "@/repositories/announcement"
 import { announcementCreateSchema, announcementUpdateSchema } from "@/lib/validations"
 import { NotFoundError, ValidationError } from "@/lib/errors"
+import { sanitizeUrl } from "@/lib/sanitize"
 import type { AuthContext } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
 
@@ -53,8 +54,8 @@ export const announcementService = {
       title: validated.title.trim(),
       summary: (validated.summary ?? "").trim(),
       content: validated.content.trim(),
-      imageUrl: validated.imageUrl?.trim() ?? "",
-      link: validated.link?.trim() ?? "",
+      imageUrl: validated.imageUrl ? (sanitizeUrl(validated.imageUrl) ?? "") : "",
+      link: validated.link ? (sanitizeUrl(validated.link) ?? "") : "",
       authorName: ctx.username,
       authorAvatar: adminUser?.avatar ?? "",
       status: validated.status ?? "draft",
@@ -81,8 +82,8 @@ export const announcementService = {
     if (parsed.title !== undefined) data.title = String(parsed.title).trim()
     if (parsed.summary !== undefined) data.summary = String(parsed.summary).trim()
     if (parsed.content !== undefined) data.content = String(parsed.content).trim()
-    if (parsed.imageUrl !== undefined) data.imageUrl = String(parsed.imageUrl).trim()
-    if (parsed.link !== undefined) data.link = String(parsed.link).trim()
+    if (parsed.imageUrl !== undefined) data.imageUrl = sanitizeUrl(String(parsed.imageUrl)) ?? ""
+    if (parsed.link !== undefined) data.link = sanitizeUrl(String(parsed.link)) ?? ""
     if (parsed.status !== undefined) data.status = parsed.status
     if (parsed.isPinned !== undefined) data.isPinned = parsed.isPinned
     if (parsed.isActive !== undefined) data.isActive = parsed.isActive

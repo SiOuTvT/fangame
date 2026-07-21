@@ -95,9 +95,8 @@ export default function NotificationsClient({
     if (!hasMarkedAllRead.current && unreadCount > 0) {
       hasMarkedAllRead.current = true
       fetch("/api/notifications", {
-        method: "POST",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
       }).then(() => {
         setUnreadCount(0)
         setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
@@ -121,7 +120,7 @@ export default function NotificationsClient({
   async function markRead(ids: string[]) {
     try {
       await fetch("/api/notifications", {
-        method: "POST",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ids }),
       })
