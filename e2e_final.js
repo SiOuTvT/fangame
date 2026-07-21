@@ -4,143 +4,273 @@ const { chromium } = require('playwright');
   const browser = await chromium.launch({ headless: true });
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 } });
   const page = await ctx.newPage();
-  const issues = [];
-  const consoleErrors = [];
-  page.on('console', msg => { if (msg.type() === 'error') consoleErrors.push(msg.text()); });
+  const results = [];
 
-  async function nav(url, name) {
-    await page.goto('http://localhost:3099' + url);
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(1500);
-    return page.url();
+  function result(test, status, detail) {
+    results.push({ test, status, detail });
+    const mark = status === 'PASS' ? '✅' : status === 'FAIL' ? '❌' : '⚠️';
+    console.log(`${mark} ${test}: ${detail}`);
   }
 
-  // ===== TEST 1: PUBLIC PAGES =====
-  console.log('\n=== 1. PUBLIC PAGES ===');
-  const publicPages = [
-    ['/', 'Homepage'],
-    ['/games', 'Games list'],
-    ['/games/1', 'Game detail'],
-    ['/search?q=AIR', 'Search'],
-    ['/tags', 'Tags'],
-    ['/forum', 'Forum'],
-    ['/collections', 'Collections'],
-    ['/login', 'Login'],
-    ['/about', 'About'],
-  ];
-  for (const [url, name] of publicPages) {
-    const currentUrl = await nav(url, name);
-    const ok = currentUrl.includes(url.split('?')[0].replace('/', '')) || currentUrl === 'http://localhost:3099/';
-    console.log(`  ${ok ? '✅' : '❌'} ${name}`);
-    if (!ok) issues.push({ id: `PUB-${name}`, desc: `Page ${name} redirected unexpectedly to ${currentUrl}` });
+  // Helper: API call via browser (uses cookies)
+  async function api(method, path, body) {
+    return page.evaluate(async ({ method, path, body }) => {
+      const opts = { method, headers: {} };
+      if (body) {
+        opts.headers['Content-Type'] = 'application/json';
+        opts.body = JSON.stringify(body);
+      }
+      const res = await fetch(path, opts);
+      const text = await res.text();
+      let data;
+      try { data = JSON.parse(text); } catch { data = text; }
+      return { status: res.status, data };
+    }, { method, path, body });
   }
 
-  // ===== TEST 2: LOGIN FLOW =====
-  console.log('\n=== 2. LOGIN FLOW ===');
-  await nav('/login', 'Login page');
+  // ===== LOGIN =====
+  console.log('=== LOGIN ===');
+  await page.goto('http://localhost:3099/login');
+  await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(500);
 
-  // Login with testuser_qa (created via API)
   await page.fill('input[placeholder*="用户名"]', 'testuser_qa');
   await page.fill('input[type="password"]', 'testpass123');
   await page.click('button[type="submit"]');
   await page.waitForTimeout(5000);
 
-  const loginSuccess = !page.url().includes('/login');
-  console.log(`  ${loginSuccess ? '✅' : '❌'} Login result: ${page.url()}`);
-  await page.screenshot({ path: '/tmp/e2e/final-01-login.png', fullPage: true });
+  const loggedIn = !page.url().includes('/login');
+  result('Login', loggedIn ? 'PASS' : 'FAIL', page.url());
 
-  if (!loginSuccess) {
-    // Check for error message
-    const errorText = await page.locator('text=/错误|失败|密码/i').first().textContent().catch(() => 'none');
-    console.log(`  Error: ${errorText}`);
+  if (!loggedIn) {
+    console.log('Cannot proceed without login. Exiting.');
+    await browser.close();
+    return;
   }
 
-  if (loginSuccess) {
-    // ===== TEST 3: PROFILE =====
-    console.log('\n=== 3. PROFILE ===');
-    await nav('/user/3', 'User profile');
-    await page.screenshot({ path: '/tmp/e2e/final-02-profile.png', fullPage: true });
+  // ===== 1. PROFILE EDIT — Database check =====
+  console.log('\n=== 1. PROFILE EDIT ===');
 
-    await nav('/profile/edit', 'Profile edit');
-    const hasBio = await page.locator('textarea').count() > 0;
-    console.log(`  ${hasBio ? '✅' : '❌'} Profile edit has bio field`);
-    await page.screenshot({ path: '/tmp/e2e/final-03-profile-edit.png', fullPage: true });
+  // Read current profile
+  const profileBefore = await api('GET', '/api/user/stats');
+  console.log('  Profile before:', JSON.stringify(profileBefore.data).slice(0, 100));
 
-    // ===== TEST 4: GAME DETAIL =====
-    console.log('\n=== 4. GAME DETAIL ===');
-    await nav('/games/1', 'Game detail');
-    await page.waitForTimeout(3000);
-    await page.screenshot({ path: '/tmp/e2e/final-04-game-detail.png', fullPage: true });
+  // Edit profile via page form
+  await page.goto('http://localhost:3099/profile/edit');
+  await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(1000);
 
-    const gameText = await page.locator('body').textContent();
-    console.log(`  ${gameText.includes('AIR') ? '✅' : '❌'} Game title visible`);
-    console.log(`  Tags visible: ${(gameText.match(/标签|tag/gi) || []).length > 0}`);
+  const bioField = page.locator('textarea').first();
+  if (await bioField.count() > 0) {
+    const testBio = 'E2E bio test ' + Date.now();
+    await bioField.fill(testBio);
+    const saveBtn = page.locator('button[type="submit"]').first();
+    if (await saveBtn.count() > 0) {
+      await saveBtn.click();
+      await page.waitForTimeout(3000);
 
-    // Check tabs
-    const tabs = await page.locator('[role="tab"], button:has-text("简介"), button:has-text("资源"), button:has-text("评论")').allTextContents();
-    console.log(`  Tabs: ${tabs.join(' | ')}`);
+      // Verify by visiting profile
+      await page.goto('http://localhost:3099/profile');
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(1000);
 
-    // Click comment tab
-    const commentTab = page.locator('button:has-text("评论"), [role="tab"]:has-text("评论")').first();
-    if (await commentTab.count() > 0) {
-      await commentTab.click();
-      await page.waitForTimeout(2000);
-      await page.screenshot({ path: '/tmp/e2e/final-05-comments-tab.png', fullPage: true });
-
-      const hasCommentInput = await page.locator('textarea').count() > 0;
-      console.log(`  ${hasCommentInput ? '✅' : '❌'} Comment textarea visible after clicking tab`);
+      const profileText = await page.locator('body').textContent();
+      const bioSaved = profileText.includes(testBio.slice(0, 20));
+      result('Profile bio saved to DB', bioSaved ? 'PASS' : 'FAIL',
+        bioSaved ? 'Bio text visible on profile page' : `Expected "${testBio.slice(0, 20)}" not found`);
     }
-
-    // ===== TEST 5: NOTIFICATIONS =====
-    console.log('\n=== 5. NOTIFICATIONS ===');
-    await nav('/notifications', 'Notifications');
-    await page.screenshot({ path: '/tmp/e2e/final-06-notifications.png', fullPage: true });
-    console.log(`  ✅ Notifications page loaded`);
-
-    // ===== TEST 6: FORUM =====
-    console.log('\n=== 6. FORUM ===');
-    await nav('/forum', 'Forum');
-    await page.screenshot({ path: '/tmp/e2e/final-07-forum.png', fullPage: true });
-    console.log(`  ✅ Forum page loaded`);
-
-    // ===== TEST 7: ADMIN =====
-    console.log('\n=== 7. ADMIN ===');
-    const adminUrl = await nav('/admin', 'Admin dashboard');
-    const isAdmin = adminUrl.includes('/admin');
-    console.log(`  ${isAdmin ? '✅' : '⚠️'} Admin access: ${adminUrl.includes('/admin') ? 'admin page' : 'redirected (may not be admin)'}`);
-    await page.screenshot({ path: '/tmp/e2e/final-08-admin.png', fullPage: true });
-
-    if (isAdmin) {
-      const adminPages = [
-        '/admin/games', '/admin/users', '/admin/announcements',
-        '/admin/tags', '/admin/forum', '/admin/review',
-        '/admin/audit-logs', '/admin/creators', '/admin/music',
-        '/admin/site-settings', '/admin/checkins'
-      ];
-      for (const pg of adminPages) {
-        const u = await nav(pg, pg);
-        const ok = u.includes('/admin');
-        console.log(`  ${ok ? '✅' : '❌'} ${pg}`);
-        if (!ok) issues.push({ id: `ADMIN-${pg}`, desc: `Admin page ${pg} redirected` });
-      }
-    }
-
-    // ===== TEST 8: SEARCH =====
-    console.log('\n=== 8. SEARCH ===');
-    await nav('/search?q=AIR', 'Search');
-    await page.screenshot({ path: '/tmp/e2e/final-09-search.png', fullPage: true });
-    console.log(`  ✅ Search page loaded`);
   }
+
+  // ===== 2. FAVORITE — Database check =====
+  console.log('\n=== 2. FAVORITE ===');
+
+  // Get initial favorite count
+  const gameBefore = await api('GET', '/api/games/1');
+  const favCountBefore = gameBefore.data?.favoriteCount;
+  console.log('  Fav count before:', favCountBefore);
+
+  // Toggle favorite via game detail page
+  await page.goto('http://localhost:3099/games/1');
+  await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(2000);
+
+  const favBtn = page.locator('button:has-text("收藏"), [aria-label*="收藏"]').first();
+  if (await favBtn.count() > 0) {
+    await favBtn.click();
+    await page.waitForTimeout(2000);
+
+    // Check via API
+    const gameAfter = await api('GET', '/api/games/1');
+    const favCountAfter = gameAfter.data?.favoriteCount;
+    console.log('  Fav count after:', favCountAfter);
+
+    const countIncreased = favCountAfter > favCountBefore;
+    result('Favorite count increased in DB', countIncreased ? 'PASS' : 'FAIL',
+      `Before: ${favCountBefore}, After: ${favCountAfter}`);
+  } else {
+    result('Favorite button', 'WARN', 'Not found on page');
+  }
+
+  // ===== 3. FORUM POST — Database check =====
+  console.log('\n=== 3. FORUM POST ===');
+
+  // Create a forum post
+  const postRes = await api('POST', '/api/forum/posts', {
+    title: 'E2E Test Post ' + Date.now(),
+    content: 'Test content for business logic verification',
+    category: 'discussion'
+  });
+  console.log('  Create post:', postRes.status);
+  result('Forum post created', postRes.status === 201 ? 'PASS' : 'FAIL',
+    `Status: ${postRes.status}`);
+
+  if (postRes.status === 201 && postRes.data?.id) {
+    const postId = postRes.data.id;
+
+    // Verify post exists
+    const postGet = await api('GET', `/api/forum/posts/1`);
+    console.log('  Post exists:', postGet.status === 200 ? 'YES' : 'NO');
+
+    // Like the post
+    const likeRes = await api('POST', `/api/forum/posts/${postId}/like`);
+    console.log('  Like post:', likeRes.status);
+    result('Forum post like', likeRes.status === 200 ? 'PASS' : 'FAIL', JSON.stringify(likeRes.data).slice(0, 100));
+
+    // Mark as solved
+    const solveRes = await api('POST', `/api/forum/posts/${postId}/solve`);
+    console.log('  Solve post:', solveRes.status);
+    result('Forum post solve', solveRes.status === 200 ? 'PASS' : 'FAIL');
+  }
+
+  // ===== 4. COMMENT — Database check =====
+  console.log('\n=== 4. COMMENT ===');
+
+  const commentRes = await api('POST', '/api/games/1/comments', {
+    content: 'E2E test comment ' + Date.now()
+  });
+  console.log('  Create comment:', commentRes.status);
+  result('Comment created', commentRes.status === 201 ? 'PASS' : 'FAIL',
+    `Status: ${commentRes.status}`);
+
+  if (commentRes.status === 201 && commentRes.data?.id) {
+    const commentId = commentRes.data.id;
+
+    // Verify comment count increased
+    const comments = await api('GET', '/api/games/1/comments?limit=1');
+    const commentCount = comments.data?.[1] || comments.data?.total;
+    console.log('  Comment count:', commentCount);
+
+    // Like the comment
+    const likeComment = await api('POST', `/api/comments/${commentId}/like`);
+    console.log('  Like comment:', likeComment.status);
+    result('Comment like', likeComment.status === 200 ? 'PASS' : 'FAIL');
+
+    // Delete the comment
+    const delComment = await api('DELETE', `/api/comments/${commentId}`);
+    console.log('  Delete comment:', delComment.status);
+    result('Comment delete', delComment.status === 200 || delComment.status === 204 ? 'PASS' : 'FAIL');
+  }
+
+  // ===== 5. COLLECTION — Database check =====
+  console.log('\n=== 5. COLLECTION ===');
+
+  const colRes = await api('POST', '/api/collections', {
+    name: 'E2E Test Collection'
+  });
+  console.log('  Create collection:', colRes.status);
+  result('Collection created', colRes.status === 201 ? 'PASS' : 'FAIL', JSON.stringify(colRes.data).slice(0, 100));
+
+  if (colRes.status === 201 && colRes.data?.id) {
+    const colId = colRes.data.id;
+
+    // Verify collection exists
+    const colGet = await api('GET', `/api/collections/${colId}`);
+    console.log('  Get collection:', colGet.status);
+    result('Collection get', colGet.status === 200 ? 'PASS' : 'FAIL');
+
+    // List collections
+    const colList = await api('GET', '/api/collections');
+    const colCount = Array.isArray(colList.data) ? colList.data.length : 0;
+    console.log('  Collection list count:', colCount);
+    result('Collection list has data', colCount > 0 ? 'PASS' : 'FAIL', `Count: ${colCount}`);
+
+    // Delete collection
+    const colDel = await api('DELETE', `/api/collections/${colId}`);
+    console.log('  Delete collection:', colDel.status);
+    result('Collection delete', colDel.status === 200 || colDel.status === 204 ? 'PASS' : 'FAIL');
+  }
+
+  // ===== 6. CHECKIN — Database check =====
+  console.log('\n=== 6. CHECKIN ===');
+
+  const checkinRes = await api('POST', '/api/checkin');
+  console.log('  Checkin:', checkinRes.status);
+  result('Checkin', checkinRes.status === 200 ? 'PASS' : 'FAIL',
+    JSON.stringify(checkinRes.data).slice(0, 100));
+
+  // Try again (should fail with 409)
+  const checkinDuplicate = await api('POST', '/api/checkin');
+  console.log('  Duplicate checkin:', checkinDuplicate.status, '(expect 409)');
+  result('Duplicate checkin blocked', checkinDuplicate.status === 409 ? 'PASS' : 'FAIL',
+    `Status: ${checkinDuplicate.status}`);
+
+  // Verify checkin status
+  const checkinStatus = await api('GET', '/api/checkin');
+  console.log('  Checkin status:', JSON.stringify(checkinStatus.data).slice(0, 100));
+  result('Checkin status shows checked in',
+    checkinStatus.data?.checkedIn === true ? 'PASS' : 'FAIL');
+
+  // ===== 7. FORUM POST DELETE — Database check =====
+  console.log('\n=== 7. FORUM POST DELETE ===');
+
+  // Create a post to delete
+  const delPostRes = await api('POST', '/api/forum/posts', {
+    title: 'To be deleted',
+    content: 'Delete me',
+    category: 'discussion'
+  });
+  if (delPostRes.status === 201 && delPostRes.data?.id) {
+    const delPostId = delPostRes.data.id;
+    const delRes = await api('DELETE', `/api/forum/posts/${delPostId}`);
+    console.log('  Delete post:', delRes.status);
+    result('Forum post delete', delRes.status === 200 || delRes.status === 204 ? 'PASS' : 'FAIL');
+  }
+
+  // ===== 8. NOTIFICATION — Database check =====
+  console.log('\n=== 8. NOTIFICATIONS ===');
+
+  // We should have notifications from previous operations (favorites, follows, comments)
+  const notifs = await api('GET', '/api/notifications');
+  console.log('  Notifications:', notifs.status, Array.isArray(notifs.data?.notifications) ? notifs.data.notifications.length + ' items' : 'N/A');
+
+  // Check unread count
+  const unreadCount = await api('GET', '/api/notifications/unread-count');
+  console.log('  Unread count:', JSON.stringify(unreadCount.data));
+
+  // Mark all as read
+  const markRead = await api('PUT', '/api/notifications');
+  console.log('  Mark all read:', markRead.status);
+
+  // Verify
+  const unreadAfter = await api('GET', '/api/notifications/unread-count');
+  console.log('  Unread after mark-read:', JSON.stringify(unreadAfter.data));
+  result('Notifications mark-read works',
+    unreadAfter.data?.unreadCount === 0 ? 'PASS' : 'FAIL',
+    `Unread: ${unreadAfter.data?.unreadCount}`);
 
   // ===== SUMMARY =====
   console.log('\n' + '='.repeat(60));
-  console.log('E2E TEST RESULTS');
+  console.log('BUSINESS LOGIC VALIDATION RESULTS');
   console.log('='.repeat(60));
-  console.log('Issues found:', issues.length);
-  issues.forEach(i => console.log(`  [${i.severity || 'P1'}] ${i.id}: ${i.desc}`));
-  console.log('Console errors:', consoleErrors.length);
-  consoleErrors.slice(0, 5).forEach(e => console.log(`  - ${e.slice(0, 100)}`));
+  const passed = results.filter(r => r.status === 'PASS').length;
+  const failed = results.filter(r => r.status === 'FAIL').length;
+  const warned = results.filter(r => r.status === 'WARN').length;
+  console.log(`PASS: ${passed}  FAIL: ${failed}  WARN: ${warned}  TOTAL: ${results.length}`);
   console.log('='.repeat(60));
+  results.forEach(r => {
+    const mark = r.status === 'PASS' ? '✅' : r.status === 'FAIL' ? '❌' : '⚠️';
+    console.log(`  ${mark} ${r.test}: ${r.detail.slice(0, 80)}`);
+  });
 
   await browser.close();
 })().catch(e => { console.error('FATAL:', e.message); process.exit(1); });
