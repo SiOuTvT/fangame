@@ -1346,13 +1346,18 @@ svg {
   }
 }
 
-/* ═══ 审计修复：统一卡片阴影工具类 ═══ */
+/* ═══ 统一阴影工具类 ═══ */
+.shadow-0 { box-shadow: var(--shadow-0); }
+.shadow-1 { box-shadow: var(--shadow-1); }
+.shadow-2 { box-shadow: var(--shadow-2); }
+.shadow-3 { box-shadow: var(--shadow-3); }
+.shadow-4 { box-shadow: var(--shadow-4); }
 .card-shadow {
-  box-shadow: var(--card-shadow);
-  transition: box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: var(--shadow-card);
+  transition: box-shadow var(--duration-normal) ease;
 }
 .card-shadow:hover {
-  box-shadow: var(--card-shadow-hover);
+  box-shadow: var(--shadow-card-hover);
 }
 
 /* ═══ 审计修复：统一圆角系统 ═══ */

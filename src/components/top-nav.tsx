@@ -6,6 +6,7 @@ import { NotificationBell } from "@/components/notification-bell"
 import { useEmotionalMessage, useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import { cn } from "@/lib/utils"
 import { logger } from "@/lib/logger"
+import { api, apiFetchSafe, ApiError } from "@/lib/api-client"
 import { toShanghaiDate } from "@/lib/date"
 import Image from "next/image"
 import {
@@ -114,10 +115,10 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
     } catch (err) { logger.user.warn("[TopNav] read checkin cache failed", { error: err instanceof Error ? err.message : String(err) }) }
 
     const controller = new AbortController()
-    fetch("/api/checkin", { signal: controller.signal })
-      .then(r => r.json())
-      .then(data => {
-        const val = data.data?.checkedIn ?? false
+    apiFetchSafe<{ data?: { checkedIn?: boolean } }>("/api/checkin", { signal: controller.signal })
+      .then(({ ok, data }) => {
+        if (!ok) return
+        const val = data?.data?.checkedIn ?? false
         setCheckedIn(val)
         try { sessionStorage.setItem("checkin_status", JSON.stringify({ date: today, checkedIn: val })) } catch (err) { logger.user.warn("[TopNav] write checkin cache failed", { error: err instanceof Error ? err.message : String(err) }) }
       })
@@ -128,10 +129,9 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
   // 获取用户总印记数
   useEffect(() => {
     if (!user?.id) return
-    fetch("/api/user/stats")
-      .then(r => r.json())
-      .then(data => {
-        if (data.data?.totalMarks !== undefined) {
+    apiFetchSafe<{ data?: { totalMarks?: number } }>("/api/user/stats")
+      .then(({ ok, data }) => {
+        if (ok && data?.data?.totalMarks !== undefined) {
           setTotalMarks(data.data.totalMarks)
         }
       })
@@ -214,27 +214,22 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
     if (checkedIn || checkinLoading) return
     setCheckinLoading(true)
     setUserOpen(false)
-    fetch("/api/checkin", { method: "POST" })
-      .then(r => r.json().then(data => ({ status: r.status, ...data })))
-      .then(data => {
+    api.post<{ data?: { marks?: number } }>("/api/checkin")
+      .then((data) => {
         // 成功：{ success: true, data: { marks, streak } }
-        if (data.success && data.data) {
-          setCheckedIn(true)
-          setToastMarks(data.data.marks ?? 0)
-          setTotalMarks(prev => prev + (data.data.marks ?? 0))
-          try { sessionStorage.setItem("checkin_status", JSON.stringify({ date: toShanghaiDate(new Date()), checkedIn: true })) } catch {}
-          return
-        }
-        // 409 冲突（已签到）：{ success: false, error: "...", code: "CONFLICT" }
-        if (data.code === "CONFLICT") {
+        setCheckedIn(true)
+        setToastMarks(data.data?.marks ?? 0)
+        setTotalMarks(prev => prev + (data.data?.marks ?? 0))
+        try { sessionStorage.setItem("checkin_status", JSON.stringify({ date: toShanghaiDate(new Date()), checkedIn: true })) } catch {}
+      })
+      .catch((err) => {
+        // 409 冲突（已签到）：视为已签到
+        if (err instanceof ApiError && err.code === "CONFLICT") {
           setCheckedIn(true)
           return
         }
         // 其他失败
-        toast.error(data.error || "签到失败，请稍后重试")
-      })
-      .catch(() => {
-        toast.error("签到失败，请稍后重试")
+        toast.error(err instanceof Error ? err.message : "签到失败，请稍后重试")
       })
       .finally(() => { setCheckinLoading(false) })
   }

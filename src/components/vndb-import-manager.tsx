@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { apiFetchSafe } from "@/lib/api-client"
 import { Textarea } from "@/components/ui/textarea"
 import { Database, CheckCircle2, XCircle, Loader2 } from "lucide-react"
 
@@ -36,20 +37,17 @@ export function VNDBImportManager() {
         return
       }
 
-      const res = await fetch("/api/admin/vndb/import", {
+      const { ok, data, error } = await apiFetchSafe<{ message?: string; results?: any[] }>("/api/admin/vndb/import", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ vndbIds: ids }),
+        body: { vndbIds: ids },
       })
 
-      const data = await res.json()
-
-      if (res.ok) {
-        setMessage(data.message)
-        setResults(data.results)
+      if (ok) {
+        setMessage(data?.message ?? "")
+        setResults(data?.results ?? [])
         setVndbIds("")
       } else {
-        setMessage(data.error || "导入失败")
+        setMessage(error || "导入失败")
       }
     } catch {
       setMessage("导入失败，请稍后重试")

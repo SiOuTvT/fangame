@@ -43,7 +43,9 @@ declare module "next-auth" {
   }
 }
 
-const isSecure = process.env.NEXTAUTH_URL?.startsWith("https://") ?? false
+const isSecure =
+  process.env.NODE_ENV === "production" ||
+  process.env.NEXTAUTH_URL?.startsWith("https://") === true
 
 // 注意：不使用 PrismaAdapter。
 // PrismaAdapter 用于 OAuth provider（GitHub/Google 等）需要数据库存储 account/session 的场景。

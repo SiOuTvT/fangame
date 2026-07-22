@@ -42,6 +42,8 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
   const [commentImagePreview, setCommentImagePreview] = useState<string | null>(null)
   const [showEmoji, setShowEmoji] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [likingPost, setLikingPost] = useState(false)
+  const [likingCommentId, setLikingCommentId] = useState<string | null>(null)
   const [imageError, setImageError] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [confirmMessage, setConfirmMessage] = useState("")
@@ -68,6 +70,8 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
 
   // ── 点赞帖子 ──
   async function likePost() {
+    if (likingPost) return
+    setLikingPost(true)
     const prev = post.likeCount
     setPost(p => ({ ...p, likeCount: p.likeCount + 1 }))
     try {
@@ -76,17 +80,22 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
       setPost(p => ({ ...p, likeCount: d.likeCount ?? p.likeCount }))
     } catch {
       setPost(p => ({ ...p, likeCount: prev }))
+    } finally {
+      setLikingPost(false)
     }
   }
 
   // ── 点赞评论 ──
   async function likeComment(id: string) {
-    if (!isLoggedIn) return
+    if (!isLoggedIn || likingCommentId === id) return
+    setLikingCommentId(id)
     try {
       const j = await api.post<any>(`/api/forum/comments/${id}/like`)
       const d = j?.data ?? j
       setComments(cs => cs.map(c => c.id === id ? { ...c, likeCount: d.likeCount ?? c.likeCount } : c))
     } catch (err) { logger.forum.warn("[ForumPostDetail] likeComment failed", { error: err instanceof Error ? err.message : String(err) }) }
+    finally { setLikingCommentId(null) }
+  }
   }
 
   // ── 标记已解决 ──
@@ -243,7 +252,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
 
         {/* 操作栏 */}
         <div className="border-t border-border px-4 py-3 sm:px-6 md:px-8 flex flex-wrap items-center gap-1">
-          <button onClick={likePost} disabled={!isLoggedIn}
+          <button onClick={likePost} disabled={!isLoggedIn || likingPost}
             className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-red-400 hover:bg-red-500/5 disabled:opacity-40">
             <Heart className="h-4 w-4" strokeWidth={1.5} />{post.likeCount}
           </button>

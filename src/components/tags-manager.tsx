@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Eye, EyeOff, GripVertical, Loader2, Pencil, Plus, Trash2, X } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
+import { apiFetchSafe } from "@/lib/api-client"
 import type { TagGroup } from "./tag-groups-manager"
 import { ConfirmDialog } from "./ui/confirm-dialog"
 
@@ -48,13 +49,11 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
     if (!name.trim()) return
     setSaving(true); setError("")
     try {
-      const res = await fetch("/api/admin/tags", {
+      const { ok, data, error } = await apiFetchSafe<any>("/api/admin/tags", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), description, color, groupId: groupId || null, sortOrder, isVisible }),
+        body: { name: name.trim(), description, color, groupId: groupId || null, sortOrder, isVisible },
       })
-      const data = await res.json()
-      if (!res.ok) { setError(data.error ?? "创建失败"); setSaving(false); return }
+      if (!ok) { setError(error ?? "创建失败"); setSaving(false); return }
       const groupName = initialGroups.find(g => g.id === data.groupId)?.name ?? null
       setTags(prev => [...prev, { ...data, gameCount: 0, groupName }].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || a.name.localeCompare(b.name)))
       setName(""); setDescription(""); setSortOrder(0); setIsVisible(true)
@@ -66,13 +65,11 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
     if (!editName.trim()) return
     setSaving(true); setError("")
     try {
-      const res = await fetch(`/api/admin/tags/${id}`, {
+      const { ok, data, error } = await apiFetchSafe<any>(`/api/admin/tags/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: editName.trim(), description: editDescription, color: editColor, groupId: editGroupId || null, sortOrder: editSortOrder, isVisible: editIsVisible }),
+        body: { name: editName.trim(), description: editDescription, color: editColor, groupId: editGroupId || null, sortOrder: editSortOrder, isVisible: editIsVisible },
       })
-      const data = await res.json()
-      if (!res.ok) { setError(data.error ?? "更新失败"); setSaving(false); return }
+      if (!ok) { setError(error ?? "更新失败"); setSaving(false); return }
       const groupName = initialGroups.find(g => g.id === data.groupId)?.name ?? null
       setTags(prev => prev.map(t => t.id === id ? { ...t, name: data.name, description: data.description, color: data.color, groupId: data.groupId, groupName, sortOrder: data.sortOrder, isVisible: data.isVisible } : t))
       setEditing(null)
@@ -81,22 +78,18 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
   }
 
   async function handleDelete(id: string, forceDelete = false) {
-    const endpoint = forceDelete ? `/api/admin/tags/${id}` : `/api/admin/tags/${id}`
     const method = forceDelete ? "PATCH" : "DELETE"
-    const body = forceDelete ? JSON.stringify({ forceDelete: true }) : undefined
-    const res = await fetch(endpoint, {
+    const { ok, data, error } = await apiFetchSafe<any>(`/api/admin/tags/${id}`, {
       method,
-      headers: forceDelete ? { "Content-Type": "application/json" } : undefined,
-      body,
+      body: forceDelete ? { forceDelete: true } : undefined,
     })
-    const data = await res.json()
-    if (res.ok) {
+    if (ok) {
       setTags(prev => prev.filter(t => t.id !== id))
       toast.success("已删除")
-    } else if (data.confirm) {
+    } else if (data?.confirm) {
       setDeleteConfirm({ id, name: data.error, gameCount: data.gameCount, forceEndpoint: true })
     } else {
-      toast.error(data.error || "删除失败")
+      toast.error(error || "删除失败")
     }
   }
 

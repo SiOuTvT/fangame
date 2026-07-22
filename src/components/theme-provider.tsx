@@ -3,6 +3,7 @@
 import { applyThemeColor } from "@/lib/theme-colors"
 import { logger } from "@/lib/logger"
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
+import { apiFetchSafe } from "@/lib/api-client"
 
 export interface FullThemeSettings {
   themeColor: string
@@ -73,10 +74,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   } catch (err) { logger.api.warn("[ThemeProvider] load theme from localStorage failed", { error: err instanceof Error ? err.message : String(err) }) }
 
     const controller = new AbortController()
-    fetch("/api/site-settings", { signal: controller.signal })
-      .then(res => res.json())
-      .then(data => {
-        if (data.themeColor) {
+    apiFetchSafe<{
+      themeColor?: string
+      themeRadius?: number
+      themeShadowIntensity?: number
+      themeAlpha?: number
+    }>("/api/site-settings", { signal: controller.signal })
+      .then(({ ok, data }) => {
+        if (ok && data?.themeColor) {
           const s: FullThemeSettings = {
             themeColor: data.themeColor,
             themeRadius: data.themeRadius ?? 12,

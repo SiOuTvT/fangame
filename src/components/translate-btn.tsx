@@ -3,6 +3,7 @@
 import { logger } from "@/lib/logger";
 import { Languages, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { apiFetchSafe } from "@/lib/api-client";
 
 /**
  * 一键翻译按钮
@@ -15,17 +16,15 @@ export function TranslateBtn({ text, onTranslated }: { text: string; onTranslate
   async function translate() {
     setLoading(true)
     try {
-      const res = await fetch("/api/translate", {
+      const { ok, data, error } = await apiFetchSafe<{ translated?: string; error?: string }>("/api/translate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: text.slice(0, 5000) }),
+        body: { text: text.slice(0, 5000) },
       })
-      const data = await res.json()
-      if (data.translated) {
+      if (data?.translated) {
         onTranslated(data.translated)
         setDone(true)
       } else {
-        logger.api.warn("翻译失败", { error: data.error })
+        logger.api.warn("翻译失败", { ok, error })
       }
     } catch (err) {
       logger.api.error("翻译失败", err)

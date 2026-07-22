@@ -6,6 +6,7 @@ import { ROLE_META, type UserRole } from "@/lib/permissions"
 import Image from "next/image"
 import React, { useState } from "react"
 import { toast } from "sonner"
+import { apiFetchSafe } from "@/lib/api-client"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 interface UserItem {
@@ -28,18 +29,16 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
     if (!newPwd.trim()) return
     setSaving(true)
     try {
-      const res = await fetch(`/api/admin/users/${id}`, {
+      const { ok, error } = await apiFetchSafe(`/api/admin/users/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ newPassword: newPwd }),
+        body: { newPassword: newPwd },
       })
-      if (res.ok) {
+      if (ok) {
         toast.success("密码已重置")
         setResetId(null)
         setNewPwd("")
       } else {
-        const d = await res.json()
-        toast.error(d.error || "操作失败")
+        toast.error(error || "操作失败")
       }
     } catch {
       toast.error("网络错误")
@@ -50,10 +49,9 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
 
   async function generateResetLink(id: string) {
     try {
-      const res = await fetch(`/api/admin/users/${id}`, { method: "POST" })
-      const data = await res.json()
-      if (res.ok) setResetLink(data.resetUrl)
-      else toast.error(data.error || "操作失败")
+      const { ok, data, error } = await apiFetchSafe<{ resetUrl?: string }>(`/api/admin/users/${id}`, { method: "POST" })
+      if (ok) setResetLink(data?.resetUrl ?? "")
+      else toast.error(error || "操作失败")
     } catch {
       toast.error("网络错误")
     }
@@ -68,17 +66,15 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
     else { setRoleConfirm(null); return }
 
     try {
-      const res = await fetch(`/api/admin/users/${id}`, {
+      const { ok, error } = await apiFetchSafe(`/api/admin/users/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role }),
+        body: { role },
       })
-      if (res.ok) {
+      if (ok) {
         setUsers(p => p.map(u => u.id === id ? { ...u, role } : u))
         toast.success(`已${role === "ADMIN" ? "设为管理员" : "撤销管理员"}`)
       } else {
-        const d = await res.json()
-        toast.error(d.error || "操作失败")
+        toast.error(error || "操作失败")
       }
     } catch {
       toast.error("网络错误")
