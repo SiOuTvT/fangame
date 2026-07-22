@@ -107,13 +107,16 @@ export async function getRateLimit(key: string, config: RateLimitConfig): Promis
  */
 export function getClientIP(req: Request | Headers): string {
   const get = (k: string) => (req instanceof Headers ? req.get(k) : req.headers.get(k))
+  // 优先使用可信代理写入的权威客户端 IP 头
+  const cf = get("cf-connecting-ip")
+  if (cf) return cf.trim()
+  const realIP = get("x-real-ip")
+  if (realIP) return realIP.trim()
   const forwarded = get("x-forwarded-for")
   if (forwarded) {
-    return forwarded.split(",")[0].trim()
-  }
-  const realIP = get("x-real-ip")
-  if (realIP) {
-    return realIP
+    // X-Forwarded-For: client, proxy1, proxy2 …… 最左为客户端可伪造，最右为可信代理追加的真实客户端 IP
+    const segments = forwarded.split(",").map((s) => s.trim()).filter(Boolean)
+    return segments[segments.length - 1] ?? "unknown"
   }
   return "unknown"
 }
@@ -163,6 +166,7 @@ export async function checkRateLimit(config: RateLimitConfig, keySuffix = ""): P
     success: result.allowed,
     limit: config.maxRequests,
     remaining: result.remaining,
-    reset: Math.ceil(result.resetTime / 1000),
+    // Retry-After 需要的是「距现在的剩余秒数」(delta)，而非绝对 epoch 秒
+    reset: Math.max(0, Math.ceil((result.resetTime - Date.now()) / 1000)),
   }
 }

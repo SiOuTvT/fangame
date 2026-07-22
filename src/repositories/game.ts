@@ -3,7 +3,8 @@
  */
 
 import { prisma } from "@/lib/prisma"
-import type { Prisma, PlayStatusType } from "@prisma/client"
+import { Prisma } from "@prisma/client"
+import type { PlayStatusType } from "@prisma/client"
 
 export const gameRepo = {
   findPaginated(page: number, limit: number, filters?: {
@@ -76,9 +77,8 @@ export const gameRepo = {
   },
 
   findRandom(limit: number) {
-    return prisma.$queryRawUnsafe<any[]>(
-      `SELECT id, "serialId", title, "coverImage", "viewCount" FROM "Game" WHERE "isPublished" = true ORDER BY RANDOM() LIMIT $1`,
-      limit,
+    return prisma.$queryRaw<any[]>(
+      Prisma.sql`SELECT id, "serialId", title, "coverImage", "viewCount" FROM "Game" WHERE "isPublished" = true ORDER BY RANDOM() LIMIT ${limit}`,
     )
   },
 

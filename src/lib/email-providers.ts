@@ -85,6 +85,11 @@ export const PROVIDER_LABELS: Record<string, string> = {
 
 // ── 工具函数 ──────────────────────────
 
+/** 邮件发送网络超时（ms）。无此超时则慢/不可达的提供商会让核心鉴权流程（注册、找回密码、改邮箱）挂起至平台超时。 */
+const EMAIL_TIMEOUT_MS = 10_000
+
+
+
 /** 解析 "Name <email>" 或纯邮箱 → { name, email } */
 function parseFrom(from: string): { name: string; email: string } {
   const match = from.match(/^(.+?)\s*<([^>]+)>$/)
@@ -112,6 +117,7 @@ const resendProvider: EmailProvider = {
     try {
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
+        signal: AbortSignal.timeout(EMAIL_TIMEOUT_MS),
         headers: {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
@@ -155,6 +161,7 @@ async function brevoApiSend(config: Record<string, string>, payload: EmailPayloa
   try {
     const res = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
+      signal: AbortSignal.timeout(EMAIL_TIMEOUT_MS),
       headers: {
         "api-key": apiKey,
         "Content-Type": "application/json",

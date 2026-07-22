@@ -13,6 +13,35 @@ export function stripHtml(input: string): string {
 }
 
 /**
+ * 富文本净化白名单（全站唯一来源）
+ * 所有需要"保留安全标签并渲染"的富文本（帖子、公告、游戏规则、游戏简介等）
+ * 都必须经过此配置净化，禁止在各组件内联重复定义净化白名单。
+ */
+const RICH_TEXT_ALLOWED_TAGS = [
+  "p", "br", "strong", "em", "u", "s", "a", "img",
+  "h1", "h2", "h3", "h4", "h5", "h6",
+  "ul", "ol", "li", "blockquote", "code", "pre",
+  "hr", "div", "span", "table", "thead", "tbody", "tr", "th", "td",
+] as const
+
+const RICH_TEXT_ALLOWED_ATTR = [
+  "href", "src", "alt", "title", "target", "rel",
+  "class", "width", "height",
+] as const
+
+/**
+ * 净化富文本 HTML，保留安全的排版标签（防 XSS）
+ * 这是全站富文本渲染的唯一净化入口；`RichTextContent` 与游戏简介渲染均复用它。
+ */
+export function sanitizeRichText(html: string): string {
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: [...RICH_TEXT_ALLOWED_TAGS],
+    ALLOWED_ATTR: [...RICH_TEXT_ALLOWED_ATTR],
+    ALLOW_DATA_ATTR: false,
+  })
+}
+
+/**
  * 清理字符串，移除危险字符
  * 使用 DOMPurify 替代正则替换，防止绕过（如编码攻击、大小写变体等）
  */

@@ -351,7 +351,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
                       className="text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded transition-colors hover:bg-secondary">
                       回复
                     </button>
-                    <button onClick={() => likeComment(c.id)} disabled={!isLoggedIn}
+                    <button onClick={() => likeComment(c.id)} disabled={!isLoggedIn || likingCommentId === c.id}
                       className="flex items-center gap-1 text-xs text-muted-foreground hover:text-red-400 px-2 py-1 rounded transition-colors hover:bg-red-500/5 disabled:opacity-40">
                       <Heart className="h-3 w-3" strokeWidth={1.5} />{c.likeCount > 0 && c.likeCount}
                     </button>
