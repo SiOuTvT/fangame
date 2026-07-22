@@ -17,9 +17,7 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim()
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("zh-CN", { month: "short", day: "numeric" })
-}
+// 日期展示统一使用 @/lib/date 的 formatMonthDay
 
 const STATUS_LABELS: Record<string, string> = { draft: "草稿", published: "已发布", hidden: "已隐藏" }
 const STATUS_VARIANTS: Record<string, "default" | "success" | "secondary"> = { draft: "secondary", published: "success", hidden: "default" }
@@ -345,7 +343,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                       <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{ann.summary || stripHtml(ann.content)}</p>
                     )}
                     <div className="flex items-center gap-2 mt-1 text-[11px] text-muted-foreground/60">
-                      <span>{formatDate(ann.createdAt)}</span>
+                      <span>{formatMonthDay(ann.createdAt)}</span>
                       {ann.content.length > 100 && (
                         <button onClick={() => setExpandedId(expandedId === ann.id ? null : ann.id)}
                           className="flex items-center gap-0.5 hover:text-foreground transition-colors">

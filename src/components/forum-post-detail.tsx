@@ -29,9 +29,7 @@ interface PostData {
 
 // fmtDate 已统一为 timeAgo（H1 迁移至 @/lib/time-ago）
 
-function fmtFullDate(d: string) {
-  return new Date(d).toLocaleString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
-}
+// 完整日期展示统一使用 @/lib/date 的 formatZhDateTime
 
 export function ForumPostDetail({ post: initPost, comments: initComments, totalCommentCount, isLoggedIn, currentUserId, isAdmin }: {
   post: PostData; comments: Comment[]; totalCommentCount?: number; isLoggedIn: boolean; currentUserId?: string; isAdmin?: boolean
@@ -221,7 +219,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground">{post.user.username}</p>
               <p className="text-xs text-muted-foreground/60 mt-0.5">
-                {fmtFullDate(post.createdAt)} · 浏览 {post.viewCount ?? 0}
+                {formatZhDateTime(post.createdAt)} · 浏览 {post.viewCount ?? 0}
               </p>
             </div>
             {post.isSolved && (

@@ -50,8 +50,7 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
   const updatedDate = new Date(ann.updatedAt)
   const isEdited = createdDate.getTime() !== updatedDate.getTime()
 
-  const formatDate = (d: Date) =>
-    d.toLocaleDateString("zh-CN", { year: "numeric", month: "long", day: "numeric" })
+  // 日期展示统一使用 @/lib/date 的 formatZhDate
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -94,11 +93,11 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
         )}
         <span className="font-medium text-foreground/80">{ann.authorName}</span>
         <span className="text-muted-foreground/30">·</span>
-        <time dateTime={ann.createdAt.toISOString()}>{formatDate(createdDate)}</time>
+        <time dateTime={ann.createdAt.toISOString()}>{formatZhDate(createdDate)}</time>
         {isEdited && (
           <>
             <span className="text-muted-foreground/30">·</span>
-            <span className="text-muted-foreground/50">编辑于 {formatDate(updatedDate)}</span>
+            <span className="text-muted-foreground/50">编辑于 {formatZhDate(updatedDate)}</span>
           </>
         )}
       </div>

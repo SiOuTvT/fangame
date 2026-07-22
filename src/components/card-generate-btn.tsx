@@ -22,11 +22,7 @@ interface CardData {
   followingCount: number
 }
 
-function getRoleLabel(role: string) {
-  if (role === "SUPER_ADMIN") return "站长"
-  if (role === "ADMIN") return "管理员"
-  return ""
-}
+// 角色标签统一使用 @/lib/permissions 的 ROLE_META
 
 function formatNum(n: number): string {
   if (n >= 10000) return (n / 10000).toFixed(1).replace(/\.0$/, "") + "w"
@@ -68,9 +64,7 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
     try {
       const W = 900, H = 500
       const avatarDataUrl = await preloadAvatar()
-      const joinDate = new Date(data.createdAt).toLocaleDateString("zh-CN", {
-        year: "numeric", month: "long", day: "numeric",
-      })
+      const joinDate = formatZhDate(data.createdAt)
       const roleLabel = getRoleLabel(data.role)
       const initials = data.username[0]?.toUpperCase() || "?"
       const bio = data.bio ? data.bio.slice(0, 80) : ""

@@ -12,19 +12,7 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim()
 }
 
-/** 相对时间 */
-function relativeTime(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const mins = Math.floor(diff / 60000)
-  if (mins < 1) return "刚刚"
-  if (mins < 60) return `${mins}分钟前`
-  const hours = Math.floor(mins / 60)
-  if (hours < 24) return `${hours}小时前`
-  const days = Math.floor(hours / 24)
-  if (days < 30) return `${days}天前`
-  const months = Math.floor(days / 30)
-  return `${months}个月前`
-}
+// 相对时间统一使用 @/lib/time-ago 的 timeAgo
 
 interface Ann {
   id: string
@@ -132,7 +120,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
               </div>
             )}
             <span className="text-sm font-medium text-white/90">{ann.authorName || siteName}</span>
-            <span className="text-xs text-white/50" suppressHydrationWarning>· {relativeTime(ann.createdAt)}</span>
+            <span className="text-xs text-white/50" suppressHydrationWarning>· {timeAgo(ann.createdAt)}</span>
           </div>
 
           {/* 标题 + NEW */}
