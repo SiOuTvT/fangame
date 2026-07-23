@@ -81,7 +81,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   // 这样 Setup 中的 signIn() 可以正常工作
   if (!initialized) {
     return (
-      <html lang="zh-CN" className={`h-full antialiased ${notoSans.variable}`} suppressHydrationWarning>
+      <html lang="zh-CN" className="h-full antialiased" suppressHydrationWarning>
         <head><ThemeScript /></head>
         <body className="min-h-screen bg-background text-foreground">
           <Providers>
@@ -97,7 +97,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const siteName = await getSiteName()
 
   return (
-    <html lang="zh-CN" className={`h-full antialiased ${notoSans.variable}`} suppressHydrationWarning>
+    <html lang="zh-CN" className="h-full antialiased" suppressHydrationWarning>
       <head>
         <ThemeScript />
       </head>
