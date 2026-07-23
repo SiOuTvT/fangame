@@ -5,10 +5,10 @@ import { ImageUpload } from "@/components/image-upload"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
-import { cn } from "@/lib/utils"
+import { cn, withLabelableId } from "@/lib/utils"
 import { Award, Edit2, Loader2, Plus, Save, Trash2, X } from "lucide-react"
 import Image from "next/image"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useState, useId } from "react"
 import { toast } from "sonner"
 import { api, apiFetchSafe } from "@/lib/api-client"
 
@@ -257,5 +257,6 @@ export default function AdminAchievementsPage() {
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <div><label className="mb-1.5 block text-sm font-medium text-foreground">{label}</label>{children}</div>
+  const id = useId()
+  return <div><label htmlFor={id} className="mb-1.5 block text-sm font-medium text-foreground">{label}</label>{withLabelableId(children, id)}</div>
 }

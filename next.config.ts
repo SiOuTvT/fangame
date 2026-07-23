@@ -25,12 +25,11 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   output: "standalone",
 
-  // 信任反向代理（nginx/Cloudflare 等）转发的 x-forwarded-* 头，
-  // 否则部署在代理后会错误判断客户端协议，导致 NextAuth/CSRF/重定向异常（H3）。
-  // 注意：不要再自行伪造 X-Forwarded-Proto 响应头，真实协议应由代理填写。
-  server: {
-    trustProxy: true,
-  },
+  // 信任反向代理（nginx/Cloudflare 等）转发的 x-forwarded-* 头：
+  // Next.js 16 默认直接读取上游代理写入的 x-forwarded-proto / x-forwarded-for 来判定协议与客户端地址，
+  // 旧版 server.trustProxy 选项在 Next 16 已移除（配置无效且会触发类型错误）。
+  // 部署在代理后需确保代理正确覆写这些头，否则仍可能错误判断客户端协议，导致 NextAuth/CSRF/重定向异常（H3）。
+  // 注意不要自行伪造 X-Forwarded-Proto 响应头，真实协议应由代理填写。
 
   compress: true,
   typescript: { ignoreBuildErrors: false },

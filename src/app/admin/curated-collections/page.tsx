@@ -239,7 +239,7 @@ function CollectionDialog({ collection, onClose, onSaved }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 overflow-y-auto p-4 pt-16">
-      <div className="w-full max-w-2xl bg-card border border-border rounded-2xl shadow-xl" style={{ borderRadius: "var(--radius-lg)" }}>
+      <div className="w-full max-w-2xl bg-card border border-border rounded-2xl shadow-3" style={{ borderRadius: "var(--radius-lg)" }}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <h2 className="text-lg font-semibold text-foreground">
             {collection ? "编辑合集" : "新建合集"}

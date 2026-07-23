@@ -142,7 +142,7 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
           ...CATEGORIES.map(c => ({ key: c, label: CATEGORY_META[c].label })),
         ].map(f => (
           <button key={f.key} onClick={() => setFilter(f.key)}
-            className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${filter === f.key ? "bg-primary text-primary-foreground shadow-sm" : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"}`}>
+            className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${filter === f.key ? "bg-primary text-primary-foreground shadow-1" : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"}`}>
             {f.label}
             {f.key !== "all" && (
               <span className="ml-1 opacity-60">{items.filter(i => i.category === f.key).length}</span>

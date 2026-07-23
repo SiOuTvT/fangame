@@ -43,11 +43,11 @@ describe("getRateLimit (memory backend)", () => {
 })
 
 describe("getClientIP", () => {
-  it("extracts IP from x-forwarded-for", () => {
+  it("extracts last IP from x-forwarded-for (trusted proxy)", () => {
     const req = new Request("http://localhost", {
       headers: { "x-forwarded-for": "1.2.3.4, 5.6.7.8" },
     })
-    expect(getClientIP(req)).toBe("1.2.3.4")
+    expect(getClientIP(req)).toBe("5.6.7.8")
   })
 
   it("extracts IP from x-real-ip", () => {
@@ -62,14 +62,14 @@ describe("getClientIP", () => {
     expect(getClientIP(req)).toBe("unknown")
   })
 
-  it("x-forwarded-for takes priority over x-real-ip", () => {
+  it("x-real-ip takes priority over x-forwarded-for", () => {
     const req = new Request("http://localhost", {
       headers: {
         "x-forwarded-for": "1.1.1.1",
         "x-real-ip": "2.2.2.2",
       },
     })
-    expect(getClientIP(req)).toBe("1.1.1.1")
+    expect(getClientIP(req)).toBe("2.2.2.2")
   })
 })
 
