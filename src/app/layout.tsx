@@ -10,12 +10,6 @@ import NextTopLoader from "nextjs-toploader"
 import { SetupWizard } from "@/components/setup-wizard"
 import "./globals.css"
 
-// System font stack — no external CDN dependency
-// --font-sans is defined in globals.css
-const notoSans = {
-  variable: "",
-}
-
 // 启动时安全检查（仅开发环境输出警告）
 checkSecurity()
 

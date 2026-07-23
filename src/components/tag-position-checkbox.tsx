@@ -1,14 +1,7 @@
 "use client"
 
 import { getPositionsByGroup } from "@/lib/tag-positions"
-import { Home, ClipboardList, Link, Search, Cloud, Trophy, User, Folder, Download } from "lucide-react"
-import type { ComponentType, SVGProps } from "react"
-
-type IconType = ComponentType<SVGProps<SVGSVGElement>>
-
-const ICON_MAP: Record<string, IconType> = {
-  Home, ClipboardList, Link, Search, Cloud, Trophy, User, Folder, Download,
-}
+import { getIconForEmoji } from "@/lib/emoji-icons"
 
 const POSITION_GROUPS = getPositionsByGroup()
 
@@ -38,7 +31,7 @@ export function PositionCheckboxGroup({
           <div className="flex flex-wrap gap-1.5">
             {positions.map((pos) => {
               const checked = selected.includes(pos.key)
-              const Icon = ICON_MAP[pos.icon]
+              const Icon = getIconForEmoji(pos.icon)
               return (
                 <button
                   key={pos.key}
